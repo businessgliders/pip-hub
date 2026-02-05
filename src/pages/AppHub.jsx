@@ -198,7 +198,7 @@ export default function AppHub() {
       
       <div className="relative max-w-7xl mx-auto px-6 py-12">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-12">
           <div className="flex items-center gap-4">
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/617f126bf_Pilatesinpinklogojusticon1.png"
@@ -211,7 +211,7 @@ export default function AppHub() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center justify-center md:justify-end gap-2">
             {/* Search - Expanded when admin mode is off, collapsible on mobile when admin mode is on */}
             {!isAdminMode ? (
               <div className="relative">
