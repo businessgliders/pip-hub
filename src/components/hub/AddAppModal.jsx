@@ -20,7 +20,8 @@ export default function AddAppModal({ sections, onClose, onSave }) {
     description: '',
     section_id: '',
     icon_url: '',
-    is_new: false
+    is_new: false,
+    open_in_new_tab: false
   });
   const [isFetchingIcon, setIsFetchingIcon] = useState(false);
 
@@ -141,6 +142,15 @@ export default function AddAppModal({ sections, onClose, onSave }) {
               id="is_new"
               checked={formData.is_new}
               onCheckedChange={(checked) => setFormData({ ...formData, is_new: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="open_in_new_tab" className="text-gray-700 font-medium">Open in New Tab</Label>
+            <Switch
+              id="open_in_new_tab"
+              checked={formData.open_in_new_tab}
+              onCheckedChange={(checked) => setFormData({ ...formData, open_in_new_tab: checked })}
             />
           </div>
 

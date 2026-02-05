@@ -144,6 +144,15 @@ export default function EditAppModal({ app, sections, onClose, onSave }) {
             />
           </div>
 
+          <div className="flex items-center justify-between">
+            <Label htmlFor="open_in_new_tab" className="text-gray-700 font-medium">Open in New Tab</Label>
+            <Switch
+              id="open_in_new_tab"
+              checked={formData.open_in_new_tab}
+              onCheckedChange={(checked) => setFormData({ ...formData, open_in_new_tab: checked })}
+            />
+          </div>
+
           <div className="flex gap-3 pt-4">
             <Button
               type="button"

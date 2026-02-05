@@ -12,7 +12,11 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
     if (e.target.closest('.star-button') || e.target.closest('.info-button')) {
       return;
     }
-    onOpenApp(app);
+    if (app.open_in_new_tab) {
+      window.open(app.url, '_blank', 'noopener,noreferrer');
+    } else {
+      onOpenApp(app);
+    }
   };
 
   return (
