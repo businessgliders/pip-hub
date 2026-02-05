@@ -7,12 +7,21 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
-export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging }) {
+export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp }) {
   const handleCardClick = (e) => {
     if (e.target.closest('.star-button') || e.target.closest('.info-button')) {
       return;
     }
-    window.open(app.url, '_blank', 'noopener,noreferrer');
+    onOpenApp(app);
+  };
+
+  // Check if app was created in the last 7 days
+  const isNew = () => {
+    if (!app.created_date) return false;
+    const createdDate = new Date(app.created_date);
+    const now = new Date();
+    const daysDiff = (now - createdDate) / (1000 * 60 * 60 * 24);
+    return daysDiff <= 7;
   };
 
   return (
@@ -31,6 +40,15 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
     >
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* New Badge */}
+      {isNew() && (
+        <div className="absolute top-3 left-3 z-10">
+          <span className="px-2 py-1 text-xs font-semibold text-white bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] rounded-full shadow-lg">
+            New
+          </span>
+        </div>
+      )}
       
       <div className="relative p-6 flex flex-col items-center gap-4">
         {/* Icon */}
@@ -59,7 +77,7 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
                   <Info className="w-3.5 h-3.5 text-gray-600" />
                 </button>
               </HoverCardTrigger>
-              <HoverCardContent className="w-64 backdrop-blur-xl bg-white/90 border-white/60">
+              <HoverCardContent className="w-64 backdrop-blur-xl bg-white/90 border-white/60 z-50" side="top" align="end">
                 <p className="text-sm text-gray-700">{app.description}</p>
               </HoverCardContent>
             </HoverCard>

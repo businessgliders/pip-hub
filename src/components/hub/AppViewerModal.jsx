@@ -1,0 +1,38 @@
+import React from 'react';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+export default function AppViewerModal({ app, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
+      <div className="relative w-full h-full max-w-[95vw] max-h-[95vh] rounded-2xl overflow-hidden shadow-2xl">
+        {/* Header with close button */}
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
+          <div className="flex items-center gap-3">
+            {app.icon_url && (
+              <img src={app.icon_url} alt={app.name} className="w-8 h-8 object-contain" />
+            )}
+            <h3 className="text-white font-semibold text-lg">{app.name}</h3>
+          </div>
+          <Button
+            onClick={onClose}
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-white/20 rounded-full"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Iframe */}
+        <iframe
+          src={app.url}
+          className="w-full h-full bg-white"
+          title={app.name}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
+        />
+      </div>
+    </div>
+  );
+}

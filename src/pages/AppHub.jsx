@@ -10,6 +10,7 @@ import AddAppModal from '../components/hub/AddAppModal';
 import EditAppModal from '../components/hub/EditAppModal';
 import AdminPanel from '../components/hub/AdminPanel';
 import SectionManagementPanel from '../components/hub/SectionManagementPanel';
+import AppViewerModal from '../components/hub/AppViewerModal';
 import PasswordPrompt from '../components/hub/PasswordPrompt';
 
 export default function AppHub() {
@@ -23,6 +24,7 @@ export default function AppHub() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showSectionPanel, setShowSectionPanel] = useState(false);
   const [draggingAppId, setDraggingAppId] = useState(null);
+  const [viewingApp, setViewingApp] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -260,6 +262,7 @@ export default function AppHub() {
                   onDragStart={(e) => handleDragStart(e, app.id)}
                   onDragEnd={handleDragEnd}
                   isDragging={draggingAppId === app.id}
+                  onOpenApp={setViewingApp}
                 />
               ))}
             </div>
@@ -283,6 +286,7 @@ export default function AppHub() {
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               draggingAppId={draggingAppId}
+              onOpenApp={setViewingApp}
             />
           );
         })}
@@ -339,6 +343,13 @@ export default function AppHub() {
           onDeleteSection={(id) => deleteSectionMutation.mutate(id)}
           onReorderSections={handleReorderSections}
           onClose={() => setShowSectionPanel(false)}
+        />
+      )}
+
+      {viewingApp && (
+        <AppViewerModal
+          app={viewingApp}
+          onClose={() => setViewingApp(null)}
         />
       )}
     </div>

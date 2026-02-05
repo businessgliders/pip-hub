@@ -10,7 +10,8 @@ export default function SectionGroup({
   onDragEnd,
   onDragOver,
   onDrop,
-  draggingAppId
+  draggingAppId,
+  onOpenApp
 }) {
   return (
     <div className="mb-12">
@@ -31,6 +32,7 @@ export default function SectionGroup({
             onDragStart={(e) => onDragStart(e, app.id)}
             onDragEnd={onDragEnd}
             isDragging={draggingAppId === app.id}
+            onOpenApp={onOpenApp}
           />
         ))}
       </div>
