@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -18,7 +19,8 @@ export default function EditAppModal({ app, sections, onClose, onSave }) {
     url: app.url,
     description: app.description || '',
     section_id: app.section_id,
-    icon_url: app.icon_url || ''
+    icon_url: app.icon_url || '',
+    is_new: app.is_new || false
   });
   const [isFetchingIcon, setIsFetchingIcon] = useState(false);
 
@@ -130,6 +132,15 @@ export default function EditAppModal({ app, sections, onClose, onSave }) {
               onChange={(e) => setFormData({ ...formData, icon_url: e.target.value })}
               placeholder="Auto-fetched from URL"
               className="mt-1.5 bg-white/60 border-gray-200"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="is_new" className="text-gray-700 font-medium">Show "New" Badge</Label>
+            <Switch
+              id="is_new"
+              checked={formData.is_new}
+              onCheckedChange={(checked) => setFormData({ ...formData, is_new: checked })}
             />
           </div>
 
