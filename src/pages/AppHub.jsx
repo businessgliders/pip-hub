@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Shield, Search, Sparkles } from 'lucide-react';
+import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, Ruler } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
@@ -211,42 +211,56 @@ export default function AppHub() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Search - Collapsible on mobile */}
-            {showSearch ? (
-              <div className="relative md:block">
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Search - Expanded when admin mode is off, collapsible on mobile when admin mode is on */}
+            {!isAdminMode ? (
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search apps..."
                   className="pl-10 w-48 md:w-64 backdrop-blur-xl bg-white/60 border-white/80"
-                  autoFocus
-                  onBlur={() => !searchQuery && setShowSearch(false)}
                 />
               </div>
             ) : (
-              <Button
-                onClick={() => setShowSearch(true)}
-                variant="outline"
-                size="icon"
-                className="md:hidden rounded-xl"
-                title="Search"
-              >
-                <Search className="w-4 h-4" />
-              </Button>
+              <>
+                {showSearch ? (
+                  <div className="relative md:block">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search apps..."
+                      className="pl-10 w-48 md:w-64 backdrop-blur-xl bg-white/60 border-white/80"
+                      autoFocus
+                      onBlur={() => !searchQuery && setShowSearch(false)}
+                    />
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => setShowSearch(true)}
+                    variant="outline"
+                    size="icon"
+                    className="md:hidden rounded-xl"
+                    title="Search"
+                  >
+                    <Search className="w-4 h-4" />
+                  </Button>
+                )}
+                
+                {/* Desktop search - always visible */}
+                <div className="relative hidden md:block">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search apps..."
+                    className="pl-10 w-64 backdrop-blur-xl bg-white/60 border-white/80"
+                  />
+                </div>
+              </>
             )}
-            
-            {/* Desktop search - always visible */}
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search apps..."
-                className="pl-10 w-64 backdrop-blur-xl bg-white/60 border-white/80"
-              />
-            </div>
 
             {isAdminMode && (
               <>
@@ -266,7 +280,7 @@ export default function AppHub() {
                   className="md:w-auto md:px-4 rounded-xl border-[#f1889b]/30"
                   title="Manage Apps"
                 >
-                  <span className="w-4 h-4 flex items-center justify-center text-sm font-semibold">A</span>
+                  <LayoutGrid className="w-4 h-4" />
                   <span className="hidden md:inline md:ml-2">Manage Apps</span>
                 </Button>
                 <Button
@@ -276,7 +290,7 @@ export default function AppHub() {
                   className="md:w-auto md:px-4 rounded-xl border-[#f1889b]/30"
                   title="Manage Sections"
                 >
-                  <span className="w-4 h-4 flex items-center justify-center text-sm font-semibold">S</span>
+                  <Ruler className="w-4 h-4" />
                   <span className="hidden md:inline md:ml-2">Manage Sections</span>
                 </Button>
               </>
