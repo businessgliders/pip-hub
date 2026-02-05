@@ -16,6 +16,7 @@ import PasswordPrompt from '../components/hub/PasswordPrompt';
 export default function AppHub() {
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingApp, setEditingApp] = useState(null);
@@ -210,8 +211,34 @@ export default function AppHub() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex items-center gap-2">
+            {/* Search - Collapsible on mobile */}
+            {showSearch ? (
+              <div className="relative md:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search apps..."
+                  className="pl-10 w-48 md:w-64 backdrop-blur-xl bg-white/60 border-white/80"
+                  autoFocus
+                  onBlur={() => !searchQuery && setShowSearch(false)}
+                />
+              </div>
+            ) : (
+              <Button
+                onClick={() => setShowSearch(true)}
+                variant="outline"
+                size="icon"
+                className="md:hidden rounded-xl"
+                title="Search"
+              >
+                <Search className="w-4 h-4" />
+              </Button>
+            )}
+            
+            {/* Desktop search - always visible */}
+            <div className="relative hidden md:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 value={searchQuery}
@@ -225,28 +252,32 @@ export default function AppHub() {
               <>
                 <Button
                   onClick={() => setShowAddModal(true)}
-                  className="bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white rounded-xl"
+                  size="icon"
+                  className="md:w-auto md:px-4 bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white rounded-xl"
+                  title="Add App"
                 >
-                  <Plus className="w-4 h-4 md:mr-2" />
-                  <span className="hidden md:inline">Add App</span>
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden md:inline md:ml-2">Add App</span>
                 </Button>
                 <Button
                   onClick={() => setShowAdminPanel(true)}
                   variant="outline"
-                  className="rounded-xl border-[#f1889b]/30"
+                  size="icon"
+                  className="md:w-auto md:px-4 rounded-xl border-[#f1889b]/30"
                   title="Manage Apps"
                 >
-                  <span className="hidden md:inline">Manage Apps</span>
-                  <span className="md:hidden">Apps</span>
+                  <span className="w-4 h-4 flex items-center justify-center text-sm font-semibold">A</span>
+                  <span className="hidden md:inline md:ml-2">Manage Apps</span>
                 </Button>
                 <Button
                   onClick={() => setShowSectionPanel(true)}
                   variant="outline"
-                  className="rounded-xl border-[#f1889b]/30"
+                  size="icon"
+                  className="md:w-auto md:px-4 rounded-xl border-[#f1889b]/30"
                   title="Manage Sections"
                 >
-                  <span className="hidden md:inline">Manage Sections</span>
-                  <span className="md:hidden">Sections</span>
+                  <span className="w-4 h-4 flex items-center justify-center text-sm font-semibold">S</span>
+                  <span className="hidden md:inline md:ml-2">Manage Sections</span>
                 </Button>
               </>
             )}
@@ -254,14 +285,16 @@ export default function AppHub() {
             <Button
               onClick={handleToggleAdmin}
               variant={isAdminMode ? "default" : "outline"}
+              size="icon"
               className={
                 isAdminMode
-                  ? "bg-gradient-to-r from-[#b67651] to-[#b67651]/80 hover:from-[#b67651]/90 hover:to-[#b67651]/70 text-white rounded-xl"
-                  : "rounded-xl border-gray-300"
+                  ? "md:w-auto md:px-4 bg-gradient-to-r from-[#b67651] to-[#b67651]/80 hover:from-[#b67651]/90 hover:to-[#b67651]/70 text-white rounded-xl"
+                  : "md:w-auto md:px-4 rounded-xl border-gray-300"
               }
+              title={isAdminMode ? 'Exit Admin' : 'Admin'}
             >
-              <Shield className="w-4 h-4 mr-2" />
-              {isAdminMode ? 'Exit Admin' : 'Admin'}
+              <Shield className="w-4 h-4" />
+              <span className="hidden md:inline md:ml-2">{isAdminMode ? 'Exit Admin' : 'Admin'}</span>
             </Button>
           </div>
         </div>
