@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Star, Plus, Shield, Search, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import AppCard from '../components/hub/AppCard';
 import SectionGroup from '../components/hub/SectionGroup';
 import AddAppModal from '../components/hub/AddAppModal';
 import AdminPanel from '../components/hub/AdminPanel';
@@ -181,20 +182,17 @@ export default function AppHub() {
               <h2 className="text-xl font-semibold text-gray-800 tracking-tight">Favorites</h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {favoritedApps.map((app) => {
-                const AppCard = require('../components/hub/AppCard').default;
-                return (
-                  <AppCard
-                    key={app.id}
-                    app={app}
-                    isFavorited={true}
-                    onToggleFavorite={() => toggleFavoriteMutation.mutate(app.id)}
-                    onDragStart={(e) => handleDragStart(e, app.id)}
-                    onDragEnd={handleDragEnd}
-                    isDragging={draggingAppId === app.id}
-                  />
-                );
-              })}
+              {favoritedApps.map((app) => (
+                <AppCard
+                  key={app.id}
+                  app={app}
+                  isFavorited={true}
+                  onToggleFavorite={() => toggleFavoriteMutation.mutate(app.id)}
+                  onDragStart={(e) => handleDragStart(e, app.id)}
+                  onDragEnd={handleDragEnd}
+                  isDragging={draggingAppId === app.id}
+                />
+              ))}
             </div>
           </div>
         )}
