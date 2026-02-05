@@ -1,8 +1,14 @@
-import React from 'react';
-import { X, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, ExternalLink, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function AppViewerModal({ app, onClose }) {
+  const [iframeKey, setIframeKey] = useState(0);
+
+  const handleReload = () => {
+    setIframeKey(prev => prev + 1);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
       <div className="relative w-full h-full max-w-[95vw] max-h-[95vh] rounded-2xl overflow-hidden shadow-2xl">
@@ -15,6 +21,15 @@ export default function AppViewerModal({ app, onClose }) {
             <h3 className="text-white font-semibold text-lg">{app.name}</h3>
           </div>
           <div className="flex gap-2 pointer-events-auto">
+            <Button
+              onClick={handleReload}
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 rounded-full"
+              title="Reload"
+            >
+              <RotateCw className="w-5 h-5" />
+            </Button>
             <Button
               onClick={() => window.open(app.url, '_blank', 'noopener,noreferrer')}
               variant="ghost"
@@ -37,6 +52,7 @@ export default function AppViewerModal({ app, onClose }) {
 
         {/* Iframe */}
         <iframe
+          key={iframeKey}
           src={app.url}
           className="w-full h-full bg-white"
           title={app.name}
