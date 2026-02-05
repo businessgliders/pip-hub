@@ -227,22 +227,26 @@ export default function AppHub() {
                   onClick={() => setShowAddModal(true)}
                   className="bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white rounded-xl"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add App
+                  <Plus className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Add App</span>
                 </Button>
                 <Button
                   onClick={() => setShowAdminPanel(true)}
                   variant="outline"
                   className="rounded-xl border-[#f1889b]/30"
+                  title="Manage Apps"
                 >
-                  Manage Apps
+                  <span className="hidden md:inline">Manage Apps</span>
+                  <span className="md:hidden">Apps</span>
                 </Button>
                 <Button
                   onClick={() => setShowSectionPanel(true)}
                   variant="outline"
                   className="rounded-xl border-[#f1889b]/30"
+                  title="Manage Sections"
                 >
-                  Manage Sections
+                  <span className="hidden md:inline">Manage Sections</span>
+                  <span className="md:hidden">Sections</span>
                 </Button>
               </>
             )}
