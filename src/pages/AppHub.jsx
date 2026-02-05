@@ -38,7 +38,7 @@ export default function AppHub() {
 
   const { data: apps = [] } = useQuery({
     queryKey: ['apps'],
-    queryFn: () => base44.entities.App.list(),
+    queryFn: () => base44.entities.App.list('order'),
   });
 
   const { data: preferences = [] } = useQuery({
@@ -48,7 +48,11 @@ export default function AppHub() {
   });
 
   const createAppMutation = useMutation({
-    mutationFn: (appData) => base44.entities.App.create(appData),
+    mutationFn: async (appData) => {
+      // Set order to be last
+      const maxOrder = apps.reduce((max, app) => Math.max(max, app.order || 0), 0);
+      return base44.entities.App.create({ ...appData, order: maxOrder + 1 });
+    },
     onSuccess: () => queryClient.invalidateQueries(['apps']),
   });
 
@@ -146,8 +150,21 @@ export default function AppHub() {
     const [removed] = reorderedApps.splice(sourceIndex, 1);
     reorderedApps.splice(destinationIndex, 0, removed);
     
+    // Update order values
+    const updatedApps = reorderedApps.map((app, index) => ({
+      ...app,
+      order: index + 1
+    }));
+    
     // Update cache optimistically
-    queryClient.setQueryData(['apps'], reorderedApps);
+    queryClient.setQueryData(['apps'], updatedApps);
+    
+    // Update all apps with new order
+    await Promise.all(
+      updatedApps.map(app =>
+        base44.entities.App.update(app.id, { order: app.order })
+      )
+    );
   };
 
   const handleReorderSections = async (sourceIndex, destinationIndex) => {
