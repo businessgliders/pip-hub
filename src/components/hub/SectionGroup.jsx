@@ -14,7 +14,7 @@ export default function SectionGroup({
 }) {
   return (
     <div className="mb-12">
-      <h2 className="text-xl font-semibold text-white mb-6 tracking-tight">
+      <h2 className="text-xl font-semibold text-gray-800 mb-6 tracking-tight">
         {section.name}
       </h2>
       <div
