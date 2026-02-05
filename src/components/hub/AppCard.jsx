@@ -15,15 +15,6 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
     onOpenApp(app);
   };
 
-  // Check if app was created in the last 7 days
-  const isNew = () => {
-    if (!app.created_date) return false;
-    const createdDate = new Date(app.created_date);
-    const now = new Date();
-    const daysDiff = (now - createdDate) / (1000 * 60 * 60 * 24);
-    return daysDiff <= 7;
-  };
-
   return (
     <div
       draggable
@@ -42,7 +33,7 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
       <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
       {/* New Badge */}
-      {isNew() && (
+      {app.is_new && (
         <div className="absolute top-3 left-3 z-10">
           <span className="px-2 py-1 text-xs font-semibold text-white bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] rounded-full shadow-lg">
             New

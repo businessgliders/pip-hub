@@ -1,5 +1,5 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function AppViewerModal({ app, onClose }) {
@@ -14,14 +14,25 @@ export default function AppViewerModal({ app, onClose }) {
             )}
             <h3 className="text-white font-semibold text-lg">{app.name}</h3>
           </div>
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20 rounded-full"
-          >
-            <X className="w-5 h-5" />
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => window.open(app.url, '_blank', 'noopener,noreferrer')}
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 rounded-full"
+              title="Open in new tab"
+            >
+              <ExternalLink className="w-5 h-5" />
+            </Button>
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Iframe */}
