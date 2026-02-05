@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
 import SectionGroup from '../components/hub/SectionGroup';
 import AddAppModal from '../components/hub/AddAppModal';
+import EditAppModal from '../components/hub/EditAppModal';
 import AdminPanel from '../components/hub/AdminPanel';
 import PasswordPrompt from '../components/hub/PasswordPrompt';
 
@@ -14,6 +15,8 @@ export default function AppHub() {
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingApp, setEditingApp] = useState(null);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -47,6 +50,11 @@ export default function AppHub() {
 
   const deleteAppMutation = useMutation({
     mutationFn: (appId) => base44.entities.App.delete(appId),
+    onSuccess: () => queryClient.invalidateQueries(['apps']),
+  });
+
+  const updateAppMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.App.update(id, data),
     onSuccess: () => queryClient.invalidateQueries(['apps']),
   });
 
@@ -108,11 +116,26 @@ export default function AppHub() {
     // In a full implementation, you'd update the app's section here
   };
 
+  const handleEditApp = (app) => {
+    setEditingApp(app);
+    setShowEditModal(true);
+  };
+
+  const handleReorderApps = async (sourceIndex, destinationIndex) => {
+    // Reorder locally
+    const reorderedApps = Array.from(apps);
+    const [removed] = reorderedApps.splice(sourceIndex, 1);
+    reorderedApps.splice(destinationIndex, 0, removed);
+    
+    // Update cache optimistically
+    queryClient.setQueryData(['apps'], reorderedApps);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fbe0e2] via-[#f6eee7] to-[#fbe0e2] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#e8d5f2] via-[#f5e6ff] to-[#dfe3ff] relative overflow-hidden">
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#f1889b]/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f7b1bd]/10 rounded-full blur-3xl" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-400/15 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400/15 rounded-full blur-3xl" />
       
       <div className="relative max-w-7xl mx-auto px-6 py-12">
         {/* Header */}
@@ -240,7 +263,25 @@ export default function AppHub() {
           apps={apps}
           sections={sections}
           onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+          onEditApp={handleEditApp}
+          onReorderApps={handleReorderApps}
           onClose={() => setShowAdminPanel(false)}
+        />
+      )}
+
+      {showEditModal && editingApp && (
+        <EditAppModal
+          app={editingApp}
+          sections={sections}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingApp(null);
+          }}
+          onSave={(appData) => {
+            updateAppMutation.mutate({ id: editingApp.id, data: appData });
+            setShowEditModal(false);
+            setEditingApp(null);
+          }}
         />
       )}
     </div>
