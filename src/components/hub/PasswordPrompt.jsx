@@ -53,9 +53,6 @@ export default function PasswordPrompt({ onClose, onSuccess }) {
             {error && (
               <p className="text-xs text-red-500 mt-2">{error}</p>
             )}
-            <p className="text-xs text-gray-500 mt-2">
-              Demo password: admin123
-            </p>
           </div>
 
           <Button
