@@ -9,6 +9,7 @@ import SectionGroup from '../components/hub/SectionGroup';
 import AddAppModal from '../components/hub/AddAppModal';
 import EditAppModal from '../components/hub/EditAppModal';
 import AdminPanel from '../components/hub/AdminPanel';
+import SectionManagementPanel from '../components/hub/SectionManagementPanel';
 import PasswordPrompt from '../components/hub/PasswordPrompt';
 
 export default function AppHub() {
@@ -20,6 +21,7 @@ export default function AppHub() {
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showSectionPanel, setShowSectionPanel] = useState(false);
   const [draggingAppId, setDraggingAppId] = useState(null);
   const queryClient = useQueryClient();
 
@@ -56,6 +58,21 @@ export default function AppHub() {
   const updateAppMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.App.update(id, data),
     onSuccess: () => queryClient.invalidateQueries(['apps']),
+  });
+
+  const createSectionMutation = useMutation({
+    mutationFn: (sectionData) => base44.entities.Section.create(sectionData),
+    onSuccess: () => queryClient.invalidateQueries(['sections']),
+  });
+
+  const updateSectionMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Section.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries(['sections']),
+  });
+
+  const deleteSectionMutation = useMutation({
+    mutationFn: (sectionId) => base44.entities.Section.delete(sectionId),
+    onSuccess: () => queryClient.invalidateQueries(['sections']),
   });
 
   const toggleFavoriteMutation = useMutation({
@@ -131,11 +148,33 @@ export default function AppHub() {
     queryClient.setQueryData(['apps'], reorderedApps);
   };
 
+  const handleReorderSections = async (sourceIndex, destinationIndex) => {
+    const reorderedSections = Array.from(sections);
+    const [removed] = reorderedSections.splice(sourceIndex, 1);
+    reorderedSections.splice(destinationIndex, 0, removed);
+    
+    // Update order values
+    const updatedSections = reorderedSections.map((section, index) => ({
+      ...section,
+      order: index + 1
+    }));
+    
+    // Update cache optimistically
+    queryClient.setQueryData(['sections'], updatedSections);
+    
+    // Update all sections with new order
+    await Promise.all(
+      updatedSections.map(section =>
+        base44.entities.Section.update(section.id, { order: section.order })
+      )
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#e8d5f2] via-[#f5e6ff] to-[#dfe3ff] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#b67651] via-[#c89474] to-[#b67651] relative overflow-hidden">
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-400/15 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400/15 rounded-full blur-3xl" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 rounded-full blur-3xl" />
       
       <div className="relative max-w-7xl mx-auto px-6 py-12">
         {/* Header */}
@@ -147,19 +186,19 @@ export default function AppHub() {
               className="w-16 h-16 rounded-2xl shadow-lg"
             />
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">App Hub</h1>
-              <p className="text-gray-600 text-sm mt-1">Your workspace at a glance</p>
+              <h1 className="text-4xl font-bold text-white tracking-tight">App Hub</h1>
+              <p className="text-white/80 text-sm mt-1">Your workspace at a glance</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search apps..."
-                className="pl-10 w-64 backdrop-blur-xl bg-white/60 border-white/80"
+                className="pl-10 w-64 backdrop-blur-xl bg-white/80 border-white/60 placeholder:text-gray-500"
               />
             </div>
 
@@ -175,9 +214,16 @@ export default function AppHub() {
                 <Button
                   onClick={() => setShowAdminPanel(true)}
                   variant="outline"
-                  className="rounded-xl border-[#f1889b]/30"
+                  className="rounded-xl border-white/40 bg-white/20 hover:bg-white/30 text-white"
                 >
                   Manage Apps
+                </Button>
+                <Button
+                  onClick={() => setShowSectionPanel(true)}
+                  variant="outline"
+                  className="rounded-xl border-white/40 bg-white/20 hover:bg-white/30 text-white"
+                >
+                  Manage Sections
                 </Button>
               </>
             )}
@@ -187,8 +233,8 @@ export default function AppHub() {
               variant={isAdminMode ? "default" : "outline"}
               className={
                 isAdminMode
-                  ? "bg-gradient-to-r from-[#b67651] to-[#b67651]/80 hover:from-[#b67651]/90 hover:to-[#b67651]/70 text-white rounded-xl"
-                  : "rounded-xl border-gray-300"
+                  ? "bg-white/90 hover:bg-white text-[#b67651] rounded-xl"
+                  : "rounded-xl border-white/40 bg-white/20 hover:bg-white/30 text-white"
               }
             >
               <Shield className="w-4 h-4 mr-2" />
@@ -201,8 +247,8 @@ export default function AppHub() {
         {favoritedApps.length > 0 && (
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-6">
-              <Sparkles className="w-5 h-5 text-[#f1889b]" />
-              <h2 className="text-xl font-semibold text-gray-800 tracking-tight">Favorites</h2>
+              <Sparkles className="w-5 h-5 text-white" />
+              <h2 className="text-xl font-semibold text-white tracking-tight">Favorites</h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {favoritedApps.map((app) => (
@@ -282,6 +328,17 @@ export default function AppHub() {
             setShowEditModal(false);
             setEditingApp(null);
           }}
+        />
+      )}
+
+      {showSectionPanel && (
+        <SectionManagementPanel
+          sections={sections}
+          onCreateSection={(data) => createSectionMutation.mutate(data)}
+          onUpdateSection={(id, data) => updateSectionMutation.mutate({ id, data })}
+          onDeleteSection={(id) => deleteSectionMutation.mutate(id)}
+          onReorderSections={handleReorderSections}
+          onClose={() => setShowSectionPanel(false)}
         />
       )}
     </div>
