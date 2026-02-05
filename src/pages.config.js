@@ -47,8 +47,14 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AppHub from './pages/AppHub';
 
-export const pagesConfig = {
-	Pages: {}
+
+export const PAGES = {
+    "AppHub": AppHub,
 }
 
+export const pagesConfig = {
+    mainPage: "AppHub",
+    Pages: PAGES,
+};
