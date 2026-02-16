@@ -319,7 +319,33 @@ export default function AppHub() {
               <Shield className="w-4 h-4" />
               <span className="hidden md:inline md:ml-2">{isAdminMode ? 'Exit Admin' : 'Admin'}</span>
             </Button>
-          </div>
+
+            {user ? (
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="icon"
+                className="md:w-auto md:px-4 rounded-xl border-gray-300"
+                title="Logout"
+              >
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white">
+                  {getInitials(user.full_name)}
+                </div>
+                <span className="hidden md:inline md:ml-2">Logout</span>
+              </Button>
+            ) : (
+              <Button
+                onClick={() => base44.auth.redirectToLogin()}
+                variant="outline"
+                size="icon"
+                className="md:w-auto md:px-4 rounded-xl border-gray-300"
+                title="Login"
+              >
+                <Shield className="w-4 h-4" />
+                <span className="hidden md:inline md:ml-2">Login</span>
+              </Button>
+            )}
+            </div>
         </div>
 
         {/* Favorites Section */}
