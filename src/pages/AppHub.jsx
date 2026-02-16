@@ -137,7 +137,7 @@ export default function AppHub() {
     await base44.auth.updateMe({ selectedGradient: gradientId });
   };
 
-  const isOwner = user?.email === 'owner@pilatesinpink.com';
+  const isOwner = user?.email === 'info@pilatesinpinkstudio.com' || user?.email === 'gurpreen@pilatesinpinkstudio.com';
 
   const handleAdminSuccess = () => {
     setIsAdminMode(true);
