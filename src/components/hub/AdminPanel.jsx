@@ -53,7 +53,7 @@ export default function AdminPanel({ apps, sections, onDeleteApp, onEditApp, onR
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   className={`flex items-center gap-4 p-4 rounded-xl backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors group ${
-                                    snapshot.isDragging ? 'shadow-xl scale-[1.02]' : ''
+                                    snapshot.isDragging ? 'shadow-xl opacity-80' : ''
                                   }`}
                                 >
                                   <div {...provided.dragHandleProps}>
