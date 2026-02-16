@@ -26,7 +26,7 @@ const getDisplayName = (email, fullName) => {
   return fullName.split(' ')[0];
 };
 
-export default function UserSelection({ onUserSelected, onClose }) {
+export default function UserSelection({ onUserSelected, onClose, currentGradient = 'default' }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
