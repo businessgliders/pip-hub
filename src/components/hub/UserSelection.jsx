@@ -41,11 +41,12 @@ export default function UserSelection({ onUserSelected, onClose }) {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const allUsers = await base44.entities.User.list();
+        const response = await base44.functions.invoke('getAllUsers', {});
+        const allUsers = response.data.users || [];
         // Sort with Front Desk (owner accounts) first
         const sortedUsers = allUsers.sort((a, b) => {
-          const aIsOwner = a.email === 'info@pilatesinpinkstudio.com' || a.email === 'gurpreen@pilatesinpinkstudio.com';
-          const bIsOwner = b.email === 'info@pilatesinpinkstudio.com' || b.email === 'gurpreen@pilatesinpinkstudio.com';
+          const aIsOwner = a.email === 'info@pilatesinpinkstudio.com';
+          const bIsOwner = b.email === 'info@pilatesinpinkstudio.com';
           if (aIsOwner && !bIsOwner) return -1;
           if (!aIsOwner && bIsOwner) return 1;
           return 0;
