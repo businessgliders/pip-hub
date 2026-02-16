@@ -130,6 +130,13 @@ export default function AppHub() {
     base44.auth.logout();
   };
 
+  const handleGradientChange = async (gradientId) => {
+    setSelectedGradient(gradientId);
+    await base44.auth.updateMe({ selectedGradient: gradientId });
+  };
+
+  const isOwner = user?.email === 'owner@pilatesinpink.com';
+
   const handleAdminSuccess = () => {
     setIsAdminMode(true);
   };
