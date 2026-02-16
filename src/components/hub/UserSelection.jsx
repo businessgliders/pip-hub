@@ -131,25 +131,23 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2] flex flex-col items-center justify-center z-50 p-4">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#f1889b]/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f7b1bd]/20 rounded-full blur-3xl" />
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 p-4">
 
-      <div className="relative z-10 w-full flex flex-col items-center justify-center">
-        <button
-          onClick={onClose}
-          className="absolute top-0 right-0 w-10 h-10 rounded-lg hover:bg-white/20 flex items-center justify-center transition-colors"
-        >
-          <X className="w-6 h-6 text-gray-700" />
-        </button>
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 w-10 h-10 rounded-lg hover:bg-white/20 flex items-center justify-center transition-colors"
+      >
+        <X className="w-6 h-6 text-white" />
+      </button>
 
+      <div className="w-full max-w-5xl">
         <img
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/c3f456d53_PiPSupport.png"
           alt="Pilates in Pink Support"
           className="h-32 md:h-40 mb-8 rounded-2xl"
         />
 
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-12 text-left w-full">Who's accessing?</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-left">Who's accessing?</h1>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-32">
           {users.map((user) => (
@@ -161,14 +159,14 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
               <div className={`w-24 h-24 md:w-32 md:h-32 rounded-lg bg-gradient-to-br ${getColorForUser(user.email, currentGradient)} flex items-center justify-center mb-3 shadow-lg group-hover:shadow-2xl transition-shadow`}>
                 <span className="text-4xl md:text-5xl font-bold text-white/90">{getInitials(user.full_name)}</span>
               </div>
-              <p className="text-gray-700 text-sm md:text-base font-medium text-center truncate">
+              <p className="text-gray-300 text-sm md:text-base font-medium text-center truncate">
                 {getDisplayName(user.email, user.full_name.split(' ')[0])}
               </p>
             </button>
           ))}
         </div>
 
-        <footer className="text-center text-gray-600 text-sm">
+        <footer className="text-center text-gray-400 text-sm mt-16">
           © 2026 Pilates in Pink™ • All rights reserved
         </footer>
       </div>
