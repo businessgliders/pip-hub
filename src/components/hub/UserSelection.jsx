@@ -92,7 +92,6 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-gray-800">{getDisplayName(selectedUser.email, selectedUser.full_name)}</h2>
-                <p className="text-xs text-gray-500">{selectedUser.email}</p>
               </div>
             </div>
             <button
