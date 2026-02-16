@@ -160,7 +160,7 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
                     <span className="text-3xl md:text-5xl font-bold text-white/90">{getInitials(user.full_name)}</span>
                   </div>
                 </button>
-                <p className="text-gray-300 text-sm md:text-base font-medium text-center truncate w-24 md:w-32 mt-3">
+                <p className="text-gray-300 text-xs md:text-base font-medium text-center truncate w-20 md:w-32 mt-3">
                   {getDisplayName(user.email, user.full_name.split(' ')[0])}
                 </p>
               </div>
