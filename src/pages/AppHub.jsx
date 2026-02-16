@@ -30,6 +30,7 @@ export default function AppHub() {
         const [viewingApp, setViewingApp] = useState(null);
         const [showCustomizePanel, setShowCustomizePanel] = useState(false);
         const [selectedGradient, setSelectedGradient] = useState('default');
+        const [showUserSelection, setShowUserSelection] = useState(false);
         const queryClient = useQueryClient();
 
   useEffect(() => {
