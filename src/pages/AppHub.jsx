@@ -221,6 +221,16 @@ export default function AppHub() {
     );
   };
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#f1889b]/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f7b1bd]/20 rounded-full blur-3xl" />
+        <UserSelection onClose={() => {}} />
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${
       selectedGradient === 'blue' ? 'from-[#e0f2fe] via-[#bae6fd] to-[#e0f2fe]' :
