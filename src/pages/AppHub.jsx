@@ -331,18 +331,33 @@ export default function AppHub() {
             ) : null}
 
             {user ? (
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="icon"
-                className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                title="Logout"
-              >
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white">
-                  {getInitials(user.full_name)}
+              <div className="relative group">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="md:w-auto md:px-4 rounded-xl border-gray-300"
+                  title="User menu"
+                >
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white">
+                    {getInitials(user.full_name)}
+                  </div>
+                  <span className="hidden md:inline md:ml-2">Menu</span>
+                </Button>
+                <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-gray-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40">
+                  <button
+                    onClick={() => setShowUserSelection(true)}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
+                  >
+                    Switch User
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700"
+                  >
+                    Logout
+                  </button>
                 </div>
-                <span className="hidden md:inline md:ml-2">Logout</span>
-              </Button>
+              </div>
             ) : (
               <Button
                 onClick={() => base44.auth.redirectToLogin()}
