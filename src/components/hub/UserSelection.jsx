@@ -25,10 +25,10 @@ const getInitials = (name) => {
 };
 
 const getDisplayName = (email, fullName) => {
-  if (email === 'info@pilatesinpinkstudio.com' || email === 'gurpreen@pilatesinpinkstudio.com') {
+  if (email === 'info@pilatesinpinkstudio.com') {
     return 'Front Desk';
   }
-  return fullName;
+  return fullName.split(' ')[0];
 };
 
 export default function UserSelection({ onUserSelected, onClose }) {
@@ -69,8 +69,9 @@ export default function UserSelection({ onUserSelected, onClose }) {
   const handleGoogleAuth = async () => {
     if (!selectedUser) return;
     try {
-      // Trigger Google auth and redirect to login with selected user email
-      window.location.href = `/?login_email=${encodeURIComponent(selectedUser.email)}&google_auth=true`;
+      // Save selected user email and trigger standard Google auth
+      sessionStorage.setItem('selectedUserEmail', selectedUser.email);
+      await base44.auth.redirectToLogin();
     } catch (err) {
       setError('Authentication failed');
     }

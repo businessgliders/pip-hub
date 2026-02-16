@@ -39,6 +39,7 @@ export default function AppHub() {
       if (u?.selectedGradient) {
         setSelectedGradient(u.selectedGradient);
       }
+      setShowUserSelection(false);
     }).catch(() => {
       setUser(null);
       setShowUserSelection(true);
