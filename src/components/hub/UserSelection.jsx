@@ -88,15 +88,6 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col z-50 p-4">
-      <div className="flex flex-col items-center pt-8 mb-12">
-        <div className="flex justify-center">
-          <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/c3f456d53_PiPSupport.png"
-            alt="Pilates in Pink Support"
-            className="h-24 md:h-32 rounded-2xl"
-          />
-        </div>
-      </div>
 
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="w-full max-w-5xl">
