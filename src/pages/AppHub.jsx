@@ -328,18 +328,7 @@ export default function AppHub() {
               </>
             )}
 
-            {user && !isOwner ? (
-              <Button
-                onClick={() => setShowCustomizePanel(true)}
-                variant="outline"
-                size="icon"
-                className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                title="Customize"
-              >
-                <Shield className="w-4 h-4" />
-                <span className="hidden md:inline md:ml-2">Customize</span>
-              </Button>
-            ) : (
+            {user && isOwner ? (
               <Button
                 onClick={handleToggleAdmin}
                 variant={isAdminMode ? "default" : "outline"}
@@ -354,7 +343,18 @@ export default function AppHub() {
                 <Shield className="w-4 h-4" />
                 <span className="hidden md:inline md:ml-2">{isAdminMode ? 'Exit Admin' : 'Admin'}</span>
               </Button>
-            )}
+            ) : user ? (
+              <Button
+                onClick={() => setShowCustomizePanel(true)}
+                variant="outline"
+                size="icon"
+                className="md:w-auto md:px-4 rounded-xl border-gray-300"
+                title="Customize"
+              >
+                <Shield className="w-4 h-4" />
+                <span className="hidden md:inline md:ml-2">Customize</span>
+              </Button>
+            ) : null}
 
             {user ? (
               <Button
