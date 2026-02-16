@@ -116,7 +116,12 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
         </div>
       </div>
 
-      <footer className="text-center text-gray-400 text-sm py-6">
+      <footer className="text-center text-gray-400 text-sm py-6 flex flex-col items-center gap-3">
+        <img
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/c3f456d53_PiPSupport.png"
+          alt="Pilates in Pink Support"
+          className="h-12 md:h-16 rounded-lg"
+        />
         © 2026 Pilates in Pink™ • All rights reserved
       </footer>
     </div>
