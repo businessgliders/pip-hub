@@ -39,7 +39,10 @@ export default function AppHub() {
       if (u?.selectedGradient) {
         setSelectedGradient(u.selectedGradient);
       }
-    }).catch(() => setUser(null));
+    }).catch(() => {
+      setUser(null);
+      setShowUserSelection(true);
+    });
   }, []);
 
   const { data: sections = [] } = useQuery({
