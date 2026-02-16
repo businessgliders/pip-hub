@@ -489,6 +489,17 @@ export default function AppHub() {
           onClose={() => setViewingApp(null)}
         />
       )}
-    </div>
-  );
-}
+
+      {showCustomizePanel && (
+        <CustomizePanel
+          apps={apps}
+          sections={sections}
+          selectedGradient={selectedGradient}
+          onGradientChange={handleGradientChange}
+          onReorderApps={handleReorderApps}
+          onClose={() => setShowCustomizePanel(false)}
+        />
+      )}
+      </div>
+      );
+      }
