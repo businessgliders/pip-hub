@@ -72,17 +72,6 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
     }
   };
 
-  const handleGoogleAuth = async () => {
-    if (!selectedUser) return;
-    try {
-      // Save selected user email and trigger standard Google auth
-      sessionStorage.setItem('selectedUserEmail', selectedUser.email);
-      await base44.auth.redirectToLogin();
-    } catch (err) {
-      setError('Authentication failed');
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50">
