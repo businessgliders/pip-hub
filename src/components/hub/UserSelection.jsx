@@ -87,7 +87,7 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
         <div className="w-full max-w-sm rounded-3xl backdrop-blur-xl bg-white/95 border border-white/60 shadow-2xl p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getColorForUser(selectedUser.email)} flex items-center justify-center`}>
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getColorForUser(selectedUser.email, currentGradient)} flex items-center justify-center`}>
                 <span className="text-white font-bold text-lg">{getInitials(selectedUser.full_name)}</span>
               </div>
               <div>
