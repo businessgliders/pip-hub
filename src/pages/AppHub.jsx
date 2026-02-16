@@ -104,6 +104,11 @@ export default function AppHub() {
   const favorites = preferences.filter(p => p.is_favorited).map(p => p.app_id);
   const favoritedApps = apps.filter(app => favorites.includes(app.id));
 
+  const getInitials = (name) => {
+    if (!name) return '';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   const handleToggleAdmin = () => {
     if (isAdminMode) {
       setIsAdminMode(false);
@@ -111,6 +116,10 @@ export default function AppHub() {
     } else {
       setShowPasswordPrompt(true);
     }
+  };
+
+  const handleLogout = () => {
+    base44.auth.logout();
   };
 
   const handleAdminSuccess = () => {
