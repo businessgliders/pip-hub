@@ -491,6 +491,12 @@ export default function AppHub() {
           onClose={() => setShowCustomizePanel(false)}
         />
       )}
+
+      {showUserSelection && (
+        <UserSelection
+          onClose={() => setShowUserSelection(false)}
+        />
+      )}
       </div>
       );
       }
