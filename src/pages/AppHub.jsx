@@ -509,6 +509,7 @@ export default function AppHub() {
       {showUserSelection && (
         <UserSelection
           onClose={() => setShowUserSelection(false)}
+          currentGradient={selectedGradient}
         />
       )}
       </div>
