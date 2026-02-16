@@ -146,7 +146,7 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
         <div className="w-full max-w-5xl">
           <h1 className="text-5xl md:text-6xl text-white mb-8 text-left" style={{ fontFamily: 'Great Vibes, cursive' }}>Select User</h1>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 w-full justify-center">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-x-2 gap-y-4 md:gap-6 w-full justify-center">
             {users.map((user, index) => (
               <div
                 key={user.id}
