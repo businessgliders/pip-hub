@@ -506,7 +506,7 @@ export default function AppHub() {
         />
       )}
 
-      {showUserSelection && !user && (
+      {showUserSelection && (
         <UserSelection
           onClose={() => setShowUserSelection(false)}
         />
