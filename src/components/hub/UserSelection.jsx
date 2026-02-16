@@ -3,20 +3,15 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
-const profileColors = [
-  'from-purple-500 to-purple-700',
-  'from-cyan-400 to-cyan-600',
-  'from-green-400 to-green-600',
-  'from-orange-500 to-orange-700',
-  'from-blue-500 to-blue-700',
-  'from-pink-500 to-pink-700',
-  'from-yellow-400 to-yellow-600',
-  'from-red-500 to-red-700'
-];
-
-const getColorForUser = (email) => {
-  const hash = email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return profileColors[hash % profileColors.length];
+const getColorForUser = (email, gradientPreference) => {
+  const gradientMap = {
+    'blue': 'from-[#bae6fd] to-[#0284c7]',
+    'purple': 'from-[#ddd6fe] to-[#7c3aed]',
+    'green': 'from-[#bbf7d0] to-[#059669]',
+    'orange': 'from-[#fdba74] to-[#d97706]',
+    'default': 'from-[#f7b1bd] to-[#f1889b]'
+  };
+  return gradientMap[gradientPreference] || gradientMap['default'];
 };
 
 const getInitials = (name) => {
