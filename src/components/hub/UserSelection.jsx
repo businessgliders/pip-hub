@@ -132,21 +132,21 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col z-50 p-4">
-      <div className="flex flex-col items-center pt-8 mb-4">
-        <div className="flex justify-center mb-4">
+      <div className="flex flex-col items-center pt-8 mb-12">
+        <div className="flex justify-center">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/c3f456d53_PiPSupport.png"
             alt="Pilates in Pink Support"
             className="h-24 md:h-32 rounded-2xl"
           />
         </div>
-
-        <h1 className="text-4xl md:text-5xl font-bold text-white text-left w-full max-w-5xl">Select User</h1>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="w-full max-w-5xl">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 w-full justify-start">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 text-left">Select User</h1>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 w-full justify-start">
             {users.map((user) => (
               <div
                 key={user.id}
