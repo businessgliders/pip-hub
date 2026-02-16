@@ -121,6 +121,8 @@ export default function AppHub() {
     if (isAdminMode) {
       setIsAdminMode(false);
       setShowAdminPanel(false);
+    } else if (isOwner) {
+      setIsAdminMode(true);
     } else {
       setShowPasswordPrompt(true);
     }
