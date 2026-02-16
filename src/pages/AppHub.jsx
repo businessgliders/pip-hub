@@ -32,7 +32,12 @@ export default function AppHub() {
         const queryClient = useQueryClient();
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => setUser(null));
+    base44.auth.me().then((u) => {
+      setUser(u);
+      if (u?.selectedGradient) {
+        setSelectedGradient(u.selectedGradient);
+      }
+    }).catch(() => setUser(null));
   }, []);
 
   const { data: sections = [] } = useQuery({
