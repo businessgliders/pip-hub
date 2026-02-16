@@ -142,9 +142,9 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
             />
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">Who's accessing?</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 text-center">Select User</h1>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 w-full">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 w-full justify-center">
             {users.map((user) => (
               <div
                 key={user.id}
