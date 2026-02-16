@@ -25,9 +25,11 @@ export default function AppHub() {
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showSectionPanel, setShowSectionPanel] = useState(false);
-  const [draggingAppId, setDraggingAppId] = useState(null);
-  const [viewingApp, setViewingApp] = useState(null);
-  const queryClient = useQueryClient();
+        const [draggingAppId, setDraggingAppId] = useState(null);
+        const [viewingApp, setViewingApp] = useState(null);
+        const [showCustomizePanel, setShowCustomizePanel] = useState(false);
+        const [selectedGradient, setSelectedGradient] = useState('default');
+        const queryClient = useQueryClient();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
