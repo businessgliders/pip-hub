@@ -13,6 +13,7 @@ import SectionManagementPanel from '../components/hub/SectionManagementPanel';
 import AppViewerModal from '../components/hub/AppViewerModal';
 import PasswordPrompt from '../components/hub/PasswordPrompt';
 import CustomizePanel from '../components/hub/CustomizePanel';
+import UserSelection from '../components/hub/UserSelection';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
