@@ -146,12 +146,12 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
         <img
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/c3f456d53_PiPSupport.png"
           alt="Pilates in Pink Support"
-          className="h-32 md:h-40 mb-8"
+          className="h-32 md:h-40 mb-8 rounded-2xl"
         />
 
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-12 text-center">Who's accessing?</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-12 text-left w-full">Who's accessing?</h1>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-32">
           {users.map((user) => (
             <button
               key={user.id}
