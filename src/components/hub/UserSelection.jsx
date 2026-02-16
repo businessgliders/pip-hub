@@ -56,10 +56,13 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
     fetchUsers();
   }, []);
 
-  const handleUserClick = (user) => {
-    setSelectedUser(user);
-    setShowGoogleAuth(true);
-    setError('');
+  const handleUserClick = async (user) => {
+    try {
+      sessionStorage.setItem('selectedUserEmail', user.email);
+      await base44.auth.redirectToLogin();
+    } catch (err) {
+      setError('Authentication failed');
+    }
   };
 
   const handleGoogleAuth = async () => {
