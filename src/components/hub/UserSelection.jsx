@@ -144,7 +144,7 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
 
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="w-full max-w-5xl">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 text-left">Select User</h1>
+          <h1 className="text-5xl md:text-6xl text-white mb-8 text-left" style={{ fontFamily: 'Great Vibes, cursive' }}>Select User</h1>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2 w-full justify-start">
             {users.map((user, index) => (
