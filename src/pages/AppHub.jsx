@@ -243,8 +243,18 @@ export default function AppHub() {
           </div>
 
           <div className="flex items-center justify-center md:justify-end gap-2">
-            {/* Search - Expanded when admin mode is off, collapsible on mobile when admin mode is on */}
-            {!isAdminMode ? (
+            {/* Search */}
+            {isAdminMode ? (
+              <Button
+                onClick={() => setShowSearch(!showSearch)}
+                variant="outline"
+                size="icon"
+                className="rounded-xl"
+                title="Search"
+              >
+                <Search className="w-4 h-4" />
+              </Button>
+            ) : (
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
@@ -254,43 +264,6 @@ export default function AppHub() {
                   className="pl-10 w-48 md:w-64 backdrop-blur-xl bg-white/60 border-white/80"
                 />
               </div>
-            ) : (
-              <>
-                {showSearch ? (
-                  <div className="relative md:block">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search apps..."
-                      className="pl-10 w-48 md:w-64 backdrop-blur-xl bg-white/60 border-white/80"
-                      autoFocus
-                      onBlur={() => !searchQuery && setShowSearch(false)}
-                    />
-                  </div>
-                ) : (
-                  <Button
-                    onClick={() => setShowSearch(true)}
-                    variant="outline"
-                    size="icon"
-                    className="md:hidden rounded-xl"
-                    title="Search"
-                  >
-                    <Search className="w-4 h-4" />
-                  </Button>
-                )}
-                
-                {/* Desktop search - always visible */}
-                <div className="relative hidden md:block">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search apps..."
-                    className="pl-10 w-64 backdrop-blur-xl bg-white/60 border-white/80"
-                  />
-                </div>
-              </>
             )}
 
             {isAdminMode && (
