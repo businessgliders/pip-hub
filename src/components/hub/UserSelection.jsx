@@ -156,8 +156,8 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
                   onClick={() => handleUserClick(user)}
                   className="group focus:outline-none transition-transform duration-300 hover:scale-105 w-full flex justify-center"
                 >
-                  <div className={`w-24 h-24 md:w-32 md:h-32 rounded-lg bg-gradient-to-br ${getPinkGradient(index)} flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-shadow`}>
-                    <span className="text-4xl md:text-5xl font-bold text-white/90">{getInitials(user.full_name)}</span>
+                  <div className={`w-20 h-20 md:w-32 md:h-32 rounded-lg bg-gradient-to-br ${getPinkGradient(index)} flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-shadow`}>
+                    <span className="text-3xl md:text-5xl font-bold text-white/90">{getInitials(user.full_name)}</span>
                   </div>
                 </button>
                 <p className="text-gray-300 text-sm md:text-base font-medium text-center truncate w-24 md:w-32 mt-3">
