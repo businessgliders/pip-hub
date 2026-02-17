@@ -20,7 +20,9 @@ export default function EditAppModal({ app, sections, onClose, onSave }) {
     description: app.description || '',
     section_id: app.section_id,
     icon_url: app.icon_url || '',
-    is_new: app.is_new || false
+    is_new: app.is_new || false,
+    open_in_new_tab: app.open_in_new_tab || false,
+    is_global: app.is_global || false
   });
   const [isFetchingIcon, setIsFetchingIcon] = useState(false);
 
@@ -150,6 +152,15 @@ export default function EditAppModal({ app, sections, onClose, onSave }) {
               id="open_in_new_tab"
               checked={formData.open_in_new_tab}
               onCheckedChange={(checked) => setFormData({ ...formData, open_in_new_tab: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="is_global" className="text-gray-700 font-medium">Global (Visible to All Users)</Label>
+            <Switch
+              id="is_global"
+              checked={formData.is_global}
+              onCheckedChange={(checked) => setFormData({ ...formData, is_global: checked })}
             />
           </div>
 
