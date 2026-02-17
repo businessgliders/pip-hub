@@ -165,6 +165,21 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
                 </p>
               </div>
             ))}
+
+            {/* Add New User Tile */}
+            <div className="flex flex-col items-center">
+              <button
+                onClick={() => base44.auth.redirectToLogin()}
+                className="group focus:outline-none transition-transform duration-300 hover:scale-105 w-full flex justify-center"
+              >
+                <div className="w-20 h-20 md:w-32 md:h-32 rounded-lg bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-shadow border-2 border-dashed border-white/40">
+                  <span className="text-4xl md:text-6xl font-light text-white/90">+</span>
+                </div>
+              </button>
+              <p className="text-gray-300 text-xs md:text-base font-medium text-center truncate w-20 md:w-32 mt-3">
+                New User
+              </p>
+            </div>
           </div>
         </div>
       </div>
