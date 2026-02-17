@@ -186,7 +186,7 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
 
       <footer className="text-center text-gray-400 text-sm py-6 flex flex-col items-center gap-3">
         <img
-          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/5b0bbbe61_PiPHub.png"
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
           alt="PiP Hub"
           className="h-12 md:h-16 rounded-lg"
         />
