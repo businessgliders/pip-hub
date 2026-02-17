@@ -14,6 +14,7 @@ import AppViewerModal from '../components/hub/AppViewerModal';
 import PasswordPrompt from '../components/hub/PasswordPrompt';
 import CustomizePanel from '../components/hub/CustomizePanel';
 import UserSelection from '../components/hub/UserSelection';
+import BrowseAppsModal from '../components/hub/BrowseAppsModal';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
@@ -31,6 +32,7 @@ export default function AppHub() {
         const [showCustomizePanel, setShowCustomizePanel] = useState(false);
         const [selectedGradient, setSelectedGradient] = useState('default');
         const [showUserSelection, setShowUserSelection] = useState(false);
+        const [showBrowseApps, setShowBrowseApps] = useState(false);
         const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -76,23 +78,8 @@ export default function AppHub() {
     mutationFn: async (appData) => {
       // Set order to be last
       const maxOrder = apps.reduce((max, app) => Math.max(max, app.order || 0), 0);
-      
-      // If is_global is true, ensure "All Users" section exists and use it
-      let finalSectionId = appData.section_id;
-      if (appData.is_global) {
-        let allUsersSection = sections.find(s => s.name === 'All Users');
-        if (!allUsersSection) {
-          allUsersSection = await base44.entities.Section.create({
-            name: 'All Users',
-            order: 0
-          });
-        }
-        finalSectionId = allUsersSection.id;
-      }
-      
       return base44.entities.App.create({ 
         ...appData, 
-        section_id: finalSectionId,
         order: maxOrder + 1 
       });
     },
@@ -109,20 +96,7 @@ export default function AppHub() {
 
   const updateAppMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      // If is_global is true, ensure "All Users" section exists and use it
-      let finalData = { ...data };
-      if (data.is_global) {
-        let allUsersSection = sections.find(s => s.name === 'All Users');
-        if (!allUsersSection) {
-          allUsersSection = await base44.entities.Section.create({
-            name: 'All Users',
-            order: 0
-          });
-        }
-        finalData.section_id = allUsersSection.id;
-      }
-      
-      return base44.entities.App.update(id, finalData);
+      return base44.entities.App.update(id, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['apps']);
@@ -381,16 +355,28 @@ export default function AppHub() {
                 <span className="hidden md:inline md:ml-2">{isAdminMode ? 'Exit Admin' : 'Admin'}</span>
               </Button>
             ) : user ? (
-              <Button
-                onClick={() => setShowCustomizePanel(true)}
-                variant="outline"
-                size="icon"
-                className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                title="Customize"
-              >
-                <Shield className="w-4 h-4" />
-                <span className="hidden md:inline md:ml-2">Customize</span>
-              </Button>
+              <>
+                <Button
+                  onClick={() => setShowBrowseApps(true)}
+                  variant="outline"
+                  size="icon"
+                  className="md:w-auto md:px-4 rounded-xl border-gray-300"
+                  title="Browse Apps"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span className="hidden md:inline md:ml-2">Browse Apps</span>
+                </Button>
+                <Button
+                  onClick={() => setShowCustomizePanel(true)}
+                  variant="outline"
+                  size="icon"
+                  className="md:w-auto md:px-4 rounded-xl border-gray-300"
+                  title="Customize"
+                >
+                  <Shield className="w-4 h-4" />
+                  <span className="hidden md:inline md:ml-2">Customize</span>
+                </Button>
+              </>
             ) : null}
 
             {user ? (
@@ -569,6 +555,15 @@ export default function AppHub() {
         <UserSelection
           onClose={() => setShowUserSelection(false)}
           currentGradient={selectedGradient}
+        />
+      )}
+
+      {showBrowseApps && (
+        <BrowseAppsModal
+          sections={sections}
+          userApps={apps}
+          onClose={() => setShowBrowseApps(false)}
+          onAddApp={(appData) => createAppMutation.mutate(appData)}
         />
       )}
       </div>
