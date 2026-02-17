@@ -33,7 +33,13 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-
+  React.useEffect(() => {
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
 
   useEffect(() => {
     const fetchUsers = async () => {
