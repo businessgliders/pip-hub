@@ -47,13 +47,23 @@ export default function AppHub() {
   }, []);
 
   const { data: sections = [] } = useQuery({
-    queryKey: ['sections'],
-    queryFn: () => base44.entities.Section.list('order'),
+    queryKey: ['sections', user?.email],
+    queryFn: async () => {
+      if (!user) return [];
+      const allSections = await base44.entities.Section.list('order');
+      return allSections.filter(s => s.created_by === user.email || s.name === 'All Users');
+    },
+    enabled: !!user,
   });
 
   const { data: apps = [] } = useQuery({
-    queryKey: ['apps'],
-    queryFn: () => base44.entities.App.list('order'),
+    queryKey: ['apps', user?.email],
+    queryFn: async () => {
+      if (!user) return [];
+      const allApps = await base44.entities.App.list('order');
+      return allApps.filter(app => app.created_by === user.email || app.is_global === true);
+    },
+    enabled: !!user,
   });
 
   const { data: preferences = [] } = useQuery({
@@ -66,9 +76,30 @@ export default function AppHub() {
     mutationFn: async (appData) => {
       // Set order to be last
       const maxOrder = apps.reduce((max, app) => Math.max(max, app.order || 0), 0);
-      return base44.entities.App.create({ ...appData, order: maxOrder + 1 });
+      
+      // If is_global is true, ensure "All Users" section exists and use it
+      let finalSectionId = appData.section_id;
+      if (appData.is_global) {
+        let allUsersSection = sections.find(s => s.name === 'All Users');
+        if (!allUsersSection) {
+          allUsersSection = await base44.entities.Section.create({
+            name: 'All Users',
+            order: 0
+          });
+        }
+        finalSectionId = allUsersSection.id;
+      }
+      
+      return base44.entities.App.create({ 
+        ...appData, 
+        section_id: finalSectionId,
+        order: maxOrder + 1 
+      });
     },
-    onSuccess: () => queryClient.invalidateQueries(['apps']),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['apps']);
+      queryClient.invalidateQueries(['sections']);
+    },
   });
 
   const deleteAppMutation = useMutation({
@@ -77,8 +108,26 @@ export default function AppHub() {
   });
 
   const updateAppMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.App.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries(['apps']),
+    mutationFn: async ({ id, data }) => {
+      // If is_global is true, ensure "All Users" section exists and use it
+      let finalData = { ...data };
+      if (data.is_global) {
+        let allUsersSection = sections.find(s => s.name === 'All Users');
+        if (!allUsersSection) {
+          allUsersSection = await base44.entities.Section.create({
+            name: 'All Users',
+            order: 0
+          });
+        }
+        finalData.section_id = allUsersSection.id;
+      }
+      
+      return base44.entities.App.update(id, finalData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['apps']);
+      queryClient.invalidateQueries(['sections']);
+    },
   });
 
   const createSectionMutation = useMutation({
