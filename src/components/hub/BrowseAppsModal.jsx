@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Plus, Check, Loader2, Globe, Sparkles, ExternalLink } from 'lucide-react';
+import { X, Plus, Check, Loader2, Globe, Sparkles, ExternalLink, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,9 +15,10 @@ import {
 
 export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp }) {
   const [ownerApps, setOwnerApps] = useState([]);
+  const [ownerSections, setOwnerSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addingAppId, setAddingAppId] = useState(null);
-  const [selectedSection, setSelectedSection] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [newAppData, setNewAppData] = useState({
     name: '',
     url: '',
@@ -36,6 +37,8 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
     const fetchOwnerApps = async () => {
       try {
         const allApps = await base44.entities.App.list('order');
+        const allSections = await base44.entities.Section.list('order');
+        
         const ownerCreatedApps = allApps.filter(app => 
           app.created_by === 'info@pilatesinpinkstudio.com' || 
           app.created_by === 'gurpreen@pilatesinpinkstudio.com'
@@ -45,6 +48,7 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
           index === self.findIndex(a => a.name === app.name && a.url === app.url)
         );
         setOwnerApps(uniqueApps);
+        setOwnerSections(allSections);
       } catch (err) {
         console.error('Failed to fetch owner apps:', err);
       } finally {
@@ -61,19 +65,32 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
   };
 
   const handleAddApp = async (ownerApp) => {
-    if (!selectedSection) {
-      alert('Please select a section first');
-      return;
-    }
-
     setAddingAppId(ownerApp.id);
     try {
+      // Find the section this app belongs to in owner's account
+      const ownerSection = ownerSections.find(s => s.id === ownerApp.section_id);
+      let targetSectionId = ownerApp.section_id;
+      
+      // Check if user already has this section
+      const userSection = sections.find(s => s.name === ownerSection?.name);
+      
+      if (!userSection && ownerSection) {
+        // Create the section for the user
+        const newSection = await base44.entities.Section.create({
+          name: ownerSection.name,
+          order: ownerSection.order
+        });
+        targetSectionId = newSection.id;
+      } else if (userSection) {
+        targetSectionId = userSection.id;
+      }
+
       await onAddApp({
         name: ownerApp.name,
         url: ownerApp.url,
         description: ownerApp.description,
         icon_url: ownerApp.icon_url,
-        section_id: selectedSection,
+        section_id: targetSectionId,
         is_new: false,
         open_in_new_tab: ownerApp.open_in_new_tab,
         is_global: false
@@ -142,6 +159,25 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
     }
   };
 
+  // Group apps by section and filter by search
+  const groupedApps = useMemo(() => {
+    const filtered = ownerApps.filter(app =>
+      app.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    const groups = {};
+    filtered.forEach(app => {
+      const section = ownerSections.find(s => s.id === app.section_id);
+      const sectionName = section?.name || 'Uncategorized';
+      if (!groups[sectionName]) {
+        groups[sectionName] = [];
+      }
+      groups[sectionName].push(app);
+    });
+    
+    return groups;
+  }, [ownerApps, ownerSections, searchQuery]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm overflow-y-auto">
       <div className="w-full max-w-5xl rounded-3xl backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl p-4 md:p-8 my-auto max-h-[90vh] overflow-y-auto">
@@ -166,77 +202,75 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="mb-4">
-                  <Label className="text-gray-700 font-medium mb-2">Add to Section</Label>
-                  <Select
-                    value={selectedSection}
-                    onValueChange={setSelectedSection}
-                  >
-                    <SelectTrigger className="bg-white/60 border-gray-200">
-                      <SelectValue placeholder="Select a section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sections.filter(s => s.name !== 'All Users').map((section) => (
-                        <SelectItem key={section.id} value={section.id}>
-                          {section.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search apps..."
+                    className="pl-10 bg-white/60 border-gray-200"
+                  />
                 </div>
 
-                <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                  {ownerApps.map((ownerApp) => {
-                    const alreadyAdded = isAppAlreadyAdded(ownerApp);
-                    return (
-                      <div
-                        key={ownerApp.id}
-                        className="flex items-center justify-between p-4 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden">
-                            {ownerApp.icon_url ? (
-                              <img src={ownerApp.icon_url} alt={ownerApp.name} className="w-6 h-6 object-contain" />
-                            ) : (
-                              <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium text-gray-800">{ownerApp.name}</h4>
-                              {ownerApp.is_global && (
-                                <Globe className="w-3.5 h-3.5 text-blue-500" title="Global App" />
-                              )}
+                <div className="space-y-6 max-h-[500px] overflow-y-auto">
+                  {Object.entries(groupedApps).map(([sectionName, apps]) => (
+                    <div key={sectionName}>
+                      <h4 className="text-sm font-semibold text-gray-600 mb-3">{sectionName}</h4>
+                      <div className="space-y-2">
+                        {apps.map((ownerApp) => {
+                          const alreadyAdded = isAppAlreadyAdded(ownerApp);
+                          return (
+                            <div
+                              key={ownerApp.id}
+                              className="flex items-center justify-between p-3 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors"
+                            >
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                  {ownerApp.icon_url ? (
+                                    <img src={ownerApp.icon_url} alt={ownerApp.name} className="w-6 h-6 object-contain" />
+                                  ) : (
+                                    <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-medium text-gray-800 truncate">{ownerApp.name}</h4>
+                                    {ownerApp.is_global && (
+                                      <Globe className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" title="Global App" />
+                                    )}
+                                  </div>
+                                  {ownerApp.description && (
+                                    <p className="text-xs text-gray-500 mt-0.5 truncate">{ownerApp.description}</p>
+                                  )}
+                                </div>
+                              </div>
+                              <Button
+                                onClick={() => handleAddApp(ownerApp)}
+                                disabled={alreadyAdded || addingAppId === ownerApp.id}
+                                size="sm"
+                                variant={alreadyAdded ? "outline" : "default"}
+                                className={`ml-3 flex-shrink-0 ${alreadyAdded ? "cursor-not-allowed" : "bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"}`}
+                              >
+                                {addingAppId === ownerApp.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : alreadyAdded ? (
+                                  <>
+                                    <Check className="w-4 h-4 mr-1" />
+                                    Added
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="w-4 h-4 mr-1" />
+                                    Add
+                                  </>
+                                )}
+                              </Button>
                             </div>
-                            {ownerApp.description && (
-                              <p className="text-xs text-gray-500 mt-0.5">{ownerApp.description}</p>
-                            )}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => handleAddApp(ownerApp)}
-                          disabled={alreadyAdded || addingAppId === ownerApp.id || !selectedSection}
-                          size="sm"
-                          variant={alreadyAdded ? "outline" : "default"}
-                          className={alreadyAdded ? "cursor-not-allowed" : "bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"}
-                        >
-                          {addingAppId === ownerApp.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : alreadyAdded ? (
-                            <>
-                              <Check className="w-4 h-4 mr-1" />
-                              Added
-                            </>
-                          ) : (
-                            <>
-                              <Plus className="w-4 h-4 mr-1" />
-                              Add
-                            </>
-                          )}
-                        </Button>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
