@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Plus, Check, Loader2 } from 'lucide-react';
+import { X, Plus, Check, Loader2, Globe, Sparkles, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -30,6 +29,8 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
     is_global: false
   });
   const [isFetchingIcon, setIsFetchingIcon] = useState(false);
+  const [isCreatingSection, setIsCreatingSection] = useState(false);
+  const [newSectionName, setNewSectionName] = useState('');
 
   useEffect(() => {
     const fetchOwnerApps = async () => {
@@ -39,7 +40,11 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
           app.created_by === 'info@pilatesinpinkstudio.com' || 
           app.created_by === 'gurpreen@pilatesinpinkstudio.com'
         );
-        setOwnerApps(ownerCreatedApps);
+        // Remove duplicates based on name and url
+        const uniqueApps = ownerCreatedApps.filter((app, index, self) => 
+          index === self.findIndex(a => a.name === app.name && a.url === app.url)
+        );
+        setOwnerApps(uniqueApps);
       } catch (err) {
         console.error('Failed to fetch owner apps:', err);
       } finally {
@@ -96,6 +101,24 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
   const handleUrlBlur = () => {
     if (newAppData.url && !newAppData.icon_url) {
       autoFetchFavicon(newAppData.url);
+    }
+  };
+
+  const handleCreateSection = async () => {
+    if (!newSectionName.trim()) return;
+    try {
+      const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
+      const newSection = await base44.entities.Section.create({ 
+        name: newSectionName, 
+        order: maxOrder + 1 
+      });
+      setNewAppData({ ...newAppData, section_id: newSection.id });
+      setIsCreatingSection(false);
+      setNewSectionName('');
+      // Refresh sections in parent
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to create section:', err);
     }
   };
 
@@ -178,8 +201,13 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
                               <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
                             )}
                           </div>
-                          <div>
-                            <h4 className="font-medium text-gray-800">{ownerApp.name}</h4>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium text-gray-800">{ownerApp.name}</h4>
+                              {ownerApp.is_global && (
+                                <Globe className="w-3.5 h-3.5 text-blue-500" title="Global App" />
+                              )}
+                            </div>
                             {ownerApp.description && (
                               <p className="text-xs text-gray-500 mt-0.5">{ownerApp.description}</p>
                             )}
@@ -257,22 +285,63 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
 
               <div>
                 <Label htmlFor="section" className="text-gray-700 font-medium">Section</Label>
-                <Select
-                  value={newAppData.section_id}
-                  onValueChange={(value) => setNewAppData({ ...newAppData, section_id: value })}
-                  required
-                >
-                  <SelectTrigger className="mt-1.5 bg-white/60 border-gray-200">
-                    <SelectValue placeholder="Select a section" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sections.filter(s => s.name !== 'All Users').map((section) => (
-                      <SelectItem key={section.id} value={section.id}>
-                        {section.name}
+                {isCreatingSection ? (
+                  <div className="flex gap-2 mt-1.5">
+                    <Input
+                      value={newSectionName}
+                      onChange={(e) => setNewSectionName(e.target.value)}
+                      placeholder="New section name"
+                      className="bg-white/60 border-gray-200"
+                      onKeyDown={(e) => e.key === 'Enter' && handleCreateSection()}
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleCreateSection}
+                      size="sm"
+                      className="bg-green-500 hover:bg-green-600"
+                    >
+                      <Check className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setIsCreatingSection(false);
+                        setNewSectionName('');
+                      }}
+                      size="sm"
+                      variant="outline"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Select
+                    value={newAppData.section_id}
+                    onValueChange={(value) => {
+                      if (value === 'create_new') {
+                        setIsCreatingSection(true);
+                      } else {
+                        setNewAppData({ ...newAppData, section_id: value });
+                      }
+                    }}
+                    required
+                  >
+                    <SelectTrigger className="mt-1.5 bg-white/60 border-gray-200">
+                      <SelectValue placeholder="Select a section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sections.filter(s => s.name !== 'All Users').map((section) => (
+                        <SelectItem key={section.id} value={section.id}>
+                          {section.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="create_new" className="text-[#f1889b] font-medium">
+                        <Plus className="w-4 h-4 inline mr-2" />
+                        Create New Section
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div>
@@ -289,31 +358,48 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_new" className="text-gray-700 font-medium">Show "New" Badge</Label>
-                <Switch
-                  id="is_new"
-                  checked={newAppData.is_new}
-                  onCheckedChange={(checked) => setNewAppData({ ...newAppData, is_new: checked })}
-                />
-              </div>
+              <div>
+                <Label className="text-gray-700 font-medium mb-2 block">Options</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setNewAppData({ ...newAppData, is_new: !newAppData.is_new })}
+                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                      newAppData.is_new 
+                        ? 'border-[#f1889b] bg-[#f1889b]/10' 
+                        : 'border-gray-200 bg-white/60 hover:border-gray-300'
+                    }`}
+                  >
+                    <Sparkles className={`w-5 h-5 ${newAppData.is_new ? 'text-[#f1889b]' : 'text-gray-400'}`} />
+                    <span className="text-xs text-gray-700 text-center">New Badge</span>
+                  </button>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="open_in_new_tab" className="text-gray-700 font-medium">Open in New Tab</Label>
-                <Switch
-                  id="open_in_new_tab"
-                  checked={newAppData.open_in_new_tab}
-                  onCheckedChange={(checked) => setNewAppData({ ...newAppData, open_in_new_tab: checked })}
-                />
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => setNewAppData({ ...newAppData, open_in_new_tab: !newAppData.open_in_new_tab })}
+                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                      newAppData.open_in_new_tab 
+                        ? 'border-[#f1889b] bg-[#f1889b]/10' 
+                        : 'border-gray-200 bg-white/60 hover:border-gray-300'
+                    }`}
+                  >
+                    <ExternalLink className={`w-5 h-5 ${newAppData.open_in_new_tab ? 'text-[#f1889b]' : 'text-gray-400'}`} />
+                    <span className="text-xs text-gray-700 text-center">New Tab</span>
+                  </button>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="is_global" className="text-gray-700 font-medium">Global (Visible to All Users)</Label>
-                <Switch
-                  id="is_global"
-                  checked={newAppData.is_global}
-                  onCheckedChange={(checked) => setNewAppData({ ...newAppData, is_global: checked })}
-                />
+                  <button
+                    type="button"
+                    onClick={() => setNewAppData({ ...newAppData, is_global: !newAppData.is_global })}
+                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                      newAppData.is_global 
+                        ? 'border-[#f1889b] bg-[#f1889b]/10' 
+                        : 'border-gray-200 bg-white/60 hover:border-gray-300'
+                    }`}
+                  >
+                    <Globe className={`w-5 h-5 ${newAppData.is_global ? 'text-[#f1889b]' : 'text-gray-400'}`} />
+                    <span className="text-xs text-gray-700 text-center">Global</span>
+                  </button>
+                </div>
               </div>
 
               <Button
