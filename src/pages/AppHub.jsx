@@ -61,11 +61,23 @@ export default function AppHub() {
         .map(app => app.section_id);
       
       // Show sections created by user, "All Users" section, or sections with global apps
-      return allSections.filter(s => 
+      const visibleSections = allSections.filter(s => 
         s.created_by === user.email || 
         s.name === 'All Users' || 
         globalAppSectionIds.includes(s.id)
       );
+
+      // Get user's custom section ordering
+      const userSectionPrefs = await base44.entities.UserSectionPreference.filter({ user_email: user.email });
+      
+      // Apply custom ordering if exists
+      return visibleSections.map(section => {
+        const pref = userSectionPrefs.find(p => p.section_id === section.id);
+        return {
+          ...section,
+          displayOrder: pref ? pref.custom_order : section.order
+        };
+      }).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
     },
     enabled: !!user,
   });
@@ -276,17 +288,33 @@ export default function AppHub() {
     // Update order values
     const updatedSections = reorderedSections.map((section, index) => ({
       ...section,
-      order: index + 1
+      displayOrder: index + 1
     }));
     
     // Update cache optimistically for immediate UI update
     queryClient.setQueryData(['sections', user?.email], updatedSections);
     
-    // Update all sections with new order
+    // Save user's custom section order
     await Promise.all(
-      updatedSections.map(section =>
-        base44.entities.Section.update(section.id, { order: section.order })
-      )
+      updatedSections.map(async (section) => {
+        // Check if preference already exists
+        const existing = await base44.entities.UserSectionPreference.filter({
+          user_email: user.email,
+          section_id: section.id
+        });
+        
+        if (existing.length > 0) {
+          await base44.entities.UserSectionPreference.update(existing[0].id, {
+            custom_order: section.displayOrder
+          });
+        } else {
+          await base44.entities.UserSectionPreference.create({
+            user_email: user.email,
+            section_id: section.id,
+            custom_order: section.displayOrder
+          });
+        }
+      })
     );
     
     // Invalidate to ensure consistency
