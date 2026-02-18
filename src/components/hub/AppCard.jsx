@@ -23,30 +23,28 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
   };
 
   return (
-    <div
-      draggable={isEditMode}
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-      onClick={handleCardClick}
-      className={cn(
-        "group relative overflow-hidden rounded-2xl transition-all duration-300",
-        "backdrop-blur-xl bg-white/40 border border-white/60",
-        "hover:bg-white/60 hover:shadow-[0_8px_32px_rgba(241,136,155,0.2)]",
-        "hover:border-[#f1889b]/30",
-        !isEditMode && "cursor-pointer hover:scale-[1.02]",
-        isEditMode && "jiggle",
-        isDragging && "opacity-50 scale-95"
-      )}
-    >
+    <>
       <style>{`
-        @keyframes jiggle {
+        @keyframes jiggle-animation {
           0%, 100% { transform: rotate(-1deg); }
           50% { transform: rotate(1deg); }
         }
-        .jiggle {
-          animation: jiggle 0.3s ease-in-out infinite;
-        }
       `}</style>
+      <div
+        draggable={isEditMode}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        onClick={handleCardClick}
+        style={isEditMode ? { animation: 'jiggle-animation 0.3s ease-in-out infinite' } : {}}
+        className={cn(
+          "group relative overflow-hidden rounded-2xl transition-all duration-300",
+          "backdrop-blur-xl bg-white/40 border border-white/60",
+          "hover:bg-white/60 hover:shadow-[0_8px_32px_rgba(241,136,155,0.2)]",
+          "hover:border-[#f1889b]/30",
+          !isEditMode && "cursor-pointer hover:scale-[1.02]",
+          isDragging && "opacity-50 scale-95"
+        )}
+      >
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
@@ -121,5 +119,6 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
         </div>
       </div>
     </div>
+    </>
   );
 }
