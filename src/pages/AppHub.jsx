@@ -53,7 +53,19 @@ export default function AppHub() {
     queryFn: async () => {
       if (!user) return [];
       const allSections = await base44.entities.Section.list('order');
-      return allSections.filter(s => s.created_by === user.email || s.name === 'All Users');
+      const allApps = await base44.entities.App.list('order');
+      
+      // Get section IDs that contain global apps
+      const globalAppSectionIds = allApps
+        .filter(app => app.is_global === true)
+        .map(app => app.section_id);
+      
+      // Show sections created by user, "All Users" section, or sections with global apps
+      return allSections.filter(s => 
+        s.created_by === user.email || 
+        s.name === 'All Users' || 
+        globalAppSectionIds.includes(s.id)
+      );
     },
     enabled: !!user,
   });
@@ -169,7 +181,7 @@ export default function AppHub() {
     await base44.auth.updateMe({ selectedGradient: gradientId });
   };
 
-  const isOwner = user?.email === 'info@pilatesinpinkstudio.com' || user?.email === 'gurpreen@pilatesinpinkstudio.com';
+  const isOwner = user?.email === 'info@pilatesinpinkstudio.com';
 
   const handleAdminSuccess = () => {
     setIsAdminMode(true);
@@ -357,16 +369,6 @@ export default function AppHub() {
                   <span className="hidden md:inline md:ml-2">Browse Apps</span>
                 </Button>
                 <Button
-                  onClick={() => setShowCustomizePanel(true)}
-                  variant="outline"
-                  size="icon"
-                  className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                  title="Customize"
-                >
-                  <Shield className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">Customize</span>
-                </Button>
-                <Button
                   onClick={handleToggleAdmin}
                   variant={isAdminMode ? "default" : "outline"}
                   size="icon"
@@ -397,6 +399,12 @@ export default function AppHub() {
                   <span className="hidden md:inline md:ml-2">Menu</span>
                 </Button>
                 <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-gray-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40">
+                  <button
+                    onClick={() => setShowCustomizePanel(true)}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
+                  >
+                    Customize
+                  </button>
                   <button
                     onClick={() => setShowUserSelection(true)}
                     className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
