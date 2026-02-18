@@ -11,7 +11,7 @@ const GRADIENT_OPTIONS = [
   { id: 'orange', name: 'Warm Orange', gradient: 'from-[#fed7aa] via-[#fdba74] to-[#fed7aa]' },
 ];
 
-export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, onReorderApps, onClose }) {
+export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, onReorderApps, onManageSections, onClose }) {
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
   const groupedApps = sections.map(section => ({
@@ -60,9 +60,19 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
             </div>
           </div>
 
-          {/* Manage Apps Section */}
+          {/* Manage Sections */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Manage Apps</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-700">Reorder Apps</h3>
+              <Button
+                onClick={onManageSections}
+                variant="outline"
+                size="sm"
+                className="rounded-lg"
+              >
+                Manage Sections
+              </Button>
+            </div>
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="apps">
                 {(provided) => (

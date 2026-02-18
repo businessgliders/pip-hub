@@ -517,6 +517,10 @@ export default function AppHub() {
           selectedGradient={selectedGradient}
           onGradientChange={handleGradientChange}
           onReorderApps={handleReorderApps}
+          onManageSections={() => {
+            setShowCustomizePanel(false);
+            setShowSectionPanel(true);
+          }}
           onClose={() => setShowCustomizePanel(false)}
         />
       )}
