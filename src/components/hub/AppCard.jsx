@@ -92,13 +92,13 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
           
           {isEditMode ? (
             <button
-              className="edit-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 flex items-center justify-center transition-all duration-200 hover:bg-white/80"
+              className="edit-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center transition-all duration-200 hover:bg-white shadow-md"
               onClick={(e) => {
                 e.stopPropagation();
                 onEditApp(app);
               }}
             >
-              <Edit2 className="w-3.5 h-3.5 text-gray-600" />
+              <Edit2 className="w-3.5 h-3.5 text-[#f1889b]" />
             </button>
           ) : (
             <button
