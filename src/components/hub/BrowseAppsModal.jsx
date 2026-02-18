@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Plus, Check, Loader2, Globe, Sparkles, ExternalLink, Search } from 'lucide-react';
+import { X, Plus, Check, Loader2, Globe, Sparkles, ExternalLink, Search, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,6 +32,7 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
   const [isFetchingIcon, setIsFetchingIcon] = useState(false);
   const [isCreatingSection, setIsCreatingSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchOwnerApps = async () => {
@@ -72,6 +73,11 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
     return userApps.some(userApp => 
       userApp.name === ownerApp.name && userApp.url === ownerApp.url
     );
+  };
+
+  const isAppHidden = (ownerApp) => {
+    // Check if this app is hidden for the current user
+    return hiddenApps.some(hidden => hidden.app_id === ownerApp.id);
   };
 
   const handleAddApp = async (ownerApp) => {
@@ -229,6 +235,7 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
                       <div className="space-y-2">
                         {apps.map((ownerApp) => {
                           const alreadyAdded = isAppAlreadyAdded(ownerApp);
+                          const isHidden = isAppHidden(ownerApp);
                           return (
                             <div
                               key={ownerApp.id}
@@ -254,27 +261,38 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
                                   )}
                                 </div>
                               </div>
-                              <Button
-                                onClick={() => handleAddApp(ownerApp)}
-                                disabled={alreadyAdded || addingAppId === ownerApp.id}
-                                size="sm"
-                                variant={alreadyAdded ? "outline" : "default"}
-                                className={`ml-3 flex-shrink-0 ${alreadyAdded ? "cursor-not-allowed" : "bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"}`}
-                              >
-                                {addingAppId === ownerApp.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : alreadyAdded ? (
-                                  <>
-                                    <Check className="w-4 h-4 mr-1" />
-                                    Added
-                                  </>
-                                ) : (
-                                  <>
-                                    <Plus className="w-4 h-4 mr-1" />
-                                    Add
-                                  </>
-                                )}
-                              </Button>
+                              {isHidden ? (
+                                <Button
+                                  onClick={() => onUnhideApp(ownerApp.id)}
+                                  size="sm"
+                                  className="ml-3 flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                                >
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  Unhide
+                                </Button>
+                              ) : (
+                                <Button
+                                  onClick={() => handleAddApp(ownerApp)}
+                                  disabled={alreadyAdded || addingAppId === ownerApp.id}
+                                  size="sm"
+                                  variant={alreadyAdded ? "outline" : "default"}
+                                  className={`ml-3 flex-shrink-0 ${alreadyAdded ? "cursor-not-allowed" : "bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"}`}
+                                >
+                                  {addingAppId === ownerApp.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : alreadyAdded ? (
+                                    <>
+                                      <Check className="w-4 h-4 mr-1" />
+                                      Added
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-4 h-4 mr-1" />
+                                      Add
+                                    </>
+                                  )}
+                                </Button>
+                              )}
                             </div>
                           );
                         })}

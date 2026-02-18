@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, GripVertical, Edit, Trash2 } from 'lucide-react';
+import { X, GripVertical, Edit, Trash2, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
