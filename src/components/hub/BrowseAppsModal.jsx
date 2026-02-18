@@ -19,7 +19,6 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
   const [loading, setLoading] = useState(true);
   const [addingAppId, setAddingAppId] = useState(null);
   const [selectedSection, setSelectedSection] = useState('');
-  const [showAddAppForm, setShowAddAppForm] = useState(false);
   const [newAppData, setNewAppData] = useState({
     name: '',
     url: '',
@@ -118,7 +117,6 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
         open_in_new_tab: false,
         is_global: false
       });
-      setShowAddAppForm(false);
     } catch (err) {
       console.error('Failed to create app:', err);
     }
@@ -163,7 +161,86 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
           </Select>
         </div>
 
-        {showAddAppForm ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Browse Available Apps Column */}
+          <div className="border-r border-gray-200 pr-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Browse Available Apps</h3>
+            
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-[#f1889b]" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="mb-4">
+                  <Label className="text-gray-700 font-medium mb-2">Add to Section</Label>
+                  <Select
+                    value={selectedSection}
+                    onValueChange={setSelectedSection}
+                  >
+                    <SelectTrigger className="bg-white/60 border-gray-200">
+                      <SelectValue placeholder="Select a section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sections.filter(s => s.name !== 'All Users').map((section) => (
+                        <SelectItem key={section.id} value={section.id}>
+                          {section.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                  {ownerApps.map((ownerApp) => {
+                    const alreadyAdded = appAlreadyExists(ownerApp);
+                    return (
+                      <div
+                        key={ownerApp.id}
+                        className="flex items-center justify-between p-4 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden">
+                            {ownerApp.icon_url ? (
+                              <img src={ownerApp.icon_url} alt={ownerApp.name} className="w-6 h-6 object-contain" />
+                            ) : (
+                              <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-800">{ownerApp.name}</h4>
+                            {ownerApp.description && (
+                              <p className="text-xs text-gray-500 mt-0.5">{ownerApp.description}</p>
+                            )}
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => handleAddApp(ownerApp)}
+                          disabled={alreadyAdded || addingAppId === ownerApp.id || !selectedSection}
+                          size="sm"
+                          variant={alreadyAdded ? "outline" : "default"}
+                          className={alreadyAdded ? "cursor-not-allowed" : "bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"}
+                        >
+                          {addingAppId === ownerApp.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : alreadyAdded ? (
+                            <>
+                              <Check className="w-4 h-4 mr-1" />
+                              Added
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           <form onSubmit={handleCreateApp} className="space-y-5">
             <div>
               <Label htmlFor="name" className="text-gray-700 font-medium">App Name</Label>
