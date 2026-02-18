@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Info } from 'lucide-react';
+import { Star, Info, Edit2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   HoverCard,
@@ -7,10 +7,13 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
-export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp }) {
+export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp, isEditMode, onEditApp }) {
   const handleCardClick = (e) => {
-    if (e.target.closest('.star-button') || e.target.closest('.info-button')) {
+    if (e.target.closest('.star-button') || e.target.closest('.info-button') || e.target.closest('.edit-button')) {
       return;
+    }
+    if (isEditMode) {
+      return; // Don't open app in edit mode
     }
     if (app.open_in_new_tab) {
       window.open(app.url, '_blank', 'noopener,noreferrer');
@@ -21,18 +24,29 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
 
   return (
     <div
-      draggable
+      draggable={isEditMode}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       onClick={handleCardClick}
       className={cn(
-        "group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300",
+        "group relative overflow-hidden rounded-2xl transition-all duration-300",
         "backdrop-blur-xl bg-white/40 border border-white/60",
-        "hover:bg-white/60 hover:shadow-[0_8px_32px_rgba(241,136,155,0.2)] hover:scale-[1.02]",
+        "hover:bg-white/60 hover:shadow-[0_8px_32px_rgba(241,136,155,0.2)]",
         "hover:border-[#f1889b]/30",
+        !isEditMode && "cursor-pointer hover:scale-[1.02]",
+        isEditMode && "jiggle",
         isDragging && "opacity-50 scale-95"
       )}
     >
+      <style>{`
+        @keyframes jiggle {
+          0%, 100% { transform: rotate(-1deg); }
+          50% { transform: rotate(1deg); }
+        }
+        .jiggle {
+          animation: jiggle 0.3s ease-in-out infinite;
+        }
+      `}</style>
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
@@ -78,20 +92,32 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
             </HoverCard>
           )}
           
-          <button
-            className="star-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 flex items-center justify-center transition-all duration-200 hover:bg-white/80"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(app.id);
-            }}
-          >
-            <Star
-              className={cn(
-                "w-3.5 h-3.5 transition-all duration-200",
-                isFavorited ? "fill-[#f1889b] text-[#f1889b]" : "text-gray-400"
-              )}
-            />
-          </button>
+          {isEditMode ? (
+            <button
+              className="edit-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 flex items-center justify-center transition-all duration-200 hover:bg-white/80"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditApp(app);
+              }}
+            >
+              <Edit2 className="w-3.5 h-3.5 text-gray-600" />
+            </button>
+          ) : (
+            <button
+              className="star-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 flex items-center justify-center transition-all duration-200 hover:bg-white/80"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(app.id);
+              }}
+            >
+              <Star
+                className={cn(
+                  "w-3.5 h-3.5 transition-all duration-200",
+                  isFavorited ? "fill-[#f1889b] text-[#f1889b]" : "text-gray-400"
+                )}
+              />
+            </button>
+          )}
         </div>
       </div>
     </div>
