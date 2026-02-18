@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, Ruler } from 'lucide-react';
+import { Star, Plus, Shield, Search, Sparkles, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
@@ -33,7 +33,6 @@ export default function AppHub() {
         const [selectedGradient, setSelectedGradient] = useState('default');
         const [showUserSelection, setShowUserSelection] = useState(false);
         const [showBrowseApps, setShowBrowseApps] = useState(false);
-        const [isEditMode, setIsEditMode] = useState(false);
         const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -224,10 +223,8 @@ export default function AppHub() {
   );
 
   const handleDragStart = (e, appId) => {
-    if (!isEditMode) return;
     setDraggingAppId(appId);
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('appId', appId);
   };
 
   const handleDragEnd = () => {
@@ -239,21 +236,8 @@ export default function AppHub() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = async (e, targetSectionId) => {
+  const handleDrop = (e, sectionId) => {
     e.preventDefault();
-    if (!isEditMode) return;
-    
-    const appId = e.dataTransfer.getData('appId');
-    if (!appId) return;
-    
-    const app = apps.find(a => a.id === appId);
-    if (!app || app.section_id === targetSectionId) return;
-    
-    // Update app's section
-    await updateAppMutation.mutate({
-      id: appId,
-      data: { section_id: targetSectionId }
-    });
   };
 
   const handleEditApp = (app) => {
@@ -392,16 +376,6 @@ export default function AppHub() {
                   <LayoutGrid className="w-4 h-4" />
                   <span className="hidden md:inline md:ml-2">Customize</span>
                 </Button>
-                <Button
-                  onClick={() => setIsEditMode(!isEditMode)}
-                  variant={isEditMode ? "default" : "outline"}
-                  size="icon"
-                  className={`md:w-auto md:px-4 rounded-xl ${isEditMode ? "bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white border-0" : "border-gray-300"}`}
-                  title="Edit Apps"
-                >
-                  <Ruler className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">{isEditMode ? 'Done' : 'Edit Apps'}</span>
-                </Button>
               </>
             ) : null}
 
@@ -466,8 +440,6 @@ export default function AppHub() {
                   onDragEnd={handleDragEnd}
                   isDragging={draggingAppId === app.id}
                   onOpenApp={setViewingApp}
-                  isEditMode={isEditMode}
-                  onEditApp={handleEditApp}
                 />
               ))}
             </div>
@@ -492,8 +464,6 @@ export default function AppHub() {
               onDrop={handleDrop}
               draggingAppId={draggingAppId}
               onOpenApp={setViewingApp}
-              isEditMode={isEditMode}
-              onEditApp={handleEditApp}
             />
           );
         })}
