@@ -39,16 +39,23 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
         const allApps = await base44.entities.App.list('order');
         const allSections = await base44.entities.Section.list('order');
         
+        // Only get apps from the primary owner account
         const ownerCreatedApps = allApps.filter(app => 
-          app.created_by === 'info@pilatesinpinkstudio.com' || 
-          app.created_by === 'gurpreen@pilatesinpinkstudio.com'
+          app.created_by === 'info@pilatesinpinkstudio.com'
         );
-        // Remove duplicates based on name and url
+        
+        // Remove duplicates, keeping the first occurrence
         const uniqueApps = ownerCreatedApps.filter((app, index, self) => 
           index === self.findIndex(a => a.name === app.name && a.url === app.url)
         );
+        
         setOwnerApps(uniqueApps);
-        setOwnerSections(allSections);
+        
+        // Only keep sections created by the owner
+        const ownerCreatedSections = allSections.filter(s => 
+          s.created_by === 'info@pilatesinpinkstudio.com'
+        );
+        setOwnerSections(ownerCreatedSections);
       } catch (err) {
         console.error('Failed to fetch owner apps:', err);
       } finally {
