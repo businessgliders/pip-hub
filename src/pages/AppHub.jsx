@@ -358,12 +358,6 @@ export default function AppHub() {
                     Customize
                   </button>
                   <button
-                    onClick={() => setShowAdminPanel(true)}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
-                  >
-                    Manage Apps
-                  </button>
-                  <button
                     onClick={() => setShowUserSelection(true)}
                     className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
                   >
@@ -517,6 +511,8 @@ export default function AppHub() {
           selectedGradient={selectedGradient}
           onGradientChange={handleGradientChange}
           onReorderApps={handleReorderApps}
+          onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+          onEditApp={handleEditApp}
           onManageSections={() => {
             setShowCustomizePanel(false);
             setShowSectionPanel(true);

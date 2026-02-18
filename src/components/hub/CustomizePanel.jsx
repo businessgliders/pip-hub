@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, GripVertical } from 'lucide-react';
+import { X, GripVertical, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
@@ -11,7 +11,7 @@ const GRADIENT_OPTIONS = [
   { id: 'orange', name: 'Warm Orange', gradient: 'from-[#fed7aa] via-[#fdba74] to-[#fed7aa]' },
 ];
 
-export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, onReorderApps, onManageSections, onClose }) {
+export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, onReorderApps, onDeleteApp, onEditApp, onManageSections, onClose }) {
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
   const groupedApps = sections.map(section => ({
@@ -111,6 +111,25 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
 
                                     <div className="flex-1 min-w-0">
                                       <h5 className="font-medium text-gray-800 text-sm truncate">{app.name}</h5>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 w-8 p-0 hover:bg-blue-50"
+                                        onClick={() => onEditApp(app)}
+                                      >
+                                        <Edit className="w-4 h-4 text-blue-500" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 w-8 p-0 hover:bg-red-50"
+                                        onClick={() => onDeleteApp(app.id)}
+                                      >
+                                        <Trash2 className="w-4 h-4 text-red-500" />
+                                      </Button>
                                     </div>
                                   </div>
                                 )}
