@@ -322,40 +322,6 @@ export default function AppHub() {
               </div>
             )}
 
-            {isAdminMode && (
-              <>
-                <Button
-                  onClick={() => setShowAddModal(true)}
-                  size="icon"
-                  className="md:w-auto md:px-4 bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white rounded-xl"
-                  title="Add App"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">Add App</span>
-                </Button>
-                <Button
-                  onClick={() => setShowAdminPanel(true)}
-                  variant="outline"
-                  size="icon"
-                  className="md:w-auto md:px-4 rounded-xl border-[#f1889b]/30"
-                  title="Manage Apps"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">Manage Apps</span>
-                </Button>
-                <Button
-                  onClick={() => setShowSectionPanel(true)}
-                  variant="outline"
-                  size="icon"
-                  className="md:w-auto md:px-4 rounded-xl border-[#f1889b]/30"
-                  title="Manage Sections"
-                >
-                  <Ruler className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">Manage Sections</span>
-                </Button>
-              </>
-            )}
-
             {user ? (
               <>
                 <Button
@@ -367,20 +333,6 @@ export default function AppHub() {
                 >
                   <Sparkles className="w-4 h-4" />
                   <span className="hidden md:inline md:ml-2">Browse Apps</span>
-                </Button>
-                <Button
-                  onClick={handleToggleAdmin}
-                  variant={isAdminMode ? "default" : "outline"}
-                  size="icon"
-                  className={
-                    isAdminMode
-                      ? "md:w-auto md:px-4 bg-gradient-to-r from-[#b67651] to-[#b67651]/80 hover:from-[#b67651]/90 hover:to-[#b67651]/70 text-white rounded-xl"
-                      : "md:w-auto md:px-4 rounded-xl border-gray-300"
-                  }
-                  title={isAdminMode ? 'Exit Admin' : 'Admin'}
-                >
-                  <Shield className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">{isAdminMode ? 'Exit Admin' : 'Admin'}</span>
                 </Button>
               </>
             ) : null}
@@ -404,6 +356,12 @@ export default function AppHub() {
                     className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
                   >
                     Customize
+                  </button>
+                  <button
+                    onClick={() => setShowAdminPanel(true)}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
+                  >
+                    Manage Apps
                   </button>
                   <button
                     onClick={() => setShowUserSelection(true)}

@@ -17,6 +17,7 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
   const [loading, setLoading] = useState(true);
   const [addingAppId, setAddingAppId] = useState(null);
   const [selectedSection, setSelectedSection] = useState('');
+  const [showAddAppForm, setShowAddAppForm] = useState(false);
 
   useEffect(() => {
     const fetchOwnerApps = async () => {
@@ -75,12 +76,22 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
       <div className="w-full max-w-3xl rounded-3xl backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl p-4 md:p-8 my-auto max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">Browse Apps</h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
-          >
-            <X className="w-5 h-5 text-gray-600" />
-          </button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setShowAddAppForm(true)}
+              size="sm"
+              className="bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add App
+            </Button>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
         </div>
 
         <div className="mb-6">
