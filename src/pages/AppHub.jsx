@@ -151,7 +151,12 @@ export default function AppHub() {
       setIsAdminMode(false);
       setShowAdminPanel(false);
     } else {
-      setShowPasswordPrompt(true);
+      // Only require password for owner accounts
+      if (isOwner) {
+        setShowPasswordPrompt(true);
+      } else {
+        setIsAdminMode(true);
+      }
     }
   };
 
@@ -339,22 +344,7 @@ export default function AppHub() {
               </>
             )}
 
-            {user && isOwner ? (
-              <Button
-                onClick={handleToggleAdmin}
-                variant={isAdminMode ? "default" : "outline"}
-                size="icon"
-                className={
-                  isAdminMode
-                    ? "md:w-auto md:px-4 bg-gradient-to-r from-[#b67651] to-[#b67651]/80 hover:from-[#b67651]/90 hover:to-[#b67651]/70 text-white rounded-xl"
-                    : "md:w-auto md:px-4 rounded-xl border-gray-300"
-                }
-                title={isAdminMode ? 'Exit Admin' : 'Admin'}
-              >
-                <Shield className="w-4 h-4" />
-                <span className="hidden md:inline md:ml-2">{isAdminMode ? 'Exit Admin' : 'Admin'}</span>
-              </Button>
-            ) : user ? (
+            {user ? (
               <>
                 <Button
                   onClick={() => setShowBrowseApps(true)}
@@ -375,6 +365,20 @@ export default function AppHub() {
                 >
                   <Shield className="w-4 h-4" />
                   <span className="hidden md:inline md:ml-2">Customize</span>
+                </Button>
+                <Button
+                  onClick={handleToggleAdmin}
+                  variant={isAdminMode ? "default" : "outline"}
+                  size="icon"
+                  className={
+                    isAdminMode
+                      ? "md:w-auto md:px-4 bg-gradient-to-r from-[#b67651] to-[#b67651]/80 hover:from-[#b67651]/90 hover:to-[#b67651]/70 text-white rounded-xl"
+                      : "md:w-auto md:px-4 rounded-xl border-gray-300"
+                  }
+                  title={isAdminMode ? 'Exit Admin' : 'Admin'}
+                >
+                  <Shield className="w-4 h-4" />
+                  <span className="hidden md:inline md:ml-2">{isAdminMode ? 'Exit Admin' : 'Admin'}</span>
                 </Button>
               </>
             ) : null}
