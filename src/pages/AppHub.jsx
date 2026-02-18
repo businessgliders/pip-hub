@@ -250,8 +250,8 @@ export default function AppHub() {
       order: index + 1
     }));
     
-    // Update cache optimistically
-    queryClient.setQueryData(['sections'], updatedSections);
+    // Update cache optimistically for immediate UI update
+    queryClient.setQueryData(['sections', user?.email], updatedSections);
     
     // Update all sections with new order
     await Promise.all(
@@ -259,6 +259,9 @@ export default function AppHub() {
         base44.entities.Section.update(section.id, { order: section.order })
       )
     );
+    
+    // Invalidate to ensure consistency
+    queryClient.invalidateQueries(['sections']);
   };
 
   if (!user) {

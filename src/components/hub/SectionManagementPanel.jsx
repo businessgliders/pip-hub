@@ -35,20 +35,8 @@ export default function SectionManagementPanel({ sections, onCreateSection, onUp
   const handleDragEnd = async (result) => {
     if (!result.destination) return;
     
-    const reorderedSections = Array.from(sections);
-    const [removed] = reorderedSections.splice(result.source.index, 1);
-    reorderedSections.splice(result.destination.index, 0, removed);
-    
-    // Update order values and save immediately
-    const updates = reorderedSections.map((section, index) => ({
-      id: section.id,
-      order: index + 1
-    }));
-    
-    // Call updates for each section
-    for (const update of updates) {
-      await onUpdateSection(update.id, { order: update.order });
-    }
+    // Call the parent's reorder function to handle optimistic updates
+    await onReorderSections(result.source.index, result.destination.index);
   };
 
   return (
