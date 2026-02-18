@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp }) {
+export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], onClose, onAddApp, onUnhideApp }) {
   const [ownerApps, setOwnerApps] = useState([]);
   const [ownerSections, setOwnerSections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +36,9 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
   useEffect(() => {
     const fetchOwnerApps = async () => {
       try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+        
         const allApps = await base44.entities.App.list('order');
         const allSections = await base44.entities.Section.list('order');
         

@@ -71,11 +71,17 @@ export default function AppHub() {
   });
 
   const { data: apps = [] } = useQuery({
-    queryKey: ['apps', user?.email],
+    queryKey: ['apps', user?.email, 'hiddenApps'],
     queryFn: async () => {
       if (!user) return [];
       const allApps = await base44.entities.App.list('order');
-      return allApps.filter(app => app.created_by === user.email || app.is_global === true);
+      const userHiddenApps = await base44.entities.HiddenApp.filter({ user_email: user.email });
+      const hiddenAppIds = userHiddenApps.map(h => h.app_id);
+      
+      return allApps.filter(app => 
+        (app.created_by === user.email || app.is_global === true) && 
+        !hiddenAppIds.includes(app.id)
+      );
     },
     enabled: !!user,
   });
@@ -83,6 +89,12 @@ export default function AppHub() {
   const { data: preferences = [] } = useQuery({
     queryKey: ['preferences', user?.email],
     queryFn: () => user ? base44.entities.UserAppPreference.filter({ user_email: user.email }) : [],
+    enabled: !!user,
+  });
+
+  const { data: hiddenApps = [] } = useQuery({
+    queryKey: ['hiddenApps', user?.email],
+    queryFn: () => user ? base44.entities.HiddenApp.filter({ user_email: user.email }) : [],
     enabled: !!user,
   });
 
@@ -104,6 +116,24 @@ export default function AppHub() {
   const deleteAppMutation = useMutation({
     mutationFn: (appId) => base44.entities.App.delete(appId),
     onSuccess: () => queryClient.invalidateQueries(['apps']),
+  });
+
+  const hideAppMutation = useMutation({
+    mutationFn: async (appId) => {
+      const existing = hiddenApps.find(h => h.app_id === appId);
+      if (existing) {
+        await base44.entities.HiddenApp.delete(existing.id);
+      } else {
+        await base44.entities.HiddenApp.create({
+          user_email: user.email,
+          app_id: appId
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['apps']);
+      queryClient.invalidateQueries(['hiddenApps']);
+    },
   });
 
   const updateAppMutation = useMutation({
@@ -515,12 +545,15 @@ export default function AppHub() {
           onGradientChange={handleGradientChange}
           onReorderApps={handleReorderApps}
           onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+          onHideApp={(appId) => hideAppMutation.mutate(appId)}
           onEditApp={handleEditApp}
           onManageSections={() => {
             setShowCustomizePanel(false);
             setShowSectionPanel(true);
           }}
           onClose={() => setShowCustomizePanel(false)}
+          isOwner={isOwner}
+          hiddenApps={hiddenApps}
         />
       )}
 
@@ -535,8 +568,10 @@ export default function AppHub() {
         <BrowseAppsModal
           sections={sections}
           userApps={apps}
+          hiddenApps={hiddenApps}
           onClose={() => setShowBrowseApps(false)}
           onAddApp={(appData) => createAppMutation.mutate(appData)}
+          onUnhideApp={(appId) => hideAppMutation.mutate(appId)}
         />
       )}
       </div>
