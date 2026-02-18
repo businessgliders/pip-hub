@@ -136,7 +136,7 @@ export default function BrowseAppsModal({ sections, userApps, onClose, onAddApp 
               className="bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"
             >
               <Plus className="w-4 h-4 mr-1" />
-              Add App
+              Add Custom App
             </Button>
             <button
               onClick={onClose}

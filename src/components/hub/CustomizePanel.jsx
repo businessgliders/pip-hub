@@ -63,7 +63,7 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
           {/* Manage Sections */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-700">Reorder Apps</h3>
+              <h3 className="text-lg font-semibold text-gray-700">All Apps</h3>
               <Button
                 onClick={onManageSections}
                 variant="outline"

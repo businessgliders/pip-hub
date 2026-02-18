@@ -329,10 +329,10 @@ export default function AppHub() {
                   variant="outline"
                   size="icon"
                   className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                  title="Browse Apps"
+                  title="Add Apps"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">Browse Apps</span>
+                  <span className="hidden md:inline md:ml-2">Add Apps</span>
                 </Button>
               </>
             ) : null}
