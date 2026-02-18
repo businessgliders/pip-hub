@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X, GripVertical, Edit, Trash2, EyeOff } from 'lucide-react';
+import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { base44 } from '@/api/base44Client';
 
 const GRADIENT_OPTIONS = [
   { id: 'default', name: 'Default Pink', gradient: 'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]' },
@@ -13,6 +15,10 @@ const GRADIENT_OPTIONS = [
 
 export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
   const [activeTab, setActiveTab] = useState('apps');
+  const [renamingSectionId, setRenamingSectionId] = useState(null);
+  const [renamingSectionName, setRenamingSectionName] = useState('');
+  const [isAddingSection, setIsAddingSection] = useState(false);
+  const [newSectionName, setNewSectionName] = useState('');
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
   const groupedApps = sections.map(section => ({
@@ -143,17 +149,7 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                                         >
                                           <Edit className="w-4 h-4 text-blue-500" />
                                         </Button>
-                                        {app.is_global ? (
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="h-8 w-8 p-0 hover:bg-gray-50"
-                                            onClick={() => onHideApp(app.id)}
-                                            title="Hide App"
-                                          >
-                                            <EyeOff className="w-4 h-4 text-gray-500" />
-                                          </Button>
-                                        ) : (
+                                        {isOwner || !app.is_global ? (
                                           <Button
                                             size="sm"
                                             variant="ghost"
@@ -162,6 +158,16 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                                             title="Delete App"
                                           >
                                             <Trash2 className="w-4 h-4 text-red-500" />
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-8 w-8 p-0 hover:bg-gray-50"
+                                            onClick={() => onHideApp(app.id)}
+                                            title="Hide App"
+                                          >
+                                            <EyeOff className="w-4 h-4 text-gray-500" />
                                           </Button>
                                         )}
                                       </div>
@@ -179,49 +185,153 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                 </Droppable>
               </DragDropContext>
             ) : (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="sections">
-                  {(provided) => (
-                    <div 
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-2"
-                    >
-                      {sections.map((section, index) => (
-                        <Draggable key={section.id} draggableId={section.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors group ${
-                                snapshot.isDragging ? 'shadow-lg scale-[1.01]' : ''
-                              }`}
-                            >
-                              <div {...provided.dragHandleProps}>
-                                <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
-                              </div>
-                              
-                              <div className="flex-1">
-                                <h5 className="font-medium text-gray-800">{section.name}</h5>
-                              </div>
+              <div className="space-y-4">
+                <Button
+                  onClick={() => setIsAddingSection(true)}
+                  variant="outline"
+                  className="w-full border-dashed border-2 border-[#f1889b]/30 hover:border-[#f1889b]/50 hover:bg-[#f1889b]/5"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Section
+                </Button>
 
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs"
-                                onClick={onManageSections}
+                {isAddingSection && (
+                  <div className="flex gap-2 p-4 rounded-lg backdrop-blur-md bg-white/60 border border-white/80">
+                    <Input
+                      value={newSectionName}
+                      onChange={(e) => setNewSectionName(e.target.value)}
+                      placeholder="Section name"
+                      className="flex-1"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newSectionName.trim()) {
+                          const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
+                          base44.entities.Section.create({ name: newSectionName, order: maxOrder + 1 });
+                          setNewSectionName('');
+                          setIsAddingSection(false);
+                        } else if (e.key === 'Escape') {
+                          setIsAddingSection(false);
+                          setNewSectionName('');
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        if (newSectionName.trim()) {
+                          const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
+                          base44.entities.Section.create({ name: newSectionName, order: maxOrder + 1 });
+                          setNewSectionName('');
+                          setIsAddingSection(false);
+                        }
+                      }}
+                      className="bg-green-500 hover:bg-green-600"
+                    >
+                      <Check className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setIsAddingSection(false);
+                        setNewSectionName('');
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+
+                <DragDropContext onDragEnd={handleDragEnd}>
+                  <Droppable droppableId="sections">
+                    {(provided) => (
+                      <div 
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="space-y-2"
+                      >
+                        {sections.map((section, index) => (
+                          <Draggable key={section.id} draggableId={section.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors group ${
+                                  snapshot.isDragging ? 'shadow-lg scale-[1.01]' : ''
+                                }`}
                               >
-                                Edit
-                              </Button>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+                                <div {...provided.dragHandleProps}>
+                                  <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
+                                </div>
+
+                                <div className="flex-1">
+                                  {renamingSectionId === section.id ? (
+                                    <Input
+                                      value={renamingSectionName}
+                                      onChange={(e) => setRenamingSectionName(e.target.value)}
+                                      className="h-8"
+                                      autoFocus
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && renamingSectionName.trim()) {
+                                          base44.entities.Section.update(section.id, { name: renamingSectionName });
+                                          setRenamingSectionId(null);
+                                        } else if (e.key === 'Escape') {
+                                          setRenamingSectionId(null);
+                                        }
+                                      }}
+                                    />
+                                  ) : (
+                                    <h5 className="font-medium text-gray-800">{section.name}</h5>
+                                  )}
+                                </div>
+
+                                {renamingSectionId === section.id ? (
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => {
+                                        if (renamingSectionName.trim()) {
+                                          base44.entities.Section.update(section.id, { name: renamingSectionName });
+                                          setRenamingSectionId(null);
+                                        }
+                                      }}
+                                      className="bg-green-500 hover:bg-green-600 h-8"
+                                    >
+                                      <Check className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setRenamingSectionId(null)}
+                                      className="h-8"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs"
+                                    onClick={() => {
+                                      setRenamingSectionId(section.id);
+                                      setRenamingSectionName(section.name);
+                                    }}
+                                  >
+                                    <Edit className="w-3 h-3 mr-1" />
+                                    Rename
+                                  </Button>
+                                )}
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </div>
             )}
           </div>
         </div>

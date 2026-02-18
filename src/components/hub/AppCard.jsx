@@ -26,8 +26,11 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
     <>
       <style>{`
         @keyframes jiggle-animation {
-          0%, 100% { transform: rotate(-1deg); }
-          50% { transform: rotate(1deg); }
+          0% { transform: rotate(-2deg); }
+          25% { transform: rotate(2deg); }
+          50% { transform: rotate(-2deg); }
+          75% { transform: rotate(2deg); }
+          100% { transform: rotate(-2deg); }
         }
       `}</style>
       <div
@@ -35,13 +38,16 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         onClick={handleCardClick}
-        style={isEditMode ? { animation: 'jiggle-animation 0.3s ease-in-out infinite' } : {}}
+        style={isEditMode ? { 
+          animation: 'jiggle-animation 0.4s ease-in-out infinite',
+          cursor: 'grab'
+        } : {}}
         className={cn(
-          "group relative overflow-hidden rounded-2xl transition-all duration-300",
+          "group relative overflow-hidden rounded-2xl",
           "backdrop-blur-xl bg-white/40 border border-white/60",
           "hover:bg-white/60 hover:shadow-[0_8px_32px_rgba(241,136,155,0.2)]",
           "hover:border-[#f1889b]/30",
-          !isEditMode && "cursor-pointer hover:scale-[1.02]",
+          !isEditMode && "cursor-pointer hover:scale-[1.02] transition-all duration-300",
           isDragging && "opacity-50 scale-95"
         )}
       >
