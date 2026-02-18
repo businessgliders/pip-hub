@@ -23,7 +23,7 @@ const getDisplayName = (email, fullName) => {
   if (email === 'info@pilatesinpinkstudio.com') {
     return 'Front Desk';
   }
-  return fullName.split(' ')[0];
+  return fullName ? fullName.split(' ')[0] : email.split('@')[0];
 };
 
 export default function UserSelection({ onUserSelected, onClose, currentGradient = 'default' }) {
@@ -46,12 +46,10 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
       try {
         const response = await base44.functions.invoke('getAllUsers', {});
         const allUsers = response.data.users || [];
-        // Sort with Front Desk (owner accounts) first
+        // Sort with Front Desk (owner account) first
         const sortedUsers = allUsers.sort((a, b) => {
-          const aIsOwner = a.email === 'info@pilatesinpinkstudio.com';
-          const bIsOwner = b.email === 'info@pilatesinpinkstudio.com';
-          if (aIsOwner && !bIsOwner) return -1;
-          if (!aIsOwner && bIsOwner) return 1;
+          if (a.email === 'info@pilatesinpinkstudio.com') return -1;
+          if (b.email === 'info@pilatesinpinkstudio.com') return 1;
           return 0;
         });
         setUsers(sortedUsers);
