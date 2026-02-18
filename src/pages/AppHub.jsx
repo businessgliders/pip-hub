@@ -367,6 +367,16 @@ export default function AppHub() {
                   <Sparkles className="w-4 h-4" />
                   <span className="hidden md:inline md:ml-2">Add Apps</span>
                 </Button>
+                <Button
+                  onClick={() => setShowCustomizePanel(true)}
+                  variant="outline"
+                  size="icon"
+                  className="md:w-auto md:px-4 rounded-xl border-gray-300"
+                  title="Customize"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  <span className="hidden md:inline md:ml-2">Customize</span>
+                </Button>
               </>
             ) : null}
 
@@ -384,12 +394,6 @@ export default function AppHub() {
                   <span className="hidden md:inline md:ml-2">Menu</span>
                 </Button>
                 <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-gray-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40">
-                  <button
-                    onClick={() => setShowCustomizePanel(true)}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
-                  >
-                    Customize
-                  </button>
                   <button
                     onClick={() => setShowUserSelection(true)}
                     className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
@@ -544,6 +548,7 @@ export default function AppHub() {
           selectedGradient={selectedGradient}
           onGradientChange={handleGradientChange}
           onReorderApps={handleReorderApps}
+          onReorderSections={handleReorderSections}
           onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
           onHideApp={(appId) => hideAppMutation.mutate(appId)}
           onEditApp={handleEditApp}
