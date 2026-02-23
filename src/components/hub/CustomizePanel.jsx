@@ -33,15 +33,27 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    if (result.source.index === result.destination.index) return;
+    if (result.source.index === result.destination.index && result.source.droppableId === result.destination.droppableId) return;
     
     setHasChanges(true);
     
     if (activeTab === 'apps') {
-      const reordered = Array.from(localApps);
-      const [removed] = reordered.splice(result.source.index, 1);
-      reordered.splice(result.destination.index, 0, removed);
-      setLocalApps(reordered);
+      // Only allow reordering within the same section
+      if (result.source.droppableId !== result.destination.droppableId) return;
+      
+      const sectionId = result.source.droppableId;
+      const sectionApps = localApps.filter(app => app.section_id === sectionId);
+      const otherApps = localApps.filter(app => app.section_id !== sectionId);
+      
+      const [removed] = sectionApps.splice(result.source.index, 1);
+      sectionApps.splice(result.destination.index, 0, removed);
+      
+      setLocalApps([...otherApps, ...sectionApps].sort((a, b) => {
+        if (a.section_id === sectionId && b.section_id === sectionId) {
+          return sectionApps.indexOf(a) - sectionApps.indexOf(b);
+        }
+        return (a.order || 0) - (b.order || 0);
+      }));
     } else {
       const reordered = Array.from(localSections);
       const [removed] = reordered.splice(result.source.index, 1);
@@ -52,13 +64,21 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
 
   const handleSave = async () => {
     if (activeTab === 'apps') {
-      await onReorderApps(0, 0); // Trigger with dummy values
-      // Update all apps with new order
-      await Promise.all(
-        localApps.map((app, index) =>
-          base44.entities.App.update(app.id, { order: index + 1 })
-        )
-      );
+      // Group apps by section and update order within each section
+      const grouped = {};
+      localApps.forEach(app => {
+        if (!grouped[app.section_id]) grouped[app.section_id] = [];
+        grouped[app.section_id].push(app);
+      });
+      
+      const updates = [];
+      Object.values(grouped).forEach(sectionApps => {
+        sectionApps.forEach((app, index) => {
+          updates.push(base44.entities.App.update(app.id, { order: index + 1 }));
+        });
+      });
+      
+      await Promise.all(updates);
     } else {
       await onReorderSections(0, 0); // Trigger with dummy values  
       // Update user section preferences
@@ -163,94 +183,93 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
           <div>
             {activeTab === 'apps' ? (
               <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="apps">
-                  {(provided) => (
-                    <div 
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-6"
-                    >
-                      {groupedApps.map(({ section, apps: sectionApps }) => (
-                        <div key={section.id}>
-                          <h4 className="text-sm font-semibold text-gray-600 mb-2 px-2">{section.name}</h4>
-                          <div className="space-y-2">
-                            {sectionApps.map((app) => {
-                              const globalIndex = localApps.findIndex(a => a.id === app.id);
-                              return (
-                                <Draggable key={app.id} draggableId={app.id} index={globalIndex}>
-                                  {(provided, snapshot) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      style={{
-                                        ...provided.draggableProps.style,
-                                        cursor: snapshot.isDragging ? 'grabbing' : 'grab',
-                                      }}
-                                      className={`flex items-center gap-3 p-3 rounded-lg backdrop-blur-md border group ${
-                                        snapshot.isDragging 
-                                          ? 'shadow-2xl scale-105 bg-white border-[#f1889b] z-50' 
-                                          : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
-                                      }`}
-                                    >
-                                      <div {...provided.dragHandleProps}>
-                                        <GripVertical className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
-                                      </div>
-                                      
-                                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                        {app.icon_url ? (
-                                          <img src={app.icon_url} alt={app.name} className="w-6 h-6 object-contain" />
-                                        ) : (
-                                          <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
-                                        )}
-                                      </div>
+                <div className="space-y-6">
+                  {groupedApps.map(({ section, apps: sectionApps }) => (
+                    <div key={section.id}>
+                      <h4 className="text-sm font-semibold text-gray-600 mb-2 px-2">{section.name}</h4>
+                      <Droppable droppableId={section.id}>
+                        {(provided, snapshot) => (
+                          <div 
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            className={`space-y-2 min-h-[60px] rounded-lg transition-colors ${
+                              snapshot.isDraggingOver ? 'bg-[#f1889b]/5' : ''
+                            }`}
+                          >
+                            {sectionApps.map((app, index) => (
+                              <Draggable key={app.id} draggableId={app.id} index={index}>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    style={{
+                                      ...provided.draggableProps.style,
+                                      cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+                                    }}
+                                    className={`flex items-center gap-3 p-3 rounded-lg backdrop-blur-md border group ${
+                                      snapshot.isDragging 
+                                        ? 'shadow-2xl scale-105 bg-white border-[#f1889b] z-50' 
+                                        : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
+                                    }`}
+                                  >
+                                    <div {...provided.dragHandleProps}>
+                                      <GripVertical className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
+                                    </div>
 
-                                      <div className="flex-1 min-w-0">
-                                        <h5 className="font-medium text-gray-800 text-sm truncate">{app.name}</h5>
-                                      </div>
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                      {app.icon_url ? (
+                                        <img src={app.icon_url} alt={app.name} className="w-6 h-6 object-contain" />
+                                      ) : (
+                                        <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
+                                      )}
+                                    </div>
 
-                                      <div className="flex gap-2">
+                                    <div className="flex-1 min-w-0">
+                                      <h5 className="font-medium text-gray-800 text-sm truncate">{app.name}</h5>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 w-8 p-0 hover:bg-blue-50"
+                                        onClick={() => onEditApp(app)}
+                                      >
+                                        <Edit className="w-4 h-4 text-blue-500" />
+                                      </Button>
+                                      {isOwner || !app.is_global ? (
                                         <Button
                                           size="sm"
                                           variant="ghost"
-                                          className="h-8 w-8 p-0 hover:bg-blue-50"
-                                          onClick={() => onEditApp(app)}
+                                          className="h-8 w-8 p-0 hover:bg-red-50"
+                                          onClick={() => onDeleteApp(app.id)}
+                                          title="Delete App"
                                         >
-                                          <Edit className="w-4 h-4 text-blue-500" />
+                                          <Trash2 className="w-4 h-4 text-red-500" />
                                         </Button>
-                                        {isOwner || !app.is_global ? (
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="h-8 w-8 p-0 hover:bg-red-50"
-                                            onClick={() => onDeleteApp(app.id)}
-                                            title="Delete App"
-                                          >
-                                            <Trash2 className="w-4 h-4 text-red-500" />
-                                          </Button>
-                                        ) : (
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="h-8 w-8 p-0 hover:bg-gray-50"
-                                            onClick={() => onHideApp(app.id)}
-                                            title="Hide App"
-                                          >
-                                            <EyeOff className="w-4 h-4 text-gray-500" />
-                                          </Button>
-                                        )}
-                                      </div>
+                                      ) : (
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="h-8 w-8 p-0 hover:bg-gray-50"
+                                          onClick={() => onHideApp(app.id)}
+                                          title="Hide App"
+                                        >
+                                          <EyeOff className="w-4 h-4 text-gray-500" />
+                                        </Button>
+                                      )}
                                     </div>
-                                  )}
-                                </Draggable>
-                              );
-                            })}
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
                           </div>
-                        </div>
-                      ))}
-                      {provided.placeholder}
+                        )}
+                      </Droppable>
                     </div>
-                  )}
-                </Droppable>
+                  ))}
+                </div>
               </DragDropContext>
             ) : (
               <div className="space-y-4">
