@@ -20,20 +20,71 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
   const [renamingSectionName, setRenamingSectionName] = useState('');
   const [isAddingSection, setIsAddingSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
+  const [localApps, setLocalApps] = useState(apps);
+  const [localSections, setLocalSections] = useState(sections);
+  const [hasChanges, setHasChanges] = useState(false);
+  
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
-  const groupedApps = sections.map(section => ({
+  const groupedApps = localSections.map(section => ({
     section,
-    apps: apps.filter(app => app.section_id === section.id)
+    apps: localApps.filter(app => app.section_id === section.id)
   })).filter(group => group.apps.length > 0);
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
+    if (result.source.index === result.destination.index) return;
+    
+    setHasChanges(true);
+    
     if (activeTab === 'apps') {
-      onReorderApps(result.source.index, result.destination.index);
+      const reordered = Array.from(localApps);
+      const [removed] = reordered.splice(result.source.index, 1);
+      reordered.splice(result.destination.index, 0, removed);
+      setLocalApps(reordered);
     } else {
-      onReorderSections(result.source.index, result.destination.index);
+      const reordered = Array.from(localSections);
+      const [removed] = reordered.splice(result.source.index, 1);
+      reordered.splice(result.destination.index, 0, removed);
+      setLocalSections(reordered);
     }
+  };
+
+  const handleSave = async () => {
+    if (activeTab === 'apps') {
+      await onReorderApps(0, 0); // Trigger with dummy values
+      // Update all apps with new order
+      await Promise.all(
+        localApps.map((app, index) =>
+          base44.entities.App.update(app.id, { order: index + 1 })
+        )
+      );
+    } else {
+      await onReorderSections(0, 0); // Trigger with dummy values  
+      // Update user section preferences
+      const user = await base44.auth.me();
+      await Promise.all(
+        localSections.map(async (section, index) => {
+          const existing = await base44.entities.UserSectionPreference.filter({
+            user_email: user.email,
+            section_id: section.id
+          });
+          
+          if (existing.length > 0) {
+            await base44.entities.UserSectionPreference.update(existing[0].id, {
+              custom_order: index + 1
+            });
+          } else {
+            await base44.entities.UserSectionPreference.create({
+              user_email: user.email,
+              section_id: section.id,
+              custom_order: index + 1
+            });
+          }
+        })
+      );
+    }
+    window.location.reload();
   };
 
   return (
@@ -42,13 +93,23 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
         <div className="rounded-3xl backdrop-blur-xl bg-white/95 border border-white/60 shadow-2xl p-4 md:p-8">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-semibold text-gray-800">Customize</h2>
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="rounded-xl"
-            >
-              Close
-            </Button>
+            <div className="flex gap-2">
+              {hasChanges && (
+                <Button
+                  onClick={handleSave}
+                  className="rounded-xl bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"
+                >
+                  Save Changes
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="rounded-xl"
+              >
+                Close
+              </Button>
+            </div>
           </div>
 
           {/* Background Gradient Selection */}
@@ -113,18 +174,22 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                         <div key={section.id}>
                           <h4 className="text-sm font-semibold text-gray-600 mb-2 px-2">{section.name}</h4>
                           <div className="space-y-2">
-                            {sectionApps.map((app, index) => {
-                              const globalIndex = apps.findIndex(a => a.id === app.id);
+                            {sectionApps.map((app) => {
+                              const globalIndex = localApps.findIndex(a => a.id === app.id);
                               return (
                                 <Draggable key={app.id} draggableId={app.id} index={globalIndex}>
                                   {(provided, snapshot) => (
                                     <div
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
-                                      className={`flex items-center gap-3 p-3 rounded-lg backdrop-blur-md border transition-all group ${
+                                      style={{
+                                        ...provided.draggableProps.style,
+                                        cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+                                      }}
+                                      className={`flex items-center gap-3 p-3 rounded-lg backdrop-blur-md border group ${
                                         snapshot.isDragging 
-                                          ? 'shadow-2xl scale-105 bg-white border-[#f1889b] rotate-2' 
-                                          : 'bg-white/60 border-white/80 hover:bg-white/80'
+                                          ? 'shadow-2xl scale-105 bg-white border-[#f1889b] z-50' 
+                                          : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
                                       }`}
                                     >
                                       <div {...provided.dragHandleProps}>
@@ -253,16 +318,20 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                         ref={provided.innerRef}
                         className="space-y-2"
                       >
-                        {sections.map((section, index) => (
+                        {localSections.map((section, index) => (
                           <Draggable key={section.id} draggableId={section.id} index={index}>
                             {(provided, snapshot) => (
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md border transition-all group ${
+                                style={{
+                                  ...provided.draggableProps.style,
+                                  cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+                                }}
+                                className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md border group ${
                                   snapshot.isDragging 
-                                    ? 'shadow-2xl scale-105 bg-white border-[#f1889b] rotate-2' 
-                                    : 'bg-white/60 border-white/80 hover:bg-white/80'
+                                    ? 'shadow-2xl scale-105 bg-white border-[#f1889b] z-50' 
+                                    : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
                                 }`}
                               >
                                 <div {...provided.dragHandleProps}>
