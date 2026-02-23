@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { X, Save, Loader2 } from 'lucide-react';
+import { X, Save, Loader2, Sparkles, ExternalLink, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -137,31 +136,48 @@ export default function EditAppModal({ app, sections, onClose, onSave }) {
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="is_new" className="text-gray-700 font-medium">Show "New" Badge</Label>
-            <Switch
-              id="is_new"
-              checked={formData.is_new}
-              onCheckedChange={(checked) => setFormData({ ...formData, is_new: checked })}
-            />
-          </div>
+          <div>
+            <Label className="text-gray-700 font-medium mb-2 block">Options</Label>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, is_new: !formData.is_new })}
+                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                  formData.is_new 
+                    ? 'border-[#f1889b] bg-[#f1889b]/10' 
+                    : 'border-gray-200 bg-white/60 hover:border-gray-300'
+                }`}
+              >
+                <Sparkles className={`w-5 h-5 ${formData.is_new ? 'text-[#f1889b]' : 'text-gray-400'}`} />
+                <span className="text-xs text-gray-700 text-center">New Badge</span>
+              </button>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="open_in_new_tab" className="text-gray-700 font-medium">Open in New Tab</Label>
-            <Switch
-              id="open_in_new_tab"
-              checked={formData.open_in_new_tab}
-              onCheckedChange={(checked) => setFormData({ ...formData, open_in_new_tab: checked })}
-            />
-          </div>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, open_in_new_tab: !formData.open_in_new_tab })}
+                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                  formData.open_in_new_tab 
+                    ? 'border-[#f1889b] bg-[#f1889b]/10' 
+                    : 'border-gray-200 bg-white/60 hover:border-gray-300'
+                }`}
+              >
+                <ExternalLink className={`w-5 h-5 ${formData.open_in_new_tab ? 'text-[#f1889b]' : 'text-gray-400'}`} />
+                <span className="text-xs text-gray-700 text-center">New Tab</span>
+              </button>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="is_global" className="text-gray-700 font-medium">Global (Visible to All Users)</Label>
-            <Switch
-              id="is_global"
-              checked={formData.is_global}
-              onCheckedChange={(checked) => setFormData({ ...formData, is_global: checked })}
-            />
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, is_global: !formData.is_global })}
+                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                  formData.is_global 
+                    ? 'border-[#f1889b] bg-[#f1889b]/10' 
+                    : 'border-gray-200 bg-white/60 hover:border-gray-300'
+                }`}
+              >
+                <Globe className={`w-5 h-5 ${formData.is_global ? 'text-[#f1889b]' : 'text-gray-400'}`} />
+                <span className="text-xs text-gray-700 text-center">Global</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">
