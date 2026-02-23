@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import ConfirmationModal from './ConfirmationModal';
 import {
   Select,
   SelectContent,
@@ -33,6 +34,7 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
   const [isCreatingSection, setIsCreatingSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
   const [user, setUser] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
     const fetchOwnerApps = async () => {
@@ -82,43 +84,45 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
 
   const handleAddApp = async (ownerApp) => {
     setAddingAppId(ownerApp.id);
-    try {
-      // Find the section this app belongs to in owner's account
-      const ownerSection = ownerSections.find(s => s.id === ownerApp.section_id);
-      let targetSectionId = ownerApp.section_id;
-      
-      // Check if user already has this section
-      const userSection = sections.find(s => s.name === ownerSection?.name);
-      
-      if (!userSection && ownerSection) {
-        // Create the section for the user
-        const newSection = await base44.entities.Section.create({
-          name: ownerSection.name,
-          order: ownerSection.order
-        });
-        targetSectionId = newSection.id;
-      } else if (userSection) {
-        targetSectionId = userSection.id;
-      }
+    
+    setConfirmAction({
+      type: 'add',
+      message: `Add "${ownerApp.name}" to your apps?`,
+      action: async () => {
+        try {
+          // Find the section this app belongs to in owner's account
+          const ownerSection = ownerSections.find(s => s.id === ownerApp.section_id);
+          let targetSectionId = ownerApp.section_id;
+          
+          // Check if user already has this section
+          const userSection = sections.find(s => s.name === ownerSection?.name);
+          
+          if (!userSection && ownerSection) {
+            // Create the section for the user
+            const newSection = await base44.entities.Section.create({
+              name: ownerSection.name,
+              order: ownerSection.order
+            });
+            targetSectionId = newSection.id;
+          } else if (userSection) {
+            targetSectionId = userSection.id;
+          }
 
-      await onAddApp({
-        name: ownerApp.name,
-        url: ownerApp.url,
-        description: ownerApp.description,
-        icon_url: ownerApp.icon_url,
-        section_id: targetSectionId,
-        is_new: true,
-        open_in_new_tab: ownerApp.open_in_new_tab,
-        is_global: false
-      });
-      alert('App added successfully!');
-      window.location.reload();
-    } catch (err) {
-      console.error('Failed to add app:', err);
-      alert('Failed to add app. Please try again.');
-    } finally {
-      setAddingAppId(null);
-    }
+          await onAddApp({
+            name: ownerApp.name,
+            url: ownerApp.url,
+            description: ownerApp.description,
+            icon_url: ownerApp.icon_url,
+            section_id: targetSectionId,
+            is_new: true,
+            open_in_new_tab: ownerApp.open_in_new_tab,
+            is_global: false
+          });
+        } finally {
+          setAddingAppId(null);
+        }
+      }
+    });
   };
 
   const autoFetchFavicon = async (url) => {
@@ -161,27 +165,27 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
   const handleCreateApp = async (e) => {
     e.preventDefault();
     if (!newAppData.name || !newAppData.url || !newAppData.section_id) return;
-    try {
-      await onAddApp({
-        ...newAppData,
-        is_new: true
-      });
-      setNewAppData({
-        name: '',
-        url: '',
-        description: '',
-        section_id: '',
-        icon_url: '',
-        is_new: false,
-        open_in_new_tab: false,
-        is_global: false
-      });
-      alert('App added successfully!');
-      window.location.reload();
-    } catch (err) {
-      console.error('Failed to create app:', err);
-      alert('Failed to add app. Please try again.');
-    }
+    
+    setConfirmAction({
+      type: 'add',
+      message: `Add "${newAppData.name}" to your apps?`,
+      action: async () => {
+        await onAddApp({
+          ...newAppData,
+          is_new: true
+        });
+        setNewAppData({
+          name: '',
+          url: '',
+          description: '',
+          section_id: '',
+          icon_url: '',
+          is_new: false,
+          open_in_new_tab: false,
+          is_global: false
+        });
+      }
+    });
   };
 
   // Group apps by section and filter by search
@@ -473,6 +477,18 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
           </div>
         </div>
       </div>
+
+      {confirmAction && (
+        <ConfirmationModal
+          type={confirmAction.type}
+          message={confirmAction.message}
+          onConfirm={confirmAction.action}
+          onCancel={() => {
+            setConfirmAction(null);
+            setAddingAppId(null);
+          }}
+        />
+      )}
     </div>
   );
 }

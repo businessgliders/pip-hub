@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { base44 } from '@/api/base44Client';
+import ConfirmationModal from './ConfirmationModal';
 
 const GRADIENT_OPTIONS = [
   { id: 'default', name: 'Pink', gradient: 'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]' },
@@ -23,6 +24,7 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
   const [localApps, setLocalApps] = useState(apps);
   const [localSections, setLocalSections] = useState(sections);
   const [hasChanges, setHasChanges] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
   
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
@@ -62,49 +64,54 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
     }
   };
 
-  const handleSave = async () => {
-    if (activeTab === 'apps') {
-      // Group apps by section and update order within each section
-      const grouped = {};
-      localApps.forEach(app => {
-        if (!grouped[app.section_id]) grouped[app.section_id] = [];
-        grouped[app.section_id].push(app);
-      });
-      
-      const updates = [];
-      Object.values(grouped).forEach(sectionApps => {
-        sectionApps.forEach((app, index) => {
-          updates.push(base44.entities.App.update(app.id, { order: index + 1 }));
-        });
-      });
-      
-      await Promise.all(updates);
-    } else {
-      await onReorderSections(0, 0); // Trigger with dummy values  
-      // Update user section preferences
-      const user = await base44.auth.me();
-      await Promise.all(
-        localSections.map(async (section, index) => {
-          const existing = await base44.entities.UserSectionPreference.filter({
-            user_email: user.email,
-            section_id: section.id
+  const handleSave = () => {
+    setConfirmAction({
+      type: 'save',
+      message: 'Save your changes?',
+      action: async () => {
+        if (activeTab === 'apps') {
+          // Group apps by section and update order within each section
+          const grouped = {};
+          localApps.forEach(app => {
+            if (!grouped[app.section_id]) grouped[app.section_id] = [];
+            grouped[app.section_id].push(app);
           });
           
-          if (existing.length > 0) {
-            await base44.entities.UserSectionPreference.update(existing[0].id, {
-              custom_order: index + 1
+          const updates = [];
+          Object.values(grouped).forEach(sectionApps => {
+            sectionApps.forEach((app, index) => {
+              updates.push(base44.entities.App.update(app.id, { order: index + 1 }));
             });
-          } else {
-            await base44.entities.UserSectionPreference.create({
-              user_email: user.email,
-              section_id: section.id,
-              custom_order: index + 1
-            });
-          }
-        })
-      );
-    }
-    window.location.reload();
+          });
+          
+          await Promise.all(updates);
+        } else {
+          await onReorderSections(0, 0); // Trigger with dummy values  
+          // Update user section preferences
+          const user = await base44.auth.me();
+          await Promise.all(
+            localSections.map(async (section, index) => {
+              const existing = await base44.entities.UserSectionPreference.filter({
+                user_email: user.email,
+                section_id: section.id
+              });
+              
+              if (existing.length > 0) {
+                await base44.entities.UserSectionPreference.update(existing[0].id, {
+                  custom_order: index + 1
+                });
+              } else {
+                await base44.entities.UserSectionPreference.create({
+                  user_email: user.email,
+                  section_id: section.id,
+                  custom_order: index + 1
+                });
+              }
+            })
+          );
+        }
+      }
+    });
   };
 
   return (
@@ -242,7 +249,11 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                                           size="sm"
                                           variant="ghost"
                                           className="h-8 w-8 p-0 hover:bg-red-50"
-                                          onClick={() => onDeleteApp(app.id)}
+                                          onClick={() => setConfirmAction({
+                                            type: 'delete',
+                                            message: `Delete "${app.name}"?`,
+                                            action: () => onDeleteApp(app.id)
+                                          })}
                                           title="Delete App"
                                         >
                                           <Trash2 className="w-4 h-4 text-red-500" />
@@ -429,6 +440,15 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
           </div>
         </div>
       </div>
+
+      {confirmAction && (
+        <ConfirmationModal
+          type={confirmAction.type}
+          message={confirmAction.message}
+          onConfirm={confirmAction.action}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 }
