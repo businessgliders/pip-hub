@@ -337,6 +337,7 @@ export default function AppHub() {
       selectedGradient === 'purple' ? 'from-[#f3e8ff] via-[#ddd6fe] to-[#f3e8ff]' :
       selectedGradient === 'green' ? 'from-[#dcfce7] via-[#bbf7d0] to-[#dcfce7]' :
       selectedGradient === 'orange' ? 'from-[#fed7aa] via-[#fdba74] to-[#fed7aa]' :
+      selectedGradient === 'dark' ? 'from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]' :
       'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]'
     } relative overflow-hidden`}>
       {/* Decorative elements */}

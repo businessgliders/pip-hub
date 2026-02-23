@@ -6,11 +6,12 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { base44 } from '@/api/base44Client';
 
 const GRADIENT_OPTIONS = [
-  { id: 'default', name: 'Default Pink', gradient: 'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]' },
-  { id: 'blue', name: 'Calm Blue', gradient: 'from-[#e0f2fe] via-[#bae6fd] to-[#e0f2fe]' },
-  { id: 'purple', name: 'Royal Purple', gradient: 'from-[#f3e8ff] via-[#ddd6fe] to-[#f3e8ff]' },
-  { id: 'green', name: 'Fresh Green', gradient: 'from-[#dcfce7] via-[#bbf7d0] to-[#dcfce7]' },
-  { id: 'orange', name: 'Warm Orange', gradient: 'from-[#fed7aa] via-[#fdba74] to-[#fed7aa]' },
+  { id: 'default', name: 'Pink', gradient: 'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]' },
+  { id: 'blue', name: 'Blue', gradient: 'from-[#e0f2fe] via-[#bae6fd] to-[#e0f2fe]' },
+  { id: 'purple', name: 'Purple', gradient: 'from-[#f3e8ff] via-[#ddd6fe] to-[#f3e8ff]' },
+  { id: 'green', name: 'Green', gradient: 'from-[#dcfce7] via-[#bbf7d0] to-[#dcfce7]' },
+  { id: 'orange', name: 'Orange', gradient: 'from-[#fed7aa] via-[#fdba74] to-[#fed7aa]' },
+  { id: 'dark', name: 'Dark', gradient: 'from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]' },
 ];
 
 export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
@@ -53,19 +54,19 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
           {/* Background Gradient Selection */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Background Theme</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
               {GRADIENT_OPTIONS.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => onGradientChange(option.id)}
-                  className={`p-4 rounded-xl transition-all border-2 ${
+                  className={`p-2 rounded-lg transition-all border-2 ${
                     selectedGradient === option.id
                       ? 'border-[#f1889b] scale-105'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <div className={`w-full h-20 rounded-lg bg-gradient-to-br ${option.gradient} mb-2`} />
-                  <p className="text-sm font-medium text-gray-700 text-center">{option.name}</p>
+                  <div className={`w-full h-12 rounded bg-gradient-to-br ${option.gradient} mb-1`} />
+                  <p className="text-xs font-medium text-gray-700 text-center">{option.name}</p>
                 </button>
               ))}
             </div>
@@ -120,8 +121,10 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                                     <div
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
-                                      className={`flex items-center gap-3 p-3 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors group ${
-                                        snapshot.isDragging ? 'shadow-lg scale-[1.01]' : ''
+                                      className={`flex items-center gap-3 p-3 rounded-lg backdrop-blur-md border transition-all group ${
+                                        snapshot.isDragging 
+                                          ? 'shadow-2xl scale-105 bg-white border-[#f1889b] rotate-2' 
+                                          : 'bg-white/60 border-white/80 hover:bg-white/80'
                                       }`}
                                     >
                                       <div {...provided.dragHandleProps}>
@@ -256,8 +259,10 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors group ${
-                                  snapshot.isDragging ? 'shadow-lg scale-[1.01]' : ''
+                                className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md border transition-all group ${
+                                  snapshot.isDragging 
+                                    ? 'shadow-2xl scale-105 bg-white border-[#f1889b] rotate-2' 
+                                    : 'bg-white/60 border-white/80 hover:bg-white/80'
                                 }`}
                               >
                                 <div {...provided.dragHandleProps}>

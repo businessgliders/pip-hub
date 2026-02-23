@@ -107,12 +107,15 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
         description: ownerApp.description,
         icon_url: ownerApp.icon_url,
         section_id: targetSectionId,
-        is_new: false,
+        is_new: true,
         open_in_new_tab: ownerApp.open_in_new_tab,
         is_global: false
       });
+      alert('App added successfully!');
+      window.location.reload();
     } catch (err) {
       console.error('Failed to add app:', err);
+      alert('Failed to add app. Please try again.');
     } finally {
       setAddingAppId(null);
     }
@@ -159,7 +162,10 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
     e.preventDefault();
     if (!newAppData.name || !newAppData.url || !newAppData.section_id) return;
     try {
-      await onAddApp(newAppData);
+      await onAddApp({
+        ...newAppData,
+        is_new: true
+      });
       setNewAppData({
         name: '',
         url: '',
@@ -170,8 +176,11 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
         open_in_new_tab: false,
         is_global: false
       });
+      alert('App added successfully!');
+      window.location.reload();
     } catch (err) {
       console.error('Failed to create app:', err);
+      alert('Failed to add app. Please try again.');
     }
   };
 
