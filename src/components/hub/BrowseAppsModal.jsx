@@ -26,8 +26,8 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
     description: '',
     section_id: '',
     icon_url: '',
-    is_new: false,
-    open_in_new_tab: false,
+    is_new: true,
+    open_in_new_tab: true,
     is_global: false
   });
   const [isFetchingIcon, setIsFetchingIcon] = useState(false);
@@ -180,8 +180,8 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
           description: '',
           section_id: '',
           icon_url: '',
-          is_new: false,
-          open_in_new_tab: false,
+          is_new: true,
+          open_in_new_tab: true,
           is_global: false
         });
       }
