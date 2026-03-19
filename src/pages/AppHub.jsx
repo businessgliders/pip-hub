@@ -354,7 +354,7 @@ export default function AppHub() {
               className="w-16 h-16 rounded-2xl shadow-lg"
             />
             <div className="text-center md:text-left">
-              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">App Hub</h1>
+              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">{user?.full_name?.split(' ')[0] || 'App'} Hub</h1>
               <p className="text-gray-600 text-sm mt-1">Your workspace at a glance</p>
             </div>
           </div>
