@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Info } from 'lucide-react';
+import { Star, Info, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   HoverCard,
@@ -7,7 +7,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
-export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp }) {
+export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp, isEditMode, onEdit, onDelete, onMoveUp, onMoveDown }) {
   // Check if app is new (created within last 7 days)
   const isNewApp = () => {
     if (!app.is_new) return false;
