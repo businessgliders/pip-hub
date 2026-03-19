@@ -223,7 +223,7 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Browse Available Apps Column */}
-          <div className="border-r border-gray-200 pr-6">
+          <div className="md:border-r md:border-gray-200 md:pr-6">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Browse Available Apps</h3>
             
             {loading ? (
