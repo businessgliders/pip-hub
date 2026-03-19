@@ -576,14 +576,6 @@ export default function AppHub() {
             />
             <span className="text-[10px] font-medium">Home</span>
           </button>
-          {/* Customize */}
-          <button
-            onClick={() => setShowCustomizePanel(true)}
-            className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl text-[#f1889b]"
-          >
-            <LayoutGrid className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Customize</span>
-          </button>
           {/* Add Apps */}
           <button
             onClick={() => setShowBrowseApps(true)}
