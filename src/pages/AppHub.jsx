@@ -5,6 +5,7 @@ import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, User, 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
+import AppListRow from '../components/hub/AppListRow';
 import SectionGroup from '../components/hub/SectionGroup';
 import AddAppModal from '../components/hub/AddAppModal';
 import EditAppModal from '../components/hub/EditAppModal';
@@ -442,10 +443,16 @@ export default function AppHub() {
             </div>
             {viewMode === 'list' ? (
               <div className="rounded-2xl overflow-hidden border border-gray-200/60 shadow-sm">
-                {favoritedApps.map((app, i) => {
-                  const { AppListRow: ALR } = { AppListRow: require('../components/hub/AppListRow').default };
-                  return null;
-                })}
+                {favoritedApps.map((app, i) => (
+                  <AppListRow
+                    key={app.id}
+                    app={app}
+                    isFavorited={true}
+                    onToggleFavorite={() => toggleFavoriteMutation.mutate(app.id)}
+                    onOpenApp={setViewingApp}
+                    isLast={i === favoritedApps.length - 1}
+                  />
+                ))}
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
