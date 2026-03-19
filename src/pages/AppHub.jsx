@@ -332,147 +332,137 @@ export default function AppHub() {
     );
   }
 
+  const gradientClass =
+    selectedGradient === 'blue' ? 'from-[#e0f2fe] via-[#bae6fd] to-[#e0f2fe]' :
+    selectedGradient === 'purple' ? 'from-[#f3e8ff] via-[#ddd6fe] to-[#f3e8ff]' :
+    selectedGradient === 'green' ? 'from-[#dcfce7] via-[#bbf7d0] to-[#dcfce7]' :
+    selectedGradient === 'orange' ? 'from-[#fed7aa] via-[#fdba74] to-[#fed7aa]' :
+    selectedGradient === 'dark' ? 'from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]' :
+    'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]';
+
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${
-      selectedGradient === 'blue' ? 'from-[#e0f2fe] via-[#bae6fd] to-[#e0f2fe]' :
-      selectedGradient === 'purple' ? 'from-[#f3e8ff] via-[#ddd6fe] to-[#f3e8ff]' :
-      selectedGradient === 'green' ? 'from-[#dcfce7] via-[#bbf7d0] to-[#dcfce7]' :
-      selectedGradient === 'orange' ? 'from-[#fed7aa] via-[#fdba74] to-[#fed7aa]' :
-      selectedGradient === 'dark' ? 'from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]' :
-      'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]'
-    } relative overflow-hidden`}>
-      {/* Decorative elements */}
+    <div className={`min-h-screen bg-gradient-to-br ${gradientClass} relative overflow-hidden`}>
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#f1889b]/20 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f7b1bd]/20 rounded-full blur-3xl" />
-      
-      <div className="relative max-w-7xl mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-12">
-          <div className="flex flex-col md:flex-row items-center gap-4 mx-auto md:mx-0">
+
+      {/* ── MOBILE TOP BAR ── */}
+      <div className="md:hidden sticky top-0 z-30 px-4 pt-4 pb-2 bg-white/60 backdrop-blur-xl border-b border-white/40">
+        <div className="flex items-center gap-2">
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
+            alt="PiP Hub"
+            className="w-9 h-9 rounded-xl shadow"
+          />
+          <h1 className="text-lg font-bold text-gray-800 flex-1">{user?.full_name?.split(' ')[0] || 'App'} Hub</h1>
+          {/* View toggle */}
+          <button
+            onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
+          >
+            {viewMode === 'grid' ? <List className="w-4 h-4 text-gray-600" /> : <Grid3X3 className="w-4 h-4 text-gray-600" />}
+          </button>
+        </div>
+        {/* Mobile search */}
+        <div className="relative mt-2">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search apps..."
+            className="pl-10 w-full bg-white/80 border-gray-200 rounded-xl h-9 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* ── DESKTOP HEADER ── */}
+      <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-0 hidden md:block">
+        <div className="flex md:items-center md:justify-between gap-6 mb-8">
+          <div className="flex items-center gap-4">
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
               alt="PiP Hub"
               className="w-16 h-16 rounded-2xl shadow-lg"
             />
-            <div className="text-center md:text-left">
+            <div>
               <h1 className="text-4xl font-bold text-gray-800 tracking-tight">{user?.full_name?.split(' ')[0] || 'App'} Hub</h1>
               <p className="text-gray-600 text-sm mt-1">Your workspace at a glance</p>
             </div>
           </div>
-
-          <div className="flex items-center justify-center md:justify-end gap-2">
-            {/* Search */}
-            {isAdminMode ? (
-              <Button
-                onClick={() => setShowSearch(!showSearch)}
-                variant="outline"
-                size="icon"
-                className="rounded-xl"
-                title="Search"
-              >
-                <Search className="w-4 h-4" />
-              </Button>
-            ) : (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search apps..."
-                  className="pl-10 w-48 md:w-64 backdrop-blur-xl bg-white/60 border-white/80"
-                />
-              </div>
-            )}
-
-            {user ? (
-              <>
-                <Button
-                  onClick={() => setShowBrowseApps(true)}
-                  variant="outline"
-                  size="icon"
-                  className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                  title="Add Apps"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">Add Apps</span>
-                </Button>
-                <Button
-                  onClick={() => setShowCustomizePanel(true)}
-                  variant="outline"
-                  size="icon"
-                  className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                  title="Customize"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                  <span className="hidden md:inline md:ml-2">Customize</span>
-                </Button>
-              </>
-            ) : null}
-
-            {user ? (
-              <div className="relative group">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                  title="User menu"
-                >
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white">
-                    {getInitials(user.full_name)}
-                  </div>
-                  <span className="hidden md:inline md:ml-2">Menu</span>
-                </Button>
-                <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-gray-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40">
-                  <button
-                    onClick={() => setShowUserSelection(true)}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200"
-                  >
-                    Switch User
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <Button
-                onClick={() => base44.auth.redirectToLogin()}
-                variant="outline"
-                size="icon"
-                className="md:w-auto md:px-4 rounded-xl border-gray-300"
-                title="Login"
-              >
-                <Shield className="w-4 h-4" />
-                <span className="hidden md:inline md:ml-2">Login</span>
-              </Button>
-            )}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search apps..."
+                className="pl-10 w-64 backdrop-blur-xl bg-white/60 border-white/80"
+              />
             </div>
+            {/* View toggle */}
+            <Button
+              onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+              variant="outline"
+              size="icon"
+              className="rounded-xl border-gray-300"
+              title={viewMode === 'grid' ? 'List view' : 'Grid view'}
+            >
+              {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
+            </Button>
+            <Button onClick={() => setShowBrowseApps(true)} variant="outline" className="rounded-xl border-gray-300 px-4">
+              <Sparkles className="w-4 h-4 mr-2" /> Add Apps
+            </Button>
+            <Button onClick={() => setShowCustomizePanel(true)} variant="outline" className="rounded-xl border-gray-300 px-4">
+              <LayoutGrid className="w-4 h-4 mr-2" /> Customize
+            </Button>
+            <div className="relative group">
+              <Button variant="outline" className="rounded-xl border-gray-300 px-4">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white mr-2">
+                  {getInitials(user.full_name)}
+                </div>
+                Menu
+              </Button>
+              <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-gray-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40">
+                <button onClick={() => setShowUserSelection(true)} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200">Switch User</button>
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700">Logout</button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Favorites Section */}
+      {/* ── MAIN CONTENT ── */}
+      <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
+
+        {/* Favorites */}
         {favoritedApps.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
+          <div className="mb-10">
+            <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-[#f1889b]" />
               <h2 className="text-xl font-semibold text-gray-800 tracking-tight">Favorites</h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {favoritedApps.map((app) => (
-                <AppCard
-                  key={app.id}
-                  app={app}
-                  isFavorited={true}
-                  onToggleFavorite={() => toggleFavoriteMutation.mutate(app.id)}
-                  onDragStart={(e) => handleDragStart(e, app.id)}
-                  onDragEnd={handleDragEnd}
-                  isDragging={draggingAppId === app.id}
-                  onOpenApp={setViewingApp}
-                />
-              ))}
-            </div>
+            {viewMode === 'list' ? (
+              <div className="rounded-2xl overflow-hidden border border-gray-200/60 shadow-sm">
+                {favoritedApps.map((app, i) => {
+                  const { AppListRow: ALR } = { AppListRow: require('../components/hub/AppListRow').default };
+                  return null;
+                })}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {favoritedApps.map((app) => (
+                  <AppCard
+                    key={app.id}
+                    app={app}
+                    isFavorited={true}
+                    onToggleFavorite={() => toggleFavoriteMutation.mutate(app.id)}
+                    onDragStart={(e) => handleDragStart(e, app.id)}
+                    onDragEnd={handleDragEnd}
+                    isDragging={draggingAppId === app.id}
+                    onOpenApp={setViewingApp}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -480,7 +470,6 @@ export default function AppHub() {
         {sections.map((section) => {
           const sectionApps = filteredApps.filter(app => app.section_id === section.id);
           if (sectionApps.length === 0) return null;
-
           return (
             <SectionGroup
               key={section.id}
@@ -494,19 +483,56 @@ export default function AppHub() {
               onDrop={handleDrop}
               draggingAppId={draggingAppId}
               onOpenApp={setViewingApp}
+              viewMode={viewMode}
             />
           );
         })}
 
-        {/* Footer */}
-        <footer className="text-center text-white/60 text-sm py-6 flex flex-col items-center gap-3 mt-12">
+        {/* Footer – desktop only */}
+        <footer className="hidden md:flex text-center text-white/60 text-sm py-6 flex-col items-center gap-3 mt-12">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/4517e6743_617f126bf_Pilatesinpinklogojusticon1.png"
             alt="Pilates in Pink"
-            className="h-12 md:h-16 rounded-lg"
+            className="h-16 rounded-lg"
           />
           © 2026 Pilates in Pink™ • All rights reserved
         </footer>
+      </div>
+
+      {/* ── MOBILE BOTTOM TAB BAR (iOS style) ── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60">
+        <div className="flex items-center justify-around px-2 py-2 pb-safe">
+          <button
+            onClick={() => setShowBrowseApps(true)}
+            className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl text-[#f1889b]"
+          >
+            <Sparkles className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Add Apps</span>
+          </button>
+          <button
+            onClick={() => setShowCustomizePanel(true)}
+            className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl text-[#f1889b]"
+          >
+            <LayoutGrid className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Customize</span>
+          </button>
+          <button
+            onClick={() => setShowUserSelection(true)}
+            className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl text-[#f1889b]"
+          >
+            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-[9px] font-bold text-white">
+              {getInitials(user.full_name)}
+            </div>
+            <span className="text-[10px] font-medium">Profile</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl text-gray-500"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Logout</span>
+          </button>
+        </div>
       </div>
 
       {/* Modals */}
