@@ -17,9 +17,10 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
     return daysSinceCreation <= 7;
   };
   const handleCardClick = (e) => {
-    if (e.target.closest('.star-button') || e.target.closest('.info-button')) {
+    if (e.target.closest('.star-button') || e.target.closest('.info-button') || e.target.closest('.edit-button') || e.target.closest('.delete-button') || e.target.closest('.move-button')) {
       return;
     }
+    if (isEditMode) return;
     if (app.open_in_new_tab) {
       window.open(app.url, '_blank', 'noopener,noreferrer');
     } else {
