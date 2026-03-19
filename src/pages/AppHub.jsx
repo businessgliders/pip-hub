@@ -475,6 +475,9 @@ export default function AppHub() {
                     onToggleFavorite={() => toggleFavoriteMutation.mutate(app.id)}
                     onOpenApp={setViewingApp}
                     isLast={i === favoritedApps.length - 1}
+                    isEditMode={isEditMode}
+                    onEdit={() => handleEditApp(app)}
+                    onDelete={() => deleteAppMutation.mutate(app.id)}
                   />
                 ))}
               </div>
@@ -490,6 +493,9 @@ export default function AppHub() {
                     onDragEnd={handleDragEnd}
                     isDragging={draggingAppId === app.id}
                     onOpenApp={setViewingApp}
+                    isEditMode={isEditMode}
+                    onEdit={() => handleEditApp(app)}
+                    onDelete={() => deleteAppMutation.mutate(app.id)}
                   />
                 ))}
               </div>
@@ -498,13 +504,15 @@ export default function AppHub() {
         )}
 
         {/* Sections */}
-        {sections.map((section) => {
+        {sections.map((section, sectionIndex) => {
           const sectionApps = filteredApps.filter(app => app.section_id === section.id);
           if (sectionApps.length === 0) return null;
           return (
             <SectionGroup
               key={section.id}
               section={section}
+              sectionIndex={sectionIndex}
+              totalSections={sections.filter(s => filteredApps.some(a => a.section_id === s.id)).length}
               apps={sectionApps}
               favorites={favorites}
               onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
@@ -515,6 +523,29 @@ export default function AppHub() {
               draggingAppId={draggingAppId}
               onOpenApp={setViewingApp}
               viewMode={viewMode}
+              isEditMode={isEditMode}
+              onEditApp={handleEditApp}
+              onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+              onMoveAppUp={(appId) => {
+                const allSectionApps = filteredApps.filter(a => a.section_id === section.id);
+                const idx = allSectionApps.findIndex(a => a.id === appId);
+                if (idx > 0) handleReorderApps(apps.indexOf(allSectionApps[idx]), apps.indexOf(allSectionApps[idx - 1]));
+              }}
+              onMoveAppDown={(appId) => {
+                const allSectionApps = filteredApps.filter(a => a.section_id === section.id);
+                const idx = allSectionApps.findIndex(a => a.id === appId);
+                if (idx < allSectionApps.length - 1) handleReorderApps(apps.indexOf(allSectionApps[idx]), apps.indexOf(allSectionApps[idx + 1]));
+              }}
+              onMoveSectionUp={() => {
+                const visibleSections = sections.filter(s => filteredApps.some(a => a.section_id === s.id));
+                const visIdx = visibleSections.findIndex(s => s.id === section.id);
+                if (visIdx > 0) handleReorderSections(sectionIndex, sections.indexOf(visibleSections[visIdx - 1]));
+              }}
+              onMoveSectionDown={() => {
+                const visibleSections = sections.filter(s => filteredApps.some(a => a.section_id === s.id));
+                const visIdx = visibleSections.findIndex(s => s.id === section.id);
+                if (visIdx < visibleSections.length - 1) handleReorderSections(sectionIndex, sections.indexOf(visibleSections[visIdx + 1]));
+              }}
             />
           );
         })}
