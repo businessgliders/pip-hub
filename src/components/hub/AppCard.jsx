@@ -70,38 +70,68 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
         </div>
 
         {/* Action buttons */}
-        <div className="absolute top-3 right-3 flex gap-2">
-          {app.description && (
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <button
-                  className="info-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white/80"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Info className="w-3.5 h-3.5 text-gray-600" />
-                </button>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-64 backdrop-blur-xl bg-white/90 border-white/60 z-50" side="top" align="end">
-                <p className="text-sm text-gray-700">{app.description}</p>
-              </HoverCardContent>
-            </HoverCard>
-          )}
-          
-          <button
-            className="star-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 flex items-center justify-center transition-all duration-200 hover:bg-white/80"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(app.id);
-            }}
-          >
-            <Star
-              className={cn(
-                "w-3.5 h-3.5 transition-all duration-200",
-                isFavorited ? "fill-[#f1889b] text-[#f1889b]" : "text-gray-400"
+        <div className="absolute top-3 right-3 flex gap-1">
+          {isEditMode ? (
+            <>
+              <button
+                className="edit-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-blue-50 transition-colors"
+                onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              >
+                <Pencil className="w-3.5 h-3.5 text-blue-400" />
+              </button>
+              <button
+                className="delete-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-red-50 transition-colors"
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              >
+                <Trash2 className="w-3.5 h-3.5 text-red-400" />
+              </button>
+            </>
+          ) : (
+            <>
+              {app.description && (
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <button
+                      className="info-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white/80"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Info className="w-3.5 h-3.5 text-gray-600" />
+                    </button>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-64 backdrop-blur-xl bg-white/90 border-white/60 z-50" side="top" align="end">
+                    <p className="text-sm text-gray-700">{app.description}</p>
+                  </HoverCardContent>
+                </HoverCard>
               )}
-            />
-          </button>
+              <button
+                className="star-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 flex items-center justify-center transition-all duration-200 hover:bg-white/80"
+                onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
+              >
+                <Star className={cn("w-3.5 h-3.5 transition-all duration-200", isFavorited ? "fill-[#f1889b] text-[#f1889b]" : "text-gray-400")} />
+              </button>
+            </>
+          )}
         </div>
+
+        {/* Move up/down in edit mode */}
+        {isEditMode && (
+          <div className="absolute bottom-3 right-3 flex gap-1">
+            <button
+              className="move-button w-6 h-6 rounded backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-gray-100 disabled:opacity-20 transition-colors"
+              onClick={(e) => { e.stopPropagation(); onMoveUp?.(); }}
+              disabled={!onMoveUp}
+            >
+              <ChevronUp className="w-3 h-3 text-gray-500" />
+            </button>
+            <button
+              className="move-button w-6 h-6 rounded backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-gray-100 disabled:opacity-20 transition-colors"
+              onClick={(e) => { e.stopPropagation(); onMoveDown?.(); }}
+              disabled={!onMoveDown}
+            >
+              <ChevronDown className="w-3 h-3 text-gray-500" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
