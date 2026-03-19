@@ -36,6 +36,7 @@ export default function AppHub() {
         const [showBrowseApps, setShowBrowseApps] = useState(false);
   const [viewMode, setViewMode] = useState('list'); // 'grid' | 'list'
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
         const queryClient = useQueryClient();
 
   useEffect(() => {
