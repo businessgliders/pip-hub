@@ -381,13 +381,13 @@ export default function AppHub() {
           >
             {isEditMode ? <Check className="w-4 h-4 text-[#f1889b]" /> : <Pencil className="w-4 h-4 text-gray-600" />}
           </button>
-          {/* Add Apps */}
+          {/* Customize */}
           <button
-            onClick={() => setShowBrowseApps(true)}
+            onClick={() => setShowCustomizePanel(true)}
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
-            title="Add Apps"
+            title="Customize"
           >
-            <Plus className="w-4 h-4 text-[#f1889b]" />
+            <LayoutGrid className="w-4 h-4 text-gray-600" />
           </button>
         </div>
         {/* Mobile search - shown when search tab active */}
