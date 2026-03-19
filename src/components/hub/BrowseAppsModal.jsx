@@ -354,8 +354,8 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
             )}
           </div>
 
-          {/* Add Custom App Column */}
-          <div className="pl-0 md:pl-6">
+          {/* Add Custom App Column – desktop only */}
+          <div className="hidden md:block pl-0 md:pl-6">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Add Custom App</h3>
             <form onSubmit={handleCreateApp} className="space-y-4">
               <div>
