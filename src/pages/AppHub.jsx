@@ -572,11 +572,11 @@ export default function AppHub() {
 
       {/* ── MOBILE BOTTOM TAB BAR (iOS style) ── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60">
-        <div className="flex items-center justify-around px-2 py-2 pb-safe">
+        <div className="flex items-center justify-around px-1 py-2 pb-safe">
           {/* Home */}
           <button
             onClick={() => { setShowMobileSearch(false); setSearchQuery(''); }}
-            className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl text-[#f1889b]"
+            className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-[#f1889b]"
           >
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
@@ -585,21 +585,31 @@ export default function AppHub() {
             />
             <span className="text-[10px] font-medium">Home</span>
           </button>
-          {/* Add Apps */}
+          {/* Customize */}
           <button
-            onClick={() => setShowBrowseApps(true)}
-            className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl text-[#f1889b]"
+            onClick={() => setShowCustomizePanel(true)}
+            className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500"
           >
-            <Sparkles className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Add Apps</span>
+            <LayoutGrid className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Customize</span>
           </button>
           {/* Search */}
           <button
             onClick={() => setShowMobileSearch(s => !s)}
-            className={`flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl transition-colors ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-500'}`}
+            className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-colors ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-500'}`}
           >
             <Search className="w-5 h-5" />
             <span className="text-[10px] font-medium">Search</span>
+          </button>
+          {/* Switch User */}
+          <button
+            onClick={() => setShowUserSelection(true)}
+            className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500"
+          >
+            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center">
+              <span className="text-[8px] font-bold text-white">{getInitials(user?.full_name)}</span>
+            </div>
+            <span className="text-[10px] font-medium">Switch</span>
           </button>
         </div>
       </div>
