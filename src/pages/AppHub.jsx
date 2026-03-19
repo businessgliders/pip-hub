@@ -356,29 +356,21 @@ export default function AppHub() {
             className="w-9 h-9 rounded-xl shadow"
           />
           <h1 className="text-lg font-bold text-gray-800 flex-1">{user?.full_name?.split(' ')[0] || 'App'} Hub</h1>
-          {/* Add Apps icon */}
+          {/* Grid/List toggle */}
+          <button
+            onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
+            title={viewMode === 'grid' ? 'Switch to list' : 'Switch to grid'}
+          >
+            {viewMode === 'grid' ? <List className="w-4 h-4 text-gray-600" /> : <Grid3X3 className="w-4 h-4 text-gray-600" />}
+          </button>
+          {/* Add Apps */}
           <button
             onClick={() => setShowBrowseApps(true)}
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
             title="Add Apps"
           >
-            <Sparkles className="w-4 h-4 text-[#f1889b]" />
-          </button>
-          {/* Grid view toggle */}
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`w-9 h-9 flex items-center justify-center rounded-xl border shadow-sm transition-colors ${viewMode === 'grid' ? 'bg-[#f1889b]/10 border-[#f1889b]/40' : 'bg-white/70 border-gray-200'}`}
-            title="Grid view"
-          >
-            <Grid3X3 className={`w-4 h-4 ${viewMode === 'grid' ? 'text-[#f1889b]' : 'text-gray-600'}`} />
-          </button>
-          {/* List view toggle */}
-          <button
-            onClick={() => setViewMode('list')}
-            className={`w-9 h-9 flex items-center justify-center rounded-xl border shadow-sm transition-colors ${viewMode === 'list' ? 'bg-[#f1889b]/10 border-[#f1889b]/40' : 'bg-white/70 border-gray-200'}`}
-            title="List view"
-          >
-            <List className={`w-4 h-4 ${viewMode === 'list' ? 'text-[#f1889b]' : 'text-gray-600'}`} />
+            <Plus className="w-4 h-4 text-[#f1889b]" />
           </button>
         </div>
         {/* Mobile search - shown when search tab active */}
