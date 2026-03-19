@@ -261,6 +261,17 @@ export default function AppHub() {
     setShowEditModal(true);
   };
 
+  const handleReorderAppsInSection = async (sectionId, sourceIndex, destinationIndex) => {
+    const sectionApps = apps.filter(a => a.section_id === sectionId);
+    const otherApps = apps.filter(a => a.section_id !== sectionId);
+    const reordered = Array.from(sectionApps);
+    const [removed] = reordered.splice(sourceIndex, 1);
+    reordered.splice(destinationIndex, 0, removed);
+    const updated = reordered.map((app, idx) => ({ ...app, order: idx + 1 }));
+    queryClient.setQueryData(['apps', user?.email, 'hiddenApps'], [...otherApps, ...updated]);
+    await Promise.all(updated.map(app => base44.entities.App.update(app.id, { order: app.order })));
+  };
+
   const handleReorderApps = async (sourceIndex, destinationIndex) => {
     // Reorder locally
     const reorderedApps = Array.from(apps);
