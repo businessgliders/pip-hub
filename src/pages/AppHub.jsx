@@ -351,19 +351,24 @@ export default function AppHub() {
       {/* ── MOBILE TOP BAR ── */}
       <div className="md:hidden sticky top-0 z-30 px-4 pt-4 pb-2 bg-white/60 backdrop-blur-xl border-b border-white/40">
         <div className="flex items-center gap-2">
-          <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
-            alt="PiP Hub"
-            className="w-9 h-9 rounded-xl shadow"
-          />
-          <h1 className="text-lg font-bold text-gray-800 flex-1">{user?.full_name?.split(' ')[0] || 'App'} Hub</h1>
-          {/* Grid/List toggle */}
           <button
-            onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
-            title={viewMode === 'grid' ? 'Switch to list' : 'Switch to grid'}
+            onClick={() => { setShowMobileSearch(false); setSearchQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            className="flex items-center gap-2 flex-1 min-w-0"
           >
-            {viewMode === 'grid' ? <List className="w-4 h-4 text-gray-600" /> : <Grid3X3 className="w-4 h-4 text-gray-600" />}
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
+              alt="PiP Hub"
+              className="w-9 h-9 rounded-xl shadow flex-shrink-0"
+            />
+            <h1 className="text-lg font-bold text-gray-800 truncate">{user?.full_name?.split(' ')[0] || 'App'} Hub</h1>
+          </button>
+          {/* Edit mode toggle */}
+          <button
+            onClick={() => setIsEditMode(e => !e)}
+            className={`w-9 h-9 flex items-center justify-center rounded-xl border shadow-sm transition-colors ${isEditMode ? 'bg-[#f1889b]/10 border-[#f1889b]/40' : 'bg-white/70 border-gray-200'}`}
+            title={isEditMode ? 'Done editing' : 'Edit'}
+          >
+            {isEditMode ? <Check className="w-4 h-4 text-[#f1889b]" /> : <Pencil className="w-4 h-4 text-gray-600" />}
           </button>
           {/* Add Apps */}
           <button
