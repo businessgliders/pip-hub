@@ -431,8 +431,12 @@ export default function AppHub() {
             <Button onClick={() => setShowBrowseApps(true)} variant="outline" className="rounded-xl border-gray-300 px-4">
               <Sparkles className="w-4 h-4 mr-2" /> Add Apps
             </Button>
-            <Button onClick={() => setShowCustomizePanel(true)} variant="outline" className="rounded-xl border-gray-300 px-4">
-              <LayoutGrid className="w-4 h-4 mr-2" /> Customize
+            <Button
+              onClick={() => setIsEditMode(e => !e)}
+              variant={isEditMode ? 'default' : 'outline'}
+              className={`rounded-xl px-4 ${isEditMode ? 'bg-[#f1889b] hover:bg-[#f1889b]/90 text-white border-[#f1889b]' : 'border-gray-300'}`}
+            >
+              {isEditMode ? <><Check className="w-4 h-4 mr-2" /> Done</> : <><Pencil className="w-4 h-4 mr-2" /> Edit</>}
             </Button>
             <div className="relative group">
               <Button variant="outline" className="rounded-xl border-gray-300 px-4">
@@ -442,6 +446,7 @@ export default function AppHub() {
                 Menu
               </Button>
               <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-gray-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40">
+                <button onClick={() => setShowCustomizePanel(true)} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200">Customize</button>
                 <button onClick={() => setShowUserSelection(true)} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200">Switch User</button>
                 <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700">Logout</button>
               </div>
