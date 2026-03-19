@@ -418,25 +418,34 @@ export default function AppHub() {
                 className="pl-10 w-64 backdrop-blur-xl bg-white/60 border-white/80"
               />
             </div>
-            {/* View toggle */}
-            <Button
-              onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
-              variant="outline"
-              size="icon"
-              className="rounded-xl border-gray-300"
-              title={viewMode === 'grid' ? 'List view' : 'Grid view'}
-            >
-              {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
-            </Button>
-            <Button onClick={() => setShowBrowseApps(true)} variant="outline" className="rounded-xl border-gray-300 px-4">
-              <Sparkles className="w-4 h-4 mr-2" /> Add Apps
+            {/* View toggle - combined button */}
+            <div className="flex rounded-xl border border-gray-300 overflow-hidden">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-2 transition-colors ${viewMode === 'list' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
+                title="List view"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-2 border-l border-gray-300 transition-colors ${viewMode === 'grid' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
+                title="Grid view"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+            </div>
+            <Button onClick={() => setShowBrowseApps(true)} variant="outline" size="icon" className="rounded-xl border-gray-300" title="Add Apps">
+              <Plus className="w-4 h-4" />
             </Button>
             <Button
               onClick={() => setIsEditMode(e => !e)}
               variant={isEditMode ? 'default' : 'outline'}
-              className={`rounded-xl px-4 ${isEditMode ? 'bg-[#f1889b] hover:bg-[#f1889b]/90 text-white border-[#f1889b]' : 'border-gray-300'}`}
+              size="icon"
+              className={`rounded-xl ${isEditMode ? 'bg-[#f1889b] hover:bg-[#f1889b]/90 text-white border-[#f1889b]' : 'border-gray-300'}`}
+              title={isEditMode ? 'Done editing' : 'Edit'}
             >
-              {isEditMode ? <><Check className="w-4 h-4 mr-2" /> Done</> : <><Pencil className="w-4 h-4 mr-2" /> Edit</>}
+              {isEditMode ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
             </Button>
             <div className="relative group">
               <Button variant="outline" className="rounded-xl border-gray-300 px-4">
