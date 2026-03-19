@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Shield, Search, Sparkles, LayoutGrid } from 'lucide-react';
+import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, User, LogOut, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
@@ -33,6 +33,7 @@ export default function AppHub() {
         const [selectedGradient, setSelectedGradient] = useState('default');
         const [showUserSelection, setShowUserSelection] = useState(false);
         const [showBrowseApps, setShowBrowseApps] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
         const queryClient = useQueryClient();
 
   useEffect(() => {
