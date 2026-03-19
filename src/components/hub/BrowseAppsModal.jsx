@@ -302,6 +302,53 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
                       </div>
                     </div>
                   ))}
+
+                  {/* Mobile: Add Custom App as a list row */}
+                  <div className="md:hidden">
+                    <button
+                      onClick={() => setShowCustomForm(s => !s)}
+                      className="w-full flex items-center justify-between p-3 rounded-lg bg-white/60 border border-dashed border-[#f1889b]/40 hover:bg-white/80 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#f1889b]/10 border border-[#f1889b]/20 flex items-center justify-center flex-shrink-0">
+                          <Plus className="w-5 h-5 text-[#f1889b]" />
+                        </div>
+                        <span className="font-medium text-[#f1889b]">Add Custom App</span>
+                      </div>
+                      <span className="text-xs text-gray-400">{showCustomForm ? 'Hide ▲' : 'Show ▼'}</span>
+                    </button>
+
+                    {showCustomForm && (
+                      <div className="mt-3 p-4 rounded-xl bg-white/70 border border-gray-200">
+                        <form onSubmit={handleCreateApp} className="space-y-3">
+                          <div>
+                            <Label htmlFor="m-name" className="text-gray-700 font-medium text-sm">App Name</Label>
+                            <Input id="m-name" value={newAppData.name} onChange={(e) => setNewAppData({ ...newAppData, name: e.target.value })} placeholder="My App" className="mt-1 bg-white/60 border-gray-200" required />
+                          </div>
+                          <div>
+                            <Label htmlFor="m-url" className="text-gray-700 font-medium text-sm">URL</Label>
+                            <Input id="m-url" type="url" value={newAppData.url} onChange={(e) => setNewAppData({ ...newAppData, url: e.target.value })} onBlur={handleUrlBlur} placeholder="https://example.com" className="mt-1 bg-white/60 border-gray-200" required />
+                          </div>
+                          <div>
+                            <Label htmlFor="m-section" className="text-gray-700 font-medium text-sm">Section</Label>
+                            <Select value={newAppData.section_id} onValueChange={(v) => setNewAppData({ ...newAppData, section_id: v })} required>
+                              <SelectTrigger className="mt-1 bg-white/60 border-gray-200">
+                                <SelectValue placeholder="Select section" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {sections.filter(s => s.name !== 'All Users').map((s) => (
+                                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <Button type="submit" className="w-full bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] text-white">
+                            <Plus className="w-4 h-4 mr-2" /> Create App
+                          </Button>
+                        </form>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
