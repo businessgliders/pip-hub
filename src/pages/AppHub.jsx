@@ -561,6 +561,7 @@ export default function AppHub() {
                 const visIdx = visibleSections.findIndex(s => s.id === section.id);
                 if (visIdx > 0) handleReorderSections(sectionIndex, sections.indexOf(visibleSections[visIdx - 1]));
               }}
+              onReorderAppsInSection={handleReorderAppsInSection}
               onMoveSectionDown={() => {
                 const visibleSections = sections.filter(s => filteredApps.some(a => a.section_id === s.id));
                 const visIdx = visibleSections.findIndex(s => s.id === section.id);
