@@ -34,7 +34,8 @@ export default function AppHub() {
         const [selectedGradient, setSelectedGradient] = useState('default');
         const [showUserSelection, setShowUserSelection] = useState(false);
         const [showBrowseApps, setShowBrowseApps] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+  const [viewMode, setViewMode] = useState('list'); // 'grid' | 'list'
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
         const queryClient = useQueryClient();
 
   useEffect(() => {

@@ -35,6 +35,7 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
   const [newSectionName, setNewSectionName] = useState('');
   const [user, setUser] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
+  const [showCustomForm, setShowCustomForm] = useState(false);
 
   useEffect(() => {
     const fetchOwnerApps = async () => {
