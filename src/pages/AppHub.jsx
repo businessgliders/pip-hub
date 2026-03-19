@@ -371,7 +371,7 @@ export default function AppHub() {
               alt="PiP Hub"
               className="w-9 h-9 rounded-xl shadow flex-shrink-0"
             />
-            <h1 className="text-lg font-bold text-gray-800 truncate">{user?.full_name?.split(' ')[0] || 'App'} Hub</h1>
+            <h1 className="text-lg font-bold text-gray-800 truncate">{user?.full_name?.split(' ')[0] || 'App'}'s Hub</h1>
           </button>
           {/* Edit mode toggle */}
           <button
