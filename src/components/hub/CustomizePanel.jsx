@@ -76,7 +76,8 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
   const handleRandomWallpaper = () => {
-    const url = UNSPLASH_WALLPAPERS[Math.floor(Math.random() * UNSPLASH_WALLPAPERS.length)];
+    const pool = THEME_WALLPAPERS[selectedGradient] || THEME_WALLPAPERS.default;
+    const url = pool[Math.floor(Math.random() * pool.length)];
     onWallpaperChange(url);
   };
 
