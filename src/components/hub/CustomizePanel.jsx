@@ -36,6 +36,30 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
   
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
+  const handleRandomWallpaper = async () => {
+    setIsLoadingWallpaper(true);
+    const keyword = UNSPLASH_KEYWORDS[Math.floor(Math.random() * UNSPLASH_KEYWORDS.length)];
+    const randomSeed = Math.floor(Math.random() * 1000);
+    const url = `https://source.unsplash.com/1920x1080/?${encodeURIComponent(keyword)}&sig=${randomSeed}`;
+    // Resolve the redirect to get the actual image URL
+    try {
+      const res = await fetch(url, { redirect: 'follow' });
+      onWallpaperChange(res.url || url);
+    } catch {
+      onWallpaperChange(url);
+    }
+    setIsLoadingWallpaper(false);
+  };
+
+  const handleUploadWallpaper = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingWallpaper(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    onWallpaperChange(file_url);
+    setIsUploadingWallpaper(false);
+  };
+
   const groupedApps = localSections.map(section => ({
     section,
     apps: localApps.filter(app => app.section_id === section.id)
