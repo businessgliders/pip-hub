@@ -16,7 +16,7 @@ import PasswordPrompt from '../components/hub/PasswordPrompt';
 import CustomizePanel from '../components/hub/CustomizePanel';
 import UserSelection from '../components/hub/UserSelection';
 import BrowseAppsModal from '../components/hub/BrowseAppsModal';
-import FavoritesSection from '../components/hub/FavoritesSection';
+import FavoritesSection from '../components/hub/FavoritesSection.jsx';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
