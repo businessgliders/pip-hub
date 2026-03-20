@@ -236,32 +236,6 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-700 mb-3">Wallpaper</h3>
 
-            {/* Uploaded wallpapers as tiles */}
-            {uploadedWallpapers.length > 0 && (
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
-                {uploadedWallpapers.map((url) => (
-                  <div key={url} className="relative group">
-                    <button
-                      onClick={() => onWallpaperChange(url)}
-                      className={`w-full p-1 rounded-lg border-2 transition-all ${
-                        customWallpaper === url ? 'border-[#f1889b] scale-105' : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <img src={url} alt="Uploaded wallpaper" className="w-full h-12 object-cover rounded" />
-                      <p className="text-xs font-medium text-gray-700 text-center mt-1 truncate">Custom</p>
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUploadedWallpaper(url)}
-                      className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                      title="Delete"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
             <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
               {/* Random from Unsplash tile */}
               <div className="relative group">
