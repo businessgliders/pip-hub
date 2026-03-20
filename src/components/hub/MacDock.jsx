@@ -55,7 +55,7 @@ export default function MacDock({ favoritedApps, onOpenApp, onReorderFavorites }
                 className="flex items-end gap-2"
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                {favoritedApps.map((app, index) => {
+                {favoritedApps.slice(0, Math.ceil(favoritedApps.length / 2)).map((app, index) => {
                   const isLaunching = launchingAppId === app.id;
                   const scale = getScale(index);
 
