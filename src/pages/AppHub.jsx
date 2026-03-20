@@ -388,6 +388,15 @@ export default function AppHub() {
     selectedGradient === 'dark' ? 'from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]' :
     'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]';
 
+  // Unsplash wallpapers matched to each theme
+  const wallpaperUrl =
+    selectedGradient === 'blue'   ? 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80' :   // ocean/beach
+    selectedGradient === 'purple' ? 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=80' :  // purple nebula/flowers
+    selectedGradient === 'green'  ? 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80' :  // lush forest
+    selectedGradient === 'orange' ? 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920&q=80' :  // warm sunset
+    selectedGradient === 'dark'   ? 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80' :  // dark starry sky
+    'https://images.unsplash.com/photo-1490750967868-88df5691cc8d?w=1920&q=80';                                   // pink/blush flowers
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${gradientClass} relative overflow-hidden`}>
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#f1889b]/20 rounded-full blur-3xl" />
