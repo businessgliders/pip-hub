@@ -15,20 +15,50 @@ const GRADIENT_OPTIONS = [
   { id: 'dark', name: 'Dark', gradient: 'from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]' },
 ];
 
-const UNSPLASH_WALLPAPERS = [
-  'https://images.unsplash.com/photo-1490750967868-88df5691cc8d?w=1920&q=80',
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80',
-  'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=80',
-  'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80',
-  'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920&q=80',
-  'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80',
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
-  'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1920&q=80',
-  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80',
-  'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1920&q=80',
-  'https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=1920&q=80',
-  'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80',
-];
+const THEME_WALLPAPERS = {
+  default: [
+    'https://images.unsplash.com/photo-1490750967868-88df5691cc8d?w=1920&q=80', // pink flowers
+    'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1920&q=80', // pink roses
+    'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=1920&q=80', // soft pink petals
+    'https://images.unsplash.com/photo-1557800636-894a64c1696f?w=1920&q=80', // pink cherry blossoms
+    'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=1920&q=80', // pink sky
+  ],
+  blue: [
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80', // blue ocean
+    'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1920&q=80', // blue sea
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80', // blue night sky
+    'https://images.unsplash.com/photo-1493558103817-58b2924bce98?w=1920&q=80', // blue water
+    'https://images.unsplash.com/photo-1484291470158-b8f8d608850d?w=1920&q=80', // blue abstract
+  ],
+  purple: [
+    'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=80', // purple galaxy
+    'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=1920&q=80', // purple nebula
+    'https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?w=1920&q=80', // purple night
+    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=1920&q=80', // purple lavender
+    'https://images.unsplash.com/photo-1550159930-40066082a4fc?w=1920&q=80', // purple flowers
+  ],
+  green: [
+    'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80', // green forest
+    'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80', // green hills
+    'https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=1920&q=80', // green trees
+    'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1920&q=80', // green leaves
+    'https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80', // green nature
+  ],
+  orange: [
+    'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920&q=80', // orange sunset
+    'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1920&q=80', // warm sunset
+    'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=80', // orange sky
+    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80', // warm mountain
+    'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=1920&q=80', // orange landscape
+  ],
+  dark: [
+    'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80', // dark starry sky
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80', // dark mountains
+    'https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=1920&q=80', // dark ocean
+    'https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?w=1920&q=80', // dark night
+    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80', // dark landscape
+  ],
+};
 
 export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
   const [activeTab, setActiveTab] = useState('apps');
