@@ -63,7 +63,15 @@ const THEME_WALLPAPERS = {
 export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
   const [activeTab, setActiveTab] = useState('apps');
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
+  const [uploadedWallpapers, setUploadedWallpapers] = useState([]);
   const fileInputRef = useRef(null);
+
+  // Load saved uploaded wallpapers from user profile
+  React.useEffect(() => {
+    base44.auth.me().then(u => {
+      if (u?.uploadedWallpapers) setUploadedWallpapers(u.uploadedWallpapers);
+    });
+  }, []);
   const [renamingSectionId, setRenamingSectionId] = useState(null);
   const [renamingSectionName, setRenamingSectionName] = useState('');
   const [isAddingSection, setIsAddingSection] = useState(false);
