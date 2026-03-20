@@ -94,8 +94,21 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
     if (!file) return;
     setIsUploadingWallpaper(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const updated = [...uploadedWallpapers, file_url];
+    setUploadedWallpapers(updated);
+    await base44.auth.updateMe({ uploadedWallpapers: updated });
     onWallpaperChange(file_url);
     setIsUploadingWallpaper(false);
+    // reset input so same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDeleteUploadedWallpaper = async (url) => {
+    const updated = uploadedWallpapers.filter(w => w !== url);
+    setUploadedWallpapers(updated);
+    await base44.auth.updateMe({ uploadedWallpapers: updated });
+    // If the deleted one was active, clear it
+    if (customWallpaper === url) onWallpaperChange(null);
   };
 
   const groupedApps = localSections.map(section => ({
