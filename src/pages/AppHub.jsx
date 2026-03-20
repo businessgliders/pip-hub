@@ -413,7 +413,7 @@ export default function AppHub() {
       {/* Wallpaper */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${wallpaperUrl})`, opacity: 0.22 }}
+        style={{ backgroundImage: `url(${wallpaperUrl})`, opacity: customWallpaper ? 0.55 : 0.22 }}
       />
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#f1889b]/20 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f7b1bd]/20 rounded-full blur-3xl" />
