@@ -15,8 +15,16 @@ const GRADIENT_OPTIONS = [
   { id: 'dark', name: 'Dark', gradient: 'from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]' },
 ];
 
-export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
+const UNSPLASH_KEYWORDS = [
+  'nature landscape', 'abstract minimal', 'pink flowers', 'ocean waves', 'forest light',
+  'mountains sunrise', 'city lights', 'pastel aesthetic', 'cozy interior', 'dreamy sky'
+];
+
+export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
   const [activeTab, setActiveTab] = useState('apps');
+  const [isLoadingWallpaper, setIsLoadingWallpaper] = useState(false);
+  const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
+  const fileInputRef = useRef(null);
   const [renamingSectionId, setRenamingSectionId] = useState(null);
   const [renamingSectionName, setRenamingSectionName] = useState('');
   const [isAddingSection, setIsAddingSection] = useState(false);
