@@ -17,6 +17,7 @@ import CustomizePanel from '../components/hub/CustomizePanel';
 import UserSelection from '../components/hub/UserSelection';
 import BrowseAppsModal from '../components/hub/BrowseAppsModal';
 import FavoritesSection from '../components/hub/FavoritesSection.jsx';
+import MacDock from '../components/hub/MacDock.jsx';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
