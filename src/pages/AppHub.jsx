@@ -48,6 +48,9 @@ export default function AppHub() {
       if (u?.selectedGradient) {
         setSelectedGradient(u.selectedGradient);
       }
+      if (u?.customWallpaper) {
+        setCustomWallpaper(u.customWallpaper);
+      }
       setShowUserSelection(false);
     }).catch(() => {
       setUser(null);
