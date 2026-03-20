@@ -512,47 +512,19 @@ export default function AppHub() {
 
         {/* Favorites */}
         {favoritedApps.length > 0 && (
-          <div className="mb-10">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5 text-[#f1889b]" />
-              <h2 className="text-xl font-semibold text-gray-800 tracking-tight">Favorites</h2>
-            </div>
-            {viewMode === 'list' ? (
-              <div className="rounded-2xl overflow-hidden border border-gray-200/60 shadow-sm">
-                {favoritedApps.map((app, i) => (
-                  <AppListRow
-                    key={app.id}
-                    app={app}
-                    isFavorited={true}
-                    onToggleFavorite={() => toggleFavoriteMutation.mutate(app.id)}
-                    onOpenApp={setViewingApp}
-                    isLast={i === favoritedApps.length - 1}
-                    isEditMode={isEditMode}
-                    onEdit={() => handleEditApp(app)}
-                    onDelete={() => deleteAppMutation.mutate(app.id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {favoritedApps.map((app) => (
-                  <AppCard
-                    key={app.id}
-                    app={app}
-                    isFavorited={true}
-                    onToggleFavorite={() => toggleFavoriteMutation.mutate(app.id)}
-                    onDragStart={(e) => handleDragStart(e, app.id)}
-                    onDragEnd={handleDragEnd}
-                    isDragging={draggingAppId === app.id}
-                    onOpenApp={setViewingApp}
-                    isEditMode={isEditMode}
-                    onEdit={() => handleEditApp(app)}
-                    onDelete={() => deleteAppMutation.mutate(app.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <FavoritesSection
+            favoritedApps={favoritedApps}
+            viewMode={viewMode}
+            isEditMode={isEditMode}
+            draggingAppId={draggingAppId}
+            onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
+            onOpenApp={setViewingApp}
+            onEditApp={handleEditApp}
+            onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onReorderFavorites={handleReorderFavorites}
+          />
         )}
 
         {/* Sections */}
