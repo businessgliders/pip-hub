@@ -67,7 +67,7 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
   const fileInputRef = useRef(null);
 
   // Load saved uploaded wallpapers from user profile
-  React.useEffect(() => {
+  useEffect(() => {
     base44.auth.me().then(u => {
       if (u?.uploadedWallpapers) setUploadedWallpapers(u.uploadedWallpapers);
     });
