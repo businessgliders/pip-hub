@@ -750,6 +750,6 @@ export default function AppHub() {
           onUnhideApp={(appId) => hideAppMutation.mutate(appId)}
         />
       )}
-      </div>
-      );
-      }
+    </div>
+  );
+}
