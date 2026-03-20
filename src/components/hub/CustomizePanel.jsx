@@ -15,9 +15,19 @@ const GRADIENT_OPTIONS = [
   { id: 'dark', name: 'Dark', gradient: 'from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]' },
 ];
 
-const UNSPLASH_KEYWORDS = [
-  'nature landscape', 'abstract minimal', 'pink flowers', 'ocean waves', 'forest light',
-  'mountains sunrise', 'city lights', 'pastel aesthetic', 'cozy interior', 'dreamy sky'
+const UNSPLASH_WALLPAPERS = [
+  'https://images.unsplash.com/photo-1490750967868-88df5691cc8d?w=1920&q=80',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80',
+  'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=80',
+  'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80',
+  'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920&q=80',
+  'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
+  'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1920&q=80',
+  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80',
+  'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1920&q=80',
+  'https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=1920&q=80',
+  'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80',
 ];
 
 export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
