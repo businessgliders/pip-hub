@@ -269,6 +269,30 @@ export default function AppHub() {
     setShowEditModal(true);
   };
 
+  const handleReorderFavorites = async (sourceIndex, destinationIndex) => {
+    const reordered = Array.from(favoritedApps);
+    const [removed] = reordered.splice(sourceIndex, 1);
+    reordered.splice(destinationIndex, 0, removed);
+    // Optimistically update preferences cache
+    const updatedPrefs = preferences.map(p => {
+      const idx = reordered.findIndex(a => a.id === p.app_id);
+      if (idx !== -1) return { ...p, custom_order: idx + 1 };
+      return p;
+    });
+    queryClient.setQueryData(['preferences', user?.email], updatedPrefs);
+    await Promise.all(
+      reordered.map((app, idx) => {
+        const pref = preferences.find(p => p.app_id === app.id);
+        if (pref) return base44.entities.UserAppPreference.update(pref.id, { custom_order: idx + 1 });
+        return Promise.resolve();
+      })
+    );
+  };
+
+  const handleRenameSection = async (sectionId, newName) => {
+    updateSectionMutation.mutate({ id: sectionId, data: { name: newName } });
+  };
+
   const handleReorderAppsInSection = async (sectionId, sourceIndex, destinationIndex) => {
     const sectionApps = apps.filter(a => a.section_id === sectionId);
     const otherApps = apps.filter(a => a.section_id !== sectionId);
