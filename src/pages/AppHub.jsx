@@ -542,6 +542,7 @@ export default function AppHub() {
             onDragEnd={handleDragEnd}
             onReorderFavorites={handleReorderFavorites}
           />
+          </div>
         )}
 
         {/* Sections */}
