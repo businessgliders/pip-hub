@@ -234,49 +234,61 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
 
           {/* Wallpaper Section */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-gray-700">Wallpaper</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Wallpaper</h3>
+
+            {/* Uploaded wallpapers as tiles */}
+            {uploadedWallpapers.length > 0 && (
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
+                {uploadedWallpapers.map((url) => (
+                  <div key={url} className="relative group">
+                    <button
+                      onClick={() => onWallpaperChange(url)}
+                      className={`w-full p-1 rounded-lg border-2 transition-all ${
+                        customWallpaper === url ? 'border-[#f1889b] scale-105' : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <img src={url} alt="Uploaded wallpaper" className="w-full h-12 object-cover rounded" />
+                      <p className="text-xs font-medium text-gray-700 text-center mt-1 truncate">Custom</p>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUploadedWallpaper(url)}
+                      className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                      title="Delete"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex gap-3 items-center">
+              <Button
+                variant="outline"
+                className="flex-1 justify-start gap-2 text-sm"
+                onClick={handleRandomWallpaper}
+              >
+                <RefreshCw className="w-4 h-4" />
+                Random from Unsplash
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 justify-start gap-2 text-sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingWallpaper}
+              >
+                <Upload className={`w-4 h-4 ${isUploadingWallpaper ? 'animate-pulse' : ''}`} />
+                {isUploadingWallpaper ? 'Uploading...' : 'Upload Image'}
+              </Button>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadWallpaper} />
               {customWallpaper && (
                 <button
                   onClick={() => onWallpaperChange(null)}
-                  className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-1 transition-colors"
+                  className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-1 transition-colors whitespace-nowrap"
                 >
                   <XCircle className="w-3.5 h-3.5" /> Remove
                 </button>
               )}
-            </div>
-            <div className="flex gap-3 items-start">
-              {/* Preview */}
-              <div className="w-28 h-20 rounded-lg overflow-hidden border-2 border-gray-200 flex-shrink-0 bg-gray-100 relative">
-                {customWallpaper ? (
-                  <img src={customWallpaper} alt="Wallpaper" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Image className="w-6 h-6 text-gray-300" />
-                  </div>
-                )}
-              </div>
-              {/* Actions */}
-              <div className="flex flex-col gap-2 flex-1">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-2 text-sm"
-                  onClick={handleRandomWallpaper}
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Random from Unsplash
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-2 text-sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingWallpaper}
-                >
-                  <Upload className={`w-4 h-4 ${isUploadingWallpaper ? 'animate-pulse' : ''}`} />
-                  {isUploadingWallpaper ? 'Uploading...' : 'Upload Image'}
-                </Button>
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadWallpaper} />
-              </div>
             </div>
           </div>
 
