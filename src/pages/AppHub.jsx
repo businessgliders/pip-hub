@@ -729,6 +729,8 @@ export default function AppHub() {
           sections={sections}
           selectedGradient={selectedGradient}
           onGradientChange={handleGradientChange}
+          customWallpaper={customWallpaper}
+          onWallpaperChange={handleWallpaperChange}
           onReorderApps={handleReorderApps}
           onReorderSections={handleReorderSections}
           onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
