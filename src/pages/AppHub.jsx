@@ -16,6 +16,7 @@ import PasswordPrompt from '../components/hub/PasswordPrompt';
 import CustomizePanel from '../components/hub/CustomizePanel';
 import UserSelection from '../components/hub/UserSelection';
 import BrowseAppsModal from '../components/hub/BrowseAppsModal';
+import FavoritesSection from '../components/hub/FavoritesSection';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
@@ -566,6 +567,7 @@ export default function AppHub() {
                 if (visIdx > 0) handleReorderSections(sectionIndex, sections.indexOf(visibleSections[visIdx - 1]));
               }}
               onReorderAppsInSection={handleReorderAppsInSection}
+              onRenameSection={handleRenameSection}
               onMoveSectionDown={() => {
                 const visibleSections = sections.filter(s => filteredApps.some(a => a.section_id === s.id));
                 const visIdx = visibleSections.findIndex(s => s.id === section.id);
