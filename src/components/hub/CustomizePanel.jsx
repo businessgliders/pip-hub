@@ -32,7 +32,6 @@ const UNSPLASH_WALLPAPERS = [
 
 export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
   const [activeTab, setActiveTab] = useState('apps');
-  const [isLoadingWallpaper, setIsLoadingWallpaper] = useState(false);
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
   const fileInputRef = useRef(null);
   const [renamingSectionId, setRenamingSectionId] = useState(null);
