@@ -257,11 +257,8 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                   disabled={isUploadingWallpaper}
                   className="w-full p-1 rounded-lg border-2 border-dashed border-gray-300 hover:border-[#f1889b] transition-all"
                 >
-                  <div className="w-full h-12 rounded bg-gray-50 flex items-center justify-center">
-                    {isUploadingWallpaper
-                      ? <Upload className="w-5 h-5 text-[#f1889b] animate-pulse" />
-                      : <Upload className="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    }
+                  <div className="w-full h-12 rounded bg-gradient-to-br from-rose-100 to-pink-200 flex items-center justify-center">
+                    <Upload className={`w-5 h-5 text-pink-500 ${isUploadingWallpaper ? 'animate-pulse opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`} />
                   </div>
                   <p className="text-xs font-medium text-gray-700 text-center mt-1 truncate">
                     {isUploadingWallpaper ? 'Uploading…' : 'Upload'}
