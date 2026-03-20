@@ -241,6 +241,11 @@ export default function AppHub() {
     await base44.auth.updateMe({ selectedGradient: gradientId });
   };
 
+  const handleWallpaperChange = async (wallpaperUrl) => {
+    setCustomWallpaper(wallpaperUrl);
+    await base44.auth.updateMe({ customWallpaper: wallpaperUrl });
+  };
+
   const isOwner = user?.email === 'info@pilatesinpinkstudio.com';
 
   const handleAdminSuccess = () => {
