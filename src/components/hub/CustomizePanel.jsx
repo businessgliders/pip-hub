@@ -288,20 +288,7 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                 </div>
               ))}
 
-              {/* Remove active wallpaper tile */}
-              {customWallpaper && (
-                <div className="relative group">
-                  <button
-                    onClick={() => onWallpaperChange(null)}
-                    className="w-full p-1 rounded-lg border-2 border-gray-200 hover:border-red-300 transition-all"
-                  >
-                    <div className="w-full h-12 rounded bg-red-50 flex items-center justify-center">
-                      <XCircle className="w-5 h-5 text-red-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <p className="text-xs font-medium text-gray-500 text-center mt-1 truncate">Remove</p>
-                  </button>
-                </div>
-              )}
+
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadWallpaper} />
           </div>
