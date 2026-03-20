@@ -161,7 +161,7 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
           </div>
 
           {/* Background Gradient Selection */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Background Theme</h3>
             <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
               {GRADIENT_OPTIONS.map((option) => (
@@ -178,6 +178,55 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                   <p className="text-xs font-medium text-gray-700 text-center">{option.name}</p>
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Wallpaper Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-700">Wallpaper</h3>
+              {customWallpaper && (
+                <button
+                  onClick={() => onWallpaperChange(null)}
+                  className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-1 transition-colors"
+                >
+                  <XCircle className="w-3.5 h-3.5" /> Remove
+                </button>
+              )}
+            </div>
+            <div className="flex gap-3 items-start">
+              {/* Preview */}
+              <div className="w-28 h-20 rounded-lg overflow-hidden border-2 border-gray-200 flex-shrink-0 bg-gray-100 relative">
+                {customWallpaper ? (
+                  <img src={customWallpaper} alt="Wallpaper" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Image className="w-6 h-6 text-gray-300" />
+                  </div>
+                )}
+              </div>
+              {/* Actions */}
+              <div className="flex flex-col gap-2 flex-1">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-2 text-sm"
+                  onClick={handleRandomWallpaper}
+                  disabled={isLoadingWallpaper}
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoadingWallpaper ? 'animate-spin' : ''}`} />
+                  {isLoadingWallpaper ? 'Loading...' : 'Random from Unsplash'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-2 text-sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingWallpaper}
+                >
+                  <Upload className={`w-4 h-4 ${isUploadingWallpaper ? 'animate-pulse' : ''}`} />
+                  {isUploadingWallpaper ? 'Uploading...' : 'Upload Image'}
+                </Button>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadWallpaper} />
+              </div>
             </div>
           </div>
 
