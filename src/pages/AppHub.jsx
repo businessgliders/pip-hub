@@ -526,8 +526,9 @@ export default function AppHub() {
       {/* ── MAIN CONTENT ── */}
       <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
 
-        {/* Favorites */}
+        {/* Favorites — hidden on desktop (shown in dock instead) */}
         {favoritedApps.length > 0 && (
+          <div className="md:hidden">
           <FavoritesSection
             favoritedApps={favoritedApps}
             viewMode={viewMode}
