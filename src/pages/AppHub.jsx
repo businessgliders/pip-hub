@@ -197,7 +197,15 @@ export default function AppHub() {
   });
 
   const favorites = preferences.filter(p => p.is_favorited).map(p => p.app_id);
-  const favoritedApps = apps.filter(app => favorites.includes(app.id));
+
+  // Sort favorited apps by custom_order if set
+  const favoritedApps = apps
+    .filter(app => favorites.includes(app.id))
+    .sort((a, b) => {
+      const prefA = preferences.find(p => p.app_id === a.id);
+      const prefB = preferences.find(p => p.app_id === b.id);
+      return (prefA?.custom_order ?? 0) - (prefB?.custom_order ?? 0);
+    });
 
   const getInitials = (name) => {
     if (!name) return '';
