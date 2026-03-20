@@ -34,6 +34,7 @@ export default function AppHub() {
         const [viewingApp, setViewingApp] = useState(null);
         const [showCustomizePanel, setShowCustomizePanel] = useState(false);
         const [selectedGradient, setSelectedGradient] = useState('default');
+        const [customWallpaper, setCustomWallpaper] = useState(null);
         const [showUserSelection, setShowUserSelection] = useState(false);
         const [showBrowseApps, setShowBrowseApps] = useState(false);
   const [viewMode, setViewMode] = useState(window.innerWidth >= 1024 ? 'grid' : 'list'); // 'grid' | 'list'
