@@ -210,10 +210,9 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                   variant="outline"
                   className="w-full justify-start gap-2 text-sm"
                   onClick={handleRandomWallpaper}
-                  disabled={isLoadingWallpaper}
                 >
-                  <RefreshCw className={`w-4 h-4 ${isLoadingWallpaper ? 'animate-spin' : ''}`} />
-                  {isLoadingWallpaper ? 'Loading...' : 'Random from Unsplash'}
+                  <RefreshCw className="w-4 h-4" />
+                  Random from Unsplash
                 </Button>
                 <Button
                   variant="outline"
