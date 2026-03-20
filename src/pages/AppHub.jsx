@@ -589,6 +589,13 @@ export default function AppHub() {
         </footer>
       </div>
 
+      {/* ── macOS DOCK (desktop only) ── */}
+      <MacDock
+        favoritedApps={favoritedApps}
+        onOpenApp={setViewingApp}
+        onReorderFavorites={handleReorderFavorites}
+      />
+
       {/* ── MOBILE BOTTOM TAB BAR (iOS style) ── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60">
         <div className="flex items-center justify-around px-1 py-2 pb-safe">
