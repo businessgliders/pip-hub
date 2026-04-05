@@ -37,7 +37,9 @@ export default function AppHub() {
         const [customWallpaper, setCustomWallpaper] = useState(null);
         const [showUserSelection, setShowUserSelection] = useState(false);
         const [showBrowseApps, setShowBrowseApps] = useState(false);
-  const [viewMode, setViewMode] = useState(window.innerWidth >= 1024 ? 'grid' : 'list'); // 'grid' | 'list'
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('hub_viewMode') || (window.innerWidth >= 1024 ? 'grid' : 'list');
+  }); // 'grid' | 'list'
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
         const queryClient = useQueryClient();
@@ -491,14 +493,14 @@ export default function AppHub() {
             {/* View toggle - combined button */}
             <div className="flex rounded-xl border border-gray-300 overflow-hidden">
               <button
-                onClick={() => setViewMode('list')}
+                onClick={() => { setViewMode('list'); localStorage.setItem('hub_viewMode', 'list'); }}
                 className={`px-3 py-2 transition-colors ${viewMode === 'list' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
                 title="List view"
               >
                 <List className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setViewMode('grid')}
+                onClick={() => { setViewMode('grid'); localStorage.setItem('hub_viewMode', 'grid'); }}
                 className={`px-3 py-2 border-l border-gray-300 transition-colors ${viewMode === 'grid' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
                 title="Grid view"
               >

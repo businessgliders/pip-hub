@@ -28,7 +28,10 @@ export default function SectionGroup({
   onReorderAppsInSection,
   onRenameSection,
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const storageKey = `hub_collapsed_${section.id}`;
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem(storageKey) === 'true';
+  });
   const [isRenaming, setIsRenaming] = useState(false);
   const [renamingValue, setRenamingValue] = useState(section.name);
 
@@ -91,7 +94,11 @@ export default function SectionGroup({
                 setRenamingValue(section.name);
                 setIsRenaming(true);
               } else {
-                setIsCollapsed(c => !c);
+                setIsCollapsed(c => {
+                  const next = !c;
+                  localStorage.setItem(storageKey, String(next));
+                  return next;
+                });
               }
             }}
             className={`flex items-center gap-1.5 flex-1 text-left group ${isEditMode ? 'cursor-text' : 'cursor-pointer'}`}
