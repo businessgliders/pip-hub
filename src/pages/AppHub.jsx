@@ -37,9 +37,8 @@ export default function AppHub() {
         const [customWallpaper, setCustomWallpaper] = useState(null);
         const [showUserSelection, setShowUserSelection] = useState(false);
         const [showBrowseApps, setShowBrowseApps] = useState(false);
-  const [viewMode, setViewMode] = useState(() => {
-    return localStorage.getItem('hub_viewMode') || (window.innerWidth >= 1024 ? 'grid' : 'list');
-  }); // 'grid' | 'list'
+  const [viewMode, setViewMode] = useState(window.innerWidth >= 1024 ? 'grid' : 'list'); // 'grid' | 'list'
+  const [collapsedSections, setCollapsedSections] = useState([]);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
         const queryClient = useQueryClient();
@@ -52,6 +51,12 @@ export default function AppHub() {
       }
       if (u?.customWallpaper) {
         setCustomWallpaper(u.customWallpaper);
+      }
+      if (u?.viewMode) {
+        setViewMode(u.viewMode);
+      }
+      if (u?.collapsedSections) {
+        setCollapsedSections(u.collapsedSections);
       }
       setShowUserSelection(false);
     }).catch(() => {
@@ -493,14 +498,20 @@ export default function AppHub() {
             {/* View toggle - combined button */}
             <div className="flex rounded-xl border border-gray-300 overflow-hidden">
               <button
-                onClick={() => { setViewMode('list'); localStorage.setItem('hub_viewMode', 'list'); }}
+                onClick={async () => {
+                  setViewMode('list');
+                  if (user) await base44.auth.updateMe({ viewMode: 'list' });
+                }}
                 className={`px-3 py-2 transition-colors ${viewMode === 'list' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
                 title="List view"
               >
                 <List className="w-4 h-4" />
               </button>
               <button
-                onClick={() => { setViewMode('grid'); localStorage.setItem('hub_viewMode', 'grid'); }}
+                onClick={async () => {
+                  setViewMode('grid');
+                  if (user) await base44.auth.updateMe({ viewMode: 'grid' });
+                }}
                 className={`px-3 py-2 border-l border-gray-300 transition-colors ${viewMode === 'grid' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
                 title="Grid view"
               >
@@ -570,6 +581,14 @@ export default function AppHub() {
               totalSections={sections.filter(s => filteredApps.some(a => a.section_id === s.id)).length}
               apps={sectionApps}
               favorites={favorites}
+              isCollapsed={collapsedSections.includes(section.id)}
+              onToggleCollapse={async () => {
+                const next = collapsedSections.includes(section.id) 
+                  ? collapsedSections.filter(id => id !== section.id)
+                  : [...collapsedSections, section.id];
+                setCollapsedSections(next);
+                if (user) await base44.auth.updateMe({ collapsedSections: next });
+              }}
               onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
