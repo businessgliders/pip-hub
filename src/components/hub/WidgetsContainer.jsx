@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Maximize2, Minimize2, X, GripHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -18,6 +18,7 @@ const WIDGET_COMPONENTS = {
 export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWidget, onDeleteWidget, onReorderWidgets }) {
   const gridWidgets = widgets.filter(w => !w.is_floating).sort((a, b) => (a.order || 0) - (b.order || 0));
   const floatingWidgets = widgets.filter(w => w.is_floating);
+  const constraintsRef = useRef(null);
 
   const renderWidgetContent = (widget) => {
     const Component = WIDGET_COMPONENTS[widget.widget_type];
@@ -120,11 +121,12 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
       )}
 
       {/* Floating Widgets */}
-      <div className="fixed inset-0 pointer-events-none z-40">
+      <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-40">
         {floatingWidgets.map(widget => (
           <motion.div
             key={widget.id}
             drag
+            dragConstraints={constraintsRef}
             dragMomentum={false}
             onDragEnd={(e, info) => handleFloatDragEnd(widget.id, info)}
             initial={{ 
