@@ -17,7 +17,7 @@ export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenA
     <div
       onClick={handleClick}
       className={cn(
-        'flex items-center gap-3 px-4 py-3 bg-white/70 backdrop-blur-sm transition-colors',
+        'flex items-center gap-3 px-4 py-3 bg-white/70 backdrop-blur-sm transition-colors group',
         !isEditMode && 'active:bg-gray-100 cursor-pointer',
         !isLast && 'border-b border-gray-200/60'
       )}
@@ -72,19 +72,19 @@ export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenA
             </button>
           </>
         ) : (
-          <>
+          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               className="action-button star-button w-7 h-7 flex items-center justify-center"
               onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
             >
-              <Star className={cn('w-4 h-4', isFavorited ? 'fill-[#f1889b] text-[#f1889b]' : 'text-gray-300')} />
+              <Star className={cn('w-4 h-4', isFavorited ? 'fill-[#f1889b] text-[#f1889b]' : 'text-gray-300 hover:text-gray-400')} />
             </button>
             {app.open_in_new_tab ? (
               <ExternalLink className="w-4 h-4 text-gray-300" />
             ) : (
               <ChevronRight className="w-4 h-4 text-gray-300" />
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
