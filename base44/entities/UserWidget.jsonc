@@ -1,0 +1,39 @@
+{
+  "name": "UserWidget",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "widget_type": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_floating": {
+      "type": "boolean",
+      "default": false
+    },
+    "position_x": {
+      "type": "number",
+      "default": 0
+    },
+    "position_y": {
+      "type": "number",
+      "default": 0
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    },
+    "data": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email",
+    "widget_type"
+  ]
+}

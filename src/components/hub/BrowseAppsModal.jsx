@@ -14,7 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], onClose, onAddApp, onUnhideApp }) {
+import { AVAILABLE_WIDGETS } from './widgets/utils';
+
+export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], userWidgets = [], onClose, onAddApp, onUnhideApp, onAddWidget }) {
   const [ownerApps, setOwnerApps] = useState([]);
   const [ownerSections, setOwnerSections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -269,6 +271,35 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], o
                   </form>
                 </div>
               )}
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-700 mb-4 mt-8">Available Widgets</h3>
+            <div className="space-y-2 mb-8">
+              {AVAILABLE_WIDGETS.map((widget) => {
+                const alreadyAdded = userWidgets?.some(w => w.widget_type === widget.type);
+                return (
+                  <div key={widget.type} className="flex items-center justify-between p-3 rounded-lg backdrop-blur-md bg-white/60 border border-white/80 hover:bg-white/80 transition-colors">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                         <img src={widget.icon_url} alt={widget.name} className="w-6 h-6 object-contain" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-gray-800 truncate">{widget.name}</h4>
+                        <p className="text-xs text-gray-500 mt-0.5 truncate">{widget.description}</p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => onAddWidget(widget.type)}
+                      disabled={alreadyAdded}
+                      size="sm"
+                      variant={alreadyAdded ? "outline" : "default"}
+                      className={`ml-3 flex-shrink-0 ${alreadyAdded ? "cursor-not-allowed" : "bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"}`}
+                    >
+                      {alreadyAdded ? <><Check className="w-4 h-4 mr-1" /> Added</> : <><Plus className="w-4 h-4 mr-1" /> Add</>}
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
 
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Browse Available Apps</h3>

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle } from 'lucide-react';
+import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AVAILABLE_WIDGETS } from './widgets/utils';
 import { Input } from '@/components/ui/input';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { base44 } from '@/api/base44Client';
@@ -60,9 +61,14 @@ const THEME_WALLPAPERS = {
   ],
 };
 
-export default function CustomizePanel({ apps, sections, selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [] }) {
+export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [], onDeleteWidget }) {
   const [activeTab, setActiveTab] = useState('apps');
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
+  const [localWidgets, setLocalWidgets] = useState(userWidgets);
+  
+  useEffect(() => {
+    setLocalWidgets(userWidgets);
+  }, [userWidgets]);
   const [uploadedWallpapers, setUploadedWallpapers] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -183,7 +189,7 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
           });
           
           await Promise.all(updates);
-        } else {
+        } else if (activeTab === 'sections') {
           await onReorderSections(0, 0); // Trigger with dummy values  
           // Update user section preferences
           const user = await base44.auth.me();
@@ -206,6 +212,15 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
                 });
               }
             })
+          );
+        } else if (activeTab === 'widgets') {
+          await Promise.all(
+            localWidgets.map((w, index) => 
+              base44.entities.UserWidget.update(w.id, {
+                order: index,
+                is_floating: w.is_floating
+              })
+            )
           );
         }
       }
@@ -342,12 +357,88 @@ export default function CustomizePanel({ apps, sections, selectedGradient, onGra
               >
                 Sections
               </button>
+              <button
+                onClick={() => setActiveTab('widgets')}
+                className={`px-4 py-2 font-medium text-sm transition-colors ${
+                  activeTab === 'widgets'
+                    ? 'text-[#f1889b] border-b-2 border-[#f1889b]'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Widgets
+              </button>
             </div>
           </div>
 
           {/* Content */}
           <div>
-            {activeTab === 'apps' ? (
+            {activeTab === 'widgets' ? (
+              <div className="space-y-2">
+                <DragDropContext onDragEnd={(result) => {
+                  if (!result.destination) return;
+                  const reordered = Array.from(localWidgets);
+                  const [removed] = reordered.splice(result.source.index, 1);
+                  reordered.splice(result.destination.index, 0, removed);
+                  setLocalWidgets(reordered);
+                  setHasChanges(true);
+                }}>
+                  <Droppable droppableId="widgets">
+                    {(provided) => (
+                      <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                        {localWidgets.map((widget, index) => {
+                           const widgetInfo = AVAILABLE_WIDGETS.find(w => w.type === widget.widget_type) || {};
+                           return (
+                             <Draggable key={widget.id} draggableId={widget.id} index={index}>
+                               {(provided, snapshot) => (
+                                 <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    className={`flex items-center gap-3 p-3 rounded-lg border group ${
+                                      snapshot.isDragging 
+                                        ? 'shadow-2xl scale-105 bg-white border-[#f1889b] z-50' 
+                                        : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
+                                    }`}
+                                 >
+                                    <div {...provided.dragHandleProps}>
+                                      <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
+                                    </div>
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center">
+                                       <img src={widgetInfo.icon_url} alt={widgetInfo.name} className="w-5 h-5 object-contain" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <h5 className="font-medium text-gray-800 text-sm truncate">{widgetInfo.name}</h5>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title={widget.is_floating ? 'Dock to grid' : 'Pop out (Float)'} onClick={() => {
+                                        const updated = [...localWidgets];
+                                        updated[index].is_floating = !updated[index].is_floating;
+                                        setLocalWidgets(updated);
+                                        setHasChanges(true);
+                                      }}>
+                                        {widget.is_floating ? <Minimize2 className="w-4 h-4 text-gray-600" /> : <Maximize2 className="w-4 h-4 text-blue-500" />}
+                                      </Button>
+                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-red-50" onClick={() => {
+                                        setConfirmAction({
+                                          type: 'delete',
+                                          message: `Remove widget?`,
+                                          action: () => onDeleteWidget(widget.id)
+                                        });
+                                      }}>
+                                        <Trash2 className="w-4 h-4 text-red-500" />
+                                      </Button>
+                                    </div>
+                                 </div>
+                               )}
+                             </Draggable>
+                           )
+                        })}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </div>
+            ) : activeTab === 'apps' ? (
               <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="space-y-6">
                   {groupedApps.map(({ section, apps: sectionApps }) => (

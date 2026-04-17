@@ -19,6 +19,7 @@ import BrowseAppsModal from '../components/hub/BrowseAppsModal';
 import FavoritesSection from '../components/hub/FavoritesSection.jsx';
 import MacDock from '../components/hub/MacDock.jsx';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import WidgetsContainer from '../components/hub/WidgetsContainer';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
@@ -127,6 +128,46 @@ export default function AppHub() {
     queryFn: () => user ? base44.entities.HiddenApp.filter({ user_email: user.email }) : [],
     enabled: !!user,
   });
+
+  const { data: userWidgets = [] } = useQuery({
+    queryKey: ['userWidgets', user?.email],
+    queryFn: () => user ? base44.entities.UserWidget.filter({ user_email: user.email }) : [],
+    enabled: !!user,
+  });
+
+  const createWidgetMutation = useMutation({
+    mutationFn: (widgetData) => base44.entities.UserWidget.create({ ...widgetData, order: userWidgets.length }),
+    onSuccess: () => queryClient.invalidateQueries(['userWidgets']),
+  });
+
+  const updateWidgetMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.UserWidget.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries(['userWidgets']),
+  });
+
+  const deleteWidgetMutation = useMutation({
+    mutationFn: (id) => base44.entities.UserWidget.delete(id),
+    onSuccess: () => queryClient.invalidateQueries(['userWidgets']),
+  });
+
+  const handleReorderWidgets = async (sourceIndex, destinationIndex, gridWidgets) => {
+    const reordered = Array.from(gridWidgets);
+    const [removed] = reordered.splice(sourceIndex, 1);
+    reordered.splice(destinationIndex, 0, removed);
+    
+    const updatedWidgets = userWidgets.map(w => {
+      const newOrder = reordered.findIndex(rw => rw.id === w.id);
+      if (newOrder !== -1) {
+        return { ...w, order: newOrder };
+      }
+      return w;
+    });
+    queryClient.setQueryData(['userWidgets', user?.email], updatedWidgets);
+    
+    await Promise.all(
+      reordered.map((w, idx) => base44.entities.UserWidget.update(w.id, { order: idx }))
+    );
+  };
 
   const createAppMutation = useMutation({
     mutationFn: async (appData) => {
@@ -582,6 +623,15 @@ export default function AppHub() {
       <DragDropContext onDragEnd={handlePageDragEnd}>
         <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
 
+          {/* Widgets */}
+          <WidgetsContainer
+            widgets={userWidgets}
+            isEditMode={isEditMode}
+            onUpdateWidget={(id, data) => updateWidgetMutation.mutate({ id, data })}
+            onDeleteWidget={(id) => deleteWidgetMutation.mutate(id)}
+            onReorderWidgets={handleReorderWidgets}
+          />
+
           {/* Favorites */}
           {favoritedApps.length > 0 && (
             <div className="mb-6">
@@ -809,6 +859,7 @@ export default function AppHub() {
         <CustomizePanel
           apps={apps}
           sections={sections}
+          userWidgets={userWidgets}
           selectedGradient={selectedGradient}
           onGradientChange={handleGradientChange}
           customWallpaper={customWallpaper}
@@ -825,6 +876,7 @@ export default function AppHub() {
           onClose={() => setShowCustomizePanel(false)}
           isOwner={isOwner}
           hiddenApps={hiddenApps}
+          onDeleteWidget={(id) => deleteWidgetMutation.mutate(id)}
         />
       )}
 
@@ -840,9 +892,11 @@ export default function AppHub() {
           sections={sections}
           userApps={apps}
           hiddenApps={hiddenApps}
+          userWidgets={userWidgets}
           onClose={() => setShowBrowseApps(false)}
           onAddApp={(appData) => createAppMutation.mutate(appData)}
           onUnhideApp={(appId) => hideAppMutation.mutate(appId)}
+          onAddWidget={(type) => createWidgetMutation.mutate({ user_email: user.email, widget_type: type })}
         />
       )}
     </div>
