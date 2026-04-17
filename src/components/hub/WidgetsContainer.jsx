@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import { Maximize2, Minimize2, X, GripHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
-import ClockWidget from './ClockWidget';
-import WeatherWidget from './WeatherWidget';
-import StickyNotesWidget from './StickyNotesWidget';
+import ClockWidget from './widgets/ClockWidget';
+import WeatherWidget from './widgets/WeatherWidget';
+import StickyNotesWidget from './widgets/StickyNotesWidget';
 
 const WIDGET_COMPONENTS = {
   clock: ClockWidget,
