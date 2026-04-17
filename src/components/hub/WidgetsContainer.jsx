@@ -98,7 +98,18 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridWidgets.map(widget => (
                 <div key={widget.id} className="relative h-48 rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group">
-                  {renderWidgetContent(widget)}
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <button
+                      onClick={() => onUpdateWidget(widget.id, { is_floating: true })}
+                      className="w-6 h-6 flex items-center justify-center rounded-md bg-white/80 hover:bg-blue-50 transition-colors border border-white/60 shadow-sm"
+                      title="Pop out (Float)"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5 text-blue-500" />
+                    </button>
+                  </div>
+                  <div className={`h-full ${widget.widget_type === 'notes' ? '' : 'pt-4'}`}>
+                    {renderWidgetContent(widget)}
+                  </div>
                 </div>
               ))}
             </div>
