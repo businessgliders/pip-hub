@@ -550,22 +550,22 @@ export default function AppHub() {
       {/* ── MAIN CONTENT ── */}
       <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
 
-        {/* Favorites — hidden on desktop (shown in dock instead) */}
+        {/* Favorites */}
         {favoritedApps.length > 0 && (
-          <div className="md:hidden">
-          <FavoritesSection
-            favoritedApps={favoritedApps}
-            viewMode={viewMode}
-            isEditMode={isEditMode}
-            draggingAppId={draggingAppId}
-            onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
-            onOpenApp={setViewingApp}
-            onEditApp={handleEditApp}
-            onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onReorderFavorites={handleReorderFavorites}
-          />
+          <div className="mb-6">
+            <FavoritesSection
+              favoritedApps={favoritedApps}
+              viewMode={viewMode}
+              isEditMode={isEditMode}
+              draggingAppId={draggingAppId}
+              onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
+              onOpenApp={setViewingApp}
+              onEditApp={handleEditApp}
+              onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onReorderFavorites={handleReorderFavorites}
+            />
           </div>
         )}
 
