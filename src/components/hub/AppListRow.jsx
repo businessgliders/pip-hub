@@ -1,8 +1,8 @@
 import React from 'react';
-import { Star, ChevronRight, ExternalLink, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Star, ChevronRight, ExternalLink, Pencil, Trash2, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenApp, isLast, isEditMode, onEdit, onDelete, onMoveUp, onMoveDown }) {
+export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenApp, isLast, isEditMode, onEdit, onDelete, dragHandleProps }) {
   const handleClick = (e) => {
     if (isEditMode) return;
     if (e.target.closest('.action-button')) return;
@@ -22,23 +22,13 @@ export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenA
         !isLast && 'border-b border-gray-200/60'
       )}
     >
-      {/* Up/Down arrows in edit mode */}
-      {isEditMode && (
-        <div className="flex flex-col gap-0.5 flex-shrink-0">
-          <button
-            className="action-button w-6 h-5 flex items-center justify-center rounded hover:bg-gray-100 disabled:opacity-20 transition-colors"
-            onClick={(e) => { e.stopPropagation(); onMoveUp?.(); }}
-            disabled={!onMoveUp}
-          >
-            <ChevronUp className="w-3.5 h-3.5 text-gray-400" />
-          </button>
-          <button
-            className="action-button w-6 h-5 flex items-center justify-center rounded hover:bg-gray-100 disabled:opacity-20 transition-colors"
-            onClick={(e) => { e.stopPropagation(); onMoveDown?.(); }}
-            disabled={!onMoveDown}
-          >
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-          </button>
+      {/* Drag handle in edit mode */}
+      {isEditMode && dragHandleProps && (
+        <div
+          {...dragHandleProps}
+          className="action-button flex items-center justify-center flex-shrink-0 cursor-grab active:cursor-grabbing hover:bg-gray-100 p-1 rounded transition-colors"
+        >
+          <GripVertical className="w-5 h-5 text-gray-400" />
         </div>
       )}
 

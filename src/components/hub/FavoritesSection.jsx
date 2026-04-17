@@ -43,21 +43,61 @@ export default function FavoritesSection({
       {!isCollapsed && (
         <>
           {viewMode === 'list' ? (
-            <div className="rounded-2xl overflow-hidden border border-gray-200/60 shadow-sm">
-              {favoritedApps.map((app, i) => (
-                <AppListRow
-                  key={app.id}
-                  app={app}
-                  isFavorited={true}
-                  onToggleFavorite={() => onToggleFavorite(app.id)}
-                  onOpenApp={onOpenApp}
-                  isLast={i === favoritedApps.length - 1}
-                  isEditMode={isEditMode}
-                  onEdit={() => onEditApp(app)}
-                  onDelete={() => onDeleteApp(app.id)}
-                />
-              ))}
-            </div>
+            isEditMode ? (
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="favorites" direction="vertical">
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="rounded-2xl overflow-hidden border border-gray-200/60 shadow-sm"
+                    >
+                      {favoritedApps.map((app, i) => (
+                        <Draggable key={app.id} draggableId={`fav-${app.id}`} index={i}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              style={{ ...provided.draggableProps.style }}
+                              className={snapshot.isDragging ? 'opacity-80 z-50 shadow-xl bg-white rounded-lg' : ''}
+                            >
+                              <AppListRow
+                                app={app}
+                                isFavorited={true}
+                                onToggleFavorite={() => onToggleFavorite(app.id)}
+                                onOpenApp={onOpenApp}
+                                isLast={i === favoritedApps.length - 1}
+                                isEditMode={isEditMode}
+                                onEdit={() => onEditApp(app)}
+                                onDelete={() => onDeleteApp(app.id)}
+                                dragHandleProps={provided.dragHandleProps}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            ) : (
+              <div className="rounded-2xl overflow-hidden border border-gray-200/60 shadow-sm">
+                {favoritedApps.map((app, i) => (
+                  <AppListRow
+                    key={app.id}
+                    app={app}
+                    isFavorited={true}
+                    onToggleFavorite={() => onToggleFavorite(app.id)}
+                    onOpenApp={onOpenApp}
+                    isLast={i === favoritedApps.length - 1}
+                    isEditMode={isEditMode}
+                    onEdit={() => onEditApp(app)}
+                    onDelete={() => onDeleteApp(app.id)}
+                  />
+                ))}
+              </div>
+            )
           ) : isEditMode ? (
             // Grid edit mode: drag-and-drop reorder
             <DragDropContext onDragEnd={handleDragEnd}>
