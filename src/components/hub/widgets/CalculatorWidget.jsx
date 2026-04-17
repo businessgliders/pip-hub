@@ -42,7 +42,7 @@ export default function CalculatorWidget({ widget }) {
         <div className="text-xl font-mono text-gray-800 truncate">{display}</div>
       </div>
 
-      <div className="grid grid-cols-4 gap-1">
+      <div className="grid grid-cols-4 gap-1 flex-1">
         <button onClick={handleClear} className="col-span-3 p-1 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 text-sm font-medium shadow-sm transition-colors">C</button>
         <button onClick={() => handleOperator('/')} className="p-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-medium shadow-sm transition-colors">÷</button>
         

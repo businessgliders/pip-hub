@@ -58,7 +58,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             style={{ ...provided.draggableProps.style }}
-                            className={`relative h-48 rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 hover:border-[#f1889b]/40 transition-colors ${
+                            className={`relative ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-48'} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 hover:border-[#f1889b]/40 transition-colors ${
                               snapshot.isDragging ? 'shadow-2xl z-50 ring-2 ring-[#f1889b]' : 'shadow-sm'
                             }`}
                           >
@@ -99,7 +99,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridWidgets.map(widget => (
-                <div key={widget.id} className="relative h-48 rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group">
+                <div key={widget.id} className={`relative ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-48'} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group`}>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button
                       onClick={() => onUpdateWidget(widget.id, { is_floating: true })}
@@ -131,7 +131,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
               x: widget.position_x || window.innerWidth / 2 - 128, 
               y: widget.position_y || window.innerHeight / 2 - 128 
             }}
-            className="pointer-events-auto absolute w-64 h-64 rounded-2xl overflow-hidden backdrop-blur-xl bg-white/80 border border-white/60 shadow-2xl"
+            className={`pointer-events-auto absolute w-64 ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-64'} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/80 border border-white/60 shadow-2xl`}
           >
             <div className="h-8 bg-black/5 flex items-center justify-between px-3 cursor-grab active:cursor-grabbing border-b border-black/5">
               <GripHorizontal className="w-4 h-4 text-gray-400" />
