@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Info, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Star, Info, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   HoverCard,
@@ -7,7 +7,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
-export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp, isEditMode, onEdit, onDelete, onMoveUp, onMoveDown }) {
+export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp, isEditMode, onEdit, onDelete }) {
   // Check if app is new (created within last 7 days)
   const isNewApp = () => {
     if (!app.is_new) return false;
@@ -113,25 +113,6 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
           )}
         </div>
 
-        {/* Move up/down in edit mode */}
-        {isEditMode && (
-          <div className="absolute bottom-3 right-3 flex gap-1">
-            <button
-              className="move-button w-6 h-6 rounded backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-gray-100 disabled:opacity-20 transition-colors"
-              onClick={(e) => { e.stopPropagation(); onMoveUp?.(); }}
-              disabled={!onMoveUp}
-            >
-              <ChevronUp className="w-3 h-3 text-gray-500" />
-            </button>
-            <button
-              className="move-button w-6 h-6 rounded backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-gray-100 disabled:opacity-20 transition-colors"
-              onClick={(e) => { e.stopPropagation(); onMoveDown?.(); }}
-              disabled={!onMoveDown}
-            >
-              <ChevronDown className="w-3 h-3 text-gray-500" />
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
