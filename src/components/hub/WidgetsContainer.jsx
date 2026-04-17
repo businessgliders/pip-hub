@@ -41,7 +41,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
     <>
       {/* Grid Widgets */}
       {(gridWidgets.length > 0 || isEditMode) && (
-        <div className="mb-8 hidden md:block">
+        <div className="mb-8 hidden sm:block">
           {isEditMode ? (
             <DragDropContext onDragEnd={handleGridDragEnd}>
               <Droppable droppableId="grid-widgets" direction="horizontal" type="WIDGET">
@@ -120,7 +120,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
       )}
 
       {/* Floating Widgets */}
-      <div className="fixed inset-0 pointer-events-none z-40 hidden md:block">
+      <div className="fixed inset-0 pointer-events-none z-40 hidden sm:block">
         {floatingWidgets.map(widget => (
           <motion.div
             key={widget.id}
