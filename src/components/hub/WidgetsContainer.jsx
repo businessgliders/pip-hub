@@ -6,11 +6,13 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ClockWidget from './widgets/ClockWidget';
 import WeatherWidget from './widgets/WeatherWidget';
 import StickyNotesWidget from './widgets/StickyNotesWidget';
+import CalculatorWidget from './widgets/CalculatorWidget';
 
 const WIDGET_COMPONENTS = {
   clock: ClockWidget,
   weather: WeatherWidget,
   notes: StickyNotesWidget,
+  calculator: CalculatorWidget,
 };
 
 export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWidget, onDeleteWidget, onReorderWidgets }) {
@@ -82,7 +84,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                               </button>
                             </div>
                             
-                            <div className={`h-full ${widget.widget_type === 'notes' ? '' : 'pt-4'}`}>
+                            <div className={`h-full ${widget.widget_type === 'notes' || widget.widget_type === 'calculator' ? '' : 'pt-4'}`}>
                               {renderWidgetContent(widget)}
                             </div>
                           </div>
@@ -107,7 +109,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                       <Maximize2 className="w-3.5 h-3.5 text-blue-500" />
                     </button>
                   </div>
-                  <div className={`h-full ${widget.widget_type === 'notes' ? '' : 'pt-4'}`}>
+                  <div className={`h-full ${widget.widget_type === 'notes' || widget.widget_type === 'calculator' ? '' : 'pt-4'}`}>
                     {renderWidgetContent(widget)}
                   </div>
                 </div>
