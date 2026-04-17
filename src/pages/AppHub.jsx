@@ -18,6 +18,7 @@ import UserSelection from '../components/hub/UserSelection';
 import BrowseAppsModal from '../components/hub/BrowseAppsModal';
 import FavoritesSection from '../components/hub/FavoritesSection.jsx';
 import MacDock from '../components/hub/MacDock.jsx';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
@@ -386,6 +387,29 @@ export default function AppHub() {
     queryClient.invalidateQueries(['sections']);
   };
 
+  const handlePageDragEnd = (result) => {
+    const { source, destination, type } = result;
+    if (!destination) return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+
+    if (type === 'SECTION') {
+      const visibleSections = sections.filter(s => filteredApps.some(a => a.section_id === s.id));
+      const draggedSection = visibleSections[source.index];
+      const targetSection = visibleSections[destination.index];
+      if (draggedSection && targetSection) {
+        const sourceIndex = sections.findIndex(s => s.id === draggedSection.id);
+        const destinationIndex = sections.findIndex(s => s.id === targetSection.id);
+        handleReorderSections(sourceIndex, destinationIndex);
+      }
+    } else if (type === 'FAVORITE') {
+      handleReorderFavorites(source.index, destination.index);
+    } else if (type === 'APP') {
+      if (source.droppableId === destination.droppableId) {
+        handleReorderAppsInSection(source.droppableId, source.index, destination.index);
+      }
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden">
@@ -548,89 +572,127 @@ export default function AppHub() {
       </div>
 
       {/* ── MAIN CONTENT ── */}
-      <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
+      <DragDropContext onDragEnd={handlePageDragEnd}>
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
 
-        {/* Favorites */}
-        {favoritedApps.length > 0 && (
-          <div className="mb-6">
-            <FavoritesSection
-              favoritedApps={favoritedApps}
-              viewMode={viewMode}
-              isEditMode={isEditMode}
-              draggingAppId={draggingAppId}
-              onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
-              onOpenApp={setViewingApp}
-              onEditApp={handleEditApp}
-              onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onReorderFavorites={handleReorderFavorites}
-            />
-          </div>
-        )}
+          {/* Favorites */}
+          {favoritedApps.length > 0 && (
+            <div className="mb-6">
+              <FavoritesSection
+                favoritedApps={favoritedApps}
+                viewMode={viewMode}
+                isEditMode={isEditMode}
+                draggingAppId={draggingAppId}
+                onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
+                onOpenApp={setViewingApp}
+                onEditApp={handleEditApp}
+                onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onReorderFavorites={handleReorderFavorites}
+              />
+            </div>
+          )}
 
-        {/* Sections */}
-        {sections.map((section, sectionIndex) => {
-          const sectionApps = filteredApps.filter(app => app.section_id === section.id);
-          if (sectionApps.length === 0) return null;
-          return (
-            <SectionGroup
-              key={section.id}
-              section={section}
-              sectionIndex={sectionIndex}
-              totalSections={sections.filter(s => filteredApps.some(a => a.section_id === s.id)).length}
-              apps={sectionApps}
-              favorites={favorites}
-              isCollapsed={collapsedSections.includes(section.id)}
-              onToggleCollapse={async () => {
-                const next = collapsedSections.includes(section.id) 
-                  ? collapsedSections.filter(id => id !== section.id)
-                  : [...collapsedSections, section.id];
-                setCollapsedSections(next);
-                if (user) await base44.auth.updateMe({ collapsedSections: next });
-              }}
-              onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              draggingAppId={draggingAppId}
-              onOpenApp={setViewingApp}
-              viewMode={viewMode}
-              isEditMode={isEditMode}
-              onEditApp={handleEditApp}
-              onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
-              onMoveAppUp={(appId) => {
-                const allSectionApps = filteredApps.filter(a => a.section_id === section.id);
-                const idx = allSectionApps.findIndex(a => a.id === appId);
-                if (idx > 0) handleReorderApps(apps.indexOf(allSectionApps[idx]), apps.indexOf(allSectionApps[idx - 1]));
-              }}
-              onMoveAppDown={(appId) => {
-                const allSectionApps = filteredApps.filter(a => a.section_id === section.id);
-                const idx = allSectionApps.findIndex(a => a.id === appId);
-                if (idx < allSectionApps.length - 1) handleReorderApps(apps.indexOf(allSectionApps[idx]), apps.indexOf(allSectionApps[idx + 1]));
-              }}
-              onMoveSectionUp={() => {
-                const visibleSections = sections.filter(s => filteredApps.some(a => a.section_id === s.id));
-                const visIdx = visibleSections.findIndex(s => s.id === section.id);
-                if (visIdx > 0) handleReorderSections(sectionIndex, sections.indexOf(visibleSections[visIdx - 1]));
-              }}
-              onReorderAppsInSection={handleReorderAppsInSection}
-              onRenameSection={handleRenameSection}
-              onMoveSectionDown={() => {
-                const visibleSections = sections.filter(s => filteredApps.some(a => a.section_id === s.id));
-                const visIdx = visibleSections.findIndex(s => s.id === section.id);
-                if (visIdx < visibleSections.length - 1) handleReorderSections(sectionIndex, sections.indexOf(visibleSections[visIdx + 1]));
-              }}
-            />
-          );
-        })}
+          {/* Sections */}
+          {(() => {
+            const visibleSections = sections.filter(section => 
+              filteredApps.some(app => app.section_id === section.id)
+            );
 
-        {/* Footer – desktop only */}
-        <footer className="hidden md:flex text-center text-white/60 text-sm py-6 flex-col items-center gap-3 mt-12">
-          © 2026 Pilates in Pink™ • All rights reserved
-        </footer>
-      </div>
+            if (!isEditMode) {
+              return visibleSections.map((section, index) => (
+                <SectionGroup
+                  key={section.id}
+                  section={section}
+                  sectionIndex={index}
+                  totalSections={visibleSections.length}
+                  apps={filteredApps.filter(app => app.section_id === section.id)}
+                  favorites={favorites}
+                  isCollapsed={collapsedSections.includes(section.id)}
+                  onToggleCollapse={async () => {
+                    const next = collapsedSections.includes(section.id) 
+                      ? collapsedSections.filter(id => id !== section.id)
+                      : [...collapsedSections, section.id];
+                    setCollapsedSections(next);
+                    if (user) await base44.auth.updateMe({ collapsedSections: next });
+                  }}
+                  onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  draggingAppId={draggingAppId}
+                  onOpenApp={setViewingApp}
+                  viewMode={viewMode}
+                  isEditMode={false}
+                  onEditApp={handleEditApp}
+                  onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+                  onReorderAppsInSection={handleReorderAppsInSection}
+                  onRenameSection={handleRenameSection}
+                />
+              ));
+            }
+
+            return (
+              <Droppable droppableId="sections" type="SECTION">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                    {visibleSections.map((section, index) => (
+                      <Draggable key={section.id} draggableId={section.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={snapshot.isDragging ? 'opacity-90 z-50 relative bg-white/40 backdrop-blur-xl rounded-2xl shadow-2xl ring-1 ring-[#f1889b]/50 mb-4' : ''}
+                          >
+                            <SectionGroup
+                              dragHandleProps={provided.dragHandleProps}
+                              key={section.id}
+                              section={section}
+                              sectionIndex={index}
+                              totalSections={visibleSections.length}
+                              apps={filteredApps.filter(app => app.section_id === section.id)}
+                              favorites={favorites}
+                              isCollapsed={collapsedSections.includes(section.id)}
+                              onToggleCollapse={async () => {
+                                const next = collapsedSections.includes(section.id) 
+                                  ? collapsedSections.filter(id => id !== section.id)
+                                  : [...collapsedSections, section.id];
+                                setCollapsedSections(next);
+                                if (user) await base44.auth.updateMe({ collapsedSections: next });
+                              }}
+                              onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
+                              onDragStart={handleDragStart}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={handleDragOver}
+                              onDrop={handleDrop}
+                              draggingAppId={draggingAppId}
+                              onOpenApp={setViewingApp}
+                              viewMode={viewMode}
+                              isEditMode={true}
+                              onEditApp={handleEditApp}
+                              onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+                              onReorderAppsInSection={handleReorderAppsInSection}
+                              onRenameSection={handleRenameSection}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            );
+          })()}
+
+          {/* Footer – desktop only */}
+          <footer className="hidden md:flex text-center text-white/60 text-sm py-6 flex-col items-center gap-3 mt-12">
+            © 2026 Pilates in Pink™ • All rights reserved
+          </footer>
+        </div>
+      </DragDropContext>
 
       {/* ── macOS DOCK (desktop only) ── */}
       <MacDock

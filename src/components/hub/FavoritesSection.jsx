@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import AppCard from './AppCard';
 import AppListRow from './AppListRow';
 
@@ -18,11 +18,6 @@ export default function FavoritesSection({
   onReorderFavorites,
 }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const handleDragEnd = (result) => {
-    if (!result.destination || result.source.index === result.destination.index) return;
-    onReorderFavorites(result.source.index, result.destination.index);
-  };
 
   return (
     <div className="mb-10">
@@ -44,8 +39,7 @@ export default function FavoritesSection({
         <>
           {viewMode === 'list' ? (
             isEditMode ? (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="favorites" direction="vertical">
+              <Droppable droppableId="favorites" direction="vertical" type="FAVORITE">
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
@@ -79,8 +73,7 @@ export default function FavoritesSection({
                       {provided.placeholder}
                     </div>
                   )}
-                </Droppable>
-              </DragDropContext>
+              </Droppable>
             ) : (
               <div className="rounded-2xl overflow-hidden border border-gray-200/60 shadow-sm">
                 {favoritedApps.map((app, i) => (
@@ -100,8 +93,7 @@ export default function FavoritesSection({
             )
           ) : isEditMode ? (
             // Grid edit mode: drag-and-drop reorder
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="favorites" direction="horizontal">
+            <Droppable droppableId="favorites" direction="horizontal" type="FAVORITE">
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
@@ -135,8 +127,7 @@ export default function FavoritesSection({
                     {provided.placeholder}
                   </div>
                 )}
-              </Droppable>
-            </DragDropContext>
+            </Droppable>
           ) : (
             // Grid normal mode
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

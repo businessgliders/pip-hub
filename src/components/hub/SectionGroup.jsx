@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, ChevronRight, Check, X } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { ChevronRight, Check, X, GripVertical } from 'lucide-react';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import AppCard from './AppCard';
 import AppListRow from './AppListRow';
 
@@ -21,22 +21,14 @@ export default function SectionGroup({
   isEditMode = false,
   onEditApp,
   onDeleteApp,
-  onMoveAppUp,
-  onMoveAppDown,
-  onMoveSectionUp,
-  onMoveSectionDown,
   onReorderAppsInSection,
   onRenameSection,
   isCollapsed,
   onToggleCollapse,
+  dragHandleProps,
 }) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renamingValue, setRenamingValue] = useState(section.name);
-
-  const handleDragEnd = (result) => {
-    if (!result.destination || result.source.index === result.destination.index) return;
-    onReorderAppsInSection?.(section.id, result.source.index, result.destination.index);
-  };
 
   const handleRenameSubmit = () => {
     if (renamingValue.trim() && renamingValue !== section.name) {
@@ -54,14 +46,12 @@ export default function SectionGroup({
     <div className="mb-10">
       {/* Section header */}
       <div className="flex items-center gap-2 mb-4">
-        {isEditMode && (
-          <div className="flex flex-col gap-0.5">
-            <button onClick={onMoveSectionUp} className="w-6 h-5 flex items-center justify-center rounded hover:bg-gray-200 disabled:opacity-20 transition-colors">
-              <ChevronUp className="w-3.5 h-3.5 text-gray-500" />
-            </button>
-            <button onClick={onMoveSectionDown} className="w-6 h-5 flex items-center justify-center rounded hover:bg-gray-200 disabled:opacity-20 transition-colors">
-              <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
-            </button>
+        {isEditMode && dragHandleProps && (
+          <div
+            {...dragHandleProps}
+            className="flex items-center justify-center p-1.5 rounded-lg hover:bg-white/50 cursor-grab active:cursor-grabbing transition-colors"
+          >
+            <GripVertical className="w-5 h-5 text-gray-500" />
           </div>
         )}
 
@@ -114,9 +104,8 @@ export default function SectionGroup({
         <>
           {viewMode === 'list' ? (
             isEditMode ? (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId={section.id} direction="vertical">
-                  {(provided) => (
+              <Droppable droppableId={section.id} direction="vertical" type="APP">
+                {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
@@ -149,8 +138,7 @@ export default function SectionGroup({
                       {provided.placeholder}
                     </div>
                   )}
-                </Droppable>
-              </DragDropContext>
+              </Droppable>
             ) : (
               <div className="rounded-2xl overflow-hidden border border-gray-200/60 shadow-sm">
                 {apps.map((app, i) => (
@@ -169,9 +157,8 @@ export default function SectionGroup({
               </div>
             )
           ) : isEditMode ? (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId={section.id} direction="horizontal">
-                {(provided) => (
+            <Droppable droppableId={section.id} direction="horizontal" type="APP">
+              {(provided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
@@ -204,8 +191,7 @@ export default function SectionGroup({
                     {provided.placeholder}
                   </div>
                 )}
-              </Droppable>
-            </DragDropContext>
+            </Droppable>
           ) : (
             <div
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
