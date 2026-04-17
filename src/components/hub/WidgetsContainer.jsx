@@ -40,7 +40,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
     <>
       {/* Grid Widgets */}
       {(gridWidgets.length > 0 || isEditMode) && (
-        <div className="mb-8 hidden sm:block">
+        <div className="mb-8">
           {isEditMode ? (
             <DragDropContext onDragEnd={handleGridDragEnd}>
               <Droppable droppableId="grid-widgets" direction="horizontal" type="WIDGET">
