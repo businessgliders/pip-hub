@@ -510,13 +510,13 @@ export default function AppHub() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className="relative group/search">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-hover/search:text-gray-700 transition-colors pointer-events-none z-10" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search apps..."
-                className="pl-10 w-64 backdrop-blur-xl bg-white/60 border-white/80"
+                className="pl-10 w-10 group-hover/search:w-64 focus:w-64 backdrop-blur-xl bg-white/60 hover:bg-white/80 focus:bg-white/80 border-transparent hover:border-white/80 focus:border-white/80 transition-all duration-300 ease-in-out cursor-pointer focus:cursor-text placeholder-transparent group-hover/search:placeholder-gray-400 focus:placeholder-gray-400 shadow-sm"
               />
             </div>
             {/* View toggle - combined button */}
@@ -555,11 +555,10 @@ export default function AppHub() {
               {isEditMode ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
             </Button>
             <div className="relative group">
-              <Button variant="outline" className="rounded-xl border-gray-300 px-4">
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white mr-2">
+              <Button variant="outline" size="icon" className="rounded-xl border-gray-300">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white">
                   {getInitials(user.full_name)}
                 </div>
-                Menu
               </Button>
               <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-gray-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40">
                 <button onClick={() => setShowCustomizePanel(true)} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 border-b border-gray-200">Customize</button>
