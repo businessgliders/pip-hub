@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import AppCard from './AppCard';
 import AppListRow from './AppListRow';
@@ -27,7 +27,6 @@ export default function FavoritesSection({
   return (
     <div className="mb-10">
       <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-5 h-5 text-[#f1889b]" />
         <button
           onClick={() => !isEditMode && setIsCollapsed(c => !c)}
           className={`flex items-center gap-1.5 flex-1 text-left ${!isEditMode ? 'cursor-pointer' : 'cursor-default'}`}
