@@ -131,7 +131,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
               x: widget.position_x || window.innerWidth / 2 - 128, 
               y: widget.position_y || window.innerHeight / 2 - 128 
             }}
-            className={`pointer-events-auto absolute ${widget.widget_type === 'clock' ? 'w-[22rem]' : 'w-64'} ${widget.widget_type === 'calculator' ? 'h-[320px]' : widget.widget_type === 'clock' ? 'h-40' : 'h-64'} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/80 border border-white/60 shadow-2xl`}
+            className={`pointer-events-auto absolute ${widget.widget_type === 'clock' ? 'w-[22rem]' : 'w-64'} max-w-[calc(100vw-2rem)] ${widget.widget_type === 'calculator' ? 'h-[320px]' : widget.widget_type === 'clock' ? 'h-40' : 'h-64'} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/80 border border-white/60 shadow-2xl`}
           >
             <div className="h-8 bg-black/5 flex items-center justify-between px-3 cursor-grab active:cursor-grabbing border-b border-black/5">
               <GripHorizontal className="w-4 h-4 text-gray-400" />
