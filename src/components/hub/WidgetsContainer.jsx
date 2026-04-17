@@ -120,7 +120,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
       )}
 
       {/* Floating Widgets */}
-      <div className="fixed inset-0 pointer-events-none z-40 hidden sm:block">
+      <div className="fixed inset-0 pointer-events-none z-40">
         {floatingWidgets.map(widget => (
           <motion.div
             key={widget.id}
