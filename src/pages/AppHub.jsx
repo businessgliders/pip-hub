@@ -621,7 +621,7 @@ export default function AppHub() {
 
       {/* ── MAIN CONTENT ── */}
       <DragDropContext onDragEnd={handlePageDragEnd}>
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6 pt-6 pb-0">
 
           {/* Widgets */}
           <div className="sticky top-[80px] md:top-8 z-10">
@@ -634,11 +634,13 @@ export default function AppHub() {
             />
           </div>
 
-          <div className="relative z-20 mt-12 pt-4">
+          <div className="sticky z-20 mt-8 top-[160px] md:top-[120px] h-[calc(100dvh-160px)] md:h-[calc(100dvh-120px)]">
             <div 
-              className="absolute inset-x-[-50vw] top-[-120px] bottom-[-50vh] bg-white/30 backdrop-blur-xl pointer-events-none -z-10" 
+              className="absolute inset-x-[-50vw] top-0 bottom-[-50vh] bg-white/30 backdrop-blur-xl pointer-events-none -z-10" 
               style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 120px)', maskImage: 'linear-gradient(to bottom, transparent, black 120px)' }} 
             />
+            <div className="h-full w-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div className="relative pt-6 pb-28 md:pb-12 min-h-full flex flex-col">
             
           {/* Favorites */}
           {favoritedApps.length > 0 && (
@@ -751,12 +753,14 @@ export default function AppHub() {
               </Droppable>
             );
           })()}
+          
+              {/* Footer – desktop only */}
+              <footer className="hidden md:flex text-center text-white/60 text-sm py-6 flex-col items-center gap-3 mt-auto">
+                © 2026 Pilates in Pink™ • All rights reserved
+              </footer>
+              </div>
+            </div>
           </div>
-
-          {/* Footer – desktop only */}
-          <footer className="hidden md:flex text-center text-white/60 text-sm py-6 flex-col items-center gap-3 mt-12">
-            © 2026 Pilates in Pink™ • All rights reserved
-          </footer>
         </div>
       </DragDropContext>
 
