@@ -453,7 +453,7 @@ export default function AppHub() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2] relative overflow-clip">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#f1889b]/20 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f7b1bd]/20 rounded-full blur-3xl" />
         <UserSelection onClose={() => {}} />
@@ -481,7 +481,7 @@ export default function AppHub() {
   const wallpaperUrl = customWallpaper || themeWallpaperUrl;
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${gradientClass} relative overflow-hidden`}>
+    <div className={`min-h-screen bg-gradient-to-br ${gradientClass} relative overflow-clip`}>
       {/* Wallpaper */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
