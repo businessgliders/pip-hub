@@ -624,14 +624,22 @@ export default function AppHub() {
         <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
 
           {/* Widgets */}
-          <WidgetsContainer
-            widgets={userWidgets}
-            isEditMode={isEditMode}
-            onUpdateWidget={(id, data) => updateWidgetMutation.mutate({ id, data })}
-            onDeleteWidget={(id) => deleteWidgetMutation.mutate(id)}
-            onReorderWidgets={handleReorderWidgets}
-          />
+          <div className="sticky top-[80px] md:top-8 z-10">
+            <WidgetsContainer
+              widgets={userWidgets}
+              isEditMode={isEditMode}
+              onUpdateWidget={(id, data) => updateWidgetMutation.mutate({ id, data })}
+              onDeleteWidget={(id) => deleteWidgetMutation.mutate(id)}
+              onReorderWidgets={handleReorderWidgets}
+            />
+          </div>
 
+          <div className="relative z-20 mt-12 pt-4">
+            <div 
+              className="absolute inset-x-[-50vw] top-[-120px] bottom-[-50vh] bg-white/30 backdrop-blur-xl pointer-events-none -z-10" 
+              style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 120px)', maskImage: 'linear-gradient(to bottom, transparent, black 120px)' }} 
+            />
+            
           {/* Favorites */}
           {favoritedApps.length > 0 && (
             <div className="mb-6">
@@ -743,6 +751,7 @@ export default function AppHub() {
               </Droppable>
             );
           })()}
+          </div>
 
           {/* Footer – desktop only */}
           <footer className="hidden md:flex text-center text-white/60 text-sm py-6 flex-col items-center gap-3 mt-12">
