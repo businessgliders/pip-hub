@@ -481,7 +481,7 @@ export default function AppHub() {
   const wallpaperUrl = customWallpaper || themeWallpaperUrl;
 
   return (
-    <div className={`min-h-screen md:h-screen bg-gradient-to-br ${gradientClass} relative overflow-clip flex flex-col`}>
+    <div className={`min-h-screen bg-gradient-to-br ${gradientClass} relative overflow-clip`}>
       {/* Wallpaper */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -545,17 +545,17 @@ export default function AppHub() {
       </div>
 
       {/* ── DESKTOP HEADER ── */}
-      <div className="sticky top-0 z-50 w-full backdrop-blur-2xl bg-white/40 border-b border-white/30 shadow-sm hidden md:block">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-6">
+      <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-0 hidden md:block">
+        <div className="flex md:items-center md:justify-between gap-6 mb-8">
           <div className="flex items-center gap-4">
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
               alt="PiP Hub"
-              className="w-12 h-12 rounded-xl shadow-md"
+              className="w-16 h-16 rounded-2xl shadow-lg"
             />
             <div>
-              <h1 className="text-2xl font-bold text-gray-800 tracking-tight">{user?.full_name?.split(' ')[0] || 'App'}'s Hub</h1>
-              <p className="text-gray-600 text-xs mt-0.5">Your workspace at a glance</p>
+              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">{user?.full_name?.split(' ')[0] || 'App'}'s Hub</h1>
+              <p className="text-gray-600 text-sm mt-1">Your workspace at a glance</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -621,24 +621,22 @@ export default function AppHub() {
 
       {/* ── MAIN CONTENT ── */}
       <DragDropContext onDragEnd={handlePageDragEnd}>
-        <div className="relative max-w-7xl mx-auto w-full px-4 md:px-6 py-6 pb-28 md:pb-0 flex-1 flex flex-col md:overflow-hidden">
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
 
           {/* Widgets */}
-          <div className="sticky top-[80px] md:top-0 shrink-0 z-40 md:mb-[-100px] pointer-events-none">
-            <div className="pointer-events-auto">
-              <WidgetsContainer
-                widgets={userWidgets}
-                isEditMode={isEditMode}
-                onUpdateWidget={(id, data) => updateWidgetMutation.mutate({ id, data })}
-                onDeleteWidget={(id) => deleteWidgetMutation.mutate(id)}
-                onReorderWidgets={handleReorderWidgets}
-              />
-            </div>
+          <div className="sticky top-[80px] md:top-8 z-10">
+            <WidgetsContainer
+              widgets={userWidgets}
+              isEditMode={isEditMode}
+              onUpdateWidget={(id, data) => updateWidgetMutation.mutate({ id, data })}
+              onDeleteWidget={(id) => deleteWidgetMutation.mutate(id)}
+              onReorderWidgets={handleReorderWidgets}
+            />
           </div>
 
-          <div className="relative z-10 mt-12 pt-4 md:mt-[100px] md:pt-[100px] flex-1 md:overflow-y-auto desktop-fade-mask md:pb-12 scroll-smooth">
+          <div className="relative z-20 mt-12 pt-4">
             <div 
-              className="absolute inset-x-[-50vw] top-[-120px] md:top-[80px] bottom-[-50vh] bg-white/30 backdrop-blur-xl pointer-events-none -z-10" 
+              className="absolute inset-x-[-50vw] top-[-120px] bottom-[-50vh] bg-white/30 backdrop-blur-xl pointer-events-none -z-10" 
               style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 120px)', maskImage: 'linear-gradient(to bottom, transparent, black 120px)' }} 
             />
             
