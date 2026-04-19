@@ -545,7 +545,8 @@ export default function AppHub() {
       </div>
 
       {/* ── DESKTOP HEADER ── */}
-      <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-0 hidden md:block">
+      <div className="sticky top-0 z-30 hidden md:block">
+      <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-0">
         <div className="flex md:items-center md:justify-between gap-6 mb-8">
           <div className="flex items-center gap-4">
             <img
@@ -617,6 +618,7 @@ export default function AppHub() {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* ── MAIN CONTENT ── */}
