@@ -86,3 +86,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media (min-width: 768px) {
+  .desktop-fade-mask {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 80px);
+    mask-image: linear-gradient(to bottom, transparent, black 80px);
+  }
+}
