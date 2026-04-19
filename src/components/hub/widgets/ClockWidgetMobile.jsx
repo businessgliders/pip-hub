@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { CloudSun } from 'lucide-react';
+import useWeather from '@/hooks/useWeather';
 
 export default function ClockWidgetMobile() {
   const [time, setTime] = useState(new Date());
+  const weather = useWeather();
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -30,10 +32,12 @@ export default function ClockWidgetMobile() {
 
         <div className="flex items-center gap-1.5 mt-2">
           <CloudSun className="w-4 h-4" stroke="url(#weather-gradient-mobile)" strokeWidth={1.5} />
-          <div className="text-sm font-light text-gray-900 leading-none">22°C</div>
+          <div className="text-sm font-light text-gray-900 leading-none">
+            {weather ? `${weather.temp}°C` : '—'}
+          </div>
         </div>
         <div className="text-[9px] font-medium text-gray-700 leading-snug mt-0.5 truncate w-full text-center">
-          Brampton, ON
+          {weather?.city || 'Loading...'}
         </div>
 
       </div>
