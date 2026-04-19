@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Maximize2, Minimize2, X, GripHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import ClockWidget from './widgets/ClockWidget';
+import ClockWidgetMobile from './widgets/ClockWidgetMobile';
 import StickyNotesWidget from './widgets/StickyNotesWidget';
 import CalculatorWidget from './widgets/CalculatorWidget';
 
@@ -18,7 +19,17 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
   const floatingWidgets = widgets.filter(w => w.is_floating);
   const constraintsRef = useRef(null);
 
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 640);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const renderWidgetContent = (widget) => {
+    if (widget.widget_type === 'clock' && isMobile) {
+      return <ClockWidgetMobile widget={widget} />;
+    }
     const Component = WIDGET_COMPONENTS[widget.widget_type];
     if (!Component) return <div className="p-4 text-center text-gray-500">Unknown Widget</div>;
     return <Component widget={widget} />;
@@ -57,7 +68,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             style={{ ...provided.draggableProps.style }}
-                            className={`relative ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-40'} ${widget.widget_type === 'clock' ? 'col-span-2' : ''} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 hover:border-[#f1889b]/40 transition-colors ${
+                            className={`relative ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-40'} ${widget.widget_type === 'clock' ? 'sm:col-span-2' : ''} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 hover:border-[#f1889b]/40 transition-colors ${
                               snapshot.isDragging ? 'shadow-2xl z-50 ring-2 ring-[#f1889b]' : 'shadow-sm'
                             }`}
                           >
@@ -98,7 +109,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridWidgets.map(widget => (
-                <div key={widget.id} className={`relative ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-40'} ${widget.widget_type === 'clock' ? 'col-span-2' : ''} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group`}>
+                <div key={widget.id} className={`relative ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-40'} ${widget.widget_type === 'clock' ? 'sm:col-span-2' : ''} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group`}>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button
                       onClick={() => onUpdateWidget(widget.id, { is_floating: true })}
