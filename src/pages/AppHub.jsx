@@ -636,7 +636,7 @@ export default function AppHub() {
             />
           </div>
 
-          <div className="relative z-20 -mt-8 md:mt-8 md:sticky md:top-[228px] pt-4">
+          <div className="relative z-20 -mt-2 md:mt-8 md:sticky md:top-[228px] pt-4">
             <div 
               className="absolute inset-x-[-50vw] top-[-120px] bottom-[-50vh] bg-white/30 backdrop-blur-xl pointer-events-none -z-10" 
               style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 120px)', maskImage: 'linear-gradient(to bottom, transparent, black 120px)' }} 
