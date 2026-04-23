@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Info, Pencil, Trash2 } from 'lucide-react';
+import { Star, Info, Pencil, Trash2, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   HoverCard,
@@ -7,7 +7,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
-export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp, isEditMode, onEdit, onDelete }) {
+export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStart, onDragEnd, isDragging, onOpenApp, isEditMode, onEdit, onDelete, onHide }) {
   // Check if app is new (created within last 7 days)
   const isNewApp = () => {
     if (!app.is_new) return false;
@@ -79,12 +79,23 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
               >
                 <Pencil className="w-3.5 h-3.5 text-blue-400" />
               </button>
-              <button
-                className="delete-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-red-50 transition-colors"
-                onClick={(e) => { e.stopPropagation(); onDelete(); }}
-              >
-                <Trash2 className="w-3.5 h-3.5 text-red-400" />
-              </button>
+              {app.is_global ? (
+                <button
+                  className="delete-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); onHide?.(); }}
+                  title="Hide from my dashboard"
+                >
+                  <EyeOff className="w-3.5 h-3.5 text-gray-500" />
+                </button>
+              ) : (
+                <button
+                  className="delete-button w-7 h-7 rounded-lg backdrop-blur-md bg-white/80 border border-white/80 flex items-center justify-center hover:bg-red-50 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                  title="Delete app"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                </button>
+              )}
             </>
           ) : (
             <>

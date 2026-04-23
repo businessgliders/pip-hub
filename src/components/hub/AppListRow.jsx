@@ -1,8 +1,8 @@
 import React from 'react';
-import { Star, ChevronRight, ExternalLink, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { Star, ChevronRight, ExternalLink, Pencil, Trash2, GripVertical, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenApp, isLast, isEditMode, onEdit, onDelete, dragHandleProps }) {
+export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenApp, isLast, isEditMode, onEdit, onDelete, onHide, dragHandleProps }) {
   const handleClick = (e) => {
     if (isEditMode) return;
     if (e.target.closest('.action-button')) return;
@@ -64,12 +64,23 @@ export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenA
             >
               <Pencil className="w-4 h-4 text-blue-400" />
             </button>
-            <button
-              className="action-button w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors"
-              onClick={(e) => { e.stopPropagation(); onDelete(); }}
-            >
-              <Trash2 className="w-4 h-4 text-red-400" />
-            </button>
+            {app.is_global ? (
+              <button
+                className="action-button w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+                onClick={(e) => { e.stopPropagation(); onHide?.(); }}
+                title="Hide from my dashboard"
+              >
+                <EyeOff className="w-4 h-4 text-gray-500" />
+              </button>
+            ) : (
+              <button
+                className="action-button w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors"
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                title="Delete app"
+              >
+                <Trash2 className="w-4 h-4 text-red-400" />
+              </button>
+            )}
           </>
         ) : (
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

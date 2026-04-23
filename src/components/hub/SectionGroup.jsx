@@ -21,6 +21,7 @@ export default function SectionGroup({
   isEditMode = false,
   onEditApp,
   onDeleteApp,
+  onHideApp,
   onReorderAppsInSection,
   onRenameSection,
   isCollapsed,
@@ -129,6 +130,7 @@ export default function SectionGroup({
                                 isEditMode={isEditMode}
                                 onEdit={() => onEditApp(app)}
                                 onDelete={() => onDeleteApp(app.id)}
+                                onHide={() => onHideApp?.(app.id)}
                                 dragHandleProps={provided.dragHandleProps}
                               />
                             </div>
@@ -152,6 +154,7 @@ export default function SectionGroup({
                     isEditMode={isEditMode}
                     onEdit={() => onEditApp(app)}
                     onDelete={() => onDeleteApp(app.id)}
+                    onHide={() => onHideApp?.(app.id)}
                   />
                 ))}
               </div>
@@ -183,6 +186,7 @@ export default function SectionGroup({
                               isDragging={snapshot.isDragging}
                               onEdit={() => onEditApp(app)}
                               onDelete={() => onDeleteApp(app.id)}
+                              onHide={() => onHideApp?.(app.id)}
                             />
                           </div>
                         )}

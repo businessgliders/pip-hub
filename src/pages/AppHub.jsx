@@ -695,6 +695,7 @@ export default function AppHub() {
                   isEditMode={false}
                   onEditApp={handleEditApp}
                   onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+                  onHideApp={(appId) => hideAppMutation.mutate(appId)}
                   onReorderAppsInSection={handleReorderAppsInSection}
                   onRenameSection={handleRenameSection}
                 />
@@ -740,6 +741,7 @@ export default function AppHub() {
                               isEditMode={true}
                               onEditApp={handleEditApp}
                               onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+                              onHideApp={(appId) => hideAppMutation.mutate(appId)}
                               onReorderAppsInSection={handleReorderAppsInSection}
                               onRenameSection={handleRenameSection}
                             />
