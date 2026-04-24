@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { Maximize2, Minimize2, X, GripHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -140,8 +141,9 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
         </div>
       )}
 
-      {/* Floating Widgets */}
-      <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-[60]">
+      {/* Floating Widgets — portaled to body to escape backdrop-blur stacking contexts */}
+      {typeof document !== 'undefined' && createPortal(
+      <div ref={constraintsRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 2147483000 }}>
         {floatingWidgets.map(widget => (
           <motion.div
             key={widget.id}
@@ -182,7 +184,9 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
             </div>
           </motion.div>
         ))}
-      </div>
+      </div>,
+      document.body
+      )}
     </>
   );
 }
