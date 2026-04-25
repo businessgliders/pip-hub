@@ -541,8 +541,8 @@ export default function AppHub() {
             {isEditMode ? <Check className="w-4 h-4 text-[#f1889b]" /> : <Pencil className="w-4 h-4 text-gray-600" />}
           </button>
         </div>
-        {/* Mobile search - shown when search tab active */}
-        {showMobileSearch && (
+        {/* Mobile search - shown when search tab active or query present */}
+        {(showMobileSearch || searchQuery) && (
           <div className="relative mt-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
