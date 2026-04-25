@@ -512,6 +512,18 @@ export default function AppHub() {
           >
             <Search className={`w-4 h-4 ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-600'}`} />
           </button>
+          {/* View toggle (list/grid) */}
+          <button
+            onClick={async () => {
+              const next = viewMode === 'list' ? 'grid' : 'list';
+              setViewMode(next);
+              if (user) await base44.auth.updateMe({ viewMode: next });
+            }}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
+            title={viewMode === 'list' ? 'Switch to grid view' : 'Switch to list view'}
+          >
+            {viewMode === 'list' ? <Grid3X3 className="w-4 h-4 text-gray-600" /> : <List className="w-4 h-4 text-gray-600" />}
+          </button>
           {/* Add Apps */}
           <button
             onClick={() => setShowBrowseApps(true)}
