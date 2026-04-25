@@ -1,13 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
-import { Maximize2, Minimize2, X, GripHorizontal } from 'lucide-react';
+import { Maximize2, X } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import ClockWidget from './widgets/ClockWidget';
 import ClockWidgetMobile from './widgets/ClockWidgetMobile';
 import StickyNotesWidget from './widgets/StickyNotesWidget';
 import CalculatorWidget from './widgets/CalculatorWidget';
+import FloatingWidget from './FloatingWidget';
 
 const WIDGET_COMPONENTS = {
   clock: ClockWidget,
@@ -41,15 +41,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
     onReorderWidgets(result.source.index, result.destination.index, gridWidgets);
   };
 
-  const handleFloatDragEnd = (widgetId, info) => {
-    const widget = widgets.find(w => w.id === widgetId);
-    const startX = widget?.position_x || 0;
-    const startY = widget?.position_y || 0;
-    onUpdateWidget(widgetId, {
-      position_x: Math.max(0, startX + info.offset.x),
-      position_y: Math.max(0, startY + info.offset.y)
-    });
-  };
+
 
   return (
     <>
@@ -143,49 +135,19 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
 
       {/* Floating Widgets — portaled to body to escape backdrop-blur stacking contexts */}
       {typeof document !== 'undefined' && createPortal(
-      <div ref={constraintsRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 2147483000 }}>
-        {floatingWidgets.map(widget => (
-          <motion.div
-            key={widget.id}
-            drag
-            dragConstraints={constraintsRef}
-            dragMomentum={false}
-            onDragEnd={(e, info) => handleFloatDragEnd(widget.id, info)}
-            initial={false}
-            animate={{
-              x: widget.position_x || Math.max(20, window.innerWidth / 2 - 160),
-              y: widget.position_y || Math.max(80, window.innerHeight / 2 - 120),
-            }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className={`pointer-events-auto absolute ${widget.widget_type === 'clock' ? 'w-[22rem]' : 'w-64'} max-w-[calc(100vw-2rem)] ${widget.widget_type === 'calculator' ? 'h-[320px]' : widget.widget_type === 'clock' ? 'h-40' : 'h-64'} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/80 border border-white/60 shadow-2xl`}
-          >
-            <div className="h-8 bg-black/5 flex items-center justify-between px-3 cursor-grab active:cursor-grabbing border-b border-black/5">
-              <GripHorizontal className="w-4 h-4 text-gray-400" />
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => onUpdateWidget(widget.id, { is_floating: false })}
-                  className="w-5 h-5 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
-                  title="Dock to grid"
-                >
-                  <Minimize2 className="w-3 h-3 text-gray-600" />
-                </button>
-                <button
-                  onClick={() => onDeleteWidget(widget.id)}
-                  className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-600 transition-colors text-gray-600"
-                  title="Remove Widget"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="h-[calc(100%-2rem)]">
-              {renderWidgetContent(widget)}
-            </div>
-          </motion.div>
-        ))}
-      </div>,
-      document.body
+        <div ref={constraintsRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 2147483000 }}>
+          {floatingWidgets.map(widget => (
+            <FloatingWidget
+              key={widget.id}
+              widget={widget}
+              constraintsRef={constraintsRef}
+              onUpdateWidget={onUpdateWidget}
+              onDeleteWidget={onDeleteWidget}
+              renderContent={renderWidgetContent}
+            />
+          ))}
+        </div>,
+        document.body
       )}
     </>
   );
