@@ -578,7 +578,7 @@ export default function AppHub() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search apps..."
-                className="pl-10 w-10 group-hover/search:w-64 focus:w-64 backdrop-blur-xl bg-white/60 hover:bg-white/80 focus:bg-white/80 border-transparent hover:border-white/80 focus:border-white/80 transition-all duration-300 ease-in-out cursor-pointer focus:cursor-text placeholder-transparent group-hover/search:placeholder-gray-400 focus:placeholder-gray-400 shadow-sm"
+                className={`pl-10 ${searchQuery ? 'w-64' : 'w-10'} group-hover/search:w-64 focus:w-64 backdrop-blur-xl bg-white/60 hover:bg-white/80 focus:bg-white/80 border-transparent hover:border-white/80 focus:border-white/80 transition-all duration-300 ease-in-out cursor-pointer focus:cursor-text ${searchQuery ? 'placeholder-gray-400' : 'placeholder-transparent'} group-hover/search:placeholder-gray-400 focus:placeholder-gray-400 shadow-sm`}
               />
             </div>
             {/* View toggle - combined button */}
@@ -669,7 +669,7 @@ export default function AppHub() {
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
                 onReorderFavorites={handleReorderFavorites}
-                isCollapsed={collapsedSections.includes('__favorites__')}
+                isCollapsed={!searchQuery && collapsedSections.includes('__favorites__')}
                 onToggleCollapse={async () => {
                   const key = '__favorites__';
                   const next = collapsedSections.includes(key)
@@ -697,7 +697,7 @@ export default function AppHub() {
                   totalSections={visibleSections.length}
                   apps={filteredApps.filter(app => app.section_id === section.id)}
                   favorites={favorites}
-                  isCollapsed={collapsedSections.includes(section.id)}
+                  isCollapsed={!searchQuery && collapsedSections.includes(section.id)}
                   onToggleCollapse={async () => {
                     const next = collapsedSections.includes(section.id) 
                       ? collapsedSections.filter(id => id !== section.id)
