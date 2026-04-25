@@ -655,10 +655,15 @@ export default function AppHub() {
             />
             
           {/* Favorites */}
-          {favoritedApps.length > 0 && (
+          {(() => {
+            const filteredFavorites = favoritedApps.filter(app =>
+              app.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            if (filteredFavorites.length === 0) return null;
+            return (
             <div className="mb-6">
               <FavoritesSection
-                favoritedApps={favoritedApps}
+                favoritedApps={filteredFavorites}
                 viewMode={viewMode}
                 isEditMode={isEditMode}
                 draggingAppId={draggingAppId}
@@ -680,7 +685,8 @@ export default function AppHub() {
                 }}
               />
             </div>
-          )}
+            );
+          })()}
 
           {/* Sections */}
           {(() => {
