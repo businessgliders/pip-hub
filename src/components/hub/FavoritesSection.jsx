@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import AppCard from './AppCard';
@@ -16,14 +16,14 @@ export default function FavoritesSection({
   onDragStart,
   onDragEnd,
   onReorderFavorites,
+  isCollapsed = false,
+  onToggleCollapse,
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   return (
     <div className="mb-10">
       <div className="flex items-center gap-2 mb-4">
         <button
-          onClick={() => !isEditMode && setIsCollapsed(c => !c)}
+          onClick={() => !isEditMode && onToggleCollapse?.()}
           className={`flex items-center gap-1.5 flex-1 text-left ${!isEditMode ? 'cursor-pointer' : 'cursor-default'}`}
         >
           <h2 className="text-xl font-semibold text-gray-800 tracking-tight">Favorites</h2>

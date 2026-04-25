@@ -657,6 +657,15 @@ export default function AppHub() {
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
                 onReorderFavorites={handleReorderFavorites}
+                isCollapsed={collapsedSections.includes('__favorites__')}
+                onToggleCollapse={async () => {
+                  const key = '__favorites__';
+                  const next = collapsedSections.includes(key)
+                    ? collapsedSections.filter(id => id !== key)
+                    : [...collapsedSections, key];
+                  setCollapsedSections(next);
+                  if (user) await base44.auth.updateMe({ collapsedSections: next });
+                }}
               />
             </div>
           )}
