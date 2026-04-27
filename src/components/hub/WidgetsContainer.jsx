@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Maximize2, X, GripVertical, Maximize, Minimize } from 'lucide-react';
+import { Maximize2, X, Maximize } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import ClockWidget from './widgets/ClockWidget';
@@ -44,16 +44,24 @@ const parseWidgetData = (widget) => {
   try { return JSON.parse(widget.data); } catch { return {}; }
 };
 
+const AGENDA_SIZES = [
+  { label: 'S', span: 'sm:col-span-2',                  height: 'h-56' },
+  { label: 'M', span: 'sm:col-span-2',                  height: 'h-72' },
+  { label: 'L', span: 'sm:col-span-2 lg:col-span-3',    height: 'h-96' },
+];
+
+const RESIZABLE_PRESETS = { hero: HERO_SIZES, agenda: AGENDA_SIZES };
+
 const getResolvedLayout = (widget) => {
-  const base = WIDGET_LAYOUT[widget.widget_type] || { height: 'h-40', span: '' };
-  if (widget.widget_type === 'hero') {
+  const presets = RESIZABLE_PRESETS[widget.widget_type];
+  if (presets) {
     const { sizeIdx = 1 } = parseWidgetData(widget);
-    return HERO_SIZES[Math.min(Math.max(sizeIdx, 0), HERO_SIZES.length - 1)];
+    return presets[Math.min(Math.max(sizeIdx, 0), presets.length - 1)];
   }
-  return base;
+  return WIDGET_LAYOUT[widget.widget_type] || { height: 'h-40', span: '' };
 };
 
-const isResizable = (type) => type === 'hero';
+const isResizable = (type) => Boolean(RESIZABLE_PRESETS[type]);
 
 export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWidget, onDeleteWidget, onReorderWidgets }) {
   const gridWidgets = widgets.filter(w => !w.is_floating).sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -81,9 +89,11 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
     onReorderWidgets(result.source.index, result.destination.index, gridWidgets);
   };
 
-  const cycleHeroSize = (widget) => {
+  const cycleSize = (widget) => {
+    const presets = RESIZABLE_PRESETS[widget.widget_type];
+    if (!presets) return;
     const data = parseWidgetData(widget);
-    const next = ((data.sizeIdx ?? 1) + 1) % HERO_SIZES.length;
+    const next = ((data.sizeIdx ?? 1) + 1) % presets.length;
     onUpdateWidget(widget.id, { data: JSON.stringify({ ...data, sizeIdx: next }) });
   };
 
@@ -114,26 +124,21 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                               snapshot.isDragging ? 'shadow-2xl z-50 ring-2 ring-[#f1889b]' : 'shadow-sm'
                             }`}
                           >
-                            {/* Drag handle — visible on every widget in edit mode */}
                             <div
                               {...provided.dragHandleProps}
-                              className="absolute top-2 left-2 z-20 flex items-center gap-1 px-2 py-1 rounded-md bg-white/85 border border-white/70 shadow-sm cursor-grab active:cursor-grabbing hover:bg-white"
-                              title="Drag to reorder"
-                            >
-                              <GripVertical className="w-3.5 h-3.5 text-gray-600" />
-                              <span className="text-[10px] font-medium text-gray-600">Move</span>
-                            </div>
+                              className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-1.5 rounded-full bg-black/10 hover:bg-black/20 cursor-grab active:cursor-grabbing transition-colors z-10"
+                            />
 
                             <div className="absolute top-2 right-2 flex gap-1 z-20">
                               {isResizable(widget.widget_type) && (
                                 <button
-                                  onClick={() => cycleHeroSize(widget)}
+                                  onClick={() => cycleSize(widget)}
                                   className="h-6 px-1.5 flex items-center gap-1 rounded-md bg-white/80 hover:bg-pink-50 transition-colors border border-white/60 shadow-sm"
                                   title="Resize"
                                 >
                                   <Maximize className="w-3.5 h-3.5 text-[#f1889b]" />
                                   <span className="text-[10px] font-semibold text-[#f1889b]">
-                                    {HERO_SIZES[parseWidgetData(widget).sizeIdx ?? 1].label}
+                                    {RESIZABLE_PRESETS[widget.widget_type][parseWidgetData(widget).sizeIdx ?? 1].label}
                                   </span>
                                 </button>
                               )}

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { CloudSun } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import useWeather from '@/hooks/useWeather';
 
 const QUOTES = [
   { text: "Movement is a medicine for creating change in a person's physical, emotional, and mental states.", author: 'Carol Welch' },
@@ -29,7 +31,6 @@ const getGreeting = (name) => {
   return `Good night, ${first}`;
 };
 
-// Same theme/wallpaper resolution as AppHub
 const getWallpaperUrl = (user) => {
   if (user?.customWallpaper) return user.customWallpaper;
   const theme = user?.selectedGradient;
@@ -44,11 +45,12 @@ const getWallpaperUrl = (user) => {
 export default function AmbientHeroWidget() {
   const [user, setUser] = useState(null);
   const [now, setNow] = useState(new Date());
+  const weather = useWeather();
   const quote = getDailyQuote();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
-    const interval = setInterval(() => setNow(new Date()), 60_000);
+    const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -56,6 +58,7 @@ export default function AmbientHeroWidget() {
   const dateString = now.toLocaleDateString(undefined, {
     weekday: 'long', month: 'long', day: 'numeric'
   });
+  const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -63,15 +66,43 @@ export default function AmbientHeroWidget() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${wallpaperUrl})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/30 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-black/65 via-black/35 to-black/10" />
+
+      <svg width="0" height="0" className="absolute">
+        <linearGradient id="hero-weather-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop stopColor="#fde68a" offset="0%" />
+          <stop stopColor="#fbcfe8" offset="50%" />
+          <stop stopColor="#ddd6fe" offset="100%" />
+        </linearGradient>
+      </svg>
+
       <div className="relative h-full flex flex-col justify-between p-5 text-white">
-        <div>
-          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">{dateString}</p>
-          <h2 className="mt-1.5 text-xl xl:text-2xl font-bold tracking-tight drop-shadow-sm leading-tight">
-            {getGreeting(user?.full_name)}
-          </h2>
+        {/* Top: Greeting + date / Time + Weather */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">{dateString}</p>
+            <h2 className="mt-1 text-xl xl:text-2xl font-bold tracking-tight drop-shadow-sm leading-tight truncate">
+              {getGreeting(user?.full_name)}
+            </h2>
+          </div>
+          <div className="flex flex-col items-end flex-shrink-0">
+            <div className="text-3xl xl:text-4xl font-light tracking-tight leading-none drop-shadow">
+              {timeString}
+            </div>
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <CloudSun className="w-4 h-4" stroke="url(#hero-weather-gradient)" strokeWidth={1.8} />
+              <span className="text-xs font-medium text-white/95">
+                {weather ? `${weather.temp}°C` : '—'}
+              </span>
+              <span className="text-xs text-white/75 truncate max-w-[120px]">
+                {weather?.city ? `· ${weather.city}` : ''}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="max-w-md">
+
+        {/* Bottom: Daily Quote */}
+        <div className="max-w-2xl">
           <p className="text-xs xl:text-sm leading-relaxed text-white/95 italic drop-shadow-sm line-clamp-3">
             “{quote.text}”
           </p>
