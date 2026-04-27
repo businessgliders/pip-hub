@@ -454,10 +454,9 @@ export default function AppHub() {
         let toAppIdx = appItemIndices.findIndex((i) => i >= destination.index);
         if (toAppIdx === -1) toAppIdx = appItemIndices.length - 1;
         if (fromAppIdx === toAppIdx) return;
-        const sourceAppIndex = apps.findIndex((a) => a.id === draggedItem.app.id);
-        const targetAppId = items[appItemIndices[toAppIdx]].app.id;
-        const destAppIndex = apps.findIndex((a) => a.id === targetAppId);
-        handleReorderApps(sourceAppIndex, destAppIndex);
+        // Launchpad apps section is always the favorites list (in favorites order).
+        // So reordering apps in the launchpad = reordering favorites.
+        handleReorderFavorites(fromAppIdx, toAppIdx);
       } else {
         const folderItemIndices = items.map((it, i) => (it.kind === 'folder' ? i : -1)).filter((i) => i >= 0);
         const fromFolderIdx = folderItemIndices.indexOf(source.index);
