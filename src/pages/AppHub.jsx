@@ -556,19 +556,7 @@ export default function AppHub() {
           >
             <Search className={`w-4 h-4 ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-600'}`} />
           </button>
-          {/* View toggle (list/launchpad) */}
-          <button
-            onClick={async () => {
-              const next = viewMode === 'list' ? 'launchpad' : 'list';
-              setViewMode(next);
-              if (user) await base44.auth.updateMe({ viewMode: next });
-            }}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
-            title={`Current: ${viewMode} view (tap to toggle)`}
-          >
-            {viewMode === 'list' ? <Grid3X3 className="w-4 h-4 text-gray-600" /> :
-             <List className="w-4 h-4 text-gray-600" />}
-          </button>
+
           {/* Edit mode toggle */}
           <button
             onClick={() => setIsEditMode(e => !e)}
@@ -875,17 +863,13 @@ export default function AppHub() {
             <Plus className="w-5 h-5" />
             <span className="text-[10px] font-medium">Add</span>
           </button>
-          {/* More */}
+          {/* More — user profile avatar */}
           <button
             onClick={() => setShowMoreSheet(true)}
             className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500"
           >
-            <div className="w-5 h-5 flex items-center justify-center">
-              <div className="flex gap-0.5">
-                <span className="w-1 h-1 rounded-full bg-gray-500" />
-                <span className="w-1 h-1 rounded-full bg-gray-500" />
-                <span className="w-1 h-1 rounded-full bg-gray-500" />
-              </div>
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-[10px] font-semibold text-white shadow-sm">
+              {getInitials(user?.full_name)}
             </div>
             <span className="text-[10px] font-medium">More</span>
           </button>
@@ -899,6 +883,7 @@ export default function AppHub() {
           onClose={() => setShowMoreSheet(false)}
           onCustomize={() => setShowCustomizePanel(true)}
           onSwitchUser={() => setShowUserSelection(true)}
+          onLogout={handleLogout}
         />
       )}
 

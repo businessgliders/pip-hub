@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid, LogOut } from 'lucide-react';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 const getInitials = (name) => {
@@ -7,7 +7,7 @@ const getInitials = (name) => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 };
 
-export default function MobileMoreSheet({ user, onClose, onCustomize, onSwitchUser }) {
+export default function MobileMoreSheet({ user, onClose, onCustomize, onSwitchUser, onLogout }) {
   useBodyScrollLock(true);
 
   return (
@@ -42,6 +42,15 @@ export default function MobileMoreSheet({ user, onClose, onCustomize, onSwitchUs
               <span className="text-xs font-bold text-white">{getInitials(user?.full_name)}</span>
             </div>
             <span className="text-base font-medium text-gray-800">Switch User</span>
+          </button>
+          <button
+            onClick={() => { onClose(); onLogout?.(); }}
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/80 active:bg-gray-200/80 transition-colors"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+              <LogOut className="w-4.5 h-4.5 text-gray-600" />
+            </div>
+            <span className="text-base font-medium text-gray-800">Logout</span>
           </button>
         </div>
       </div>
