@@ -25,7 +25,7 @@ export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelet
       <button
         type="button"
         onClick={handleClick}
-        className={`relative focus:outline-none ${isEditMode ? 'cursor-default' : ''}`}
+        className={`relative focus:outline-none ${isEditMode ? 'cursor-grab active:cursor-grabbing pointer-events-none' : ''}`}
       >
         <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 flex items-center justify-center overflow-hidden shadow-xl transition-transform duration-200 ${isEditMode ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : 'group-hover:scale-110 group-active:scale-95'}`}>
           {app.icon_url ? (

@@ -27,7 +27,7 @@ export function LaunchpadFolderTile({ section, apps, onOpen, isEditMode, onRenam
       <button
         type="button"
         onClick={() => onOpen()}
-        className="group focus:outline-none"
+        className={`group focus:outline-none ${isEditMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
       >
         <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-1.5 grid grid-cols-3 gap-0.5 shadow-lg transition-transform ${isEditMode ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : 'group-hover:scale-105 group-active:scale-95'}`}>
           {previewApps.map((app) => (
