@@ -7,8 +7,22 @@ import { Maximize2 } from 'lucide-react';
 // (scaled down + offset). Swipe left/right to advance.
 export default function MobileWidgetStack({ widgets, renderContent, onPopOut, height = 'h-72' }) {
   const [active, setActive] = useState(0);
+  const [showControls, setShowControls] = useState(false);
   const dragX = useMotionValue(0);
   const containerRef = useRef(null);
+  const hideTimerRef = useRef(null);
+
+  // Tap card to reveal pop-out (mobile equivalent of hover); auto-hide after 2.5s
+  const revealControls = () => {
+    setShowControls(true);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => setShowControls(false), 2500);
+  };
+
+  useEffect(() => () => { if (hideTimerRef.current) clearTimeout(hideTimerRef.current); }, []);
+
+  // Hide controls when switching cards
+  useEffect(() => { setShowControls(false); }, [active]);
 
   // Clamp active when widgets list changes (e.g. delete)
   useEffect(() => {
@@ -66,20 +80,20 @@ export default function MobileWidgetStack({ widgets, renderContent, onPopOut, he
               dragElastic={0.4}
               onDragEnd={isActive ? handleDragEnd : undefined}
             >
-              {/* Pop-out button (only on active card) */}
-              {isActive && (
+              {/* Pop-out button — hidden by default, revealed on tap (mobile hover-equivalent) */}
+              {isActive && showControls && (
                 <button
                   type="button"
                   onMouseDown={(e) => { e.stopPropagation(); onPopOut(widget); }}
                   onTouchStart={(e) => { e.stopPropagation(); onPopOut(widget); }}
-                  className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-md bg-white/90 active:bg-blue-100 border border-white/60 shadow-sm"
+                  className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-md bg-white/90 active:bg-blue-100 border border-white/60 shadow-sm animate-in fade-in"
                   title="Pop out"
                   aria-label="Pop out widget"
                 >
                   <Maximize2 className="w-3.5 h-3.5 text-blue-500" />
                 </button>
               )}
-              <div className="h-full">
+              <div className="h-full" onClick={isActive ? revealControls : undefined}>
                 {renderContent(widget)}
               </div>
             </motion.div>
