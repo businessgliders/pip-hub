@@ -26,7 +26,6 @@ export default function FloatingWidget({ widget, constraintsRef, onUpdateWidget,
   const y = useMotionValue(initialY);
   const lastSavedPosRef = useRef({ x: initialX, y: initialY });
 
-  // Initial size: from saved data, or per-type default
   const data = parseData(widget.data);
   const defaults = DEFAULT_SIZES[widget.widget_type] || { w: 256, h: 256 };
   const [size, setSize] = useState({
@@ -34,7 +33,7 @@ export default function FloatingWidget({ widget, constraintsRef, onUpdateWidget,
     h: data.float_h ?? defaults.h,
   });
 
-  // If widget.data changes externally (e.g. another field updates), keep our size unless it changed
+  // Sync from external widget.data updates (only if changed)
   useEffect(() => {
     const d = parseData(widget.data);
     if (d.float_w && d.float_h && (d.float_w !== size.w || d.float_h !== size.h)) {
@@ -52,65 +51,79 @@ export default function FloatingWidget({ widget, constraintsRef, onUpdateWidget,
     }
   };
 
-  // Resize: pointer-based, persists on release
-  const resizingRef = useRef(null);
+  // ── Resize: pointer-capture based for reliability + real-time visual feedback ──
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStateRef = useRef(null);
+
   const onResizeStart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    resizingRef.current = {
+    // Capture pointer so motion drag never steals it
+    e.currentTarget.setPointerCapture(e.pointerId);
+    resizeStateRef.current = {
+      pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
       startW: size.w,
       startH: size.h,
     };
-    window.addEventListener('pointermove', onResizeMove);
-    window.addEventListener('pointerup', onResizeEnd);
+    setIsResizing(true);
   };
 
-  const onResizeMove = (e) => {
-    const r = resizingRef.current;
-    if (!r) return;
+  const onResizePointerMove = (e) => {
+    const r = resizeStateRef.current;
+    if (!r || e.pointerId !== r.pointerId) return;
     const w = Math.max(MIN_SIZE.w, r.startW + (e.clientX - r.startX));
     const h = Math.max(MIN_SIZE.h, r.startH + (e.clientY - r.startY));
     setSize({ w, h });
   };
 
-  const onResizeEnd = () => {
-    window.removeEventListener('pointermove', onResizeMove);
-    window.removeEventListener('pointerup', onResizeEnd);
-    if (!resizingRef.current) return;
-    resizingRef.current = null;
+  const onResizePointerUp = (e) => {
+    const r = resizeStateRef.current;
+    if (!r) return;
+    try { e.currentTarget.releasePointerCapture(r.pointerId); } catch { /* ignore */ }
+    resizeStateRef.current = null;
+    setIsResizing(false);
     const merged = { ...parseData(widget.data), float_w: size.w, float_h: size.h };
     onUpdateWidget(widget.id, { data: JSON.stringify(merged) });
   };
 
   return (
     <motion.div
-      drag
+      drag={!isResizing}
       dragConstraints={constraintsRef}
       dragMomentum={false}
       style={{ x, y, width: size.w, height: size.h }}
       onDragEnd={handleDragEnd}
-      className="pointer-events-auto absolute max-w-[calc(100vw-2rem)] rounded-2xl overflow-hidden backdrop-blur-xl bg-white/80 border border-white/60 shadow-2xl"
+      className="pointer-events-auto absolute max-w-[calc(100vw-1rem)] rounded-2xl overflow-hidden backdrop-blur-xl bg-white/80 border border-white/60 shadow-2xl"
     >
-      <div className="h-8 bg-black/5 flex items-center justify-between px-3 cursor-grab active:cursor-grabbing border-b border-black/5">
+      <div className="h-8 bg-black/5 flex items-center justify-between px-3 cursor-grab active:cursor-grabbing border-b border-black/5 select-none">
         <GripHorizontal className="w-4 h-4 text-gray-400" />
         <div className="flex items-center gap-1">
+          {/* Use onPointerUp + stopPropagation so framer-motion's drag never swallows the click */}
           <button
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => onUpdateWidget(widget.id, { is_floating: false })}
-            className="w-5 h-5 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              onUpdateWidget(widget.id, { is_floating: false });
+            }}
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
             title="Dock to grid"
+            aria-label="Dock to grid"
           >
-            <Minimize2 className="w-3 h-3 text-gray-600" />
+            <Minimize2 className="w-3.5 h-3.5 text-gray-600" />
           </button>
           <button
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => onDeleteWidget(widget.id)}
-            className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-600 transition-colors text-gray-600"
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              onDeleteWidget(widget.id);
+            }}
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-600 transition-colors text-gray-600"
             title="Remove Widget"
+            aria-label="Remove Widget"
           >
-            <X className="w-3 h-3" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -119,19 +132,20 @@ export default function FloatingWidget({ widget, constraintsRef, onUpdateWidget,
         {renderContent(widget)}
       </div>
 
-      {/* Free resize handle (bottom-right corner) */}
+      {/* Free resize handle (bottom-right corner) — uses pointer capture for reliable, real-time resize */}
       <div
         onPointerDown={onResizeStart}
-        className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize z-20 flex items-end justify-end p-0.5"
+        onPointerMove={onResizePointerMove}
+        onPointerUp={onResizePointerUp}
+        onPointerCancel={onResizePointerUp}
+        className={`absolute bottom-0 right-0 w-6 h-6 cursor-se-resize z-20 flex items-end justify-end p-1 touch-none ${
+          isResizing ? 'bg-[#f1889b]/10' : ''
+        }`}
         title="Drag to resize"
       >
-        <div
-          className="w-3 h-3"
-          style={{
-            background:
-              'linear-gradient(135deg, transparent 0 55%, rgba(0,0,0,0.35) 55% 65%, transparent 65% 75%, rgba(0,0,0,0.35) 75% 85%, transparent 85% 100%)',
-          }}
-        />
+        <svg width="12" height="12" viewBox="0 0 12 12" className="opacity-60">
+          <path d="M11 1 L1 11 M11 5 L5 11 M11 9 L9 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
       </div>
     </motion.div>
   );

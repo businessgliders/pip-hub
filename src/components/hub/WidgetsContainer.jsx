@@ -36,10 +36,11 @@ const getLayout = (type) => WIDGET_LAYOUT[type] || { height: 'h-40', span: '' };
 const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 'agenda', 'tasks']);
 
 // Resizable widgets — cycle through preset sizes
+// Note: col-span-2 (no sm: prefix) ensures Hero takes full width even on mobile (2-col grid)
 const HERO_SIZES = [
-  { label: 'S', span: 'sm:col-span-2',                  height: 'h-40' },
-  { label: 'M', span: 'sm:col-span-2 lg:col-span-3',    height: 'h-56' },
-  { label: 'L', span: 'sm:col-span-3 lg:col-span-4',    height: 'h-72' },
+  { label: 'S', span: 'col-span-2',                     height: 'h-40' },
+  { label: 'M', span: 'col-span-2 lg:col-span-3',       height: 'h-56' },
+  { label: 'L', span: 'col-span-2 sm:col-span-3 lg:col-span-4', height: 'h-72' },
 ];
 
 const parseWidgetData = (widget) => {
@@ -210,9 +211,10 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
         </div>
       )}
 
-      {/* Floating Widgets — portaled to body to escape backdrop-blur stacking contexts */}
+      {/* Floating Widgets — portaled to body to escape backdrop-blur stacking contexts.
+          z-index: 45 sits above sticky page content (z-10/20/30) but BELOW modals (z-50). */}
       {typeof document !== 'undefined' && createPortal(
-        <div ref={constraintsRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 2147483000 }}>
+        <div ref={constraintsRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 45 }}>
           {floatingWidgets.map(widget => (
             <FloatingWidget
               key={widget.id}
