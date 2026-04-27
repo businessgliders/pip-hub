@@ -670,10 +670,10 @@ export default function AppHub() {
 
       {/* ── MAIN CONTENT ── */}
       <DragDropContext onDragEnd={handlePageDragEnd}>
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6 pt-1 pb-28 md:py-6 md:pb-12">
 
           {/* Widgets */}
-          <div className="sticky top-[80px] md:top-[148px] z-10">
+          <div className="sticky top-[72px] md:top-[148px] z-10">
             <WidgetsContainer
               widgets={userWidgets}
               isEditMode={isEditMode}
@@ -848,8 +848,11 @@ export default function AppHub() {
       />
 
       {/* ── MOBILE BOTTOM TAB BAR (iOS style) ── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60">
-        <div className="flex items-center justify-around px-1 py-2 pb-safe">
+      <div
+        className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
+        <div className="flex items-center justify-around px-1 pt-2 pb-2">
           {/* Home */}
           <button
             onClick={() => { setShowMobileSearch(false); setSearchQuery(''); }}
