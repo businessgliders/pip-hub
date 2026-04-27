@@ -668,8 +668,8 @@ export default function AppHub() {
               style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 120px)', maskImage: 'linear-gradient(to bottom, transparent, black 120px)' }} 
             />
             
-          {/* Favorites */}
-          {(() => {
+          {/* Favorites — hidden in launchpad view (favorites already shown as loose icons there) */}
+          {viewMode !== 'launchpad' && (() => {
             const filteredFavorites = favoritedApps.filter(app =>
               app.name.toLowerCase().includes(searchQuery.toLowerCase())
             );

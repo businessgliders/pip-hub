@@ -23,14 +23,14 @@ export function LaunchpadFolderTile({ section, apps, onOpen, isEditMode, onRenam
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 w-24 sm:w-28">
+    <div className="flex flex-col items-center gap-2 w-20 sm:w-24">
       <button
         type="button"
         onClick={() => !isEditMode && onOpen()}
         disabled={isEditMode}
         className={`group focus:outline-none ${isEditMode ? 'cursor-default' : ''}`}
       >
-        <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-2 grid grid-cols-3 gap-1 shadow-lg transition-transform ${isEditMode ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : 'group-hover:scale-105 group-active:scale-95'}`}>
+        <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-1.5 grid grid-cols-3 gap-0.5 shadow-lg transition-transform ${isEditMode ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : 'group-hover:scale-105 group-active:scale-95'}`}>
           {previewApps.map((app) => (
             <div
               key={app.id}

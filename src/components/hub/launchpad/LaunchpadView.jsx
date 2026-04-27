@@ -86,7 +86,7 @@ export default function LaunchpadView({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.18 }}
-            className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-x-4 sm:gap-x-6 gap-y-6 sm:gap-y-8 justify-items-center"
+            className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-x-2 sm:gap-x-4 gap-y-5 sm:gap-y-7 justify-items-center"
           >
             {pagedItems.length === 0 && (
               <div className="col-span-full text-center text-gray-600 py-12">
