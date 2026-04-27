@@ -50,25 +50,43 @@ const parseWidgetData = (widget) => {
   try { return JSON.parse(widget.data); } catch { return {}; }
 };
 
-const getSizeIdx = (widget) => {
+// Active breakpoint: 'mobile' (<640), 'tablet' (640–1023), 'desktop' (≥1024)
+const getBreakpoint = () => {
+  if (typeof window === 'undefined') return 'desktop';
+  if (window.innerWidth < 640) return 'mobile';
+  if (window.innerWidth < 1024) return 'tablet';
+  return 'desktop';
+};
+
+const SIZE_KEY_BY_BP = {
+  mobile: 'sizeIdxMobile',
+  tablet: 'sizeIdxTablet',
+  desktop: 'sizeIdxDesktop',
+};
+
+const getSizeIdx = (widget, bp) => {
   const d = parseWidgetData(widget);
-  if (typeof d.sizeIdx === 'number') return Math.min(Math.max(d.sizeIdx, 0), SIZE_PRESETS.length - 1);
+  const key = SIZE_KEY_BY_BP[bp];
+  // Per-breakpoint value first, then legacy single value, then default
+  const val = d[key] ?? d.sizeIdx;
+  if (typeof val === 'number') return Math.min(Math.max(val, 0), SIZE_PRESETS.length - 1);
   return DEFAULT_SIZE_IDX[widget.widget_type] ?? 0;
 };
 
-const getResolvedLayout = (widget) => SIZE_PRESETS[getSizeIdx(widget)];
+const getResolvedLayout = (widget, bp) => SIZE_PRESETS[getSizeIdx(widget, bp)];
 
 export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWidget, onDeleteWidget, onReorderWidgets }) {
   const gridWidgets = widgets.filter(w => !w.is_floating).sort((a, b) => (a.order || 0) - (b.order || 0));
   const floatingWidgets = widgets.filter(w => w.is_floating);
   const constraintsRef = useRef(null);
 
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 640);
+  const [breakpoint, setBreakpoint] = useState(getBreakpoint());
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 640);
+    const onResize = () => setBreakpoint(getBreakpoint());
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+  const isMobile = breakpoint === 'mobile';
 
   const renderWidgetContent = (widget) => {
     if (widget.widget_type === 'clock' && isMobile) {
@@ -85,9 +103,10 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
   };
 
   const cycleSize = (widget) => {
-    const next = (getSizeIdx(widget) + 1) % SIZE_PRESETS.length;
+    const next = (getSizeIdx(widget, breakpoint) + 1) % SIZE_PRESETS.length;
     const data = parseWidgetData(widget);
-    onUpdateWidget(widget.id, { data: JSON.stringify({ ...data, sizeIdx: next }) });
+    const key = SIZE_KEY_BY_BP[breakpoint];
+    onUpdateWidget(widget.id, { data: JSON.stringify({ ...data, [key]: next }) });
   };
 
   // Pop out to floating — uses mousedown to fire instantly on first click
@@ -115,7 +134,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                     className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
                   >
                     {gridWidgets.map((widget, i) => {
-                      const layout = getResolvedLayout(widget);
+                      const layout = getResolvedLayout(widget, breakpoint);
                       return (
                         <Draggable key={widget.id} draggableId={widget.id} index={i}>
                           {(provided, snapshot) => (
@@ -140,7 +159,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                                 >
                                   <Maximize className="w-3.5 h-3.5 text-[#f1889b]" />
                                   <span className="text-[10px] font-semibold text-[#f1889b]">
-                                    {SIZE_PRESETS[getSizeIdx(widget)].label}
+                                    {SIZE_PRESETS[getSizeIdx(widget, breakpoint)].label}
                                   </span>
                                 </button>
                                 <button
@@ -175,7 +194,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridWidgets.map(widget => {
-                const layout = getResolvedLayout(widget);
+                const layout = getResolvedLayout(widget, breakpoint);
                 return (
                   <div
                     key={widget.id}
