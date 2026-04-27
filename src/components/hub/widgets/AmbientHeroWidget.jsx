@@ -81,7 +81,7 @@ export default function AmbientHeroWidget() {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">{dateString}</p>
-            <h2 className="mt-1 text-sm sm:text-base lg:text-xl xl:text-2xl font-bold tracking-tight drop-shadow-sm leading-tight truncate">
+            <h2 className="mt-1 text-sm sm:text-lg lg:text-2xl xl:text-3xl font-bold tracking-tight drop-shadow-sm leading-tight truncate sm:whitespace-normal sm:break-words">
               {getGreeting(user?.full_name)}
             </h2>
           </div>
