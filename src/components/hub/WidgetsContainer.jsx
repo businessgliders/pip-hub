@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Maximize2, X } from 'lucide-react';
+import { Maximize2, X, GripVertical, Maximize, Minimize } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import ClockWidget from './widgets/ClockWidget';
@@ -32,6 +32,29 @@ const getLayout = (type) => WIDGET_LAYOUT[type] || { height: 'h-40', span: '' };
 // Widgets that fill their container themselves (no top padding for drag handle)
 const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 'agenda']);
 
+// Resizable widgets — cycle through preset sizes
+const HERO_SIZES = [
+  { label: 'S', span: 'sm:col-span-2',                  height: 'h-40' },
+  { label: 'M', span: 'sm:col-span-2 lg:col-span-3',    height: 'h-56' },
+  { label: 'L', span: 'sm:col-span-3 lg:col-span-4',    height: 'h-72' },
+];
+
+const parseWidgetData = (widget) => {
+  if (!widget?.data) return {};
+  try { return JSON.parse(widget.data); } catch { return {}; }
+};
+
+const getResolvedLayout = (widget) => {
+  const base = WIDGET_LAYOUT[widget.widget_type] || { height: 'h-40', span: '' };
+  if (widget.widget_type === 'hero') {
+    const { sizeIdx = 1 } = parseWidgetData(widget);
+    return HERO_SIZES[Math.min(Math.max(sizeIdx, 0), HERO_SIZES.length - 1)];
+  }
+  return base;
+};
+
+const isResizable = (type) => type === 'hero';
+
 export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWidget, onDeleteWidget, onReorderWidgets }) {
   const gridWidgets = widgets.filter(w => !w.is_floating).sort((a, b) => (a.order || 0) - (b.order || 0));
   const floatingWidgets = widgets.filter(w => w.is_floating);
@@ -58,6 +81,12 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
     onReorderWidgets(result.source.index, result.destination.index, gridWidgets);
   };
 
+  const cycleHeroSize = (widget) => {
+    const data = parseWidgetData(widget);
+    const next = ((data.sizeIdx ?? 1) + 1) % HERO_SIZES.length;
+    onUpdateWidget(widget.id, { data: JSON.stringify({ ...data, sizeIdx: next }) });
+  };
+
 
 
   return (
@@ -81,16 +110,33 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             style={{ ...provided.draggableProps.style }}
-                            className={`relative ${getLayout(widget.widget_type).height} ${getLayout(widget.widget_type).span} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 hover:border-[#f1889b]/40 transition-colors ${
+                            className={`relative ${getResolvedLayout(widget).height} ${getResolvedLayout(widget).span} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 hover:border-[#f1889b]/40 transition-colors ${
                               snapshot.isDragging ? 'shadow-2xl z-50 ring-2 ring-[#f1889b]' : 'shadow-sm'
                             }`}
                           >
+                            {/* Drag handle — visible on every widget in edit mode */}
                             <div
                               {...provided.dragHandleProps}
-                              className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-1.5 rounded-full bg-black/10 hover:bg-black/20 cursor-grab active:cursor-grabbing transition-colors z-10"
-                            />
-                            
-                            <div className="absolute top-2 right-2 flex gap-1 z-10">
+                              className="absolute top-2 left-2 z-20 flex items-center gap-1 px-2 py-1 rounded-md bg-white/85 border border-white/70 shadow-sm cursor-grab active:cursor-grabbing hover:bg-white"
+                              title="Drag to reorder"
+                            >
+                              <GripVertical className="w-3.5 h-3.5 text-gray-600" />
+                              <span className="text-[10px] font-medium text-gray-600">Move</span>
+                            </div>
+
+                            <div className="absolute top-2 right-2 flex gap-1 z-20">
+                              {isResizable(widget.widget_type) && (
+                                <button
+                                  onClick={() => cycleHeroSize(widget)}
+                                  className="h-6 px-1.5 flex items-center gap-1 rounded-md bg-white/80 hover:bg-pink-50 transition-colors border border-white/60 shadow-sm"
+                                  title="Resize"
+                                >
+                                  <Maximize className="w-3.5 h-3.5 text-[#f1889b]" />
+                                  <span className="text-[10px] font-semibold text-[#f1889b]">
+                                    {HERO_SIZES[parseWidgetData(widget).sizeIdx ?? 1].label}
+                                  </span>
+                                </button>
+                              )}
                               <button
                                 onClick={() => onUpdateWidget(widget.id, {
                                   is_floating: true,
@@ -126,7 +172,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridWidgets.map(widget => (
-                <div key={widget.id} className={`relative ${getLayout(widget.widget_type).height} ${getLayout(widget.widget_type).span} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group`}>
+                <div key={widget.id} className={`relative ${getResolvedLayout(widget).height} ${getResolvedLayout(widget).span} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group`}>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button
                       onClick={() => onUpdateWidget(widget.id, {
