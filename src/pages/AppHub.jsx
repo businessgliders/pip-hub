@@ -567,14 +567,6 @@ export default function AppHub() {
             {viewMode === 'list' ? <List className="w-4 h-4 text-gray-600" /> :
              <Grid3X3 className="w-4 h-4 text-gray-600" />}
           </button>
-          {/* Add Apps */}
-          <button
-            onClick={() => setShowBrowseApps(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
-            title="Add Apps"
-          >
-            <Plus className="w-4 h-4 text-gray-600" />
-          </button>
           {/* Edit mode toggle */}
           <button
             onClick={() => setIsEditMode(e => !e)}
@@ -869,6 +861,14 @@ export default function AppHub() {
               className="w-5 h-5 rounded-md"
             />
             <span className="text-[10px] font-medium">Home</span>
+          </button>
+          {/* Add Apps */}
+          <button
+            onClick={() => setShowBrowseApps(true)}
+            className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Add</span>
           </button>
           {/* Customize */}
           <button
