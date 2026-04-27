@@ -685,8 +685,8 @@ export default function AppHub() {
 
           <div className="relative z-20 -mt-2 md:mt-8 pt-4">
             <div 
-              className="absolute inset-x-[-50vw] top-[-120px] bottom-[-50vh] bg-white/40 backdrop-blur-3xl md:bg-white/30 md:backdrop-blur-xl pointer-events-none -z-10" 
-              style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 120px)', maskImage: 'linear-gradient(to bottom, transparent, black 120px)' }} 
+              className="absolute inset-x-[-50vw] top-[-200px] bottom-[-50vh] bg-white/30 backdrop-blur-xl pointer-events-none -z-10" 
+              style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 200px)', maskImage: 'linear-gradient(to bottom, transparent, black 200px)' }} 
             />
             
           {/* Favorites — hidden in launchpad view (favorites already shown as loose icons there) */}
