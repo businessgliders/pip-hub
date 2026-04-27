@@ -564,8 +564,8 @@ export default function AppHub() {
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
             title={`Current: ${viewMode} view (tap to toggle)`}
           >
-            {viewMode === 'list' ? <List className="w-4 h-4 text-gray-600" /> :
-             <Grid3X3 className="w-4 h-4 text-gray-600" />}
+            {viewMode === 'list' ? <Grid3X3 className="w-4 h-4 text-gray-600" /> :
+             <List className="w-4 h-4 text-gray-600" />}
           </button>
           {/* Edit mode toggle */}
           <button
