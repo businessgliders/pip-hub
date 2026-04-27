@@ -98,10 +98,12 @@ export default function AmbientHeroWidget() {
               </div>
             </div>
           </div>
-          <h2 className="mt-1 text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold tracking-tight drop-shadow-sm leading-tight truncate sm:whitespace-normal sm:break-words">
-            {getGreeting(user?.full_name)}
-          </h2>
         </div>
+
+        {/* Greeting — centered on tablet */}
+        <h2 className="text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold tracking-tight drop-shadow-sm leading-tight truncate sm:whitespace-normal sm:break-words sm:text-center sm:flex-1 sm:flex sm:items-center sm:justify-center lg:text-left lg:block lg:flex-none">
+          {getGreeting(user?.full_name)}
+        </h2>
 
         {/* Bottom: Daily Quote */}
         <div className="max-w-2xl">
