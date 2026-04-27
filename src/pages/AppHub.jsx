@@ -670,10 +670,10 @@ export default function AppHub() {
 
       {/* ── MAIN CONTENT ── */}
       <DragDropContext onDragEnd={handlePageDragEnd}>
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6 pt-1 pb-28 md:py-6 md:pb-12">
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
 
           {/* Widgets */}
-          <div className="sticky top-[72px] md:top-[148px] z-10">
+          <div className="sticky top-[80px] md:top-[148px] z-10">
             <WidgetsContainer
               widgets={userWidgets}
               isEditMode={isEditMode}
