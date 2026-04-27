@@ -11,6 +11,7 @@ import AmbientHeroWidget from './widgets/AmbientHeroWidget';
 import AgendaWidget from './widgets/AgendaWidget';
 import TaskChecklistWidget from './widgets/TaskChecklistWidget';
 import FloatingWidget from './FloatingWidget';
+import MobileWidgetStack from './MobileWidgetStack';
 
 const WIDGET_COMPONENTS = {
   clock: ClockWidget,
@@ -124,7 +125,15 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
       {/* Grid Widgets */}
       {(gridWidgets.length > 0 || isEditMode) && (
         <div className="mb-8">
-          {isEditMode ? (
+          {/* Mobile (non-edit): stacked swipeable carousel */}
+          {isMobile && !isEditMode && gridWidgets.length > 0 ? (
+            <MobileWidgetStack
+              widgets={gridWidgets}
+              renderContent={renderWidgetContent}
+              onPopOut={popOut}
+              height={UNIFIED_HEIGHT}
+            />
+          ) : isEditMode ? (
             <DragDropContext onDragEnd={handleGridDragEnd}>
               <Droppable droppableId="grid-widgets" direction="horizontal" type="WIDGET">
                 {(provided) => (
