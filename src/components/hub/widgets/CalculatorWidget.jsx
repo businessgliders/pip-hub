@@ -37,12 +37,12 @@ export default function CalculatorWidget({ widget }) {
         <span className="text-xs font-medium uppercase tracking-wider">Calculator</span>
       </div>
       
-      <div className="bg-white rounded-lg p-2 mb-2 text-right shadow-inner border border-gray-100 flex-1 flex flex-col justify-end min-h-[60px]">
-        <div className="text-xs text-gray-400 h-4 truncate">{equation}</div>
-        <div className="text-xl font-mono text-gray-800 truncate">{display}</div>
+      <div className="bg-white rounded-lg p-2 mb-2 text-right shadow-inner border border-gray-100 flex-shrink-0 h-12 flex flex-col justify-end">
+        <div className="text-[10px] text-gray-400 h-3 truncate leading-none">{equation}</div>
+        <div className="text-lg font-mono text-gray-800 truncate leading-tight">{display}</div>
       </div>
 
-      <div className="grid grid-cols-4 gap-1 flex-1">
+      <div className="grid grid-cols-4 gap-1 flex-1 min-h-0">
         <button onClick={handleClear} className="col-span-3 p-1 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 text-sm font-medium shadow-sm transition-colors">C</button>
         <button onClick={() => handleOperator('/')} className="p-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm font-medium shadow-sm transition-colors">÷</button>
         

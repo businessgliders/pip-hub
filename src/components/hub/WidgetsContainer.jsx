@@ -27,10 +27,12 @@ const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 
 // ── UNIFIED SIZE SYSTEM ─────────────────────────────────────────────────
 // Every widget supports three sizes: S (1 col), M (2 col), L (3 col, full width).
 // On mobile (2-col grid), all sizes span the full row for readability.
+// All sizes share the same height — only the column span changes.
+const UNIFIED_HEIGHT = 'h-72';
 const SIZE_PRESETS = [
-  { label: 'S', span: 'col-span-2 sm:col-span-1',                     height: 'h-56' },
-  { label: 'M', span: 'col-span-2 sm:col-span-2',                     height: 'h-72' },
-  { label: 'L', span: 'col-span-2 sm:col-span-3 lg:col-span-4',       height: 'h-96' },
+  { label: 'S', span: 'col-span-2 sm:col-span-1',                     height: UNIFIED_HEIGHT },
+  { label: 'M', span: 'col-span-2 sm:col-span-2',                     height: UNIFIED_HEIGHT },
+  { label: 'L', span: 'col-span-2 sm:col-span-3 lg:col-span-4',       height: UNIFIED_HEIGHT },
 ];
 
 // Per-widget default size index when the widget is first placed.
