@@ -574,7 +574,8 @@ export default function AppHub() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search apps..."
-              className="pl-10 w-full bg-white/80 border-gray-200 rounded-xl h-9 text-sm"
+              className="pl-10 w-full bg-white/80 border-gray-200 rounded-xl h-9"
+              style={{ fontSize: '16px' }}
               autoFocus
             />
           </div>
