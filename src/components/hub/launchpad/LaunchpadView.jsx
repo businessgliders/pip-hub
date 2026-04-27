@@ -31,6 +31,7 @@ export default function LaunchpadView({
   onDeleteApp,
   onHideApp,
   onRenameSection,
+  onToggleFavorite,
 }) {
   const [openFolderId, setOpenFolderId] = useState(null);
   const [page, setPage] = useState(0);
@@ -138,6 +139,8 @@ export default function LaunchpadView({
                                 onEdit={onEditApp}
                                 onDelete={onDeleteApp}
                                 onHide={onHideApp}
+                                isFavorited={favorites.includes(it.app.id)}
+                                onToggleFavorite={onToggleFavorite}
                               />
                             ) : (
                               <LaunchpadFolderTile

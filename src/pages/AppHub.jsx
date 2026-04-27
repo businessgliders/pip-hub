@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, Rocket } from 'lucide-react';
+import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
@@ -40,7 +40,7 @@ export default function AppHub() {
         const [customWallpaper, setCustomWallpaper] = useState(null);
         const [showUserSelection, setShowUserSelection] = useState(false);
         const [showBrowseApps, setShowBrowseApps] = useState(false);
-  const [viewMode, setViewMode] = useState(window.innerWidth >= 1024 ? 'grid' : 'list'); // 'grid' | 'list'
+  const [viewMode, setViewMode] = useState(window.innerWidth >= 1024 ? 'launchpad' : 'list'); // 'list' | 'launchpad'
   const [collapsedSections, setCollapsedSections] = useState([]);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -56,7 +56,8 @@ export default function AppHub() {
         setCustomWallpaper(u.customWallpaper);
       }
       if (u?.viewMode) {
-        setViewMode(u.viewMode);
+        // Migrate old 'grid' preference to 'launchpad'
+        setViewMode(u.viewMode === 'grid' ? 'launchpad' : u.viewMode);
       }
       if (u?.collapsedSections) {
         setCollapsedSections(u.collapsedSections);
@@ -553,20 +554,18 @@ export default function AppHub() {
           >
             <Search className={`w-4 h-4 ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-600'}`} />
           </button>
-          {/* View toggle (list/grid/launchpad) */}
+          {/* View toggle (list/launchpad) */}
           <button
             onClick={async () => {
-              const order = ['list', 'grid', 'launchpad'];
-              const next = order[(order.indexOf(viewMode) + 1) % order.length];
+              const next = viewMode === 'list' ? 'launchpad' : 'list';
               setViewMode(next);
               if (user) await base44.auth.updateMe({ viewMode: next });
             }}
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
-            title={`Current: ${viewMode} view (tap to cycle)`}
+            title={`Current: ${viewMode} view (tap to toggle)`}
           >
             {viewMode === 'list' ? <List className="w-4 h-4 text-gray-600" /> :
-             viewMode === 'grid' ? <Grid3X3 className="w-4 h-4 text-gray-600" /> :
-             <Rocket className="w-4 h-4 text-gray-600" />}
+             <Grid3X3 className="w-4 h-4 text-gray-600" />}
           </button>
           {/* Add Apps */}
           <button
@@ -639,23 +638,13 @@ export default function AppHub() {
               </button>
               <button
                 onClick={async () => {
-                  setViewMode('grid');
-                  if (user) await base44.auth.updateMe({ viewMode: 'grid' });
-                }}
-                className={`px-3 py-2 border-l border-gray-300 transition-colors ${viewMode === 'grid' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
-                title="Grid view"
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={async () => {
                   setViewMode('launchpad');
                   if (user) await base44.auth.updateMe({ viewMode: 'launchpad' });
                 }}
                 className={`px-3 py-2 border-l border-gray-300 transition-colors ${viewMode === 'launchpad' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
                 title="Launchpad view"
               >
-                <Rocket className="w-4 h-4" />
+                <Grid3X3 className="w-4 h-4" />
               </button>
             </div>
             <Button onClick={() => setShowBrowseApps(true)} variant="outline" size="icon" className="rounded-xl border-gray-300" title="Add Apps">
@@ -755,6 +744,7 @@ export default function AppHub() {
               onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
               onHideApp={(appId) => hideAppMutation.mutate(appId)}
               onRenameSection={handleRenameSection}
+              onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
             />
           ) : (() => {
             const visibleSections = sections.filter(section => 

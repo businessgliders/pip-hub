@@ -1,9 +1,10 @@
 import React from 'react';
-import { Pencil, Trash2, EyeOff } from 'lucide-react';
+import { Pencil, Trash2, EyeOff, Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // A single app icon styled like macOS Launchpad / iOS springboard.
 // In edit mode shows edit + delete/hide buttons (matching the rest of the app).
-export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelete, onHide }) {
+export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelete, onHide, isFavorited, onToggleFavorite }) {
   const isNewApp = () => {
     if (!app?.is_new) return false;
     const created = new Date(app.created_date);
@@ -42,6 +43,21 @@ export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelet
           </span>
         )}
       </div>
+
+      {/* Hover-to-favorite star (hidden in edit mode) */}
+      {!isEditMode && onToggleFavorite && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
+          className={cn(
+            "lp-action-btn absolute -top-1 -left-1 w-6 h-6 rounded-full bg-white/90 backdrop-blur-sm shadow-md border border-white/80 flex items-center justify-center transition-opacity duration-200 z-10",
+            isFavorited ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          )}
+          title={isFavorited ? "Unfavorite" : "Add to favorites"}
+        >
+          <Star className={cn("w-3 h-3 transition-all", isFavorited ? "fill-[#f1889b] text-[#f1889b]" : "text-gray-400")} />
+        </button>
+      )}
 
       {/* Edit mode action buttons */}
       {isEditMode && (
