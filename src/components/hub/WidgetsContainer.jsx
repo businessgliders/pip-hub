@@ -9,6 +9,7 @@ import StickyNotesWidget from './widgets/StickyNotesWidget';
 import CalculatorWidget from './widgets/CalculatorWidget';
 import AmbientHeroWidget from './widgets/AmbientHeroWidget';
 import AgendaWidget from './widgets/AgendaWidget';
+import TaskChecklistWidget from './widgets/TaskChecklistWidget';
 import FloatingWidget from './FloatingWidget';
 
 const WIDGET_COMPONENTS = {
@@ -17,6 +18,7 @@ const WIDGET_COMPONENTS = {
   calculator: CalculatorWidget,
   hero: AmbientHeroWidget,
   agenda: AgendaWidget,
+  tasks: TaskChecklistWidget,
 };
 
 // Widgets with custom layout (size + col-span). Defaults: h-40, 1 col.
@@ -25,12 +27,13 @@ const WIDGET_LAYOUT = {
   clock:      { height: 'h-40',      span: 'sm:col-span-2' },
   hero:       { height: 'h-56',      span: 'sm:col-span-2 lg:col-span-3' },
   agenda:     { height: 'h-72',      span: 'sm:col-span-2' },
+  tasks:      { height: 'h-72',      span: 'sm:col-span-2' },
 };
 
 const getLayout = (type) => WIDGET_LAYOUT[type] || { height: 'h-40', span: '' };
 
 // Widgets that fill their container themselves (no top padding for drag handle)
-const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 'agenda']);
+const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 'agenda', 'tasks']);
 
 // Resizable widgets — cycle through preset sizes
 const HERO_SIZES = [
@@ -50,7 +53,13 @@ const AGENDA_SIZES = [
   { label: 'L', span: 'sm:col-span-2 lg:col-span-3',    height: 'h-96' },
 ];
 
-const RESIZABLE_PRESETS = { hero: HERO_SIZES, agenda: AGENDA_SIZES };
+const TASKS_SIZES = [
+  { label: 'S', span: 'sm:col-span-2',                  height: 'h-56' },
+  { label: 'M', span: 'sm:col-span-2',                  height: 'h-72' },
+  { label: 'L', span: 'sm:col-span-2 lg:col-span-3',    height: 'h-96' },
+];
+
+const RESIZABLE_PRESETS = { hero: HERO_SIZES, agenda: AGENDA_SIZES, tasks: TASKS_SIZES };
 
 const getResolvedLayout = (widget) => {
   const presets = RESIZABLE_PRESETS[widget.widget_type];
