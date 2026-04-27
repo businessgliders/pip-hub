@@ -44,7 +44,6 @@ export default function AppHub() {
   const [collapsedSections, setCollapsedSections] = useState([]);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [showLaunchpad, setShowLaunchpad] = useState(false);
         const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -514,25 +513,20 @@ export default function AppHub() {
           >
             <Search className={`w-4 h-4 ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-600'}`} />
           </button>
-          {/* View toggle (list/grid) */}
+          {/* View toggle (list/grid/launchpad) */}
           <button
             onClick={async () => {
-              const next = viewMode === 'list' ? 'grid' : 'list';
+              const order = ['list', 'grid', 'launchpad'];
+              const next = order[(order.indexOf(viewMode) + 1) % order.length];
               setViewMode(next);
               if (user) await base44.auth.updateMe({ viewMode: next });
             }}
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
-            title={viewMode === 'list' ? 'Switch to grid view' : 'Switch to list view'}
+            title={`Current: ${viewMode} view (tap to cycle)`}
           >
-            {viewMode === 'list' ? <Grid3X3 className="w-4 h-4 text-gray-600" /> : <List className="w-4 h-4 text-gray-600" />}
-          </button>
-          {/* Launchpad */}
-          <button
-            onClick={() => setShowLaunchpad(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
-            title="Launchpad"
-          >
-            <Rocket className="w-4 h-4 text-gray-600" />
+            {viewMode === 'list' ? <List className="w-4 h-4 text-gray-600" /> :
+             viewMode === 'grid' ? <Grid3X3 className="w-4 h-4 text-gray-600" /> :
+             <Rocket className="w-4 h-4 text-gray-600" />}
           </button>
           {/* Add Apps */}
           <button
@@ -613,16 +607,17 @@ export default function AppHub() {
               >
                 <Grid3X3 className="w-4 h-4" />
               </button>
+              <button
+                onClick={async () => {
+                  setViewMode('launchpad');
+                  if (user) await base44.auth.updateMe({ viewMode: 'launchpad' });
+                }}
+                className={`px-3 py-2 border-l border-gray-300 transition-colors ${viewMode === 'launchpad' ? 'bg-gray-100 text-gray-800' : 'bg-white text-gray-400 hover:bg-gray-50'}`}
+                title="Launchpad view"
+              >
+                <Rocket className="w-4 h-4" />
+              </button>
             </div>
-            <Button
-              onClick={() => setShowLaunchpad(true)}
-              variant="outline"
-              size="icon"
-              className="rounded-xl border-gray-300"
-              title="Launchpad"
-            >
-              <Rocket className="w-4 h-4" />
-            </Button>
             <Button onClick={() => setShowBrowseApps(true)} variant="outline" size="icon" className="rounded-xl border-gray-300" title="Add Apps">
               <Plus className="w-4 h-4" />
             </Button>
@@ -707,8 +702,21 @@ export default function AppHub() {
             );
           })()}
 
-          {/* Sections */}
-          {(() => {
+          {/* Sections — replaced by Launchpad when viewMode === 'launchpad' */}
+          {viewMode === 'launchpad' ? (
+            <LaunchpadView
+              apps={filteredApps}
+              sections={sections}
+              favorites={favorites}
+              searchQuery={searchQuery}
+              isEditMode={isEditMode}
+              onOpenApp={setViewingApp}
+              onEditApp={handleEditApp}
+              onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
+              onHideApp={(appId) => hideAppMutation.mutate(appId)}
+              onRenameSection={handleRenameSection}
+            />
+          ) : (() => {
             const visibleSections = sections.filter(section => 
               filteredApps.some(app => app.section_id === section.id)
             );
@@ -943,20 +951,6 @@ export default function AppHub() {
         <UserSelection
           onClose={() => setShowUserSelection(false)}
           currentGradient={selectedGradient}
-        />
-      )}
-
-      {showLaunchpad && (
-        <LaunchpadView
-          apps={apps}
-          sections={sections}
-          favorites={favorites}
-          wallpaperUrl={wallpaperUrl}
-          onOpenApp={(app) => {
-            setShowLaunchpad(false);
-            setViewingApp(app);
-          }}
-          onClose={() => setShowLaunchpad(false)}
         />
       )}
 
