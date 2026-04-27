@@ -188,15 +188,20 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridWidgets.map(widget => (
                 <div key={widget.id} className={`relative ${getResolvedLayout(widget).height} ${getResolvedLayout(widget).span} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group`}>
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="absolute top-2 right-2 opacity-60 group-hover:opacity-100 transition-opacity z-10">
                     <button
-                      onClick={() => onUpdateWidget(widget.id, {
-                        is_floating: true,
-                        position_x: Math.max(20, window.innerWidth / 2 - 160),
-                        position_y: Math.max(80, window.innerHeight / 2 - 120),
-                      })}
+                      type="button"
+                      onPointerUp={(e) => {
+                        e.stopPropagation();
+                        onUpdateWidget(widget.id, {
+                          is_floating: true,
+                          position_x: Math.max(20, window.innerWidth / 2 - 160),
+                          position_y: Math.max(80, window.innerHeight / 2 - 120),
+                        });
+                      }}
                       className="w-6 h-6 flex items-center justify-center rounded-md bg-white/80 hover:bg-blue-50 transition-colors border border-white/60 shadow-sm"
                       title="Pop out (Float)"
+                      aria-label="Pop out widget"
                     >
                       <Maximize2 className="w-3.5 h-3.5 text-blue-500" />
                     </button>
