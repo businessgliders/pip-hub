@@ -78,27 +78,29 @@ export default function AmbientHeroWidget() {
 
       <div className="relative h-full flex flex-col justify-between p-4 lg:p-5 text-white">
         {/* Top: Greeting + date / Time + Weather */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">{dateString}</p>
-            <h2 className="mt-1 text-sm sm:text-lg lg:text-2xl xl:text-3xl font-bold tracking-tight drop-shadow-sm leading-tight truncate sm:whitespace-normal sm:break-words">
-              {getGreeting(user?.full_name)}
-            </h2>
-          </div>
-          <div className="flex flex-col items-end flex-shrink-0">
-            <div className="text-2xl lg:text-3xl xl:text-4xl font-light tracking-tight leading-none drop-shadow">
-              {timeString}
+        <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">{dateString}</p>
             </div>
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <CloudSun className="w-4 h-4" stroke="url(#hero-weather-gradient)" strokeWidth={1.8} />
-              <span className="text-xs font-medium text-white/95">
-                {weather ? `${weather.temp}°C` : '—'}
-              </span>
-              <span className="text-xs text-white/75 truncate max-w-[120px]">
-                {weather?.city ? `· ${weather.city}` : ''}
-              </span>
+            <div className="flex flex-col items-end flex-shrink-0">
+              <div className="text-2xl lg:text-3xl xl:text-4xl font-light tracking-tight leading-none drop-shadow">
+                {timeString}
+              </div>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <CloudSun className="w-4 h-4" stroke="url(#hero-weather-gradient)" strokeWidth={1.8} />
+                <span className="text-xs font-medium text-white/95">
+                  {weather ? `${weather.temp}°C` : '—'}
+                </span>
+                <span className="text-xs text-white/75 truncate max-w-[120px]">
+                  {weather?.city ? `· ${weather.city}` : ''}
+                </span>
+              </div>
             </div>
           </div>
+          <h2 className="mt-1 text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold tracking-tight drop-shadow-sm leading-tight truncate sm:whitespace-normal sm:break-words">
+            {getGreeting(user?.full_name)}
+          </h2>
         </div>
 
         {/* Bottom: Daily Quote */}
