@@ -100,7 +100,7 @@ export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isE
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="fixed inset-0 z-30 flex items-center justify-center p-4"
+      className="fixed inset-0 z-30 flex items-center justify-center p-4 bg-black/20 backdrop-blur-md"
       onClick={onClose}
     >
       <motion.div
