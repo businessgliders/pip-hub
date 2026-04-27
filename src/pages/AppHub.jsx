@@ -841,7 +841,7 @@ export default function AppHub() {
       {/* ── MOBILE BOTTOM TAB BAR (iOS style) ── */}
       <div
         className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60"
-        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 6px)' }}
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)' }}
       >
         <div className="flex items-center justify-around px-1 pt-2 pb-2">
           {/* Home */}
