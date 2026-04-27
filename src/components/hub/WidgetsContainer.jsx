@@ -29,7 +29,10 @@ const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 
 // Every widget supports three sizes: S (1 col), M (2 col), L (3 col, full width).
 // On mobile (2-col grid), all sizes span the full row for readability.
 // All sizes share the same height — only the column span changes.
-const UNIFIED_HEIGHT = 'h-72';
+const UNIFIED_HEIGHT = 'h-36 sm:h-72';
+const MOBILE_HEIGHT = 'h-36';
+// Widgets that need the full height to be usable — hidden on mobile when shrunk
+const WIDGETS_HIDDEN_ON_MOBILE = new Set(['calculator']);
 const SIZE_PRESETS = [
   { label: 'S', span: 'col-span-2 sm:col-span-1',                     height: UNIFIED_HEIGHT },
   { label: 'M', span: 'col-span-2 sm:col-span-2',                     height: UNIFIED_HEIGHT },
@@ -77,7 +80,7 @@ const getSizeIdx = (widget, bp) => {
 const getResolvedLayout = (widget, bp) => SIZE_PRESETS[getSizeIdx(widget, bp)];
 
 export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWidget, onDeleteWidget, onReorderWidgets }) {
-  const gridWidgets = widgets.filter(w => !w.is_floating).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const allGridWidgets = widgets.filter(w => !w.is_floating).sort((a, b) => (a.order || 0) - (b.order || 0));
   const floatingWidgets = widgets.filter(w => w.is_floating);
   const constraintsRef = useRef(null);
 
@@ -88,6 +91,10 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
     return () => window.removeEventListener('resize', onResize);
   }, []);
   const isMobile = breakpoint === 'mobile';
+  // On mobile, hide widgets that don't render well at half height (e.g. calculator)
+  const gridWidgets = isMobile
+    ? allGridWidgets.filter(w => !WIDGETS_HIDDEN_ON_MOBILE.has(w.widget_type))
+    : allGridWidgets;
 
   const renderWidgetContent = (widget) => {
     if (widget.widget_type === 'clock' && isMobile) {
@@ -131,7 +138,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
               widgets={gridWidgets}
               renderContent={renderWidgetContent}
               onPopOut={popOut}
-              height={UNIFIED_HEIGHT}
+              height={MOBILE_HEIGHT}
             />
           ) : isEditMode ? (
             <DragDropContext onDragEnd={handleGridDragEnd}>
