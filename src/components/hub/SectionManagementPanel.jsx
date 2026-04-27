@@ -3,8 +3,10 @@ import { Trash2, Edit, GripVertical, Plus, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 export default function SectionManagementPanel({ sections, onCreateSection, onUpdateSection, onDeleteSection, onReorderSections, onClose }) {
+  useBodyScrollLock(true);
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState('');
   const [isAdding, setIsAdding] = useState(false);

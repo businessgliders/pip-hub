@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { X, ExternalLink, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 export default function AppViewerModal({ app, onClose }) {
+  useBodyScrollLock(true);
   const [iframeKey, setIframeKey] = useState(0);
 
   const handleReload = () => {

@@ -11,8 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 export default function EditAppModal({ app, sections, onClose, onSave }) {
+  useBodyScrollLock(true);
   const [formData, setFormData] = useState({
     name: app.name,
     url: app.url,
@@ -52,8 +54,8 @@ export default function EditAppModal({ app, sections, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm overflow-y-auto">
-      <div className="w-full max-w-md rounded-3xl backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl p-4 md:p-8 my-auto">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4 bg-black/20 backdrop-blur-sm overflow-hidden">
+      <div className="w-full max-w-md rounded-3xl backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl p-4 md:p-8 max-h-[100dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">Edit App</h2>
           <button

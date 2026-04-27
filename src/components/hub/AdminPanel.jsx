@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Trash2, Edit, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 export default function AdminPanel({ apps, sections, onDeleteApp, onEditApp, onReorderApps, onClose }) {
+  useBodyScrollLock(true);
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
   // Group apps by section

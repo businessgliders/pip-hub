@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 const getPinkGradient = (index) => {
   const pinkGradients = [
@@ -27,6 +28,7 @@ const getDisplayName = (email, fullName) => {
 };
 
 export default function UserSelection({ onUserSelected, onClose, currentGradient = 'default' }) {
+  useBodyScrollLock(true);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);

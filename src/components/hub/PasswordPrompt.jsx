@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { X, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 export default function PasswordPrompt({ onClose, onSuccess }) {
+  useBodyScrollLock(true);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 

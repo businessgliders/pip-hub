@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ConfirmationModal from './ConfirmationModal';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 import {
   Select,
   SelectContent,
@@ -17,6 +18,7 @@ import {
 import { AVAILABLE_WIDGETS } from './widgets/utils';
 
 export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], userWidgets = [], onClose, onAddApp, onUnhideApp, onAddWidget }) {
+  useBodyScrollLock(true);
   const [ownerApps, setOwnerApps] = useState([]);
   const [ownerSections, setOwnerSections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -211,8 +213,8 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], u
   }, [ownerApps, ownerSections, searchQuery]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm overflow-y-auto">
-      <div className="w-full max-w-5xl rounded-3xl backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl p-4 md:p-8 my-auto max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4 bg-black/20 backdrop-blur-sm overflow-hidden">
+      <div className="w-full max-w-5xl rounded-3xl backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl p-4 md:p-8 max-h-[100dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">Add Apps</h2>
           <button

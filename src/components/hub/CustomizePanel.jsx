@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { base44 } from '@/api/base44Client';
 import ConfirmationModal from './ConfirmationModal';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 const GRADIENT_OPTIONS = [
   { id: 'default', name: 'Pink', gradient: 'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]' },
@@ -62,6 +63,7 @@ const THEME_WALLPAPERS = {
 };
 
 export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [], onDeleteWidget }) {
+  useBodyScrollLock(true);
   const [activeTab, setActiveTab] = useState('apps');
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
   const [localWidgets, setLocalWidgets] = useState(userWidgets);
