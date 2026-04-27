@@ -93,7 +93,7 @@ export function LaunchpadFolderTile({ section, apps, onOpen, isEditMode, onRenam
 }
 
 // Expanded folder — inline overlay revealing all the apps inside.
-export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isEditMode, onEditApp, onDeleteApp, onHideApp }) {
+export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isEditMode, onEditApp, onDeleteApp, onHideApp, favorites = [], onToggleFavorite }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -124,6 +124,8 @@ export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isE
               onEdit={onEditApp}
               onDelete={onDeleteApp}
               onHide={onHideApp}
+              isFavorited={favorites.includes(app.id)}
+              onToggleFavorite={onToggleFavorite}
             />
           ))}
         </div>

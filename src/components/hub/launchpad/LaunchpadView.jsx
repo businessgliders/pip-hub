@@ -213,6 +213,8 @@ export default function LaunchpadView({
               onEditApp={onEditApp}
               onDeleteApp={onDeleteApp}
               onHideApp={onHideApp}
+              favorites={favorites}
+              onToggleFavorite={onToggleFavorite}
             />
           )}
         </AnimatePresence>
