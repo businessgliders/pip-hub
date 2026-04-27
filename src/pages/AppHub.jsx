@@ -544,7 +544,7 @@ export default function AppHub() {
               alt="PiP Hub"
               className="w-9 h-9 rounded-xl shadow flex-shrink-0"
             />
-            <h1 className="text-lg font-bold text-gray-800 truncate">{user?.full_name?.split(' ')[0] || 'App'}'s Apps</h1>
+            <h1 className="text-lg font-bold text-gray-800 truncate">{(user?.email === 'info@pilatesinpinkstudio.com' ? 'Front Desk' : (user?.full_name?.split(' ')[0] || 'App'))}'s Apps</h1>
           </button>
           {/* Search */}
           <button
@@ -602,7 +602,7 @@ export default function AppHub() {
               className="w-16 h-16 rounded-2xl shadow-lg"
             />
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">{user?.full_name?.split(' ')[0] || 'App'}'s Apps</h1>
+              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">{(user?.email === 'info@pilatesinpinkstudio.com' ? 'Front Desk' : (user?.full_name?.split(' ')[0] || 'App'))}'s Apps</h1>
               <p className="text-gray-600 text-sm mt-1">Your workspace at a glance</p>
             </div>
           </div>
