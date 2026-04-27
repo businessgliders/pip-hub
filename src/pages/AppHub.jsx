@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check } from 'lucide-react';
+import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
@@ -20,6 +20,7 @@ import FavoritesSection from '../components/hub/FavoritesSection.jsx';
 import MacDock from '../components/hub/MacDock.jsx';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import WidgetsContainer from '../components/hub/WidgetsContainer';
+import LaunchpadView from '../components/hub/launchpad/LaunchpadView';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
@@ -43,6 +44,7 @@ export default function AppHub() {
   const [collapsedSections, setCollapsedSections] = useState([]);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showLaunchpad, setShowLaunchpad] = useState(false);
         const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -524,6 +526,14 @@ export default function AppHub() {
           >
             {viewMode === 'list' ? <Grid3X3 className="w-4 h-4 text-gray-600" /> : <List className="w-4 h-4 text-gray-600" />}
           </button>
+          {/* Launchpad */}
+          <button
+            onClick={() => setShowLaunchpad(true)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 border border-gray-200 shadow-sm"
+            title="Launchpad"
+          >
+            <Rocket className="w-4 h-4 text-gray-600" />
+          </button>
           {/* Add Apps */}
           <button
             onClick={() => setShowBrowseApps(true)}
@@ -604,6 +614,15 @@ export default function AppHub() {
                 <Grid3X3 className="w-4 h-4" />
               </button>
             </div>
+            <Button
+              onClick={() => setShowLaunchpad(true)}
+              variant="outline"
+              size="icon"
+              className="rounded-xl border-gray-300"
+              title="Launchpad"
+            >
+              <Rocket className="w-4 h-4" />
+            </Button>
             <Button onClick={() => setShowBrowseApps(true)} variant="outline" size="icon" className="rounded-xl border-gray-300" title="Add Apps">
               <Plus className="w-4 h-4" />
             </Button>
@@ -924,6 +943,20 @@ export default function AppHub() {
         <UserSelection
           onClose={() => setShowUserSelection(false)}
           currentGradient={selectedGradient}
+        />
+      )}
+
+      {showLaunchpad && (
+        <LaunchpadView
+          apps={apps}
+          sections={sections}
+          favorites={favorites}
+          wallpaperUrl={wallpaperUrl}
+          onOpenApp={(app) => {
+            setShowLaunchpad(false);
+            setViewingApp(app);
+          }}
+          onClose={() => setShowLaunchpad(false)}
         />
       )}
 
