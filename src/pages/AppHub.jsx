@@ -715,7 +715,7 @@ export default function AppHub() {
             );
             if (filteredFavorites.length === 0) return null;
             return (
-            <div className="mb-6">
+            <div className="mb-6 md:hidden">
               <FavoritesSection
                 favoritedApps={filteredFavorites}
                 viewMode={viewMode}

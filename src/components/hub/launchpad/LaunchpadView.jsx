@@ -5,6 +5,19 @@ import { Droppable, Draggable } from '@hello-pangea/dnd';
 import LaunchpadIcon from './LaunchpadIcon';
 import { LaunchpadFolderTile, LaunchpadFolderExpanded } from './LaunchpadFolder';
 
+// Desktop breakpoint matches MacDock visibility (md: 768px)
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== 'undefined' && window.innerWidth >= 768
+  );
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return isDesktop;
+}
+
 // macOS Launchpad-style INLINE view: rendered in place of sections, paginated grid,
 // sections-as-folders, supports search (driven by parent's searchQuery) and edit mode.
 export default function LaunchpadView({
@@ -21,6 +34,7 @@ export default function LaunchpadView({
 }) {
   const [openFolderId, setOpenFolderId] = useState(null);
   const [page, setPage] = useState(0);
+  const isDesktop = useIsDesktop();
 
   // Esc to close any open folder
   useEffect(() => {
@@ -43,10 +57,13 @@ export default function LaunchpadView({
     }
 
     const list = [];
-    const favApps = favorites
-      .map((id) => apps.find((a) => a.id === id))
-      .filter(Boolean);
-    favApps.forEach((a) => list.push({ kind: 'app', app: a, key: `fav-${a.id}` }));
+    // On desktop, favorites are shown in the MacDock — hide loose icons here to avoid duplication.
+    if (!isDesktop) {
+      const favApps = favorites
+        .map((id) => apps.find((a) => a.id === id))
+        .filter(Boolean);
+      favApps.forEach((a) => list.push({ kind: 'app', app: a, key: `fav-${a.id}` }));
+    }
 
     sections.forEach((s) => {
       const sectionApps = apps.filter((a) => a.section_id === s.id);
@@ -55,7 +72,7 @@ export default function LaunchpadView({
     });
 
     return list;
-  }, [apps, sections, favorites, trimmedSearch]);
+  }, [apps, sections, favorites, trimmedSearch, isDesktop]);
 
   // Pagination — 28 tiles per page (7 cols × 4 rows on desktop)
   const PAGE_SIZE = 28;
