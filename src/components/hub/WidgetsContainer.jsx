@@ -7,13 +7,30 @@ import ClockWidget from './widgets/ClockWidget';
 import ClockWidgetMobile from './widgets/ClockWidgetMobile';
 import StickyNotesWidget from './widgets/StickyNotesWidget';
 import CalculatorWidget from './widgets/CalculatorWidget';
+import AmbientHeroWidget from './widgets/AmbientHeroWidget';
+import AgendaWidget from './widgets/AgendaWidget';
 import FloatingWidget from './FloatingWidget';
 
 const WIDGET_COMPONENTS = {
   clock: ClockWidget,
   notes: StickyNotesWidget,
   calculator: CalculatorWidget,
+  hero: AmbientHeroWidget,
+  agenda: AgendaWidget,
 };
+
+// Widgets with custom layout (size + col-span). Defaults: h-40, 1 col.
+const WIDGET_LAYOUT = {
+  calculator: { height: 'h-[320px]', span: '' },
+  clock:      { height: 'h-40',      span: 'sm:col-span-2' },
+  hero:       { height: 'h-56',      span: 'sm:col-span-2 lg:col-span-3' },
+  agenda:     { height: 'h-72',      span: 'sm:col-span-2' },
+};
+
+const getLayout = (type) => WIDGET_LAYOUT[type] || { height: 'h-40', span: '' };
+
+// Widgets that fill their container themselves (no top padding for drag handle)
+const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 'agenda']);
 
 export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWidget, onDeleteWidget, onReorderWidgets }) {
   const gridWidgets = widgets.filter(w => !w.is_floating).sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -64,7 +81,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             style={{ ...provided.draggableProps.style }}
-                            className={`relative ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-40'} ${widget.widget_type === 'clock' ? 'sm:col-span-2' : ''} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 hover:border-[#f1889b]/40 transition-colors ${
+                            className={`relative ${getLayout(widget.widget_type).height} ${getLayout(widget.widget_type).span} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 hover:border-[#f1889b]/40 transition-colors ${
                               snapshot.isDragging ? 'shadow-2xl z-50 ring-2 ring-[#f1889b]' : 'shadow-sm'
                             }`}
                           >
@@ -94,7 +111,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                               </button>
                             </div>
                             
-                            <div className={`h-full ${widget.widget_type === 'notes' || widget.widget_type === 'calculator' || widget.widget_type === 'clock' ? '' : 'pt-4'}`}>
+                            <div className={`h-full ${FULL_CONTAINER_WIDGETS.has(widget.widget_type) ? '' : 'pt-4'}`}>
                               {renderWidgetContent(widget)}
                             </div>
                           </div>
@@ -109,7 +126,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridWidgets.map(widget => (
-                <div key={widget.id} className={`relative ${widget.widget_type === 'calculator' ? 'h-[320px]' : 'h-40'} ${widget.widget_type === 'clock' ? 'sm:col-span-2' : ''} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group`}>
+                <div key={widget.id} className={`relative ${getLayout(widget.widget_type).height} ${getLayout(widget.widget_type).span} rounded-2xl overflow-hidden backdrop-blur-xl bg-white/40 border border-white/60 shadow-sm hover:shadow-md transition-all group`}>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button
                       onClick={() => onUpdateWidget(widget.id, {
@@ -123,7 +140,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                       <Maximize2 className="w-3.5 h-3.5 text-blue-500" />
                     </button>
                   </div>
-                  <div className={`h-full ${widget.widget_type === 'notes' || widget.widget_type === 'calculator' || widget.widget_type === 'clock' ? '' : 'pt-4'}`}>
+                  <div className={`h-full ${FULL_CONTAINER_WIDGETS.has(widget.widget_type) ? '' : 'pt-4'}`}>
                     {renderWidgetContent(widget)}
                   </div>
                 </div>

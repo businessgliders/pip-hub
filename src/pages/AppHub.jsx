@@ -20,7 +20,6 @@ import FavoritesSection from '../components/hub/FavoritesSection.jsx';
 import MacDock from '../components/hub/MacDock.jsx';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import WidgetsContainer from '../components/hub/WidgetsContainer';
-import TodayDashboard from '../components/hub/TodayDashboard';
 
 export default function AppHub() {
   const [user, setUser] = useState(null);
@@ -648,9 +647,6 @@ export default function AppHub() {
               onReorderWidgets={handleReorderWidgets}
             />
           </div>
-
-          {/* Today dashboard — desktop only */}
-          <TodayDashboard user={user} wallpaperUrl={wallpaperUrl} />
 
           <div className="relative z-20 -mt-2 md:mt-8 pt-4">
             <div 
