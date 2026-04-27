@@ -44,6 +44,7 @@ export default function AppHub() {
   const [collapsedSections, setCollapsedSections] = useState([]);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showMoreSheet, setShowMoreSheet] = useState(false);
         const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -850,7 +851,7 @@ export default function AppHub() {
       {/* ── MOBILE BOTTOM TAB BAR (iOS style) ── */}
       <div
         className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
         <div className="flex items-center justify-around px-1 pt-2 pb-2">
           {/* Home */}
@@ -873,26 +874,61 @@ export default function AppHub() {
             <Plus className="w-5 h-5" />
             <span className="text-[10px] font-medium">Add</span>
           </button>
-          {/* Customize */}
+          {/* More */}
           <button
-            onClick={() => setShowCustomizePanel(true)}
+            onClick={() => setShowMoreSheet(true)}
             className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500"
           >
-            <LayoutGrid className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Customize</span>
-          </button>
-          {/* Switch User */}
-          <button
-            onClick={() => setShowUserSelection(true)}
-            className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500"
-          >
-            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center">
-              <span className="text-[8px] font-bold text-white">{getInitials(user?.full_name)}</span>
+            <div className="w-5 h-5 flex items-center justify-center">
+              <div className="flex gap-0.5">
+                <span className="w-1 h-1 rounded-full bg-gray-500" />
+                <span className="w-1 h-1 rounded-full bg-gray-500" />
+                <span className="w-1 h-1 rounded-full bg-gray-500" />
+              </div>
             </div>
-            <span className="text-[10px] font-medium">Switch</span>
+            <span className="text-[10px] font-medium">More</span>
           </button>
         </div>
       </div>
+
+      {/* ── MOBILE MORE SHEET ── */}
+      {showMoreSheet && (
+        <div
+          className="md:hidden fixed inset-0 z-40 flex items-end"
+          onClick={() => setShowMoreSheet(false)}
+        >
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full bg-white/95 backdrop-blur-xl rounded-t-3xl border-t border-gray-200/60 shadow-2xl animate-in slide-in-from-bottom duration-200"
+            style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 24px)' }}
+          >
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-10 h-1 rounded-full bg-gray-300" />
+            </div>
+            <div className="px-4 pb-2">
+              <button
+                onClick={() => { setShowMoreSheet(false); setShowCustomizePanel(true); }}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/80 active:bg-gray-200/80 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 flex items-center justify-center">
+                  <LayoutGrid className="w-4.5 h-4.5 text-[#f1889b]" />
+                </div>
+                <span className="text-base font-medium text-gray-800">Customize</span>
+              </button>
+              <button
+                onClick={() => { setShowMoreSheet(false); setShowUserSelection(true); }}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/80 active:bg-gray-200/80 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center">
+                  <span className="text-xs font-bold text-white">{getInitials(user?.full_name)}</span>
+                </div>
+                <span className="text-base font-medium text-gray-800">Switch User</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       {showAddModal && (
