@@ -846,7 +846,16 @@ export default function AppHub() {
         <div className="flex items-center justify-around px-1 pt-2 pb-2">
           {/* Home */}
           <button
-            onClick={() => { setShowMobileSearch(false); setSearchQuery(''); }}
+            onClick={() => {
+              const now = Date.now();
+              if (now - (window.__homeTapTime || 0) < 350) {
+                window.location.reload();
+                return;
+              }
+              window.__homeTapTime = now;
+              setShowMobileSearch(false);
+              setSearchQuery('');
+            }}
             className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-[#f1889b]"
           >
             <img
