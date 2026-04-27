@@ -434,6 +434,44 @@ export default function AppHub() {
     if (!destination) return;
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
+    if (type === 'LAUNCHPAD') {
+      // Build the same items list LaunchpadView builds: favorites (apps) first, then folders.
+      const favApps = favorites.map((id) => apps.find((a) => a.id === id)).filter(Boolean);
+      const folderSections = sections.filter((s) => apps.some((a) => a.section_id === s.id));
+      const items = [
+        ...favApps.map((a) => ({ kind: 'app', app: a })),
+        ...folderSections.map((s) => ({ kind: 'folder', section: s })),
+      ];
+
+      const draggedItem = items[source.index];
+      if (!draggedItem) return;
+
+      // Reorder among items of the SAME kind only (apps reorder among apps, folders among folders).
+      if (draggedItem.kind === 'app') {
+        const appItemIndices = items.map((it, i) => (it.kind === 'app' ? i : -1)).filter((i) => i >= 0);
+        const fromAppIdx = appItemIndices.indexOf(source.index);
+        // Find nearest app slot ≤ destination index
+        let toAppIdx = appItemIndices.findIndex((i) => i >= destination.index);
+        if (toAppIdx === -1) toAppIdx = appItemIndices.length - 1;
+        if (fromAppIdx === toAppIdx) return;
+        const sourceAppIndex = apps.findIndex((a) => a.id === draggedItem.app.id);
+        const targetAppId = items[appItemIndices[toAppIdx]].app.id;
+        const destAppIndex = apps.findIndex((a) => a.id === targetAppId);
+        handleReorderApps(sourceAppIndex, destAppIndex);
+      } else {
+        const folderItemIndices = items.map((it, i) => (it.kind === 'folder' ? i : -1)).filter((i) => i >= 0);
+        const fromFolderIdx = folderItemIndices.indexOf(source.index);
+        let toFolderIdx = folderItemIndices.findIndex((i) => i >= destination.index);
+        if (toFolderIdx === -1) toFolderIdx = folderItemIndices.length - 1;
+        if (fromFolderIdx === toFolderIdx) return;
+        const sourceSectionIndex = sections.findIndex((s) => s.id === draggedItem.section.id);
+        const targetSectionId = items[folderItemIndices[toFolderIdx]].section.id;
+        const destSectionIndex = sections.findIndex((s) => s.id === targetSectionId);
+        handleReorderSections(sourceSectionIndex, destSectionIndex);
+      }
+      return;
+    }
+
     if (type === 'SECTION') {
       const visibleSections = sections.filter(s => filteredApps.some(a => a.section_id === s.id));
       const draggedSection = visibleSections[source.index];

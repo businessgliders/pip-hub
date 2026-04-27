@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import LaunchpadIcon from './LaunchpadIcon';
 import { LaunchpadFolderTile, LaunchpadFolderExpanded } from './LaunchpadFolder';
 
@@ -86,34 +87,58 @@ export default function LaunchpadView({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.18 }}
-            className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-x-2 sm:gap-x-4 gap-y-5 sm:gap-y-7 justify-items-center"
           >
-            {pagedItems.length === 0 && (
-              <div className="col-span-full text-center text-gray-600 py-12">
-                No apps found
-              </div>
-            )}
-            {pagedItems.map((it) =>
-              it.kind === 'app' ? (
-                <LaunchpadIcon
-                  key={it.key}
-                  app={it.app}
-                  onOpen={onOpenApp}
-                  isEditMode={isEditMode}
-                  onEdit={onEditApp}
-                  onDelete={onDeleteApp}
-                  onHide={onHideApp}
-                />
-              ) : (
-                <LaunchpadFolderTile
-                  key={it.key}
-                  section={it.section}
-                  apps={it.apps}
-                  onOpen={() => setOpenFolderId(it.section.id)}
-                  isEditMode={isEditMode}
-                  onRename={onRenameSection}
-                />
-              )
+            {pagedItems.length === 0 ? (
+              <div className="text-center text-gray-600 py-12">No apps found</div>
+            ) : (
+              <Droppable droppableId="launchpad" direction="horizontal" type="LAUNCHPAD" isDropDisabled={!isEditMode || !!trimmedSearch}>
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-x-2 sm:gap-x-4 gap-y-5 sm:gap-y-7 justify-items-center"
+                  >
+                    {pagedItems.map((it, idx) => (
+                      <Draggable
+                        key={it.key}
+                        draggableId={it.key}
+                        index={idx}
+                        isDragDisabled={!isEditMode || !!trimmedSearch}
+                      >
+                        {(prov, snap) => (
+                          <div
+                            ref={prov.innerRef}
+                            {...prov.draggableProps}
+                            {...prov.dragHandleProps}
+                            style={prov.draggableProps.style}
+                            className={snap.isDragging ? 'z-50 scale-110' : ''}
+                          >
+                            {it.kind === 'app' ? (
+                              <LaunchpadIcon
+                                app={it.app}
+                                onOpen={onOpenApp}
+                                isEditMode={isEditMode}
+                                onEdit={onEditApp}
+                                onDelete={onDeleteApp}
+                                onHide={onHideApp}
+                              />
+                            ) : (
+                              <LaunchpadFolderTile
+                                section={it.section}
+                                apps={it.apps}
+                                onOpen={() => setOpenFolderId(it.section.id)}
+                                isEditMode={isEditMode}
+                                onRename={onRenameSection}
+                              />
+                            )}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             )}
           </motion.div>
         </AnimatePresence>
