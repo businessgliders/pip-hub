@@ -22,10 +22,12 @@ export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelet
 
   return (
     <div className="group relative flex flex-col items-center gap-2 w-20 sm:w-24">
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={handleClick}
-        className={`relative focus:outline-none ${isEditMode ? 'cursor-grab active:cursor-grabbing pointer-events-none' : ''}`}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(e); }}
+        className={`relative focus:outline-none ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
       >
         <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 flex items-center justify-center overflow-hidden shadow-xl transition-transform duration-200 ${isEditMode ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : 'group-hover:scale-110 group-active:scale-95'}`}>
           {app.icon_url ? (
@@ -39,7 +41,7 @@ export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelet
             New
           </span>
         )}
-      </button>
+      </div>
 
       {/* Edit mode action buttons */}
       {isEditMode && (

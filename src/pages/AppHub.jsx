@@ -252,7 +252,10 @@ export default function AppHub() {
     onSuccess: () => queryClient.invalidateQueries(['preferences']),
   });
 
-  const favorites = preferences.filter(p => p.is_favorited).map(p => p.app_id);
+  const favorites = preferences
+    .filter(p => p.is_favorited)
+    .sort((a, b) => (a.custom_order ?? 0) - (b.custom_order ?? 0))
+    .map(p => p.app_id);
 
   // Sort favorited apps by custom_order if set
   const favoritedApps = apps

@@ -24,10 +24,12 @@ export function LaunchpadFolderTile({ section, apps, onOpen, isEditMode, onRenam
 
   return (
     <div className="flex flex-col items-center gap-2 w-20 sm:w-24">
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => onOpen()}
-        className={`group focus:outline-none ${isEditMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onOpen(); }}
+        className={`group focus:outline-none ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
       >
         <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-1.5 grid grid-cols-3 gap-0.5 shadow-lg transition-transform ${isEditMode ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : 'group-hover:scale-105 group-active:scale-95'}`}>
           {previewApps.map((app) => (
@@ -46,7 +48,7 @@ export function LaunchpadFolderTile({ section, apps, onOpen, isEditMode, onRenam
             <div key={`empty-${i}`} className="w-full aspect-square" />
           ))}
         </div>
-      </button>
+      </div>
 
       {isEditMode ? (
         isEditing ? (
