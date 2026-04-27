@@ -97,7 +97,7 @@ export default function LaunchpadView({
         }
       `}</style>
 
-      <div className="relative min-h-[400px] py-6">
+      <div className="relative min-h-[400px] pt-1 pb-6 sm:py-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={`page-${safePage}-${trimmedSearch}`}
