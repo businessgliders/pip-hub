@@ -100,7 +100,7 @@ export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isE
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="absolute inset-0 z-30 flex items-start justify-center pt-8 px-4"
+      className="fixed inset-0 z-30 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <motion.div
@@ -108,13 +108,13 @@ export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isE
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.85, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-        className="w-full max-w-3xl rounded-3xl bg-white/70 backdrop-blur-2xl border border-white/60 shadow-2xl p-6 sm:p-8"
+        className="w-full max-w-3xl rounded-3xl bg-white/70 backdrop-blur-2xl border border-white/60 shadow-2xl p-4 sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-center text-gray-800 text-xl font-semibold mb-6">
           {section.name}
         </h3>
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4 sm:gap-6 max-h-[60vh] overflow-y-auto px-1">
+        <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 gap-x-3 gap-y-5 sm:gap-x-4 sm:gap-y-6 max-h-[60vh] overflow-y-auto px-1 justify-items-center">
           {apps.map((app) => (
             <LaunchpadIcon
               key={app.id}
