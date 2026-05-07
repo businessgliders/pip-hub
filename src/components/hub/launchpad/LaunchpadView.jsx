@@ -129,7 +129,7 @@ export default function LaunchpadView({
                             {...prov.draggableProps}
                             {...prov.dragHandleProps}
                             style={prov.draggableProps.style}
-                            className={snap.isDragging ? 'z-50 scale-110' : ''}
+                            className={snap.isDragging ? 'z-50' : ''}
                           >
                             {it.kind === 'app' ? (
                               <LaunchpadIcon
