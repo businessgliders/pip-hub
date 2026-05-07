@@ -143,6 +143,7 @@ export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isE
                           onHide={onHideApp}
                           isFavorited={favorites.includes(app.id)}
                           onToggleFavorite={onToggleFavorite}
+                          isDragging={snap.isDragging}
                         />
                       </div>
                     )}

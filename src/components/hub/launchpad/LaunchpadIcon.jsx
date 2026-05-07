@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 // A single app icon styled like macOS Launchpad / iOS springboard.
 // In edit mode shows edit + delete/hide buttons (matching the rest of the app).
-export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelete, onHide, isFavorited, onToggleFavorite }) {
+export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelete, onHide, isFavorited, onToggleFavorite, isDragging = false }) {
   const isNewApp = () => {
     if (!app?.is_new) return false;
     const created = new Date(app.created_date);
@@ -30,7 +30,7 @@ export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelet
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(e); }}
         className={`relative focus:outline-none ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
       >
-        <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 flex items-center justify-center overflow-hidden shadow-xl transition-transform duration-200 ${isEditMode ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : 'group-hover:scale-110 group-active:scale-95'}`}>
+        <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 flex items-center justify-center overflow-hidden shadow-xl transition-transform duration-200 ${isEditMode && !isDragging ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : ''} ${!isEditMode ? 'group-hover:scale-110 group-active:scale-95' : ''}`}>
           {app.icon_url ? (
             <img src={app.icon_url} alt={app.name} className="w-12 h-12 sm:w-14 sm:h-14 object-contain" />
           ) : (

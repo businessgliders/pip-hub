@@ -141,6 +141,7 @@ export default function LaunchpadView({
                                 onHide={onHideApp}
                                 isFavorited={favorites.includes(it.app.id)}
                                 onToggleFavorite={onToggleFavorite}
+                                isDragging={snap.isDragging}
                               />
                             ) : (
                               <LaunchpadFolderTile
