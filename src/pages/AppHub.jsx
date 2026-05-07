@@ -440,6 +440,13 @@ export default function AppHub() {
     if (!destination) return;
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
+    if (type === 'FOLDER_APP') {
+      // droppableId is `folder-<sectionId>` — reorder apps inside that folder.
+      const sectionId = source.droppableId.replace(/^folder-/, '');
+      handleReorderAppsInSection(sectionId, source.index, destination.index);
+      return;
+    }
+
     if (type === 'LAUNCHPAD') {
       // Build the same items list LaunchpadView builds: favorites (apps) first, then folders.
       const favApps = favorites.map((id) => apps.find((a) => a.id === id)).filter(Boolean);

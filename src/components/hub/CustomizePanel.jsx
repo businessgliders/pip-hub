@@ -5,6 +5,7 @@ import { AVAILABLE_WIDGETS } from './widgets/utils';
 import { Input } from '@/components/ui/input';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { base44 } from '@/api/base44Client';
+import { useQueryClient } from '@tanstack/react-query';
 import ConfirmationModal from './ConfirmationModal';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
@@ -64,6 +65,7 @@ const THEME_WALLPAPERS = {
 
 export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [], onDeleteWidget }) {
   useBodyScrollLock(true);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('apps');
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
   const [localWidgets, setLocalWidgets] = useState(userWidgets);
@@ -88,6 +90,10 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
   const [localSections, setLocalSections] = useState(sections);
   const [hasChanges, setHasChanges] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
+
+  // Re-sync local state with props when fresh data arrives (only if user has no pending edits).
+  useEffect(() => { if (!hasChanges) setLocalApps(apps); }, [apps, hasChanges]);
+  useEffect(() => { if (!hasChanges) setLocalSections(sections); }, [sections, hasChanges]);
   
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
@@ -176,21 +182,23 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
       message: 'Save your changes?',
       action: async () => {
         if (activeTab === 'apps') {
-          // Group apps by section and update order within each section
-          const grouped = {};
-          localApps.forEach(app => {
-            if (!grouped[app.section_id]) grouped[app.section_id] = [];
-            grouped[app.section_id].push(app);
-          });
-          
+          // Walk visible sections in display order so each app's new order
+          // matches the visual position in the panel (and section moves persist too).
           const updates = [];
-          Object.values(grouped).forEach(sectionApps => {
+          localSections.forEach(section => {
+            const sectionApps = localApps.filter(a => a.section_id === section.id);
             sectionApps.forEach((app, index) => {
-              updates.push(base44.entities.App.update(app.id, { order: index + 1 }));
+              updates.push(
+                base44.entities.App.update(app.id, {
+                  order: index + 1,
+                  section_id: app.section_id,
+                })
+              );
             });
           });
-          
           await Promise.all(updates);
+          await queryClient.invalidateQueries({ queryKey: ['apps'] });
+          setHasChanges(false);
         } else if (activeTab === 'sections') {
           await onReorderSections(0, 0); // Trigger with dummy values  
           // Update user section preferences
@@ -215,6 +223,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
               }
             })
           );
+          await queryClient.invalidateQueries({ queryKey: ['sections'] });
+          setHasChanges(false);
         } else if (activeTab === 'widgets') {
           await Promise.all(
             localWidgets.map((w, index) => 
@@ -224,6 +234,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
               })
             )
           );
+          await queryClient.invalidateQueries({ queryKey: ['userWidgets'] });
+          setHasChanges(false);
         }
       }
     });
