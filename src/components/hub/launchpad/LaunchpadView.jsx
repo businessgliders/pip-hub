@@ -150,6 +150,7 @@ export default function LaunchpadView({
                                 onOpen={() => setOpenFolderId(it.section.id)}
                                 isEditMode={isEditMode}
                                 onRename={onRenameSection}
+                                isDragging={snap.isDragging}
                               />
                             )}
                           </div>

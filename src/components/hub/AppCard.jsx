@@ -37,9 +37,10 @@ export default function AppCard({ app, isFavorited, onToggleFavorite, onDragStar
       className={cn(
         "group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300",
         "backdrop-blur-xl bg-white/40 border border-white/60",
-        "hover:bg-white/60 hover:shadow-[0_8px_32px_rgba(241,136,155,0.2)] hover:scale-[1.02]",
+        "hover:bg-white/60 hover:shadow-[0_8px_32px_rgba(241,136,155,0.2)]",
+        !isDragging && "hover:scale-[1.02]",
         "hover:border-[#f1889b]/30",
-        isDragging && "opacity-50 scale-95"
+        isDragging && "opacity-50"
       )}
     >
       {/* Gradient overlay */}
