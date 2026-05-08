@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AVAILABLE_WIDGETS } from './widgets/utils';
@@ -403,13 +404,14 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                            const widgetInfo = AVAILABLE_WIDGETS.find(w => w.type === widget.widget_type) || {};
                            return (
                              <Draggable key={widget.id} draggableId={widget.id} index={index}>
-                               {(provided, snapshot) => (
+                               {(provided, snapshot) => {
+                                 const node = (
                                  <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     className={`flex items-center gap-3 p-3 rounded-lg border group ${
                                       snapshot.isDragging 
-                                        ? 'shadow-2xl scale-105 bg-white border-[#f1889b] z-50' 
+                                        ? 'shadow-2xl bg-white border-[#f1889b] z-[60]' 
                                         : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
                                     }`}
                                  >
@@ -442,7 +444,11 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                       </Button>
                                     </div>
                                  </div>
-                               )}
+                                 );
+                                 return snapshot.isDragging && typeof document !== 'undefined'
+                                   ? createPortal(node, document.body)
+                                   : node;
+                               }}
                              </Draggable>
                            )
                         })}
@@ -463,7 +469,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                           <div className="space-y-2">
                             {sectionApps.map((app, index) => (
                               <Draggable key={app.id} draggableId={app.id} index={index}>
-                                {(provided, snapshot) => (
+                                {(provided, snapshot) => {
+                                  const node = (
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
@@ -473,7 +480,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                     }}
                                     className={`flex items-center gap-3 p-3 rounded-lg border group ${
                                       snapshot.isDragging 
-                                        ? 'shadow-2xl scale-105 bg-white border-[#f1889b] z-50' 
+                                        ? 'shadow-2xl bg-white border-[#f1889b] z-[60]' 
                                         : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
                                     }`}
                                   >
@@ -529,7 +536,11 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                       )}
                                     </div>
                                   </div>
-                                )}
+                                  );
+                                  return snapshot.isDragging && typeof document !== 'undefined'
+                                    ? createPortal(node, document.body)
+                                    : node;
+                                }}
                               </Draggable>
                             ))}
                             {provided.placeholder}
@@ -608,7 +619,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                       >
                         {localSections.map((section, index) => (
                           <Draggable key={section.id} draggableId={section.id} index={index}>
-                            {(provided, snapshot) => (
+                            {(provided, snapshot) => {
+                              const node = (
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
@@ -618,7 +630,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                 }}
                                 className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md border group ${
                                   snapshot.isDragging 
-                                    ? 'shadow-2xl scale-105 bg-white border-[#f1889b] z-50' 
+                                    ? 'shadow-2xl bg-white border-[#f1889b] z-[60]' 
                                     : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
                                 }`}
                               >
@@ -685,7 +697,11 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                   </Button>
                                 )}
                               </div>
-                            )}
+                              );
+                              return snapshot.isDragging && typeof document !== 'undefined'
+                                ? createPortal(node, document.body)
+                                : node;
+                            }}
                           </Draggable>
                         ))}
                         {provided.placeholder}
