@@ -243,7 +243,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
   };
 
   return (
-    <div className="fixed inset-0 z-40 overflow-y-auto bg-black/20 backdrop-blur-sm p-2 md:p-6">
+    <div className="fixed inset-0 z-40 overflow-y-auto bg-black/20 p-2 md:p-6">
       <div className="max-w-4xl mx-auto mt-4 md:mt-20 mb-4 md:mb-20">
         <div className="rounded-3xl backdrop-blur-xl bg-white/95 border border-white/60 shadow-2xl p-4 md:p-8">
           <div className="flex items-center justify-between mb-8">
