@@ -122,7 +122,7 @@ export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isE
         </h3>
 
         {isEditMode ? (
-          <Droppable droppableId={`folder-${section.id}`} type="FOLDER_APP">
+          <Droppable droppableId={`folder-${section.id}`} type="FOLDER_APP" direction="horizontal">
             {(provided) => (
               <div ref={provided.innerRef} {...provided.droppableProps} className={gridClass}>
                 {apps.map((app, index) => (
