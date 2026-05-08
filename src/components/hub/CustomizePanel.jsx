@@ -645,9 +645,11 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                       onChange={(e) => setRenamingSectionName(e.target.value)}
                                       className="h-8"
                                       autoFocus
-                                      onKeyDown={(e) => {
+                                      onKeyDown={async (e) => {
                                         if (e.key === 'Enter' && renamingSectionName.trim()) {
-                                          base44.entities.Section.update(section.id, { name: renamingSectionName });
+                                          await base44.entities.Section.update(section.id, { name: renamingSectionName });
+                                          setLocalSections(prev => prev.map(s => s.id === section.id ? { ...s, name: renamingSectionName } : s));
+                                          await queryClient.invalidateQueries({ queryKey: ['sections'] });
                                           setRenamingSectionId(null);
                                         } else if (e.key === 'Escape') {
                                           setRenamingSectionId(null);
@@ -663,9 +665,11 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                   <div className="flex gap-2">
                                     <Button
                                       size="sm"
-                                      onClick={() => {
+                                      onClick={async () => {
                                         if (renamingSectionName.trim()) {
-                                          base44.entities.Section.update(section.id, { name: renamingSectionName });
+                                          await base44.entities.Section.update(section.id, { name: renamingSectionName });
+                                          setLocalSections(prev => prev.map(s => s.id === section.id ? { ...s, name: renamingSectionName } : s));
+                                          await queryClient.invalidateQueries({ queryKey: ['sections'] });
                                           setRenamingSectionId(null);
                                         }
                                       }}
