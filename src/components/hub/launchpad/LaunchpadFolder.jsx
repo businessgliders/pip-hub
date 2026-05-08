@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { Pencil, Check } from 'lucide-react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
@@ -126,27 +127,36 @@ export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isE
               <div ref={provided.innerRef} {...provided.droppableProps} className={gridClass}>
                 {apps.map((app, index) => (
                   <Draggable key={app.id} draggableId={`folder-app-${app.id}`} index={index}>
-                    {(prov, snap) => (
-                      <div
-                        ref={prov.innerRef}
-                        {...prov.draggableProps}
-                        {...prov.dragHandleProps}
-                        style={prov.draggableProps.style}
-                        className={snap.isDragging ? 'z-50' : ''}
-                      >
-                        <LaunchpadIcon
-                          app={app}
-                          onOpen={() => onOpenApp(app)}
-                          isEditMode={isEditMode}
-                          onEdit={onEditApp}
-                          onDelete={onDeleteApp}
-                          onHide={onHideApp}
-                          isFavorited={favorites.includes(app.id)}
-                          onToggleFavorite={onToggleFavorite}
-                          isDragging={snap.isDragging}
-                        />
-                      </div>
-                    )}
+                    {(prov, snap) => {
+                      const child = (
+                        <div
+                          ref={prov.innerRef}
+                          {...prov.draggableProps}
+                          {...prov.dragHandleProps}
+                          style={prov.draggableProps.style}
+                          className={snap.isDragging ? 'z-[60]' : ''}
+                        >
+                          <LaunchpadIcon
+                            app={app}
+                            onOpen={() => onOpenApp(app)}
+                            isEditMode={isEditMode}
+                            onEdit={onEditApp}
+                            onDelete={onDeleteApp}
+                            onHide={onHideApp}
+                            isFavorited={favorites.includes(app.id)}
+                            onToggleFavorite={onToggleFavorite}
+                            isDragging={snap.isDragging}
+                          />
+                        </div>
+                      );
+                      // Portal the dragged item to body to escape transformed/scrolled ancestors
+                      // (the folder modal uses framer-motion scale + overflow-y-auto, which break
+                      // @hello-pangea/dnd's position calculations).
+                      if (snap.isDragging && typeof document !== 'undefined') {
+                        return createPortal(child, document.body);
+                      }
+                      return child;
+                    }}
                   </Draggable>
                 ))}
                 {provided.placeholder}
