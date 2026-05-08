@@ -62,18 +62,21 @@ const getBreakpoint = () => {
   return 'desktop';
 };
 
-// Single shared size preference across all screen sizes.
-const SIZE_KEY = 'sizeIdx';
+// Per-breakpoint size key — sizes are saved separately per screen size.
+const sizeKeyFor = (bp) => `sizeIdx_${bp}`; // sizeIdx_mobile | sizeIdx_tablet | sizeIdx_desktop
 
-const getSizeIdx = (widget) => {
+const getSizeIdx = (widget, bp) => {
   const d = parseWidgetData(widget);
-  // Prefer the unified key, then fall back to any legacy per-breakpoint value, then default.
-  const val = d[SIZE_KEY] ?? d.sizeIdxDesktop ?? d.sizeIdxTablet ?? d.sizeIdxMobile;
+  // Prefer per-breakpoint, then legacy unified key, then any legacy per-bp variant, then default.
+  const val =
+    d[sizeKeyFor(bp)] ??
+    d.sizeIdx ??
+    d[`sizeIdx${bp.charAt(0).toUpperCase() + bp.slice(1)}`];
   if (typeof val === 'number') return Math.min(Math.max(val, 0), SIZE_PRESETS.length - 1);
   return DEFAULT_SIZE_IDX[widget.widget_type] ?? 0;
 };
 
-const getResolvedLayout = (widget) => SIZE_PRESETS[getSizeIdx(widget)];
+const getResolvedLayout = (widget, bp) => SIZE_PRESETS[getSizeIdx(widget, bp)];
 
 export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWidget, onDeleteWidget, onReorderWidgets }) {
   const allGridWidgets = widgets.filter(w => !w.is_floating).sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -107,9 +110,9 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
   };
 
   const cycleSize = (widget) => {
-    const next = (getSizeIdx(widget) + 1) % SIZE_PRESETS.length;
+    const next = (getSizeIdx(widget, breakpoint) + 1) % SIZE_PRESETS.length;
     const data = parseWidgetData(widget);
-    onUpdateWidget(widget.id, { data: JSON.stringify({ ...data, [SIZE_KEY]: next }) });
+    onUpdateWidget(widget.id, { data: JSON.stringify({ ...data, [sizeKeyFor(breakpoint)]: next }) });
   };
 
   // Pop out to floating — uses mousedown to fire instantly on first click
@@ -145,7 +148,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                     className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
                   >
                     {gridWidgets.map((widget, i) => {
-                      const layout = getResolvedLayout(widget);
+                      const layout = getResolvedLayout(widget, breakpoint);
                       return (
                         <Draggable key={widget.id} draggableId={widget.id} index={i}>
                           {(provided, snapshot) => (
@@ -170,7 +173,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
                                 >
                                   <Maximize className="w-3.5 h-3.5 text-[#f1889b]" />
                                   <span className="text-[10px] font-semibold text-[#f1889b]">
-                                    {SIZE_PRESETS[getSizeIdx(widget)].label}
+                                    {SIZE_PRESETS[getSizeIdx(widget, breakpoint)].label}
                                   </span>
                                 </button>
                                 <button
@@ -205,7 +208,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {gridWidgets.map(widget => {
-                const layout = getResolvedLayout(widget);
+                const layout = getResolvedLayout(widget, breakpoint);
                 return (
                   <div
                     key={widget.id}
