@@ -10,6 +10,7 @@ import CalculatorWidget from './widgets/CalculatorWidget';
 import AmbientHeroWidget from './widgets/AmbientHeroWidget';
 import AgendaWidget from './widgets/AgendaWidget';
 import TaskChecklistWidget from './widgets/TaskChecklistWidget';
+import AnnouncementBannerWidget from './widgets/AnnouncementBannerWidget';
 import FloatingWidget from './FloatingWidget';
 import MobileWidgetStack from './MobileWidgetStack';
 
@@ -20,10 +21,11 @@ const WIDGET_COMPONENTS = {
   hero: AmbientHeroWidget,
   agenda: AgendaWidget,
   tasks: TaskChecklistWidget,
+  announcements: AnnouncementBannerWidget,
 };
 
 // Widgets that fill their container themselves (no top padding for drag handle)
-const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 'agenda', 'tasks']);
+const FULL_CONTAINER_WIDGETS = new Set(['notes', 'calculator', 'clock', 'hero', 'agenda', 'tasks', 'announcements']);
 
 // ── UNIFIED SIZE SYSTEM ─────────────────────────────────────────────────
 // Every widget supports three sizes: S (1 col), M (2 col), L (3 col, full width).
@@ -41,12 +43,13 @@ const SIZE_PRESETS = [
 
 // Per-widget default size index when the widget is first placed.
 const DEFAULT_SIZE_IDX = {
-  clock: 1,       // M
-  notes: 0,       // S
-  calculator: 0,  // S
-  hero: 1,        // M
-  agenda: 1,      // M
-  tasks: 1,       // M
+  clock: 1,         // M
+  notes: 0,         // S
+  calculator: 0,    // S
+  hero: 1,          // M
+  agenda: 1,        // M
+  tasks: 1,         // M
+  announcements: 2, // L
 };
 
 const parseWidgetData = (widget) => {

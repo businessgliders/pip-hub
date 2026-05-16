@@ -1,0 +1,57 @@
+{
+  "name": "Announcement",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Banner title / headline"
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Optional short subtitle"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Banner background image (AI-generated or uploaded)"
+    },
+    "link_url": {
+      "type": "string",
+      "description": "Optional URL the banner links to when clicked"
+    },
+    "ai_prompt": {
+      "type": "string",
+      "description": "The AI prompt used to generate the banner image (saved for regeneration)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show this banner in the slider"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "title",
+    "image_url"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {}
+      ]
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

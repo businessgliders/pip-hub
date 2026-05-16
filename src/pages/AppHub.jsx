@@ -22,6 +22,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import WidgetsContainer from '../components/hub/WidgetsContainer';
 import LaunchpadView from '../components/hub/launchpad/LaunchpadView';
 import MobileMoreSheet from '../components/hub/MobileMoreSheet';
+import AnnouncementsAdminPanel from '../components/hub/AnnouncementsAdminPanel';
 
 // Track desktop breakpoint (lg: 1024px). On tablet/mobile, favorites are surfaced
 // separately (FavoritesSection / loose launchpad icons), so they're hidden from
@@ -62,6 +63,7 @@ export default function AppHub() {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showMoreSheet, setShowMoreSheet] = useState(false);
+  const [showAnnouncementsAdmin, setShowAnnouncementsAdmin] = useState(false);
         const queryClient = useQueryClient();
 
   // When AppHub is mounted inside SplitView (either via direct render or via ?splitview=1 in an iframe),
@@ -1057,6 +1059,10 @@ export default function AppHub() {
             setShowCustomizePanel(false);
             setShowSectionPanel(true);
           }}
+          onManageAnnouncements={() => {
+            setShowCustomizePanel(false);
+            setShowAnnouncementsAdmin(true);
+          }}
           onClose={() => setShowCustomizePanel(false)}
           isOwner={isOwner}
           hiddenApps={hiddenApps}
@@ -1069,6 +1075,10 @@ export default function AppHub() {
           onClose={() => setShowUserSelection(false)}
           currentGradient={selectedGradient}
         />
+      )}
+
+      {showAnnouncementsAdmin && (
+        <AnnouncementsAdminPanel onClose={() => setShowAnnouncementsAdmin(false)} />
       )}
 
       {showBrowseApps && (

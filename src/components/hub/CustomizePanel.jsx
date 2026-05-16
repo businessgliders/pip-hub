@@ -64,7 +64,7 @@ const THEME_WALLPAPERS = {
   ],
 };
 
-export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onClose, isOwner, hiddenApps = [], onDeleteWidget }) {
+export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onManageAnnouncements, onClose, isOwner, hiddenApps = [], onDeleteWidget }) {
   useBodyScrollLock(true);
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('apps');
@@ -249,6 +249,16 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-semibold text-gray-800">Customize</h2>
             <div className="flex gap-2">
+              {isOwner && onManageAnnouncements && (
+                <Button
+                  variant="outline"
+                  onClick={onManageAnnouncements}
+                  className="rounded-xl border-[#f1889b]/40 text-[#f1889b] hover:bg-[#f1889b]/10"
+                  title="Manage announcement banners"
+                >
+                  <Image className="w-4 h-4 mr-2" /> Announcements
+                </Button>
+              )}
               {hasChanges && (
                 <Button
                   onClick={handleSave}
