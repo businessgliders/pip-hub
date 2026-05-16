@@ -74,16 +74,17 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
   // section to persist. We derive it from the currently-open card.
   const activeTab = openCard === 'sections' ? 'sections' : openCard === 'widgets' ? 'widgets' : 'apps';
 
-  const TILES = [
-    { key: 'theme', icon: Palette, title: 'Background Theme', description: GRADIENT_OPTIONS.find(g => g.id === selectedGradient)?.name || 'Choose a color theme' },
-    { key: 'wallpaper', icon: Wallpaper, title: 'Wallpaper', description: customWallpaper ? 'Custom wallpaper set' : 'Pick a background image' },
-    { key: 'apps', icon: LayoutGrid, title: 'All Apps', description: `${(apps || []).length} apps` },
-    { key: 'sections', icon: FolderKanban, title: 'Sections', description: `${(sections || []).length} sections` },
-    { key: 'widgets', icon: Box, title: 'Widgets', description: `${userWidgets.length} widgets` },
-  ];
+  const TILES = [];
   if (isOwner && onManageAnnouncements) {
     TILES.push({ key: 'announcements', icon: Megaphone, title: 'Announcements', description: 'Manage banner slides' });
   }
+  TILES.push(
+    { key: 'apps', icon: LayoutGrid, title: 'All Apps', description: `${(apps || []).length} apps` },
+    { key: 'sections', icon: FolderKanban, title: 'Sections', description: `${(sections || []).length} sections` },
+    { key: 'widgets', icon: Box, title: 'Widgets', description: `${userWidgets.length} widgets` },
+    { key: 'wallpaper', icon: Wallpaper, title: 'Wallpaper', description: customWallpaper ? 'Custom wallpaper set' : 'Pick a background image' },
+    { key: 'theme', icon: Palette, title: 'Background Theme', description: GRADIENT_OPTIONS.find(g => g.id === selectedGradient)?.name || 'Choose a color theme' },
+  );
   const activeTile = TILES.find(t => t.key === openCard);
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
   const [localWidgets, setLocalWidgets] = useState(userWidgets);
