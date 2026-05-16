@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle, Maximize2, Minimize2, Palette, Wallpaper, LayoutGrid, FolderKanban, Box, Megaphone, ExternalLink } from 'lucide-react';
+import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle, Maximize2, Minimize2, Palette, Wallpaper, LayoutGrid, FolderKanban, Box, Megaphone, ExternalLink, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AVAILABLE_WIDGETS } from './widgets/utils';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import ConfirmationModal from './ConfirmationModal';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
-import CustomizeCard from './CustomizeCard';
+import CustomizeTile from './CustomizeTile';
 
 const GRADIENT_OPTIONS = [
   { id: 'default', name: 'Pink', gradient: 'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]' },
@@ -68,11 +68,23 @@ const THEME_WALLPAPERS = {
 export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onManageAnnouncements, onClose, isOwner, hiddenApps = [], onDeleteWidget }) {
   useBodyScrollLock(true);
   const queryClient = useQueryClient();
-  const [openCard, setOpenCard] = useState('theme');
+  // null = show tile grid; otherwise show the selected section's content.
+  const [openCard, setOpenCard] = useState(null);
   // Compatibility shim: existing save logic references activeTab to know which
   // section to persist. We derive it from the currently-open card.
   const activeTab = openCard === 'sections' ? 'sections' : openCard === 'widgets' ? 'widgets' : 'apps';
-  const toggleCard = (key) => setOpenCard(prev => prev === key ? null : key);
+
+  const TILES = [
+    { key: 'theme', icon: Palette, title: 'Background Theme', description: GRADIENT_OPTIONS.find(g => g.id === selectedGradient)?.name || 'Choose a color theme' },
+    { key: 'wallpaper', icon: Wallpaper, title: 'Wallpaper', description: customWallpaper ? 'Custom wallpaper set' : 'Pick a background image' },
+    { key: 'apps', icon: LayoutGrid, title: 'All Apps', description: `${(apps || []).length} apps` },
+    { key: 'sections', icon: FolderKanban, title: 'Sections', description: `${(sections || []).length} sections` },
+    { key: 'widgets', icon: Box, title: 'Widgets', description: `${userWidgets.length} widgets` },
+  ];
+  if (isOwner && onManageAnnouncements) {
+    TILES.push({ key: 'announcements', icon: Megaphone, title: 'Announcements', description: 'Manage banner slides' });
+  }
+  const activeTile = TILES.find(t => t.key === openCard);
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
   const [localWidgets, setLocalWidgets] = useState(userWidgets);
   
@@ -252,7 +264,22 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
       <div className="max-w-4xl mx-auto mt-4 md:mt-20 mb-4 md:mb-20">
         <div className="rounded-3xl backdrop-blur-xl bg-white/95 border border-white/60 shadow-2xl p-4 md:p-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-semibold text-gray-800">Customize</h2>
+            <div className="flex items-center gap-3">
+              {openCard ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setOpenCard(null)}
+                  className="rounded-xl px-2"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-1" />
+                  Back
+                </Button>
+              ) : null}
+              <h2 className="text-2xl font-semibold text-gray-800">
+                {activeTile ? activeTile.title : 'Customize'}
+              </h2>
+            </div>
             <div className="flex gap-2">
               {hasChanges && (
                 <Button
@@ -272,16 +299,30 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
             </div>
           </div>
 
-        <div className="space-y-3">
+        {!openCard && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            {TILES.map((tile) => (
+              <CustomizeTile
+                key={tile.key}
+                icon={tile.icon}
+                title={tile.title}
+                description={tile.description}
+                onClick={() => {
+                  if (tile.key === 'announcements') {
+                    onManageAnnouncements?.();
+                  } else {
+                    setOpenCard(tile.key);
+                  }
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className={openCard ? 'block' : 'hidden'}>
           {/* Background Theme */}
-          <CustomizeCard
-            icon={Palette}
-            title="Background Theme"
-            description={GRADIENT_OPTIONS.find(g => g.id === selectedGradient)?.name || 'Choose a color theme'}
-            isOpen={openCard === 'theme'}
-            onToggle={() => toggleCard('theme')}
-          >
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 pt-3">
+          {openCard === 'theme' && (
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
               {GRADIENT_OPTIONS.map((option) => (
                 <button
                   key={option.id}
@@ -297,17 +338,12 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                 </button>
               ))}
             </div>
-          </CustomizeCard>
+          )}
 
           {/* Wallpaper */}
-          <CustomizeCard
-            icon={Wallpaper}
-            title="Wallpaper"
-            description={customWallpaper ? 'Custom wallpaper set' : 'Pick a background image'}
-            isOpen={openCard === 'wallpaper'}
-            onToggle={() => toggleCard('wallpaper')}
-          >
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 pt-3">
+          {openCard === 'wallpaper' && (
+          <div>
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
               {/* Random from Unsplash tile */}
               <div className="relative group">
                 <button
@@ -362,18 +398,13 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
 
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadWallpaper} />
-          </CustomizeCard>
+          </div>
+          )}
 
           {/* All Apps */}
-          {/* All Apps */}
-          <CustomizeCard
-            icon={LayoutGrid}
-            title="All Apps"
-            description={`${localApps.length} apps`}
-            isOpen={openCard === 'apps'}
-            onToggle={() => toggleCard('apps')}
-          >
-            <div className="pt-3">
+          {openCard === 'apps' && (
+          <div>
+            <div>
               <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="space-y-6">
                   {groupedApps.map(({ section, apps: sectionApps }) => (
@@ -467,17 +498,13 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                 </div>
               </DragDropContext>
             </div>
-          </CustomizeCard>
+          </div>
+          )}
 
           {/* Sections */}
-          <CustomizeCard
-            icon={FolderKanban}
-            title="Sections"
-            description={`${localSections.length} sections`}
-            isOpen={openCard === 'sections'}
-            onToggle={() => toggleCard('sections')}
-          >
-            <div className="pt-3 space-y-4">
+          {openCard === 'sections' && (
+          <div>
+            <div className="space-y-4">
               <Button
                 onClick={() => setIsAddingSection(true)}
                 variant="outline"
@@ -639,17 +666,13 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                 </Droppable>
               </DragDropContext>
             </div>
-          </CustomizeCard>
+          </div>
+          )}
 
           {/* Widgets */}
-          <CustomizeCard
-            icon={Box}
-            title="Widgets"
-            description={`${localWidgets.length} widgets`}
-            isOpen={openCard === 'widgets'}
-            onToggle={() => toggleCard('widgets')}
-          >
-            <div className="pt-3">
+          {openCard === 'widgets' && (
+          <div>
+            <div>
               <DragDropContext onDragEnd={(result) => {
                 if (!result.destination) return;
                 const reordered = Array.from(localWidgets);
@@ -719,27 +742,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                   </Droppable>
                 </DragDropContext>
               </div>
-            </CustomizeCard>
-
-          {/* Announcements (owner only) */}
-          {isOwner && onManageAnnouncements && (
-            <CustomizeCard
-              icon={Megaphone}
-              title="Announcements"
-              description="Manage banner slides"
-              isOpen={false}
-              onToggle={onManageAnnouncements}
-              action={
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 px-2 text-[#f1889b] hover:bg-[#f1889b]/10"
-                  onClick={onManageAnnouncements}
-                >
-                  Open <ExternalLink className="w-3 h-3 ml-1" />
-                </Button>
-              }
-            />
+            </div>
           )}
         </div>
 
