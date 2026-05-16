@@ -48,13 +48,21 @@ export default function AppHub() {
   const [showMoreSheet, setShowMoreSheet] = useState(false);
         const queryClient = useQueryClient();
 
-  // When AppHub is mounted inside SplitView, clicking an app should open in the right panel
-  // instead of the standard AppViewerModal.
-  const isInSplitView = typeof window !== 'undefined' && window.location.pathname.startsWith('/splitview');
+  // When AppHub is mounted inside SplitView (either via direct render or via ?splitview=1 in an iframe),
+  // clicking an app should open in the parent's right panel instead of the standard AppViewerModal.
+  const isInSplitView = typeof window !== 'undefined' && (
+    window.location.pathname.startsWith('/splitview') ||
+    new URLSearchParams(window.location.search).get('splitview') === '1'
+  );
   const openApp = (app) => {
     if (!app) return;
     if (isInSplitView && app.url) {
+      // Same-window dispatch (when rendered directly inside SplitView)
       window.dispatchEvent(new CustomEvent('splitview:open-url', { detail: { url: app.url } }));
+      // Parent-window dispatch (when rendered inside an iframe by SplitView)
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'splitview:open-url', url: app.url }, '*');
+      }
       return;
     }
     setViewingApp(app);

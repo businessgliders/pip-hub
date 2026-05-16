@@ -1,9 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { ArrowLeft, ArrowRight, RotateCw, ExternalLink, X, Globe, GripVertical } from 'lucide-react';
+import { ArrowLeft, RotateCw, ExternalLink, X, Globe, GripVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import AppHub from './AppHub';
 
 // Split-view page: left = mobile-sized AppHub, right = embedded browser panel.
 // Clicking an app in the left panel opens its URL in the right iframe
@@ -29,16 +26,24 @@ export default function SplitView() {
   }, [rightUrl]);
 
   // Listen for in-app navigation requests from the left panel (AppHub)
+  // Two channels: custom event (same-window) and postMessage (from the iframe).
   useEffect(() => {
-    const handler = (e) => {
-      const url = e.detail?.url;
+    const openFromUrl = (url) => {
       if (!url) return;
       setRightUrl(url);
       setUrlInput(url);
       setIframeKey(k => k + 1);
     };
-    window.addEventListener('splitview:open-url', handler);
-    return () => window.removeEventListener('splitview:open-url', handler);
+    const eventHandler = (e) => openFromUrl(e.detail?.url);
+    const messageHandler = (e) => {
+      if (e.data?.type === 'splitview:open-url') openFromUrl(e.data.url);
+    };
+    window.addEventListener('splitview:open-url', eventHandler);
+    window.addEventListener('message', messageHandler);
+    return () => {
+      window.removeEventListener('splitview:open-url', eventHandler);
+      window.removeEventListener('message', messageHandler);
+    };
   }, []);
 
   // Resize divider
@@ -96,9 +101,13 @@ export default function SplitView() {
           </Link>
           <span className="text-xs font-medium text-gray-500">Dashboard</span>
         </div>
-        <div className="flex-1 overflow-auto" data-splitview-left="true">
-          <AppHub />
-        </div>
+        {/* Render AppHub inside an iframe so it sees a true mobile viewport width.
+            This makes the dashboard's mobile breakpoints (sm/md) activate correctly. */}
+        <iframe
+          src="/?splitview=1"
+          title="Dashboard mobile view"
+          className="flex-1 w-full border-0 bg-white"
+        />
       </div>
 
       {/* DIVIDER */}
