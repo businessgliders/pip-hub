@@ -90,7 +90,7 @@ export default function MacDock({ favoritedApps, onOpenApp, onReorderFavorites }
   const displayApps = getDisplayApps();
 
   return (
-    <div className="hidden md:flex fixed bottom-6 left-1/2 -translate-x-1/2 z-40 items-end justify-center select-none">
+    <div className="hidden lg:flex fixed bottom-6 left-1/2 -translate-x-1/2 z-40 items-end justify-center select-none">
       <div
         ref={containerRef}
         className="flex items-end px-5 py-3 rounded-3xl gap-3"

@@ -561,8 +561,8 @@ export default function AppHub() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#f1889b]/20 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f7b1bd]/20 rounded-full blur-3xl" />
 
-      {/* ── MOBILE TOP BAR ── */}
-      <div className="md:hidden sticky top-0 z-30 px-4 pt-4 pb-2 bg-white/60 backdrop-blur-xl border-b border-white/40">
+      {/* ── MOBILE / TABLET TOP BAR ── */}
+      <div className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-2 bg-white/60 backdrop-blur-xl border-b border-white/40">
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setShowMobileSearch(false); setSearchQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
@@ -620,7 +620,7 @@ export default function AppHub() {
       </div>
 
       {/* ── DESKTOP HEADER ── */}
-      <div className="sticky top-0 z-30 hidden md:block">
+      <div className="sticky top-0 z-30 hidden lg:block">
       <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-0">
         <div className="flex md:items-center md:justify-between gap-6 mb-8">
           <div className="flex items-center gap-4">
@@ -708,10 +708,10 @@ export default function AppHub() {
 
       {/* ── MAIN CONTENT ── */}
       <DragDropContext onDragEnd={handlePageDragEnd}>
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-12">
+        <div className="relative max-w-7xl mx-auto px-4 lg:px-6 py-6 pb-28 lg:pb-12">
 
           {/* Widgets */}
-          <div className="sticky top-[80px] md:top-[148px] z-10">
+          <div className="sticky top-[80px] lg:top-[148px] z-10">
             <WidgetsContainer
               widgets={userWidgets}
               isEditMode={isEditMode}
@@ -721,7 +721,7 @@ export default function AppHub() {
             />
           </div>
 
-          <div className="relative z-20 -mt-2 md:mt-8 pt-4">
+          <div className="relative z-20 -mt-2 lg:mt-8 pt-4">
             <div 
               className="absolute inset-x-[-50vw] top-[-120px] bottom-[-50vh] bg-white/30 backdrop-blur-xl pointer-events-none -z-10" 
               style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 120px)', maskImage: 'linear-gradient(to bottom, transparent, black 120px)' }} 
@@ -734,7 +734,7 @@ export default function AppHub() {
             );
             if (filteredFavorites.length === 0) return null;
             return (
-            <div className="mb-6 md:hidden">
+            <div className="mb-6 lg:hidden">
               <FavoritesSection
                 favoritedApps={filteredFavorites}
                 viewMode={viewMode}
@@ -872,7 +872,7 @@ export default function AppHub() {
           </div>
 
           {/* Footer – desktop only */}
-          <footer className="hidden md:flex text-center text-white/60 text-sm py-6 flex-col items-center gap-3 mt-12">
+          <footer className="hidden lg:flex text-center text-white/60 text-sm py-6 flex-col items-center gap-3 mt-12">
             © 2026 Pilates in Pink™ • All rights reserved
           </footer>
         </div>
@@ -885,9 +885,9 @@ export default function AppHub() {
         onReorderFavorites={handleReorderFavorites}
       />
 
-      {/* ── MOBILE BOTTOM TAB BAR (iOS style) ── */}
+      {/* ── MOBILE / TABLET BOTTOM TAB BAR (iOS style) ── */}
       <div
-        className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/80 backdrop-blur-xl border-t border-gray-200/60"
         style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)' }}
       >
         <div className="flex items-center justify-around px-1 pt-2 pb-2">
