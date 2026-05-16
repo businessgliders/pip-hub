@@ -661,13 +661,13 @@ export default function AppHub() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="relative group/search">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-hover/search:text-gray-700 transition-colors pointer-events-none z-10" />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none z-10" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search apps..."
-                className={`pl-10 ${searchQuery ? 'pr-9 w-64' : 'w-10'} group-hover/search:w-64 focus:w-64 backdrop-blur-xl bg-white/60 hover:bg-white/80 focus:bg-white/80 border-transparent hover:border-white/80 focus:border-white/80 transition-all duration-300 ease-in-out cursor-pointer focus:cursor-text ${searchQuery ? 'placeholder-gray-400' : 'placeholder-transparent'} group-hover/search:placeholder-gray-400 focus:placeholder-gray-400 shadow-sm`}
+                className={`pl-10 ${searchQuery ? 'pr-9' : ''} w-64 backdrop-blur-xl bg-white/60 hover:bg-white/80 focus:bg-white/80 border-transparent hover:border-white/80 focus:border-white/80 transition-colors duration-200 shadow-sm`}
               />
               {searchQuery && (
                 <button
