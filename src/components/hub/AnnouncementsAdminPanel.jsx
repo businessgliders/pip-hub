@@ -19,7 +19,7 @@ export default function AnnouncementsAdminPanel({ onClose }) {
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   // New banner draft
-  const [draft, setDraft] = useState({ title: '', subtitle: '', link_url: '', ai_prompt: '' });
+  const [draft, setDraft] = useState({ title: '', subtitle: '', link_url: '', ai_prompt: '', image_url: '' });
   const [draftImage, setDraftImage] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -87,7 +87,8 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
   };
 
   const handleCreate = async () => {
-    if (!draft.title.trim() || !draftImage) return;
+    const finalImage = draft.image_url.trim() || draftImage;
+    if (!draft.title.trim() || !finalImage) return;
     setIsSaving(true);
     try {
       const maxOrder = items.reduce((m, i) => Math.max(m, i.order || 0), 0);
@@ -96,11 +97,11 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
         subtitle: draft.subtitle.trim(),
         link_url: draft.link_url.trim(),
         ai_prompt: draft.ai_prompt.trim(),
-        image_url: draftImage,
+        image_url: finalImage,
         is_active: true,
         order: maxOrder + 1,
       });
-      setDraft({ title: '', subtitle: '', link_url: '', ai_prompt: '' });
+      setDraft({ title: '', subtitle: '', link_url: '', ai_prompt: '', image_url: '' });
       setDraftImage(null);
       await load();
     } finally {
@@ -154,16 +155,22 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
       subtitle: item.subtitle || '',
       link_url: item.link_url || '',
       ai_prompt: item.ai_prompt || '',
+      image_url: item.image_url || '',
     });
   };
 
   const saveEdit = async (item) => {
-    await base44.entities.Announcement.update(item.id, {
+    const updates = {
       title: editDraft.title.trim(),
       subtitle: editDraft.subtitle.trim(),
       link_url: editDraft.link_url.trim(),
       ai_prompt: editDraft.ai_prompt.trim(),
-    });
+    };
+    const newImage = (editDraft.image_url || '').trim();
+    if (newImage && newImage !== item.image_url) {
+      updates.image_url = newImage;
+    }
+    await base44.entities.Announcement.update(item.id, updates);
     setEditingId(null);
     await load();
   };
@@ -223,16 +230,28 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
                 />
               </div>
               <div>
+                <Label className="text-gray-700 text-sm">Image URL (optional)</Label>
+                <Input
+                  type="url"
+                  value={draft.image_url}
+                  onChange={(e) => setDraft({ ...draft, image_url: e.target.value })}
+                  placeholder="https://... (paste an image URL to skip AI generation)"
+                  className="mt-1 bg-white border-gray-200"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">If set, this image is used directly for all banner sizes.</p>
+              </div>
+              <div>
                 <Label className="text-gray-700 text-sm">AI image prompt</Label>
                 <Textarea
                   value={draft.ai_prompt}
                   onChange={(e) => setDraft({ ...draft, ai_prompt: e.target.value })}
                   placeholder="e.g. A bright, airy pilates studio with pink lighting, soft morning sun, minimalist vibe"
                   className="mt-1 bg-white border-gray-200 h-20"
+                  disabled={!!draft.image_url.trim()}
                 />
                 <Button
                   onClick={handleGenerateImage}
-                  disabled={isGenerating || !draft.ai_prompt.trim()}
+                  disabled={isGenerating || !draft.ai_prompt.trim() || !!draft.image_url.trim()}
                   className="mt-2 w-full bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] text-white"
                 >
                   {isGenerating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
@@ -244,9 +263,9 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
             <div>
               <Label className="text-gray-700 text-sm">Preview</Label>
               <div className="mt-1 aspect-[16/9] rounded-xl overflow-hidden bg-gray-100 border border-gray-200 relative">
-                {draftImage ? (
+                {(draft.image_url.trim() || draftImage) ? (
                   <>
-                    <img src={draftImage} alt="Preview" className="w-full h-full object-cover" />
+                    <img src={draft.image_url.trim() || draftImage} alt="Preview" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/30 pointer-events-none" />
                     {draft.title && (
                       <div className="absolute left-3 right-3 bottom-3 text-white drop-shadow">
@@ -267,7 +286,7 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
               </div>
               <Button
                 onClick={handleCreate}
-                disabled={!draft.title.trim() || !draftImage || isSaving}
+                disabled={!draft.title.trim() || !(draft.image_url.trim() || draftImage) || isSaving}
                 className="mt-3 w-full bg-green-500 hover:bg-green-600 text-white"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
@@ -319,6 +338,13 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
                           value={editDraft.link_url}
                           onChange={(e) => setEditDraft({ ...editDraft, link_url: e.target.value })}
                           placeholder="Link URL"
+                          className="h-8 text-sm"
+                        />
+                        <Input
+                          type="url"
+                          value={editDraft.image_url}
+                          onChange={(e) => setEditDraft({ ...editDraft, image_url: e.target.value })}
+                          placeholder="Image URL (overrides AI image)"
                           className="h-8 text-sm"
                         />
                         <Textarea
