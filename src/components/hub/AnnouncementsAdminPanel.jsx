@@ -41,12 +41,45 @@ export default function AnnouncementsAdminPanel({ onClose }) {
 
   useEffect(() => { load(); }, []);
 
+  // Use an LLM to enrich a short user prompt into a detailed, cinematic
+  // image-generation prompt — the same way the assistant writes prompts.
+  const enrichPrompt = async (rawPrompt, { title, subtitle }) => {
+    const context = [
+      title ? `Banner title: "${title}"` : '',
+      subtitle ? `Subtitle: "${subtitle}"` : '',
+    ].filter(Boolean).join('\n');
+
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are an expert AI image prompt engineer for a Pilates studio called "Pilates in Pink".
+Brand vibe: bright, airy, feminine, modern, soft pinks (#f1889b, #f7b1bd, #fbe0e2), wellness, calm, cinematic.
+
+${context}
+
+User's short idea: "${rawPrompt}"
+
+Rewrite this into a single, vivid, detailed image-generation prompt for a WIDE HORIZONTAL BANNER (16:9).
+Include: subject, composition, lighting, mood, color palette, style, and texture.
+Constraints: photorealistic OR elegant editorial illustration (pick what fits), cinematic, vibrant yet soft, high quality.
+IMPORTANT: leave the bottom-left area visually clean/uncluttered for overlay text. No text, no watermarks, no logos in the image.
+Return ONLY the final prompt as plain text — no preamble, no quotes.`,
+      response_json_schema: {
+        type: 'object',
+        properties: { prompt: { type: 'string' } },
+        required: ['prompt'],
+      },
+    });
+    return result?.prompt?.trim() || rawPrompt;
+  };
+
   const handleGenerateImage = async () => {
     if (!draft.ai_prompt.trim()) return;
     setIsGenerating(true);
     try {
-      const fullPrompt = `${draft.ai_prompt.trim()}. Wide horizontal banner, cinematic, vibrant, high-quality, no text, no watermark, no logos. Leave the bottom-left area visually clean for overlay text.`;
-      const { url } = await base44.integrations.Core.GenerateImage({ prompt: fullPrompt });
+      const enriched = await enrichPrompt(draft.ai_prompt.trim(), {
+        title: draft.title,
+        subtitle: draft.subtitle,
+      });
+      const { url } = await base44.integrations.Core.GenerateImage({ prompt: enriched });
       setDraftImage(url);
     } finally {
       setIsGenerating(false);
@@ -102,8 +135,11 @@ export default function AnnouncementsAdminPanel({ onClose }) {
     const prompt = item.ai_prompt || item.title;
     setRegeneratingId(item.id);
     try {
-      const fullPrompt = `${prompt}. Wide horizontal banner, cinematic, vibrant, high-quality, no text, no watermark, no logos. Leave the bottom-left area visually clean for overlay text.`;
-      const { url } = await base44.integrations.Core.GenerateImage({ prompt: fullPrompt });
+      const enriched = await enrichPrompt(prompt, {
+        title: item.title,
+        subtitle: item.subtitle,
+      });
+      const { url } = await base44.integrations.Core.GenerateImage({ prompt: enriched });
       await base44.entities.Announcement.update(item.id, { image_url: url });
       await load();
     } finally {
