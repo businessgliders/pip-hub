@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle, Maximize2, Minimize2 } from 'lucide-react';
+import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle, Maximize2, Minimize2, Palette, Wallpaper, LayoutGrid, FolderKanban, Box, Megaphone, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AVAILABLE_WIDGETS } from './widgets/utils';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import ConfirmationModal from './ConfirmationModal';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
+import CustomizeCard from './CustomizeCard';
 
 const GRADIENT_OPTIONS = [
   { id: 'default', name: 'Pink', gradient: 'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]' },
@@ -67,7 +68,11 @@ const THEME_WALLPAPERS = {
 export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onManageAnnouncements, onClose, isOwner, hiddenApps = [], onDeleteWidget }) {
   useBodyScrollLock(true);
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState('apps');
+  const [openCard, setOpenCard] = useState('theme');
+  // Compatibility shim: existing save logic references activeTab to know which
+  // section to persist. We derive it from the currently-open card.
+  const activeTab = openCard === 'sections' ? 'sections' : openCard === 'widgets' ? 'widgets' : 'apps';
+  const toggleCard = (key) => setOpenCard(prev => prev === key ? null : key);
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
   const [localWidgets, setLocalWidgets] = useState(userWidgets);
   
@@ -267,10 +272,16 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
             </div>
           </div>
 
-          {/* Background Gradient Selection */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Background Theme</h3>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+        <div className="space-y-3">
+          {/* Background Theme */}
+          <CustomizeCard
+            icon={Palette}
+            title="Background Theme"
+            description={GRADIENT_OPTIONS.find(g => g.id === selectedGradient)?.name || 'Choose a color theme'}
+            isOpen={openCard === 'theme'}
+            onToggle={() => toggleCard('theme')}
+          >
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 pt-3">
               {GRADIENT_OPTIONS.map((option) => (
                 <button
                   key={option.id}
@@ -286,13 +297,17 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                 </button>
               ))}
             </div>
-          </div>
+          </CustomizeCard>
 
-          {/* Wallpaper Section */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Wallpaper</h3>
-
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+          {/* Wallpaper */}
+          <CustomizeCard
+            icon={Wallpaper}
+            title="Wallpaper"
+            description={customWallpaper ? 'Custom wallpaper set' : 'Pick a background image'}
+            isOpen={openCard === 'wallpaper'}
+            onToggle={() => toggleCard('wallpaper')}
+          >
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 pt-3">
               {/* Random from Unsplash tile */}
               <div className="relative group">
                 <button
@@ -347,128 +362,18 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
 
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadWallpaper} />
-          </div>
+          </CustomizeCard>
 
-          {/* Tabs */}
-          <div className="mb-6">
-            <div className="flex gap-2 border-b border-gray-200">
-              <button
-                onClick={() => setActiveTab('apps')}
-                className={`px-4 py-2 font-medium text-sm transition-colors ${
-                  activeTab === 'apps'
-                    ? 'text-[#f1889b] border-b-2 border-[#f1889b]'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                All Apps
-              </button>
-              <button
-                onClick={() => setActiveTab('sections')}
-                className={`px-4 py-2 font-medium text-sm transition-colors ${
-                  activeTab === 'sections'
-                    ? 'text-[#f1889b] border-b-2 border-[#f1889b]'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Sections
-              </button>
-              <button
-                onClick={() => setActiveTab('widgets')}
-                className={`px-4 py-2 font-medium text-sm transition-colors ${
-                  activeTab === 'widgets'
-                    ? 'text-[#f1889b] border-b-2 border-[#f1889b]'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Widgets
-              </button>
-              {isOwner && onManageAnnouncements && (
-                <button
-                  onClick={onManageAnnouncements}
-                  className="px-4 py-2 font-medium text-sm transition-colors text-gray-500 hover:text-[#f1889b] inline-flex items-center gap-1.5"
-                  title="Manage announcement banners"
-                >
-                  <Image className="w-3.5 h-3.5" />
-                  Announcements
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Content */}
-          <div>
-            {activeTab === 'widgets' ? (
-              <div className="space-y-2">
-                <DragDropContext onDragEnd={(result) => {
-                  if (!result.destination) return;
-                  const reordered = Array.from(localWidgets);
-                  const [removed] = reordered.splice(result.source.index, 1);
-                  reordered.splice(result.destination.index, 0, removed);
-                  setLocalWidgets(reordered);
-                  setHasChanges(true);
-                }}>
-                  <Droppable droppableId="widgets">
-                    {(provided) => (
-                      <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                        {localWidgets.map((widget, index) => {
-                           const widgetInfo = AVAILABLE_WIDGETS.find(w => w.type === widget.widget_type) || {};
-                           return (
-                             <Draggable key={widget.id} draggableId={widget.id} index={index}>
-                               {(provided, snapshot) => {
-                                 const node = (
-                                 <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    className={`flex items-center gap-3 p-3 rounded-lg border group ${
-                                      snapshot.isDragging 
-                                        ? 'shadow-2xl bg-white border-[#f1889b] z-[60]' 
-                                        : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
-                                    }`}
-                                 >
-                                    <div {...provided.dragHandleProps}>
-                                      <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
-                                    </div>
-                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center">
-                                       <img src={widgetInfo.icon_url} alt={widgetInfo.name} className="w-5 h-5 object-contain" />
-                                    </div>
-                                    <div className="flex-1">
-                                      <h5 className="font-medium text-gray-800 text-sm truncate">{widgetInfo.name}</h5>
-                                    </div>
-                                    <div className="flex gap-2">
-                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title={widget.is_floating ? 'Dock to grid' : 'Pop out (Float)'} onClick={() => {
-                                        const updated = [...localWidgets];
-                                        updated[index].is_floating = !updated[index].is_floating;
-                                        setLocalWidgets(updated);
-                                        setHasChanges(true);
-                                      }}>
-                                        {widget.is_floating ? <Minimize2 className="w-4 h-4 text-gray-600" /> : <Maximize2 className="w-4 h-4 text-blue-500" />}
-                                      </Button>
-                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-red-50" onClick={() => {
-                                        setConfirmAction({
-                                          type: 'delete',
-                                          message: `Remove widget?`,
-                                          action: () => onDeleteWidget(widget.id)
-                                        });
-                                      }}>
-                                        <Trash2 className="w-4 h-4 text-red-500" />
-                                      </Button>
-                                    </div>
-                                 </div>
-                                 );
-                                 return snapshot.isDragging && typeof document !== 'undefined'
-                                   ? createPortal(node, document.body)
-                                   : node;
-                               }}
-                             </Draggable>
-                           )
-                        })}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              </div>
-            ) : activeTab === 'apps' ? (
+          {/* All Apps */}
+          {/* All Apps */}
+          <CustomizeCard
+            icon={LayoutGrid}
+            title="All Apps"
+            description={`${localApps.length} apps`}
+            isOpen={openCard === 'apps'}
+            onToggle={() => toggleCard('apps')}
+          >
+            <div className="pt-3">
               <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="space-y-6">
                   {groupedApps.map(({ section, apps: sectionApps }) => (
@@ -561,171 +466,283 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                   ))}
                 </div>
               </DragDropContext>
-            ) : (
-              <div className="space-y-4">
-                <Button
-                  onClick={() => setIsAddingSection(true)}
-                  variant="outline"
-                  className="w-full border-dashed border-2 border-[#f1889b]/30 hover:border-[#f1889b]/50 hover:bg-[#f1889b]/5"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add New Section
-                </Button>
+            </div>
+          </CustomizeCard>
 
-                {isAddingSection && (
-                  <div className="flex gap-2 p-4 rounded-lg backdrop-blur-md bg-white/60 border border-white/80">
-                    <Input
-                      value={newSectionName}
-                      onChange={(e) => setNewSectionName(e.target.value)}
-                      placeholder="Section name"
-                      className="flex-1"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && newSectionName.trim()) {
-                          const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
-                          base44.entities.Section.create({ name: newSectionName, order: maxOrder + 1 });
-                          setNewSectionName('');
-                          setIsAddingSection(false);
-                        } else if (e.key === 'Escape') {
-                          setIsAddingSection(false);
-                          setNewSectionName('');
-                        }
-                      }}
-                    />
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        if (newSectionName.trim()) {
-                          const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
-                          base44.entities.Section.create({ name: newSectionName, order: maxOrder + 1 });
-                          setNewSectionName('');
-                          setIsAddingSection(false);
-                        }
-                      }}
-                      className="bg-green-500 hover:bg-green-600"
-                    >
-                      <Check className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
+          {/* Sections */}
+          <CustomizeCard
+            icon={FolderKanban}
+            title="Sections"
+            description={`${localSections.length} sections`}
+            isOpen={openCard === 'sections'}
+            onToggle={() => toggleCard('sections')}
+          >
+            <div className="pt-3 space-y-4">
+              <Button
+                onClick={() => setIsAddingSection(true)}
+                variant="outline"
+                className="w-full border-dashed border-2 border-[#f1889b]/30 hover:border-[#f1889b]/50 hover:bg-[#f1889b]/5"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Section
+              </Button>
+
+              {isAddingSection && (
+                <div className="flex gap-2 p-4 rounded-lg backdrop-blur-md bg-white/60 border border-white/80">
+                  <Input
+                    value={newSectionName}
+                    onChange={(e) => setNewSectionName(e.target.value)}
+                    placeholder="Section name"
+                    className="flex-1"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newSectionName.trim()) {
+                        const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
+                        base44.entities.Section.create({ name: newSectionName, order: maxOrder + 1 });
+                        setNewSectionName('');
+                        setIsAddingSection(false);
+                      } else if (e.key === 'Escape') {
                         setIsAddingSection(false);
                         setNewSectionName('');
-                      }}
+                      }
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (newSectionName.trim()) {
+                        const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
+                        base44.entities.Section.create({ name: newSectionName, order: maxOrder + 1 });
+                        setNewSectionName('');
+                        setIsAddingSection(false);
+                      }
+                    }}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setIsAddingSection(false);
+                      setNewSectionName('');
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="sections">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="space-y-2"
                     >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
+                      {localSections.map((section, index) => (
+                        <Draggable key={section.id} draggableId={section.id} index={index}>
+                          {(provided, snapshot) => {
+                            const node = (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              style={{
+                                ...provided.draggableProps.style,
+                                cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+                              }}
+                              className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md border group ${
+                                snapshot.isDragging 
+                                  ? 'shadow-2xl bg-white border-[#f1889b] z-[60]' 
+                                  : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
+                              }`}
+                            >
+                              <div {...provided.dragHandleProps}>
+                                <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
+                              </div>
 
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  <Droppable droppableId="sections">
-                    {(provided) => (
-                      <div 
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className="space-y-2"
-                      >
-                        {localSections.map((section, index) => (
-                          <Draggable key={section.id} draggableId={section.id} index={index}>
-                            {(provided, snapshot) => {
-                              const node = (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                style={{
-                                  ...provided.draggableProps.style,
-                                  cursor: snapshot.isDragging ? 'grabbing' : 'grab',
-                                }}
-                                className={`flex items-center gap-3 p-4 rounded-lg backdrop-blur-md border group ${
-                                  snapshot.isDragging 
-                                    ? 'shadow-2xl bg-white border-[#f1889b] z-[60]' 
-                                    : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
-                                }`}
-                              >
-                                <div {...provided.dragHandleProps}>
-                                  <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
-                                </div>
-
-                                <div className="flex-1">
-                                  {renamingSectionId === section.id ? (
-                                    <Input
-                                      value={renamingSectionName}
-                                      onChange={(e) => setRenamingSectionName(e.target.value)}
-                                      className="h-8"
-                                      autoFocus
-                                      onKeyDown={async (e) => {
-                                        if (e.key === 'Enter' && renamingSectionName.trim()) {
-                                          await base44.entities.Section.update(section.id, { name: renamingSectionName });
-                                          setLocalSections(prev => prev.map(s => s.id === section.id ? { ...s, name: renamingSectionName } : s));
-                                          await queryClient.invalidateQueries({ queryKey: ['sections'] });
-                                          setRenamingSectionId(null);
-                                        } else if (e.key === 'Escape') {
-                                          setRenamingSectionId(null);
-                                        }
-                                      }}
-                                    />
-                                  ) : (
-                                    <h5 className="font-medium text-gray-800">{section.name}</h5>
-                                  )}
-                                </div>
-
+                              <div className="flex-1">
                                 {renamingSectionId === section.id ? (
-                                  <div className="flex gap-2">
-                                    <Button
-                                      size="sm"
-                                      onClick={async () => {
-                                        if (renamingSectionName.trim()) {
-                                          await base44.entities.Section.update(section.id, { name: renamingSectionName });
-                                          setLocalSections(prev => prev.map(s => s.id === section.id ? { ...s, name: renamingSectionName } : s));
-                                          await queryClient.invalidateQueries({ queryKey: ['sections'] });
-                                          setRenamingSectionId(null);
-                                        }
-                                      }}
-                                      className="bg-green-500 hover:bg-green-600 h-8"
-                                    >
-                                      <Check className="w-4 h-4" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => setRenamingSectionId(null)}
-                                      className="h-8"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </Button>
-                                  </div>
+                                  <Input
+                                    value={renamingSectionName}
+                                    onChange={(e) => setRenamingSectionName(e.target.value)}
+                                    className="h-8"
+                                    autoFocus
+                                    onKeyDown={async (e) => {
+                                      if (e.key === 'Enter' && renamingSectionName.trim()) {
+                                        await base44.entities.Section.update(section.id, { name: renamingSectionName });
+                                        setLocalSections(prev => prev.map(s => s.id === section.id ? { ...s, name: renamingSectionName } : s));
+                                        await queryClient.invalidateQueries({ queryKey: ['sections'] });
+                                        setRenamingSectionId(null);
+                                      } else if (e.key === 'Escape') {
+                                        setRenamingSectionId(null);
+                                      }
+                                    }}
+                                  />
                                 ) : (
+                                  <h5 className="font-medium text-gray-800">{section.name}</h5>
+                                )}
+                              </div>
+
+                              {renamingSectionId === section.id ? (
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={async () => {
+                                      if (renamingSectionName.trim()) {
+                                        await base44.entities.Section.update(section.id, { name: renamingSectionName });
+                                        setLocalSections(prev => prev.map(s => s.id === section.id ? { ...s, name: renamingSectionName } : s));
+                                        await queryClient.invalidateQueries({ queryKey: ['sections'] });
+                                        setRenamingSectionId(null);
+                                      }
+                                    }}
+                                    className="bg-green-500 hover:bg-green-600 h-8"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="text-xs"
-                                    onClick={() => {
-                                      setRenamingSectionId(section.id);
-                                      setRenamingSectionName(section.name);
-                                    }}
+                                    onClick={() => setRenamingSectionId(null)}
+                                    className="h-8"
                                   >
-                                    <Edit className="w-3 h-3 mr-1" />
-                                    Rename
+                                    <X className="w-4 h-4" />
                                   </Button>
-                                )}
-                              </div>
-                              );
-                              return snapshot.isDragging && typeof document !== 'undefined'
-                                ? createPortal(node, document.body)
-                                : node;
-                            }}
-                          </Draggable>
-                        ))}
+                                </div>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs"
+                                  onClick={() => {
+                                    setRenamingSectionId(section.id);
+                                    setRenamingSectionName(section.name);
+                                  }}
+                                >
+                                  <Edit className="w-3 h-3 mr-1" />
+                                  Rename
+                                </Button>
+                              )}
+                            </div>
+                            );
+                            return snapshot.isDragging && typeof document !== 'undefined'
+                              ? createPortal(node, document.body)
+                              : node;
+                          }}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </div>
+          </CustomizeCard>
+
+          {/* Widgets */}
+          <CustomizeCard
+            icon={Box}
+            title="Widgets"
+            description={`${localWidgets.length} widgets`}
+            isOpen={openCard === 'widgets'}
+            onToggle={() => toggleCard('widgets')}
+          >
+            <div className="pt-3">
+              <DragDropContext onDragEnd={(result) => {
+                if (!result.destination) return;
+                const reordered = Array.from(localWidgets);
+                const [removed] = reordered.splice(result.source.index, 1);
+                reordered.splice(result.destination.index, 0, removed);
+                setLocalWidgets(reordered);
+                setHasChanges(true);
+              }}>
+                <Droppable droppableId="widgets">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                      {localWidgets.map((widget, index) => {
+                           const widgetInfo = AVAILABLE_WIDGETS.find(w => w.type === widget.widget_type) || {};
+                           return (
+                             <Draggable key={widget.id} draggableId={widget.id} index={index}>
+                               {(provided, snapshot) => {
+                                 const node = (
+                                 <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    className={`flex items-center gap-3 p-3 rounded-lg border group ${
+                                      snapshot.isDragging 
+                                        ? 'shadow-2xl bg-white border-[#f1889b] z-[60]' 
+                                        : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
+                                    }`}
+                                 >
+                                    <div {...provided.dragHandleProps}>
+                                      <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
+                                    </div>
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center">
+                                       <img src={widgetInfo.icon_url} alt={widgetInfo.name} className="w-5 h-5 object-contain" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <h5 className="font-medium text-gray-800 text-sm truncate">{widgetInfo.name}</h5>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title={widget.is_floating ? 'Dock to grid' : 'Pop out (Float)'} onClick={() => {
+                                        const updated = [...localWidgets];
+                                        updated[index].is_floating = !updated[index].is_floating;
+                                        setLocalWidgets(updated);
+                                        setHasChanges(true);
+                                      }}>
+                                        {widget.is_floating ? <Minimize2 className="w-4 h-4 text-gray-600" /> : <Maximize2 className="w-4 h-4 text-blue-500" />}
+                                      </Button>
+                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-red-50" onClick={() => {
+                                        setConfirmAction({
+                                          type: 'delete',
+                                          message: `Remove widget?`,
+                                          action: () => onDeleteWidget(widget.id)
+                                        });
+                                      }}>
+                                        <Trash2 className="w-4 h-4 text-red-500" />
+                                      </Button>
+                                    </div>
+                                 </div>
+                                 );
+                                 return snapshot.isDragging && typeof document !== 'undefined'
+                                   ? createPortal(node, document.body)
+                                   : node;
+                               }}
+                             </Draggable>
+                           )
+                        })}
                         {provided.placeholder}
                       </div>
                     )}
                   </Droppable>
                 </DragDropContext>
               </div>
-            )}
-          </div>
+            </CustomizeCard>
+
+          {/* Announcements (owner only) */}
+          {isOwner && onManageAnnouncements && (
+            <CustomizeCard
+              icon={Megaphone}
+              title="Announcements"
+              description="Manage banner slides"
+              isOpen={false}
+              onToggle={onManageAnnouncements}
+              action={
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-[#f1889b] hover:bg-[#f1889b]/10"
+                  onClick={onManageAnnouncements}
+                >
+                  Open <ExternalLink className="w-3 h-3 ml-1" />
+                </Button>
+              }
+            />
+          )}
+        </div>
+
         </div>
       </div>
 
