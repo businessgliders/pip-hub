@@ -48,6 +48,18 @@ export default function AppHub() {
   const [showMoreSheet, setShowMoreSheet] = useState(false);
         const queryClient = useQueryClient();
 
+  // When AppHub is mounted inside SplitView, clicking an app should open in the right panel
+  // instead of the standard AppViewerModal.
+  const isInSplitView = typeof window !== 'undefined' && window.location.pathname.startsWith('/splitview');
+  const openApp = (app) => {
+    if (!app) return;
+    if (isInSplitView && app.url) {
+      window.dispatchEvent(new CustomEvent('splitview:open-url', { detail: { url: app.url } }));
+      return;
+    }
+    setViewingApp(app);
+  };
+
   useEffect(() => {
     base44.auth.me().then((u) => {
       setUser(u);
@@ -701,7 +713,7 @@ export default function AppHub() {
                 isEditMode={isEditMode}
                 draggingAppId={draggingAppId}
                 onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
-                onOpenApp={setViewingApp}
+                onOpenApp={openApp}
                 onEditApp={handleEditApp}
                 onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
                 onDragStart={handleDragStart}
@@ -729,7 +741,7 @@ export default function AppHub() {
               favorites={favorites}
               searchQuery={searchQuery}
               isEditMode={isEditMode}
-              onOpenApp={setViewingApp}
+              onOpenApp={openApp}
               onEditApp={handleEditApp}
               onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
               onHideApp={(appId) => hideAppMutation.mutate(appId)}
@@ -764,7 +776,7 @@ export default function AppHub() {
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   draggingAppId={draggingAppId}
-                  onOpenApp={setViewingApp}
+                  onOpenApp={openApp}
                   viewMode={viewMode}
                   isEditMode={false}
                   onEditApp={handleEditApp}
@@ -810,7 +822,7 @@ export default function AppHub() {
                               onDragOver={handleDragOver}
                               onDrop={handleDrop}
                               draggingAppId={draggingAppId}
-                              onOpenApp={setViewingApp}
+                              onOpenApp={openApp}
                               viewMode={viewMode}
                               isEditMode={true}
                               onEditApp={handleEditApp}
@@ -841,7 +853,7 @@ export default function AppHub() {
       {/* ── macOS DOCK (desktop only) ── */}
       <MacDock
         favoritedApps={favoritedApps}
-        onOpenApp={setViewingApp}
+        onOpenApp={openApp}
         onReorderFavorites={handleReorderFavorites}
       />
 

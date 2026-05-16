@@ -1,0 +1,191 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { ArrowLeft, ArrowRight, RotateCw, ExternalLink, X, Globe, GripVertical } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import AppHub from './AppHub';
+
+// Split-view page: left = mobile-sized AppHub, right = embedded browser panel.
+// Clicking an app in the left panel opens its URL in the right iframe
+// (sites that block embedding via X-Frame-Options/CSP will fail — user can
+// click "Open in new tab" as a fallback).
+
+const STORAGE_KEY = 'splitview_right_url';
+
+export default function SplitView() {
+  const [rightUrl, setRightUrl] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem(STORAGE_KEY) || '';
+  });
+  const [urlInput, setUrlInput] = useState(rightUrl);
+  const [iframeKey, setIframeKey] = useState(0);
+  const [leftWidth, setLeftWidth] = useState(420); // px
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef(null);
+
+  // Persist last URL
+  useEffect(() => {
+    if (rightUrl) localStorage.setItem(STORAGE_KEY, rightUrl);
+  }, [rightUrl]);
+
+  // Listen for in-app navigation requests from the left panel (AppHub)
+  useEffect(() => {
+    const handler = (e) => {
+      const url = e.detail?.url;
+      if (!url) return;
+      setRightUrl(url);
+      setUrlInput(url);
+      setIframeKey(k => k + 1);
+    };
+    window.addEventListener('splitview:open-url', handler);
+    return () => window.removeEventListener('splitview:open-url', handler);
+  }, []);
+
+  // Resize divider
+  useEffect(() => {
+    if (!isDragging) return;
+    const onMove = (e) => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const x = e.clientX - rect.left;
+      const min = 320;
+      const max = rect.width - 320;
+      setLeftWidth(Math.min(Math.max(x, min), max));
+    };
+    const onUp = () => setIsDragging(false);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, [isDragging]);
+
+  const normalizeUrl = (u) => {
+    if (!u) return '';
+    if (!/^https?:\/\//i.test(u)) return `https://${u}`;
+    return u;
+  };
+
+  const submitUrl = (e) => {
+    e?.preventDefault();
+    const u = normalizeUrl(urlInput.trim());
+    setRightUrl(u);
+    setIframeKey(k => k + 1);
+  };
+
+  const reload = () => setIframeKey(k => k + 1);
+  const clear = () => {
+    setRightUrl('');
+    setUrlInput('');
+  };
+
+  return (
+    <div ref={containerRef} className="fixed inset-0 flex bg-gray-100 overflow-hidden">
+      {/* LEFT: AppHub at mobile width */}
+      <div
+        style={{ width: leftWidth }}
+        className="h-full flex-shrink-0 bg-white border-r border-gray-200 overflow-hidden flex flex-col"
+      >
+        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+          <Link
+            to="/"
+            className="text-xs text-gray-600 hover:text-gray-900 flex items-center gap-1"
+          >
+            <ArrowLeft className="w-3 h-3" /> Exit Split View
+          </Link>
+          <span className="text-xs font-medium text-gray-500">Dashboard</span>
+        </div>
+        <div className="flex-1 overflow-auto" data-splitview-left="true">
+          <AppHub />
+        </div>
+      </div>
+
+      {/* DIVIDER */}
+      <div
+        onMouseDown={() => setIsDragging(true)}
+        className={`w-1.5 h-full flex-shrink-0 cursor-col-resize group flex items-center justify-center bg-gray-200 hover:bg-blue-400 transition-colors ${
+          isDragging ? 'bg-blue-500' : ''
+        }`}
+        title="Drag to resize"
+      >
+        <GripVertical className="w-3 h-3 text-gray-400 group-hover:text-white" />
+      </div>
+
+      {/* RIGHT: Browser panel */}
+      <div className="flex-1 h-full flex flex-col bg-white min-w-0">
+        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+          <button
+            onClick={reload}
+            disabled={!rightUrl}
+            className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-200 disabled:opacity-30"
+            title="Reload"
+          >
+            <RotateCw className="w-3.5 h-3.5 text-gray-600" />
+          </button>
+          <form onSubmit={submitUrl} className="flex-1 flex items-center gap-2">
+            <div className="flex-1 flex items-center bg-white border border-gray-300 rounded-full px-3 py-1.5 focus-within:border-blue-400">
+              <Globe className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" />
+              <input
+                type="text"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                placeholder="Enter URL or click an app on the left…"
+                className="flex-1 bg-transparent outline-none text-sm text-gray-700"
+              />
+            </div>
+          </form>
+          {rightUrl && (
+            <>
+              <a
+                href={rightUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-200"
+                title="Open in new tab"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-gray-600" />
+              </a>
+              <button
+                onClick={clear}
+                className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-200"
+                title="Close"
+              >
+                <X className="w-3.5 h-3.5 text-gray-600" />
+              </button>
+            </>
+          )}
+        </div>
+
+        <div className="flex-1 bg-gray-50 relative">
+          {rightUrl ? (
+            <iframe
+              key={iframeKey}
+              src={rightUrl}
+              className="w-full h-full border-0"
+              title="Browser panel"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads"
+              referrerPolicy="no-referrer-when-downgrade"
+              allow="clipboard-read; clipboard-write; geolocation; microphone; camera; autoplay"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center max-w-md p-8">
+                <Globe className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-600 font-medium mb-2">No site loaded</p>
+                <p className="text-sm text-gray-500">
+                  Click an app on the left panel, or type a URL above to load a website here.
+                </p>
+                <p className="text-xs text-gray-400 mt-4">
+                  Note: Some sites (e.g. Google, banking) block embedding. Use the
+                  <ExternalLink className="w-3 h-3 inline mx-1" />
+                  button to open them in a new tab instead.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
