@@ -46,7 +46,7 @@ export default function AnnouncementBannerWidget() {
   const current = banners[index];
 
   const dateStr = useMemo(
-    () => time.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }),
+    () => time.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }),
     [time]
   );
   const timeStr = useMemo(
@@ -101,34 +101,57 @@ export default function AnnouncementBannerWidget() {
           />
         ))}
 
-        {/* Gradient for legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-black/30 pointer-events-none" />
+        {/* Gradient for legibility — matches AmbientHeroWidget */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-black/65 via-black/35 to-black/10 pointer-events-none" />
 
-        {/* Date / Time / Weather overlay (top-right) */}
-        <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/35 backdrop-blur-md border border-white/20 text-white text-[11px] sm:text-xs font-medium shadow-sm">
-          <span>{dateStr}</span>
-          <span className="opacity-50">·</span>
-          <span>{timeStr}</span>
-          {weather && (
-            <>
-              <span className="opacity-50">·</span>
-              <CloudSun className="w-3.5 h-3.5" />
-              <span>{weather.temp}°</span>
-            </>
-          )}
-        </div>
+        {/* Weather gradient (for icon stroke) */}
+        <svg width="0" height="0" className="absolute">
+          <linearGradient id="announce-weather-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop stopColor="#fde68a" offset="0%" />
+            <stop stopColor="#fbcfe8" offset="50%" />
+            <stop stopColor="#ddd6fe" offset="100%" />
+          </linearGradient>
+        </svg>
 
-        {/* Title block (bottom-left) */}
+        {/* Content layout — mirrors AmbientHeroWidget */}
         {current && (
-          <div className="absolute left-3 right-3 bottom-3 text-white drop-shadow">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-xl font-semibold leading-tight line-clamp-2">{current.title}</h3>
-              {current.link_url && (
-                <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
-              )}
+          <div className="relative h-full flex flex-col justify-between p-4 lg:p-5 text-white">
+            {/* Top: Date (left) · Time + Weather (right) */}
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">{dateStr}</p>
+              </div>
+              <div className="flex flex-col items-end flex-shrink-0">
+                <div className="text-2xl lg:text-3xl xl:text-4xl font-light tracking-tight leading-none drop-shadow">
+                  {timeStr}
+                </div>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <CloudSun className="w-4 h-4" stroke="url(#announce-weather-gradient)" strokeWidth={1.8} />
+                  <span className="text-xs font-medium text-white/95">
+                    {weather ? `${weather.temp}°C` : '—'}
+                  </span>
+                  <span className="text-xs text-white/75 truncate max-w-[120px]">
+                    {weather?.city ? `· ${weather.city}` : ''}
+                  </span>
+                </div>
+              </div>
             </div>
+
+            {/* Middle: Headline — centered */}
+            <h2 className="text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold tracking-tight drop-shadow-sm leading-tight truncate sm:whitespace-normal sm:break-words sm:text-center sm:flex-1 sm:flex sm:items-center sm:justify-center lg:text-left lg:block lg:flex-none">
+              <span className="inline-flex items-center gap-2">
+                {current.title}
+                {current.link_url && <ExternalLink className="w-4 h-4 opacity-80 flex-shrink-0" />}
+              </span>
+            </h2>
+
+            {/* Bottom: Subtitle */}
             {current.subtitle && (
-              <p className="text-[11px] sm:text-sm opacity-90 mt-0.5 line-clamp-1">{current.subtitle}</p>
+              <div className="max-w-2xl">
+                <p className="text-xs lg:text-[13px] xl:text-sm leading-relaxed text-white/95 italic drop-shadow-sm line-clamp-2 lg:line-clamp-3">
+                  {current.subtitle}
+                </p>
+              </div>
             )}
           </div>
         )}
