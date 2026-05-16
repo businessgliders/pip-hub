@@ -46,25 +46,29 @@ export default function SplitView() {
     };
   }, []);
 
-  // Resize divider
-  useEffect(() => {
+  // Resize divider — uses pointer events with pointer capture so dragging stays
+  // smooth even when the cursor crosses over the iframes (which would normally
+  // swallow mouse events and "lock" the drag).
+  const dividerRef = useRef(null);
+  const handlePointerDown = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+    dividerRef.current?.setPointerCapture?.(e.pointerId);
+  };
+  const handlePointerMove = (e) => {
     if (!isDragging) return;
-    const onMove = (e) => {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const x = e.clientX - rect.left;
-      const min = 320;
-      const max = rect.width - 320;
-      setLeftWidth(Math.min(Math.max(x, min), max));
-    };
-    const onUp = () => setIsDragging(false);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-  }, [isDragging]);
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const min = 320;
+    const max = rect.width - 320;
+    setLeftWidth(Math.min(Math.max(x, min), max));
+  };
+  const handlePointerUp = (e) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    dividerRef.current?.releasePointerCapture?.(e.pointerId);
+  };
 
   const normalizeUrl = (u) => {
     if (!u) return '';
@@ -86,7 +90,13 @@ export default function SplitView() {
   };
 
   return (
-    <div ref={containerRef} className="fixed inset-0 flex bg-gray-100 overflow-hidden">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 flex bg-gray-100 overflow-hidden"
+      style={{ cursor: isDragging ? 'col-resize' : undefined, userSelect: isDragging ? 'none' : undefined }}
+    >
+      {/* While dragging, overlay covers iframes so they don't capture pointer events. */}
+      {isDragging && <div className="fixed inset-0 z-[100]" style={{ cursor: 'col-resize' }} /> }
       {/* LEFT: AppHub at mobile width */}
       <div
         style={{ width: leftWidth }}
@@ -110,15 +120,20 @@ export default function SplitView() {
         />
       </div>
 
-      {/* DIVIDER */}
+      {/* DIVIDER — pointer events + pointer capture for smooth, lock-free dragging */}
       <div
-        onMouseDown={() => setIsDragging(true)}
-        className={`w-1.5 h-full flex-shrink-0 cursor-col-resize group flex items-center justify-center bg-gray-200 hover:bg-blue-400 transition-colors ${
+        ref={dividerRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        className={`w-1.5 h-full flex-shrink-0 cursor-col-resize group flex items-center justify-center bg-gray-200 hover:bg-blue-400 transition-colors relative z-[101] touch-none ${
           isDragging ? 'bg-blue-500' : ''
         }`}
         title="Drag to resize"
+        style={{ touchAction: 'none' }}
       >
-        <GripVertical className="w-3 h-3 text-gray-400 group-hover:text-white" />
+        <GripVertical className="w-3 h-3 text-gray-400 group-hover:text-white pointer-events-none" />
       </div>
 
       {/* RIGHT: Browser panel */}
