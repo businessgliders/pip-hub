@@ -10,6 +10,16 @@ import { Link } from 'react-router-dom';
 const STORAGE_KEY = 'splitview_right_url';
 
 export default function SplitView() {
+  // Disable split view on mobile (< 768px) — only available on tablet/desktop.
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const [rightUrl, setRightUrl] = useState(() => {
     if (typeof window === 'undefined') return '';
     return localStorage.getItem(STORAGE_KEY) || '';
@@ -89,6 +99,26 @@ export default function SplitView() {
     setUrlInput('');
   };
 
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-100 p-6">
+        <div className="text-center max-w-sm">
+          <Globe className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-700 font-medium mb-2">Split View not available on mobile</p>
+          <p className="text-sm text-gray-500 mb-6">
+            Please use a tablet or desktop device to access the Split View.
+          </p>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -102,7 +132,7 @@ export default function SplitView() {
         style={{ width: leftWidth }}
         className="h-full flex-shrink-0 bg-white border-r border-gray-200 overflow-hidden flex flex-col"
       >
-        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+        <div className="h-[45px] flex items-center justify-between px-3 bg-gray-50 border-b border-gray-200 flex-shrink-0">
           <Link
             to="/"
             className="text-xs text-gray-600 hover:text-gray-900 flex items-center gap-1"
@@ -138,7 +168,7 @@ export default function SplitView() {
 
       {/* RIGHT: Browser panel */}
       <div className="flex-1 h-full flex flex-col bg-white min-w-0">
-        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+        <div className="h-[45px] flex items-center gap-2 px-3 bg-gray-50 border-b border-gray-200 flex-shrink-0">
           <button
             onClick={reload}
             disabled={!rightUrl}
