@@ -121,7 +121,7 @@ export default function AnnouncementBannerWidget() {
               <div className="min-w-0">
                 <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">{dateStr}</p>
               </div>
-              <div className="flex flex-col items-end flex-shrink-0">
+              <div className="flex flex-col items-end flex-shrink-0 px-3 py-1.5 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 shadow-sm">
                 <div className="text-2xl lg:text-3xl xl:text-4xl font-light tracking-tight leading-none drop-shadow">
                   {timeStr}
                 </div>
