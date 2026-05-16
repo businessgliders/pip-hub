@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Maximize2 } from 'lucide-react';
+import { Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Mobile-only stacked widget carousel with swipe gestures.
 // Shows the active widget on top, with the next 1-2 widgets peeking behind it
@@ -8,9 +8,13 @@ import { Maximize2 } from 'lucide-react';
 export default function MobileWidgetStack({ widgets, renderContent, onPopOut, height = 'h-72' }) {
   const [active, setActive] = useState(0);
   const [showControls, setShowControls] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const dragX = useMotionValue(0);
   const containerRef = useRef(null);
   const hideTimerRef = useRef(null);
+
+  const goPrev = () => setActive((i) => Math.max(0, i - 1));
+  const goNext = () => setActive((i) => Math.min(widgets.length - 1, i + 1));
 
   // Tap card to reveal pop-out (mobile equivalent of hover); auto-hide after 2.5s
   const revealControls = () => {
@@ -53,7 +57,12 @@ export default function MobileWidgetStack({ widgets, renderContent, onPopOut, he
     .filter(({ i }) => i >= active && i < active + 3);
 
   return (
-    <div ref={containerRef} className={`relative ${height} mb-8`}>
+    <div
+      ref={containerRef}
+      className={`relative ${height} mb-8 group`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className="relative w-full h-full">
         {visible.map(({ widget, i }) => {
           const stackIdx = i - active; // 0 = active, 1 = next, 2 = after-next
@@ -100,6 +109,34 @@ export default function MobileWidgetStack({ widgets, renderContent, onPopOut, he
           );
         })}
       </div>
+
+      {/* Hover arrows (desktop/mouse) — show on hover when there are multiple widgets */}
+      {widgets.length > 1 && isHovered && (
+        <>
+          {active > 0 && (
+            <button
+              type="button"
+              onClick={goPrev}
+              className="absolute left-1 top-1/2 -translate-y-1/2 z-40 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white border border-white/70 shadow-md transition-all animate-in fade-in"
+              title="Previous widget"
+              aria-label="Previous widget"
+            >
+              <ChevronLeft className="w-4 h-4 text-gray-700" />
+            </button>
+          )}
+          {active < widgets.length - 1 && (
+            <button
+              type="button"
+              onClick={goNext}
+              className="absolute right-1 top-1/2 -translate-y-1/2 z-40 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white border border-white/70 shadow-md transition-all animate-in fade-in"
+              title="Next widget"
+              aria-label="Next widget"
+            >
+              <ChevronRight className="w-4 h-4 text-gray-700" />
+            </button>
+          )}
+        </>
+      )}
 
       {/* Pagination dots */}
       {widgets.length > 1 && (
