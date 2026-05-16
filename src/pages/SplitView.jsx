@@ -10,12 +10,14 @@ import { Link } from 'react-router-dom';
 const STORAGE_KEY = 'splitview_right_url';
 
 export default function SplitView() {
-  // Disable split view on mobile (< 768px) — only available on tablet/desktop.
+  // Disable split view on phones only (< 600px). Tablets in portrait
+  // (typically 600–820px) and landscape, plus desktops, are all supported.
+  const MOBILE_BREAKPOINT = 600;
   const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_BREAKPOINT : false
   );
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
+    const onResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -70,8 +72,8 @@ export default function SplitView() {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = e.clientX - rect.left;
-    const min = 320;
-    const max = rect.width - 320;
+    const min = 260;
+    const max = rect.width - 260;
     setLeftWidth(Math.min(Math.max(x, min), max));
   };
   const handlePointerUp = (e) => {
