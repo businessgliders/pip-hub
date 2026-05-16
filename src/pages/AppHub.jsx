@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check } from 'lucide-react';
+import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
@@ -601,10 +601,20 @@ export default function AppHub() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search apps..."
-              className="pl-10 w-full bg-white/80 border-gray-200 rounded-xl h-9"
+              className="pl-10 pr-9 w-full bg-white/80 border-gray-200 rounded-xl h-9"
               style={{ fontSize: '16px' }}
               autoFocus
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors"
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                <X className="w-3.5 h-3.5 text-gray-500" />
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -631,8 +641,18 @@ export default function AppHub() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search apps..."
-                className={`pl-10 ${searchQuery ? 'w-64' : 'w-10'} group-hover/search:w-64 focus:w-64 backdrop-blur-xl bg-white/60 hover:bg-white/80 focus:bg-white/80 border-transparent hover:border-white/80 focus:border-white/80 transition-all duration-300 ease-in-out cursor-pointer focus:cursor-text ${searchQuery ? 'placeholder-gray-400' : 'placeholder-transparent'} group-hover/search:placeholder-gray-400 focus:placeholder-gray-400 shadow-sm`}
+                className={`pl-10 ${searchQuery ? 'pr-9 w-64' : 'w-10'} group-hover/search:w-64 focus:w-64 backdrop-blur-xl bg-white/60 hover:bg-white/80 focus:bg-white/80 border-transparent hover:border-white/80 focus:border-white/80 transition-all duration-300 ease-in-out cursor-pointer focus:cursor-text ${searchQuery ? 'placeholder-gray-400' : 'placeholder-transparent'} group-hover/search:placeholder-gray-400 focus:placeholder-gray-400 shadow-sm`}
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors z-10"
+                  title="Clear search"
+                  aria-label="Clear search"
+                >
+                  <X className="w-3.5 h-3.5 text-gray-500" />
+                </button>
+              )}
             </div>
             {/* View toggle - combined button */}
             <div className="flex rounded-xl border border-gray-300 overflow-hidden">
