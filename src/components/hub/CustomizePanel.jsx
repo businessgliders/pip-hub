@@ -249,16 +249,6 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-semibold text-gray-800">Customize</h2>
             <div className="flex gap-2">
-              {isOwner && onManageAnnouncements && (
-                <Button
-                  variant="outline"
-                  onClick={onManageAnnouncements}
-                  className="rounded-xl border-[#f1889b]/40 text-[#f1889b] hover:bg-[#f1889b]/10"
-                  title="Manage announcement banners"
-                >
-                  <Image className="w-4 h-4 mr-2" /> Announcements
-                </Button>
-              )}
               {hasChanges && (
                 <Button
                   onClick={handleSave}
@@ -392,6 +382,16 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
               >
                 Widgets
               </button>
+              {isOwner && onManageAnnouncements && (
+                <button
+                  onClick={onManageAnnouncements}
+                  className="px-4 py-2 font-medium text-sm transition-colors text-gray-500 hover:text-[#f1889b] inline-flex items-center gap-1.5"
+                  title="Manage announcement banners"
+                >
+                  <Image className="w-3.5 h-3.5" />
+                  Announcements
+                </button>
+              )}
             </div>
           </div>
 
