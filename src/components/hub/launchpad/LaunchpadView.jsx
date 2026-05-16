@@ -5,13 +5,13 @@ import { Droppable, Draggable } from '@hello-pangea/dnd';
 import LaunchpadIcon from './LaunchpadIcon';
 import { LaunchpadFolderTile, LaunchpadFolderExpanded } from './LaunchpadFolder';
 
-// Desktop breakpoint matches MacDock visibility (md: 768px)
+// Desktop breakpoint matches MacDock visibility (lg: 1024px)
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(
-    typeof window !== 'undefined' && window.innerWidth >= 768
+    typeof window !== 'undefined' && window.innerWidth >= 1024
   );
   useEffect(() => {
-    const onResize = () => setIsDesktop(window.innerWidth >= 768);
+    const onResize = () => setIsDesktop(window.innerWidth >= 1024);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -67,7 +67,12 @@ export default function LaunchpadView({
     }
 
     sections.forEach((s) => {
-      const sectionApps = apps.filter((a) => a.section_id === s.id);
+      let sectionApps = apps.filter((a) => a.section_id === s.id);
+      // On tablet/mobile, favorited apps are shown loose above — exclude them from folders
+      // to avoid duplicates. On desktop, favorites live in the MacDock, so folders show everything.
+      if (!isDesktop) {
+        sectionApps = sectionApps.filter((a) => !favorites.includes(a.id));
+      }
       if (sectionApps.length === 0) return;
       list.push({ kind: 'folder', section: s, apps: sectionApps, key: `folder-${s.id}` });
     });

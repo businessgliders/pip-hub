@@ -23,7 +23,23 @@ import WidgetsContainer from '../components/hub/WidgetsContainer';
 import LaunchpadView from '../components/hub/launchpad/LaunchpadView';
 import MobileMoreSheet from '../components/hub/MobileMoreSheet';
 
+// Track desktop breakpoint (lg: 1024px). On tablet/mobile, favorites are surfaced
+// separately (FavoritesSection / loose launchpad icons), so they're hidden from
+// their folders/sections to avoid duplication.
+function useIsLgUp() {
+  const [isLg, setIsLg] = useState(
+    typeof window !== 'undefined' && window.innerWidth >= 1024
+  );
+  useEffect(() => {
+    const onResize = () => setIsLg(window.innerWidth >= 1024);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return isLg;
+}
+
 export default function AppHub() {
+  const isLgUp = useIsLgUp();
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -468,9 +484,16 @@ export default function AppHub() {
     }
 
     if (type === 'LAUNCHPAD') {
-      // Build the same items list LaunchpadView builds: favorites (apps) first, then folders.
-      const favApps = favorites.map((id) => apps.find((a) => a.id === id)).filter(Boolean);
-      const folderSections = sections.filter((s) => apps.some((a) => a.section_id === s.id));
+      // Rebuild the items list as LaunchpadView builds it. On tablet/mobile (no MacDock),
+      // favorites appear loose first; on desktop they live in the dock and are not in the list.
+      const isDesktopVp = typeof window !== 'undefined' && window.innerWidth >= 1024;
+      const favApps = isDesktopVp
+        ? []
+        : favorites.map((id) => apps.find((a) => a.id === id)).filter(Boolean);
+      const folderSections = sections.filter((s) => {
+        const secApps = apps.filter((a) => a.section_id === s.id && (isDesktopVp || !favorites.includes(a.id)));
+        return secApps.length > 0;
+      });
       const items = [
         ...favApps.map((a) => ({ kind: 'app', app: a })),
         ...folderSections.map((s) => ({ kind: 'folder', section: s })),
@@ -479,27 +502,30 @@ export default function AppHub() {
       const draggedItem = items[source.index];
       if (!draggedItem) return;
 
-      // Reorder among items of the SAME kind only (apps reorder among apps, folders among folders).
+      // Move the item locally to compute the new SAME-KIND index. This lets users drop
+      // anywhere in any row — between apps, between folders, or across the boundary —
+      // and we map it back to a valid in-kind reorder.
+      const reordered = Array.from(items);
+      const [removed] = reordered.splice(source.index, 1);
+      reordered.splice(destination.index, 0, removed);
+
       if (draggedItem.kind === 'app') {
-        const appItemIndices = items.map((it, i) => (it.kind === 'app' ? i : -1)).filter((i) => i >= 0);
-        const fromAppIdx = appItemIndices.indexOf(source.index);
-        // Find nearest app slot ≤ destination index
-        let toAppIdx = appItemIndices.findIndex((i) => i >= destination.index);
-        if (toAppIdx === -1) toAppIdx = appItemIndices.length - 1;
+        const fromAppIdx = items.filter((it, i) => it.kind === 'app' && i < source.index).length;
+        const toAppIdx = reordered.filter((it, i) => it.kind === 'app' && i < destination.index).length;
         if (fromAppIdx === toAppIdx) return;
-        // Launchpad apps section is always the favorites list (in favorites order).
-        // So reordering apps in the launchpad = reordering favorites.
+        // Reordering apps in the launchpad = reordering favorites (only favorites appear as loose apps).
         handleReorderFavorites(fromAppIdx, toAppIdx);
       } else {
-        const folderItemIndices = items.map((it, i) => (it.kind === 'folder' ? i : -1)).filter((i) => i >= 0);
-        const fromFolderIdx = folderItemIndices.indexOf(source.index);
-        let toFolderIdx = folderItemIndices.findIndex((i) => i >= destination.index);
-        if (toFolderIdx === -1) toFolderIdx = folderItemIndices.length - 1;
+        const fromFolderIdx = items.filter((it, i) => it.kind === 'folder' && i < source.index).length;
+        const toFolderIdx = reordered.filter((it, i) => it.kind === 'folder' && i < destination.index).length;
         if (fromFolderIdx === toFolderIdx) return;
-        const sourceSectionIndex = sections.findIndex((s) => s.id === draggedItem.section.id);
-        const targetSectionId = items[folderItemIndices[toFolderIdx]].section.id;
-        const destSectionIndex = sections.findIndex((s) => s.id === targetSectionId);
-        handleReorderSections(sourceSectionIndex, destSectionIndex);
+        const srcSec = folderSections[fromFolderIdx];
+        const dstSec = folderSections[toFolderIdx];
+        if (!srcSec || !dstSec) return;
+        const srcIdx = sections.findIndex((s) => s.id === srcSec.id);
+        const dstIdx = sections.findIndex((s) => s.id === dstSec.id);
+        if (srcIdx === -1 || dstIdx === -1 || srcIdx === dstIdx) return;
+        handleReorderSections(srcIdx, dstIdx);
       }
       return;
     }
@@ -777,8 +803,16 @@ export default function AppHub() {
               onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
             />
           ) : (() => {
-            const visibleSections = sections.filter(section => 
-              filteredApps.some(app => app.section_id === section.id)
+            // On tablet/mobile, favorited apps appear in the dedicated Favorites section
+            // above, so hide them from their parent folders/sections to avoid duplicates.
+            // Folders still respect the user-defined sections (Customize menu) when the
+            // app is unfavorited.
+            const sectionAppsFor = (sectionId) =>
+              filteredApps.filter(app =>
+                app.section_id === sectionId && (isLgUp || !favorites.includes(app.id))
+              );
+            const visibleSections = sections.filter(section =>
+              sectionAppsFor(section.id).length > 0
             );
 
             if (!isEditMode) {
@@ -788,7 +822,7 @@ export default function AppHub() {
                   section={section}
                   sectionIndex={index}
                   totalSections={visibleSections.length}
-                  apps={filteredApps.filter(app => app.section_id === section.id)}
+                  apps={sectionAppsFor(section.id)}
                   favorites={favorites}
                   isCollapsed={!searchQuery && collapsedSections.includes(section.id)}
                   onToggleCollapse={async () => {
@@ -834,7 +868,7 @@ export default function AppHub() {
                               section={section}
                               sectionIndex={index}
                               totalSections={visibleSections.length}
-                              apps={filteredApps.filter(app => app.section_id === section.id)}
+                              apps={sectionAppsFor(section.id)}
                               favorites={favorites}
                               isCollapsed={collapsedSections.includes(section.id)}
                               onToggleCollapse={async () => {
