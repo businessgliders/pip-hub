@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 // click "Open in new tab" as a fallback).
 
 const STORAGE_KEY = 'splitview_right_url';
+const DEFAULT_URL = 'https://pricing.pilatesinpinkstudio.com';
 
 export default function SplitView() {
   // Disable split view on phones only (< 600px). Tablets in portrait
@@ -23,8 +24,8 @@ export default function SplitView() {
   }, []);
 
   const [rightUrl, setRightUrl] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    return localStorage.getItem(STORAGE_KEY) || '';
+    if (typeof window === 'undefined') return DEFAULT_URL;
+    return localStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
   });
   const [urlInput, setUrlInput] = useState(rightUrl);
   const [iframeKey, setIframeKey] = useState(0);
