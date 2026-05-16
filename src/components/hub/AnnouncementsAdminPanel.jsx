@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Plus, Trash2, Loader2, Sparkles, ChevronUp, ChevronDown, ExternalLink, Edit3, Check } from 'lucide-react';
+import { X, Plus, Trash2, Loader2, Sparkles, ChevronUp, ChevronDown, ExternalLink, Edit3, Check, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,7 @@ import ConfirmationModal from './ConfirmationModal';
 // Owner-only admin panel for managing announcement banners.
 // Generates the banner image from an AI prompt and lets the owner
 // edit hyperlinks, toggle visibility, and reorder slides.
-export default function AnnouncementsAdminPanel({ onClose }) {
+export default function AnnouncementsAdminPanel({ onClose, onBack }) {
   useBodyScrollLock(true);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -181,9 +181,22 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
     <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4 bg-black/20 backdrop-blur-sm overflow-hidden">
       <div className="w-full max-w-4xl rounded-3xl backdrop-blur-xl bg-white/95 border border-white/60 shadow-2xl p-4 md:p-8 max-h-[100dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-800">Announcement Banners</h2>
-            <p className="text-sm text-gray-500 mt-1">Create AI-generated banners shown in the widget slider.</p>
+          <div className="flex items-center gap-3">
+            {onBack && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="rounded-xl px-2"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back
+              </Button>
+            )}
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-800">Announcement Banners</h2>
+              <p className="text-sm text-gray-500 mt-1">Create AI-generated banners shown in the widget slider.</p>
+            </div>
           </div>
           <button
             onClick={onClose}

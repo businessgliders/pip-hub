@@ -1078,7 +1078,13 @@ export default function AppHub() {
       )}
 
       {showAnnouncementsAdmin && (
-        <AnnouncementsAdminPanel onClose={() => setShowAnnouncementsAdmin(false)} />
+        <AnnouncementsAdminPanel
+          onClose={() => setShowAnnouncementsAdmin(false)}
+          onBack={() => {
+            setShowAnnouncementsAdmin(false);
+            setShowCustomizePanel(true);
+          }}
+        />
       )}
 
       {showBrowseApps && (
