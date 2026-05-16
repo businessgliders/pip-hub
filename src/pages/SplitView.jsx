@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, RotateCw, ExternalLink, X, Globe, GripVertical } from 'lucide-react';
+import { ArrowLeft, RotateCw, ExternalLink, X, Globe, GripVertical, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // Split-view page: left = mobile-sized AppHub, right = embedded browser panel.
@@ -181,8 +181,20 @@ export default function SplitView() {
             <RotateCw className="w-3.5 h-3.5 text-gray-600" />
           </button>
           <form onSubmit={submitUrl} className="flex-1 flex items-center gap-2">
-            <div className="flex-1 flex items-center bg-white border border-gray-300 rounded-full px-3 py-1.5 focus-within:border-blue-400">
-              <Globe className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" />
+            <div className="group/url flex-1 flex items-center bg-white border border-gray-300 rounded-full px-3 py-1.5 focus-within:border-blue-400">
+              <Globe className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2 group-hover/url:hidden" />
+              <button
+                type="button"
+                onClick={() => {
+                  setRightUrl(DEFAULT_URL);
+                  setUrlInput(DEFAULT_URL);
+                  setIframeKey(k => k + 1);
+                }}
+                title="Go to home page"
+                className="hidden group-hover/url:flex w-4 h-4 items-center justify-center flex-shrink-0 mr-2 text-gray-500 hover:text-blue-600"
+              >
+                <Home className="w-3.5 h-3.5" />
+              </button>
               <input
                 type="text"
                 value={urlInput}
