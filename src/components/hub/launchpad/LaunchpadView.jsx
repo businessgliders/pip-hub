@@ -114,7 +114,7 @@ export default function LaunchpadView({
             {pagedItems.length === 0 ? (
               <div className="text-center text-gray-600 py-12">No apps found</div>
             ) : (
-              <Droppable droppableId="launchpad" direction="horizontal" type="LAUNCHPAD" isDropDisabled={!isEditMode || !!trimmedSearch}>
+              <Droppable droppableId="launchpad" type="LAUNCHPAD" isDropDisabled={!isEditMode || !!trimmedSearch}>
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
