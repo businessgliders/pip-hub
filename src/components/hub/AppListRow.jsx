@@ -59,6 +59,13 @@ export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenA
         {isEditMode ? (
           <>
             <button
+              className="action-button star-button w-7 h-7 flex items-center justify-center rounded-lg hover:bg-pink-50 transition-colors"
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
+              title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Star className={cn('w-4 h-4', isFavorited ? 'fill-[#f1889b] text-[#f1889b]' : 'text-gray-400')} />
+            </button>
+            <button
               className="action-button w-7 h-7 flex items-center justify-center rounded-lg hover:bg-blue-50 transition-colors"
               onClick={(e) => { e.stopPropagation(); onEdit(); }}
             >
@@ -83,19 +90,11 @@ export default function AppListRow({ app, isFavorited, onToggleFavorite, onOpenA
             )}
           </>
         ) : (
-          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              className="action-button star-button w-7 h-7 flex items-center justify-center"
-              onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
-            >
-              <Star className={cn('w-4 h-4', isFavorited ? 'fill-[#f1889b] text-[#f1889b]' : 'text-gray-300 hover:text-gray-400')} />
-            </button>
-            {app.open_in_new_tab ? (
-              <ExternalLink className="w-4 h-4 text-gray-300" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-300" />
-            )}
-          </div>
+          app.open_in_new_tab ? (
+            <ExternalLink className="w-4 h-4 text-gray-300" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-gray-300" />
+          )
         )}
       </div>
     </div>
