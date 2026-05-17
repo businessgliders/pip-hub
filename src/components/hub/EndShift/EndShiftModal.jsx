@@ -100,7 +100,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '' }) {
                 <CurrentIcon className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-gray-800 leading-tight">End Your Shift</h2>
+                <h2 className="text-lg font-bold text-gray-800 leading-tight">End of Day</h2>
                 <p className="text-xs text-gray-500">{STEPS[step].label} · Step {step + 1} of {STEPS.length}</p>
               </div>
             </div>
