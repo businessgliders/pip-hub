@@ -133,15 +133,7 @@ export default function WidgetsContainer({ widgets = [], isEditMode, onUpdateWid
       {/* Grid Widgets */}
       {(gridWidgets.length > 0 || isEditMode) && (
         <div className="mb-8">
-          {/* Mobile (non-edit): stacked swipeable carousel */}
-          {isMobile && !isEditMode && gridWidgets.length > 0 ? (
-            <MobileWidgetStack
-              widgets={gridWidgets}
-              renderContent={renderWidgetContent}
-              onPopOut={popOut}
-              height={MOBILE_HEIGHT}
-            />
-          ) : isEditMode ? (
+          {isEditMode ? (
             <DragDropContext onDragEnd={handleGridDragEnd}>
               <Droppable droppableId="grid-widgets" direction="horizontal" type="WIDGET">
                 {(provided) => (
