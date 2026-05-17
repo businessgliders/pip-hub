@@ -68,11 +68,16 @@
     "signature": {
       "type": "string",
       "description": "Signature (typed name)"
+    },
+    "admin_name": {
+      "type": "string",
+      "description": "Front Desk Admin Name"
     }
   },
   "required": [
     "shift_date",
     "shift_time",
-    "signature"
+    "signature",
+    "admin_name"
   ]
 }

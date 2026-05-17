@@ -37,6 +37,7 @@ const initial = {
   feedback: '',
   general_notes: '',
   signature: '',
+  admin_name: '',
 };
 
 export default function EndShiftModal({ onClose, defaultSignature = '' }) {
@@ -52,7 +53,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '' }) {
   const isStepValid = useMemo(() => {
     switch (STEPS[step].id) {
       case 'datetime': return !!data.shift_date && !!data.shift_time;
-      case 'sign': return data.signature.trim().length > 1;
+      case 'sign': return data.signature.trim().length > 1 && data.admin_name.trim().length > 1;
       default: return true;
     }
   }, [step, data]);
@@ -248,7 +249,15 @@ export default function EndShiftModal({ onClose, defaultSignature = '' }) {
 
               {STEPS[step].id === 'sign' && (
                 <>
-                  <Field label="Signature" required hint="Type your full name to sign this report.">
+                  <Field label="Front Desk Admin Name" required hint="Name of the front desk admin overseeing this shift.">
+                    <Input
+                      value={data.admin_name}
+                      onChange={(e) => update('admin_name', e.target.value)}
+                      placeholder="Admin name"
+                      style={{ fontSize: '16px' }}
+                    />
+                  </Field>
+                  <Field label="Your Signature" required hint="Type your full name to sign this report.">
                     <Input
                       value={data.signature}
                       onChange={(e) => update('signature', e.target.value)}

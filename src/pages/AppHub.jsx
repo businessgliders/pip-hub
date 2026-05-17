@@ -1090,13 +1090,17 @@ export default function AppHub() {
         />
       )}
 
-      {/* End Shift floating button + modal */}
-      <EndShiftButton onClick={() => setShowEndShift(true)} />
-      {showEndShift && (
-        <EndShiftModal
-          onClose={() => setShowEndShift(false)}
-          defaultSignature={user?.full_name || ''}
-        />
+      {/* End Shift floating button + modal (owner only) */}
+      {user?.email === 'info@pilatesinpinkstudio.com' && (
+        <>
+          <EndShiftButton onClick={() => setShowEndShift(true)} />
+          {showEndShift && (
+            <EndShiftModal
+              onClose={() => setShowEndShift(false)}
+              defaultSignature={user?.full_name || ''}
+            />
+          )}
+        </>
       )}
 
       {showBrowseApps && (
