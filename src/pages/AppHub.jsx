@@ -23,6 +23,8 @@ import WidgetsContainer from '../components/hub/WidgetsContainer';
 import LaunchpadView from '../components/hub/launchpad/LaunchpadView';
 import MobileMoreSheet from '../components/hub/MobileMoreSheet';
 import AnnouncementsAdminPanel from '../components/hub/AnnouncementsAdminPanel';
+import EndShiftButton from '../components/hub/EndShift/EndShiftButton';
+import EndShiftModal from '../components/hub/EndShift/EndShiftModal';
 
 // Track desktop breakpoint (lg: 1024px). On tablet/mobile, favorites are surfaced
 // separately (FavoritesSection / loose launchpad icons), so they're hidden from
@@ -64,6 +66,7 @@ export default function AppHub() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showMoreSheet, setShowMoreSheet] = useState(false);
   const [showAnnouncementsAdmin, setShowAnnouncementsAdmin] = useState(false);
+  const [showEndShift, setShowEndShift] = useState(false);
         const queryClient = useQueryClient();
 
   // When AppHub is mounted inside SplitView (either via direct render or via ?splitview=1 in an iframe),
@@ -1084,6 +1087,15 @@ export default function AppHub() {
             setShowAnnouncementsAdmin(false);
             setShowCustomizePanel(true);
           }}
+        />
+      )}
+
+      {/* End Shift floating button + modal */}
+      <EndShiftButton onClick={() => setShowEndShift(true)} />
+      {showEndShift && (
+        <EndShiftModal
+          onClose={() => setShowEndShift(false)}
+          defaultSignature={user?.full_name || ''}
         />
       )}
 

@@ -1,0 +1,78 @@
+{
+  "name": "ShiftReport",
+  "type": "object",
+  "properties": {
+    "shift_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the shift"
+    },
+    "shift_time": {
+      "type": "string",
+      "description": "Time the shift ended (HH:MM)"
+    },
+    "calls_handled": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of phone calls handled"
+    },
+    "total_emails": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of email responses"
+    },
+    "total_walk_ins": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of walk-ins"
+    },
+    "leads_converted": {
+      "type": "number",
+      "default": 0,
+      "description": "How many walk-ins/phone inquiries converted"
+    },
+    "conversion_notes": {
+      "type": "string",
+      "description": "If lead didn't convert, reason. NA if no walk-ins/calls."
+    },
+    "reviews_solicited": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of reviews solicited"
+    },
+    "posted_social_media": {
+      "type": "boolean",
+      "default": false,
+      "description": "Did you post on social media?"
+    },
+    "content_planned": {
+      "type": "string",
+      "description": "How much content has been planned"
+    },
+    "low_inventory_items": {
+      "type": "string",
+      "description": "Items that cannot last at least 3 days"
+    },
+    "incidents": {
+      "type": "string",
+      "description": "Any incidents to report"
+    },
+    "feedback": {
+      "type": "string",
+      "description": "Client feedback or improvement ideas"
+    },
+    "general_notes": {
+      "type": "string",
+      "description": "General notes about the shift"
+    },
+    "signature": {
+      "type": "string",
+      "description": "Signature (typed name)"
+    }
+  },
+  "required": [
+    "shift_date",
+    "shift_time",
+    "signature"
+  ]
+}
