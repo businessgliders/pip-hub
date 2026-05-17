@@ -44,21 +44,19 @@ export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelet
         )}
       </div>
 
-      {/* Hover-to-favorite star (hidden in edit mode) */}
-      {!isEditMode && onToggleFavorite && (
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
-          className="lp-action-btn absolute -top-1 -left-1 w-6 h-6 rounded-full bg-white/90 backdrop-blur-sm shadow-md border border-white/80 flex items-center justify-center transition-opacity duration-200 z-10 opacity-0 group-hover:opacity-100"
-          title={isFavorited ? "Unfavorite" : "Add to favorites"}
-        >
-          <Star className={cn("w-3 h-3 transition-all", isFavorited ? "fill-[#f1889b] text-[#f1889b]" : "text-gray-400")} />
-        </button>
-      )}
-
       {/* Edit mode action buttons */}
       {isEditMode && (
         <div className="absolute -top-1 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+          {onToggleFavorite && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
+              className="lp-action-btn w-6 h-6 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center hover:bg-pink-50"
+              title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Star className={cn("w-3 h-3 transition-all", isFavorited ? "fill-[#f1889b] text-[#f1889b]" : "text-gray-400")} />
+            </button>
+          )}
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onEdit?.(app); }}
