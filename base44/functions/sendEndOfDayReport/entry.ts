@@ -16,12 +16,13 @@ const formatDate = (d) => {
 
 const STORE_NAME = 'Pilates in Pink \u2122';
 
-const buildHtml = (r) => {
+const buildHtml = (r, appUrl) => {
   const pink = '#f1889b';
   const pinkLight = '#fbe0e2';
   const text = '#374151';
   const muted = '#6b7280';
   const location = r.location || 'Brampton / HQ';
+  const reportsUrl = `${appUrl}/end-of-day`;
 
   const stat = (label, value) => `
     <td align="center" style="padding:14px 8px;background:#ffffff;border:1px solid #f3e8eb;border-radius:14px;">
@@ -114,6 +115,13 @@ const buildHtml = (r) => {
               ${row('Client feedback', r.feedback)}
               ${row('General notes', r.general_notes)}
             </table>`)}
+
+          <!-- CTA Button -->
+          <div style="text-align:center;margin:32px 0 8px 0;">
+            <a href="${esc(reportsUrl)}" style="display:inline-block;background:linear-gradient(135deg, ${pink} 0%, #f7b1bd 100%);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:999px;font-size:14px;font-weight:600;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(241,136,155,0.3);">
+              View All Reports →
+            </a>
+          </div>
         </td></tr>
 
         <!-- Footer -->
@@ -154,7 +162,9 @@ Deno.serve(async (req) => {
     if (!report) return Response.json({ error: 'Missing report' }, { status: 400 });
 
     const r = { ...report, location: report.location || 'Brampton / HQ' };
-    const html = buildHtml(r);
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.replace(/\/[^/]*$/, '') || 'https://app.base44.com';
+    const appUrl = origin.replace(/\/$/, '');
+    const html = buildHtml(r, appUrl);
     const subject = `End of Day Report — ${formatDate(r.shift_date)} · ${r.location} · ${r.admin_name || ''}`.trim();
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
