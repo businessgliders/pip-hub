@@ -596,6 +596,11 @@ export default function AppHub() {
       {/* ── MOBILE / TABLET TOP BAR ── */}
       <div className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-2 bg-white/60 backdrop-blur-xl border-b border-white/40">
         <div className="flex items-center gap-2">
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
+            alt="PiP Hub"
+            className="w-8 h-8 rounded-lg shadow flex-shrink-0"
+          />
           <MobileDateWeather />
           {/* Search */}
           <button
