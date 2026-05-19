@@ -128,9 +128,18 @@ const buildHtml = (r) => {
 </body></html>`;
 };
 
+const encodeRFC2047 = (text) => {
+  const buf = new TextEncoder().encode(text);
+  const b64 = btoa(String.fromCharCode(...buf));
+  return `=?UTF-8?B?${b64}?=`;
+};
+
 const buildMime = async ({ from, to, subject, html }) => {
   const transport = nodemailer.createTransport({ streamTransport: true, newline: 'unix', buffer: true });
-  const info = await transport.sendMail({ from, to, subject, html });
+  const fromEncoded = from.includes('<') 
+    ? from.replace(/^([^<]+)/, (name) => encodeRFC2047(name.trim()))
+    : from;
+  const info = await transport.sendMail({ from: fromEncoded, to, subject, html });
   return info.message.toString('base64')
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
