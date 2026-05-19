@@ -80,35 +80,43 @@ export default function EndOfDayCalendar() {
           <p className="text-sm text-gray-500 mt-1">Calendar view of submitted shift reports</p>
         </div>
 
+        {/* Summary tiles */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6">
+          <SummaryCard label="Reports this month" value={monthReports.length} />
+          <SummaryCard label="Days covered" value={new Set(monthReports.map(r => r.shift_date)).size} />
+          <SummaryCard label="Total calls" value={monthReports.reduce((s, r) => s + (r.calls_handled || 0), 0)} />
+          <SummaryCard label="Total walk-ins" value={monthReports.reduce((s, r) => s + (r.total_walk_ins || 0), 0)} />
+        </div>
+
         {/* Calendar card */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Month nav */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-br from-[#fbe0e2]/40 to-white">
-            <button onClick={prevMonth} className="w-9 h-9 rounded-xl hover:bg-white flex items-center justify-center text-gray-600">
-              <ChevronLeft className="w-5 h-5" />
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gradient-to-br from-[#fbe0e2]/40 to-white">
+            <button onClick={prevMonth} className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-gray-600">
+              <ChevronLeft className="w-4 h-4" />
             </button>
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-bold text-gray-800">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-bold text-gray-800">
                 {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
               </h2>
-              <button onClick={goToday} className="text-xs px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-[#f1889b] hover:text-[#f1889b]">
+              <button onClick={goToday} className="text-xs px-2 py-0.5 rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-[#f1889b] hover:text-[#f1889b]">
                 Today
               </button>
             </div>
-            <button onClick={nextMonth} className="w-9 h-9 rounded-xl hover:bg-white flex items-center justify-center text-gray-600">
-              <ChevronRight className="w-5 h-5" />
+            <button onClick={nextMonth} className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-gray-600">
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Weekday header */}
-          <div className="grid grid-cols-7 px-3 sm:px-5 pt-4">
+          <div className="grid grid-cols-7 px-2 sm:px-3 pt-2">
             {WEEKDAYS.map(d => (
-              <div key={d} className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider text-center pb-2">{d}</div>
+              <div key={d} className="text-[9px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider text-center pb-1.5">{d}</div>
             ))}
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-7 gap-1.5 sm:gap-2 p-3 sm:p-5 pt-0">
+          <div className="grid grid-cols-7 gap-1 p-2 sm:p-3 pt-0">
             {days.map((d, i) => {
               if (!d) return <div key={i} className="aspect-square" />;
               const ds = fmt(d);
@@ -121,40 +129,25 @@ export default function EndOfDayCalendar() {
                   onClick={() => filled && setSelected(dayReports[0])}
                   disabled={!filled}
                   className={`
-                    relative aspect-square rounded-2xl p-1.5 sm:p-2 text-left transition-all
+                    relative aspect-square rounded-lg p-1 text-left transition-all text-[10px] sm:text-xs
                     ${filled
                       ? 'bg-gradient-to-br from-[#fbe0e2] to-[#f7b1bd]/30 hover:from-[#f7b1bd]/40 hover:to-[#f1889b]/30 cursor-pointer border border-[#f1889b]/30'
                       : 'bg-gray-50/60 border border-gray-100'}
-                    ${isToday ? 'ring-2 ring-[#f1889b] ring-offset-1' : ''}
+                    ${isToday ? 'ring-2 ring-[#f1889b] ring-offset-0.5' : ''}
                   `}
                 >
-                  <div className={`text-xs sm:text-sm font-semibold ${filled ? 'text-gray-800' : 'text-gray-400'}`}>
+                  <div className={`font-semibold ${filled ? 'text-gray-800' : 'text-gray-400'}`}>
                     {d.getDate()}
                   </div>
                   {filled && (
-                    <>
-                      <div className="absolute top-1.5 right-1.5 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center shadow-sm">
-                        <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" strokeWidth={3} />
-                      </div>
-                      <div className="absolute bottom-1.5 left-1.5 right-1.5 hidden sm:block">
-                        <div className="text-[10px] font-medium text-gray-700 truncate">
-                          {dayReports[0].admin_name}
-                        </div>
-                      </div>
-                    </>
+                    <div className="absolute top-0.5 right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center shadow-sm">
+                      <Check className="w-2 h-2 text-white" strokeWidth={3} />
+                    </div>
                   )}
                 </button>
               );
             })}
           </div>
-        </div>
-
-        {/* Summary */}
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <SummaryCard label="Reports this month" value={monthReports.length} />
-          <SummaryCard label="Days covered" value={new Set(monthReports.map(r => r.shift_date)).size} />
-          <SummaryCard label="Total calls" value={monthReports.reduce((s, r) => s + (r.calls_handled || 0), 0)} />
-          <SummaryCard label="Total walk-ins" value={monthReports.reduce((s, r) => s + (r.total_walk_ins || 0), 0)} />
         </div>
 
         {isLoading && <div className="text-center text-sm text-gray-400 mt-6">Loading reports…</div>}
