@@ -50,7 +50,8 @@ export default function AnnouncementBannerWidget() {
 
   const handleClick = () => {
     if (current?.link_url) {
-      window.open(current.link_url, '_blank', 'noopener,noreferrer');
+      const target = current.open_in_new_tab !== false ? '_blank' : '_self';
+      window.open(current.link_url, target, 'noopener,noreferrer');
     }
   };
 

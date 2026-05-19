@@ -18,6 +18,11 @@
       "type": "string",
       "description": "Optional URL the banner links to when clicked"
     },
+    "open_in_new_tab": {
+      "type": "boolean",
+      "default": true,
+      "description": "Open URL in new tab (true) or same window (false)"
+    },
     "ai_prompt": {
       "type": "string",
       "description": "The AI prompt used to generate the banner image (saved for regeneration)"

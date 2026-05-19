@@ -19,7 +19,7 @@ export default function AnnouncementsAdminPanel({ onClose, onBack }) {
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   // New banner draft
-  const [draft, setDraft] = useState({ title: '', subtitle: '', link_url: '', ai_prompt: '', image_url: '' });
+  const [draft, setDraft] = useState({ title: '', subtitle: '', link_url: '', ai_prompt: '', image_url: '', open_in_new_tab: true });
   const [draftImage, setDraftImage] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -92,17 +92,18 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
     setIsSaving(true);
     try {
       const maxOrder = items.reduce((m, i) => Math.max(m, i.order || 0), 0);
-      await base44.entities.Announcement.create({
-        title: draft.title.trim(),
-        subtitle: draft.subtitle.trim(),
-        link_url: draft.link_url.trim(),
-        ai_prompt: draft.ai_prompt.trim(),
-        image_url: finalImage,
-        is_active: true,
-        order: maxOrder + 1,
-      });
-      setDraft({ title: '', subtitle: '', link_url: '', ai_prompt: '', image_url: '' });
-      setDraftImage(null);
+       await base44.entities.Announcement.create({
+         title: draft.title.trim(),
+         subtitle: draft.subtitle.trim(),
+         link_url: draft.link_url.trim(),
+         ai_prompt: draft.ai_prompt.trim(),
+         image_url: finalImage,
+         open_in_new_tab: draft.open_in_new_tab,
+         is_active: true,
+         order: maxOrder + 1,
+       });
+       setDraft({ title: '', subtitle: '', link_url: '', ai_prompt: '', image_url: '', open_in_new_tab: true });
+       setDraftImage(null);
       await load();
     } finally {
       setIsSaving(false);
@@ -156,6 +157,7 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
       link_url: item.link_url || '',
       ai_prompt: item.ai_prompt || '',
       image_url: item.image_url || '',
+      open_in_new_tab: item.open_in_new_tab !== false,
     });
   };
 
@@ -165,6 +167,7 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
       subtitle: editDraft.subtitle.trim(),
       link_url: editDraft.link_url.trim(),
       ai_prompt: editDraft.ai_prompt.trim(),
+      open_in_new_tab: editDraft.open_in_new_tab,
     };
     const newImage = (editDraft.image_url || '').trim();
     if (newImage && newImage !== item.image_url) {
@@ -252,8 +255,12 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
                   className="mt-1 bg-white border-gray-200"
                 />
                 <p className="text-[11px] text-gray-400 mt-1">If set, this image is used directly for all banner sizes.</p>
-              </div>
-              <div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Label className="text-gray-700 text-sm">Open URL in new tab</Label>
+                  <Switch checked={draft.open_in_new_tab} onCheckedChange={(v) => setDraft({ ...draft, open_in_new_tab: v })} />
+                </div>
+                <div>
                 <Label className="text-gray-700 text-sm">AI image prompt</Label>
                 <Textarea
                   value={draft.ai_prompt}
@@ -366,6 +373,10 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
                           placeholder="AI prompt (used for regeneration)"
                           className="text-sm h-16"
                         />
+                        <div className="flex items-center gap-2">
+                          <Label className="text-gray-700 text-xs">Open in new tab</Label>
+                          <Switch checked={editDraft.open_in_new_tab} onCheckedChange={(v) => setEditDraft({ ...editDraft, open_in_new_tab: v })} size="sm" />
+                        </div>
                       </div>
                     ) : (
                       <>
