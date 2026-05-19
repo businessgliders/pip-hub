@@ -1087,7 +1087,7 @@ export default function AppHub() {
       )}
 
       {/* End Shift floating button + modal (owner only) */}
-      {user?.email === 'info@pilatesinpinkstudio.com' && !showCustomizePanel && (
+      {user?.email === 'info@pilatesinpinkstudio.com' && !showCustomizePanel && !showMoreSheet && (
         <>
           <EndShiftButton onClick={() => setShowEndShift(true)} />
           {showEndShift && (
