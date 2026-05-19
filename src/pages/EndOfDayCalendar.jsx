@@ -139,8 +139,8 @@ export default function EndOfDayCalendar() {
                      {d.getDate()}
                    </div>
                    {filled && (
-                     <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center shadow-sm -mt-0.5">
-                       <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                     <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center shadow-md -mt-1">
+                       <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" strokeWidth={3} />
                      </div>
                    )}
                  </button>
@@ -175,12 +175,12 @@ function ReportDetail({ r }) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle className="flex items-center gap-2 text-gray-800">
+        <DialogTitle className="flex items-center gap-2 text-gray-800 block">
           <CalendarIcon className="w-4 h-4 text-[#f1889b]" />
-          {r.shift_date} · {r.shift_time}
+          <span>{r.shift_date} · {r.shift_time}</span>
         </DialogTitle>
-        <div className="text-base font-bold text-gray-900 mt-2">Submitted by: {r.admin_name}</div>
       </DialogHeader>
+      <div className="text-lg font-bold text-gray-900 mb-4 pb-3 border-b border-gray-200">Submitted by: {r.admin_name}</div>
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#fbe0e2]/50">
           <div className="flex items-center gap-2">
