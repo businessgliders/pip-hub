@@ -135,12 +135,19 @@ export default function EndOfDayCalendar() {
                     ${isToday ? 'ring-2 ring-[#f1889b] ring-offset-0.5' : ''}
                   `}
                 >
-                  <div className={`font-semibold ${filled ? 'text-gray-800' : 'text-gray-400'}`}>
-                    {d.getDate()}
-                  </div>
+                  {!filled && (
+                    <div className={`font-semibold ${filled ? 'text-gray-800' : 'text-gray-400'}`}>
+                      {d.getDate()}
+                    </div>
+                  )}
                   {filled && (
-                    <div className="absolute top-0.5 right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center shadow-sm">
-                      <Check className="w-2 h-2 text-white" strokeWidth={3} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center shadow-md">
+                        <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" strokeWidth={3} />
+                      </div>
+                      <div className="text-[8px] font-semibold text-[#f1889b] text-center line-clamp-2 px-0.5">
+                        {dayReports[0].admin_name}
+                      </div>
                     </div>
                   )}
                 </button>
