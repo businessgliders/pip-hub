@@ -25,6 +25,7 @@ export default function MobileDateWeather() {
 
   const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
   const dateLine = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  const timeLine = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
   const Icon = getWeatherIcon(weather?.condition);
 
@@ -34,8 +35,11 @@ export default function MobileDateWeather() {
         <div className="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#f1889b]">
           {weekday}
         </div>
-        <div className="text-lg font-bold text-gray-800 leading-tight truncate">
+        <div className="text-sm font-bold text-gray-800 leading-tight truncate">
           {dateLine}
+        </div>
+        <div className="text-xs font-semibold text-gray-500">
+          {timeLine}
         </div>
       </div>
 
