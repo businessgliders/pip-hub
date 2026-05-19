@@ -1,0 +1,37 @@
+{
+  "name": "UserSectionPreference",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "section_id": {
+      "type": "string",
+      "description": "Section ID"
+    },
+    "custom_order": {
+      "type": "number",
+      "description": "User's custom order for this section"
+    }
+  },
+  "required": [
+    "user_email",
+    "section_id",
+    "custom_order"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "data.user_email": "{{user.email}}"
+    },
+    "delete": {
+      "data.user_email": "{{user.email}}"
+    }
+  }
+}
