@@ -1,0 +1,41 @@
+{
+  "name": "UserAppPreference",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "app_id": {
+      "type": "string",
+      "description": "App ID"
+    },
+    "is_favorited": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user has starred this app"
+    },
+    "custom_order": {
+      "type": "number",
+      "description": "User's custom order for this app"
+    }
+  },
+  "required": [
+    "user_email",
+    "app_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "data.user_email": "{{user.email}}"
+    },
+    "delete": {
+      "data.user_email": "{{user.email}}"
+    }
+  }
+}
