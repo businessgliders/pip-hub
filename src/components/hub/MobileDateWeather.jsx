@@ -14,13 +14,22 @@ const getWeatherIcon = (condition) => {
   return Sun;
 };
 
-export default function MobileDateWeather({ isDesktop = false }) {
+export default function MobileDateWeather() {
   const weather = useWeather();
   const [now, setNow] = useState(new Date());
+  const [isTabletUp, setIsTabletUp] = useState(
+    typeof window !== 'undefined' && window.innerWidth >= 768
+  );
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => setIsTabletUp(window.innerWidth >= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
@@ -29,7 +38,7 @@ export default function MobileDateWeather({ isDesktop = false }) {
 
   const Icon = getWeatherIcon(weather?.condition);
 
-  if (isDesktop) {
+  if (isTabletUp) {
     // Desktop: time centered with date and weather on sides
     return (
       <div className="flex items-center justify-between gap-6 flex-1">

@@ -657,7 +657,7 @@ export default function AppHub() {
               alt="PiP Hub"
               className="w-10 h-10 rounded-lg shadow flex-shrink-0"
             />
-            <MobileDateWeather isDesktop={true} />
+            <MobileDateWeather />
           </div>
 
           {/* Right: Controls */}
