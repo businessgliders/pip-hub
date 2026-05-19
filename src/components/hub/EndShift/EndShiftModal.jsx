@@ -10,6 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const LOCATION_OPTIONS = ['Brampton / HQ'];
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 const STEPS = [
@@ -171,13 +174,17 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
-                  <Field label="Location" hint="Defaults to Brampton / HQ.">
-                    <Input
-                      value={data.location}
-                      onChange={(e) => update('location', e.target.value)}
-                      placeholder="Brampton / HQ"
-                      style={{ fontSize: '16px' }}
-                    />
+                  <Field label="Location">
+                    <Select value={data.location} onValueChange={(v) => update('location', v)}>
+                      <SelectTrigger style={{ fontSize: '16px' }}>
+                        <SelectValue placeholder="Select location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LOCATION_OPTIONS.map((loc) => (
+                          <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </Field>
                 </>
               )}
