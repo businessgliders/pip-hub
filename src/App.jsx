@@ -9,7 +9,6 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SplitView from './pages/SplitView';
 import EndOfDayCalendar from './pages/EndOfDayCalendar';
-import EndShift from './pages/EndShift';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -52,7 +51,11 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/splitview" element={<SplitView />} />
       <Route path="/end-of-day" element={<EndOfDayCalendar />} />
-      <Route path="/end-shift" element={<EndShift />} />
+      <Route path="/end-shift" element={
+        <LayoutWrapper currentPageName={mainPageKey}>
+          <MainPage />
+        </LayoutWrapper>
+      } />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}

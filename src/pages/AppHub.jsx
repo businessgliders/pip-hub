@@ -67,7 +67,9 @@ export default function AppHub() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showMoreSheet, setShowMoreSheet] = useState(false);
   const [showAnnouncementsAdmin, setShowAnnouncementsAdmin] = useState(false);
-  const [showEndShift, setShowEndShift] = useState(false);
+  const [showEndShift, setShowEndShift] = useState(
+    typeof window !== 'undefined' && window.location.pathname === '/end-shift'
+  );
         const queryClient = useQueryClient();
 
   // When AppHub is mounted inside SplitView (either via direct render or via ?splitview=1 in an iframe),
@@ -1092,7 +1094,12 @@ export default function AppHub() {
           <EndShiftButton onClick={() => setShowEndShift(true)} />
           {showEndShift && (
             <EndShiftModal
-              onClose={() => setShowEndShift(false)}
+              onClose={() => {
+                setShowEndShift(false);
+                if (window.location.pathname === '/end-shift') {
+                  window.history.replaceState({}, '', '/');
+                }
+              }}
               defaultSignature={user?.full_name || ''}
               onViewReports={() => { setShowEndShift(false); window.location.href = '/end-of-day'; }}
             />
