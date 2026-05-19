@@ -2,22 +2,38 @@ import React, { useState } from 'react';
 import { X, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { base44 } from '@/api/base44Client';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 export default function PasswordPrompt({ onClose, onSuccess }) {
   useBodyScrollLock(true);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simple password check - in production, this should be more secure
-    if (password === 'admin123') {
-      onSuccess();
-      onClose();
-    } else {
+    if (submitting) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      const me = await base44.auth.me();
+      const res = await base44.functions.invoke('validateUserPassword', {
+        email: me?.email,
+        password,
+      });
+      if (res?.data?.valid) {
+        onSuccess();
+        onClose();
+      } else {
+        setError('Incorrect password');
+        setPassword('');
+      }
+    } catch {
       setError('Incorrect password');
       setPassword('');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -59,9 +75,10 @@ export default function PasswordPrompt({ onClose, onSuccess }) {
 
           <Button
             type="submit"
+            disabled={submitting || !password}
             className="w-full bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"
           >
-            Unlock Admin Mode
+            {submitting ? 'Verifying…' : 'Unlock Admin Mode'}
           </Button>
         </form>
       </div>
