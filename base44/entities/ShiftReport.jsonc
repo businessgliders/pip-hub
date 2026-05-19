@@ -11,6 +11,11 @@
       "type": "string",
       "description": "Time the shift ended (HH:MM)"
     },
+    "location": {
+      "type": "string",
+      "default": "Brampton / HQ",
+      "description": "Studio location for this shift"
+    },
     "calls_handled": {
       "type": "number",
       "default": 0,

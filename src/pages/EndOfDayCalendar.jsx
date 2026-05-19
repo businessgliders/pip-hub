@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Check, ArrowLeft, Calendar as CalendarIcon, User, Phone, Mail, Users, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, ArrowLeft, Calendar as CalendarIcon, User, Phone, Mail, Users, Star, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -181,11 +181,17 @@ function ReportDetail({ r }) {
         </DialogTitle>
       </DialogHeader>
       <div className="space-y-4 pt-2">
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-[#fbe0e2]/50">
-          <User className="w-4 h-4 text-[#f1889b]" />
-          <div className="text-sm">
-            <span className="text-gray-500">Admin: </span>
-            <span className="font-semibold text-gray-800">{r.admin_name}</span>
+        <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#fbe0e2]/50">
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4 text-[#f1889b]" />
+            <div className="text-sm">
+              <span className="text-gray-500">Admin: </span>
+              <span className="font-semibold text-gray-800">{r.admin_name}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm">
+            <MapPin className="w-3.5 h-3.5 text-[#f1889b]" />
+            <span className="font-semibold text-gray-800">{r.location || 'Brampton / HQ'}</span>
           </div>
         </div>
 

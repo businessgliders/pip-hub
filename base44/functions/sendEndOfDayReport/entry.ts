@@ -1,4 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+// @ts-ignore
+import nodemailer from 'npm:nodemailer@6.9.14';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -12,11 +14,14 @@ const formatDate = (d) => {
   } catch { return d; }
 };
 
+const STORE_NAME = 'Pilates in Pink \u2122';
+
 const buildHtml = (r) => {
   const pink = '#f1889b';
   const pinkLight = '#fbe0e2';
   const text = '#374151';
   const muted = '#6b7280';
+  const location = r.location || 'Brampton / HQ';
 
   const stat = (label, value) => `
     <td align="center" style="padding:14px 8px;background:#ffffff;border:1px solid #f3e8eb;border-radius:14px;">
@@ -44,9 +49,10 @@ const buildHtml = (r) => {
 
         <!-- Header -->
         <tr><td style="background:linear-gradient(135deg, ${pinkLight} 0%, #ffffff 100%);padding:28px 32px;">
-          <div style="font-size:13px;font-weight:600;color:${pink};letter-spacing:2px;text-transform:uppercase;">Pilates in Pink</div>
+          <div style="font-size:13px;font-weight:600;color:${pink};letter-spacing:2px;text-transform:uppercase;">${esc(STORE_NAME)}</div>
           <h1 style="margin:6px 0 4px 0;font-size:26px;font-weight:800;color:#1f2937;">End of Day Report</h1>
           <div style="font-size:14px;color:${muted};">${esc(formatDate(r.shift_date))} · ${esc(r.shift_time)}</div>
+          <div style="font-size:13px;color:${pink};margin-top:6px;font-weight:600;">📍 ${esc(location)}</div>
         </td></tr>
 
         <!-- Submitted by -->
@@ -55,6 +61,10 @@ const buildHtml = (r) => {
             <tr>
               <td style="font-size:12px;color:${muted};">Front Desk Admin</td>
               <td align="right" style="font-size:14px;font-weight:600;color:#1f2937;">${esc(r.admin_name)}</td>
+            </tr>
+            <tr>
+              <td style="font-size:12px;color:${muted};padding-top:6px;">Location</td>
+              <td align="right" style="font-size:14px;font-weight:600;color:#1f2937;padding-top:6px;">${esc(location)}</td>
             </tr>
             <tr>
               <td style="font-size:12px;color:${muted};padding-top:6px;">Signed by</td>
@@ -108,7 +118,7 @@ const buildHtml = (r) => {
 
         <!-- Footer -->
         <tr><td style="padding:24px 32px 28px 32px;text-align:center;border-top:1px solid #f3f4f6;margin-top:24px;">
-          <div style="font-size:11px;color:${muted};letter-spacing:1px;text-transform:uppercase;">Pilates in Pink Studio</div>
+          <div style="font-size:11px;color:${muted};letter-spacing:1px;text-transform:uppercase;">${esc(STORE_NAME)} Studio · ${esc(location)}</div>
           <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Automated daily report · ${esc(new Date().toLocaleDateString())}</div>
         </td></tr>
 
@@ -116,6 +126,13 @@ const buildHtml = (r) => {
     </td></tr>
   </table>
 </body></html>`;
+};
+
+const buildMime = async ({ from, to, subject, html }) => {
+  const transport = nodemailer.createTransport({ streamTransport: true, newline: 'unix', buffer: true });
+  const info = await transport.sendMail({ from, to, subject, html });
+  return info.message.toString('base64')
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
 
 Deno.serve(async (req) => {
@@ -127,15 +144,33 @@ Deno.serve(async (req) => {
     const { report } = await req.json();
     if (!report) return Response.json({ error: 'Missing report' }, { status: 400 });
 
-    const html = buildHtml(report);
-    const subject = `End of Day Report — ${formatDate(report.shift_date)} · ${report.admin_name || ''}`.trim();
+    const r = { ...report, location: report.location || 'Brampton / HQ' };
+    const html = buildHtml(r);
+    const subject = `End of Day Report — ${formatDate(r.shift_date)} · ${r.location} · ${r.admin_name || ''}`.trim();
 
-    await base44.integrations.Core.SendEmail({
-      from_name: 'Pilates in Pink',
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
+
+    const raw = await buildMime({
+      from: `${STORE_NAME} <me@gmail.com>`,
       to: 'gurpreen@pilatesinpinkstudio.com',
       subject,
-      body: html,
+      html,
     });
+
+    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ raw }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Gmail send failed', res.status, errText);
+      return Response.json({ error: 'Gmail send failed', details: errText }, { status: 500 });
+    }
 
     return Response.json({ success: true });
   } catch (error) {

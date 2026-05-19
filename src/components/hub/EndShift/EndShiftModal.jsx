@@ -24,6 +24,7 @@ const STEPS = [
 const initial = {
   shift_date: new Date().toISOString().slice(0, 10),
   shift_time: new Date().toTimeString().slice(0, 5),
+  location: 'Brampton / HQ',
   calls_handled: '',
   total_emails: '',
   total_walk_ins: '',
@@ -167,6 +168,14 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       type="time"
                       value={data.shift_time}
                       onChange={(e) => update('shift_time', e.target.value)}
+                      style={{ fontSize: '16px' }}
+                    />
+                  </Field>
+                  <Field label="Location" hint="Defaults to Brampton / HQ.">
+                    <Input
+                      value={data.location}
+                      onChange={(e) => update('location', e.target.value)}
+                      placeholder="Brampton / HQ"
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
