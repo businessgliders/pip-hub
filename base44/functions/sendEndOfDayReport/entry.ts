@@ -171,7 +171,7 @@ Deno.serve(async (req) => {
 
     const raw = await buildMime({
       from: `${STORE_NAME} <frontdesk@pilatesinpinkstudio.com>`,
-      to: 'gurpreen@pilatesinpinkstudio.com, sahil@pilatesinpinkstudio.com, rashmeen@pilatesinpinkstudio.com',
+      to: 'gurpreen@pilatesinpinkstudio.com',
       subject,
       html,
     });
