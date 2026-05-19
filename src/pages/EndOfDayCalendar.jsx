@@ -108,14 +108,14 @@ export default function EndOfDayCalendar() {
           </div>
 
           {/* Weekday header */}
-          <div className="grid grid-cols-7 px-1.5 sm:px-2.5 pt-1.5 sm:pt-2">
+          <div className="grid grid-cols-7 px-1 sm:px-2 pt-1 sm:pt-1.5">
             {WEEKDAYS.map(d => (
-              <div key={d} className="text-[7px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider text-center pb-1">{d}</div>
+              <div key={d} className="text-[6px] sm:text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center pb-0.5">{d}</div>
             ))}
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-7 gap-0.5 sm:gap-1 p-1.5 sm:p-2.5 pt-0">
+          <div className="grid grid-cols-7 gap-0.25 sm:gap-0.5 p-1 sm:p-1.5 pt-0">
             {days.map((d, i) => {
               if (!d) return <div key={i} className="aspect-square" />;
               const ds = fmt(d);
@@ -124,26 +124,26 @@ export default function EndOfDayCalendar() {
               const isToday = ds === todayStr;
               return (
                 <button
-                  key={i}
-                  onClick={() => filled && setSelected(dayReports[0])}
-                  disabled={!filled}
-                  className={`
-                     relative aspect-square rounded-lg p-0.5 sm:p-1 text-left transition-all text-[8px] sm:text-xs
+                   key={i}
+                   onClick={() => filled && setSelected(dayReports[0])}
+                   disabled={!filled}
+                   className={`
+                     relative aspect-square rounded-md p-0.25 text-left transition-all flex flex-col items-center justify-center
                      ${filled
                        ? 'bg-gradient-to-br from-[#fbe0e2] to-[#f7b1bd]/30 hover:from-[#f7b1bd]/40 hover:to-[#f1889b]/30 cursor-pointer border border-[#f1889b]/30'
                        : 'bg-gray-50/60 border border-gray-100'}
                      ${isToday ? 'ring-2 ring-[#f1889b] ring-offset-0.5' : ''}
                    `}
-                >
-                  <div className={`font-semibold text-[9px] sm:text-xs ${filled ? 'text-gray-800' : 'text-gray-400'}`}>
-                    {d.getDate()}
-                  </div>
-                  {filled && (
-                    <div className="absolute top-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center shadow-sm">
-                      <Check className="w-1.5 h-1.5 text-white" strokeWidth={3} />
-                    </div>
-                  )}
-                </button>
+                 >
+                   <div className={`text-[7px] sm:text-[9px] font-semibold ${filled ? 'text-gray-800' : 'text-gray-400'}`}>
+                     {d.getDate()}
+                   </div>
+                   {filled && (
+                     <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center shadow-sm -mt-0.5">
+                       <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                     </div>
+                   )}
+                 </button>
               );
             })}
           </div>
@@ -179,6 +179,7 @@ function ReportDetail({ r }) {
           <CalendarIcon className="w-4 h-4 text-[#f1889b]" />
           {r.shift_date} · {r.shift_time}
         </DialogTitle>
+        <div className="text-base font-bold text-gray-900 mt-2">Submitted by: {r.admin_name}</div>
       </DialogHeader>
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#fbe0e2]/50">
