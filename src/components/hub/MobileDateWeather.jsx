@@ -14,7 +14,7 @@ const getWeatherIcon = (condition) => {
   return Sun;
 };
 
-export default function MobileDateWeather() {
+export default function MobileDateWeather({ isDesktop = false }) {
   const weather = useWeather();
   const [now, setNow] = useState(new Date());
 
@@ -29,6 +29,44 @@ export default function MobileDateWeather() {
 
   const Icon = getWeatherIcon(weather?.condition);
 
+  if (isDesktop) {
+    // Desktop: time centered with date and weather on sides
+    return (
+      <div className="flex items-center justify-between gap-6 flex-1">
+        {/* Left: Date */}
+        <div className="flex flex-col min-w-0">
+          <div className="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#f1889b]">
+            {weekday}
+          </div>
+          <div className="text-sm font-bold text-gray-800 leading-tight truncate">
+            {dateLine}
+          </div>
+        </div>
+
+        {/* Center: Time */}
+        <div className="flex flex-col items-center">
+          <div className="text-2xl font-bold text-gray-800 leading-tight">
+            {timeLine}
+          </div>
+        </div>
+
+        {/* Right: Weather */}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gradient-to-br from-[#fbe0e2]/80 to-white/60 border border-white/60 shadow-sm flex-shrink-0">
+          <Icon className="w-5 h-5 text-[#f1889b]" strokeWidth={2.2} />
+          <div className="flex flex-col leading-tight">
+            <span className="text-base font-bold text-gray-800">
+              {weather ? `${weather.temp}°` : '—'}
+            </span>
+            <span className="text-[9px] text-gray-500 truncate max-w-[80px]">
+              {weather?.condition || 'Loading'}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile/Tablet: vertical date + time on left, weather on right
   return (
     <div className="flex items-center justify-between gap-3 flex-1 min-w-0">
       <div className="flex flex-col min-w-0">

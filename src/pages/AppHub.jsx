@@ -647,20 +647,20 @@ export default function AppHub() {
       </div>
 
       {/* ── DESKTOP HEADER ── */}
-      <div className="sticky top-0 z-30 hidden lg:block">
-      <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-0">
-        <div className="flex md:items-center md:justify-between gap-6 mb-8">
-          <div className="flex items-center gap-4">
+      <div className="sticky top-0 z-30 hidden lg:block bg-white/60 backdrop-blur-xl border-b border-white/40">
+      <div className="relative max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center justify-between gap-6 mb-0">
+          {/* Left: Logo + Date */}
+          <div className="flex items-center gap-4 min-w-0">
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
               alt="PiP Hub"
-              className="w-16 h-16 rounded-2xl shadow-lg"
+              className="w-10 h-10 rounded-lg shadow flex-shrink-0"
             />
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">{(user?.email === 'info@pilatesinpinkstudio.com' ? 'Front Desk' : (user?.full_name?.split(' ')[0] || 'App'))}'s Apps</h1>
-              <p className="text-gray-600 text-sm mt-1">Your workspace at a glance</p>
-            </div>
+            <MobileDateWeather isDesktop={true} />
           </div>
+
+          {/* Right: Controls */}
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none z-10" />
@@ -738,7 +738,7 @@ export default function AppHub() {
         <div className="relative max-w-7xl mx-auto px-4 lg:px-6 py-6 pb-28 lg:pb-12">
 
           {/* Widgets */}
-          <div className="sticky top-[80px] lg:top-[148px] z-10">
+          <div className="sticky top-[80px] lg:top-[73px] z-10">
             <WidgetsContainer
               widgets={userWidgets}
               isEditMode={isEditMode}
