@@ -17,6 +17,10 @@ export default function EndShiftButton({ onClick }) {
       className="fixed z-40 right-4 bottom-[88px] lg:bottom-28 flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] text-white shadow-lg shadow-[#f1889b]/40 hover:shadow-xl hover:shadow-[#f1889b]/50 transition-shadow border border-white/40 backdrop-blur-sm"
       title="End of day"
       aria-label="End of day"
+      onContextMenu={(e) => {
+        e.preventDefault();
+        window.location.href = '/end-of-day';
+      }}
     >
       <LogOut className="w-4 h-4" />
       <span className="text-sm font-semibold tracking-tight">End of Day</span>

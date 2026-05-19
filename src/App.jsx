@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SplitView from './pages/SplitView';
+import EndOfDayCalendar from './pages/EndOfDayCalendar';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -49,6 +50,7 @@ const AuthenticatedApp = () => {
         </LayoutWrapper>
       } />
       <Route path="/splitview" element={<SplitView />} />
+      <Route path="/end-of-day" element={<EndOfDayCalendar />} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}

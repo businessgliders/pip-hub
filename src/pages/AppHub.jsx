@@ -1098,6 +1098,7 @@ export default function AppHub() {
             <EndShiftModal
               onClose={() => setShowEndShift(false)}
               defaultSignature={user?.full_name || ''}
+              onViewReports={() => { setShowEndShift(false); window.location.href = '/end-of-day'; }}
             />
           )}
         </>

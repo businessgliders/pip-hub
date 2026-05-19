@@ -40,7 +40,7 @@ const initial = {
   admin_name: '',
 };
 
-export default function EndShiftModal({ onClose, defaultSignature = '' }) {
+export default function EndShiftModal({ onClose, defaultSignature = '', onViewReports }) {
   useBodyScrollLock(true);
   const [step, setStep] = useState(0);
   const [data, setData] = useState({ ...initial, signature: defaultSignature });
@@ -64,14 +64,21 @@ export default function EndShiftModal({ onClose, defaultSignature = '' }) {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await base44.entities.ShiftReport.create({
+      const payload = {
         ...data,
         calls_handled: num(data.calls_handled),
         total_emails: num(data.total_emails),
         total_walk_ins: num(data.total_walk_ins),
         leads_converted: num(data.leads_converted),
         reviews_solicited: num(data.reviews_solicited),
-      });
+      };
+      await base44.entities.ShiftReport.create(payload);
+      // Fire-and-await email; don't block UI if it fails
+      try {
+        await base44.functions.invoke('sendEndOfDayReport', { report: payload });
+      } catch (e) {
+        console.error('Email send failed', e);
+      }
       setSubmitted(true);
       setTimeout(() => onClose(), 1800);
     } finally {
@@ -104,13 +111,24 @@ export default function EndShiftModal({ onClose, defaultSignature = '' }) {
                 <p className="text-xs text-gray-500">{STEPS[step].label} · Step {step + 1} of {STEPS.length}</p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4 text-gray-600" />
-            </button>
+            <div className="flex items-center gap-1">
+              {onViewReports && (
+                <button
+                  onClick={onViewReports}
+                  className="text-xs px-2.5 py-1.5 rounded-lg bg-white/70 hover:bg-white text-gray-600 hover:text-[#f1889b] font-medium border border-gray-200"
+                  title="View past reports"
+                >
+                  View reports
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
           </div>
           {/* Progress bar */}
           <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
