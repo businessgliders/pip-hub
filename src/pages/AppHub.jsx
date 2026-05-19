@@ -25,6 +25,7 @@ import MobileMoreSheet from '../components/hub/MobileMoreSheet';
 import AnnouncementsAdminPanel from '../components/hub/AnnouncementsAdminPanel';
 import EndShiftButton from '../components/hub/EndShift/EndShiftButton';
 import EndShiftModal from '../components/hub/EndShift/EndShiftModal';
+import MobileDateWeather from '../components/hub/MobileDateWeather';
 
 // Track desktop breakpoint (lg: 1024px). On tablet/mobile, favorites are surfaced
 // separately (FavoritesSection / loose launchpad icons), so they're hidden from
@@ -595,17 +596,7 @@ export default function AppHub() {
       {/* ── MOBILE / TABLET TOP BAR ── */}
       <div className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-2 bg-white/60 backdrop-blur-xl border-b border-white/40">
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => { setShowMobileSearch(false); setSearchQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            className="flex items-center gap-2 flex-1 min-w-0"
-          >
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png"
-              alt="PiP Hub"
-              className="w-9 h-9 rounded-xl shadow flex-shrink-0"
-            />
-            <h1 className="text-lg font-bold text-gray-800 truncate">{(user?.email === 'info@pilatesinpinkstudio.com' ? 'Front Desk' : (user?.full_name?.split(' ')[0] || 'App'))}'s Apps</h1>
-          </button>
+          <MobileDateWeather />
           {/* Search */}
           <button
             onClick={() => setShowMobileSearch(s => !s)}
