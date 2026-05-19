@@ -62,26 +62,25 @@ export default function EndOfDayCalendar() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fbe0e2]/30 via-white to-white p-4 sm:p-8">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-[#fbe0e2]/30 via-white to-white p-3 sm:p-5">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-3">
           <Link to="/">
-            <Button variant="ghost" size="sm" className="rounded-xl text-gray-600">
-              <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
+            <Button variant="ghost" size="sm" className="rounded-lg text-gray-600 h-7 px-2">
+              <ArrowLeft className="w-3 h-3 mr-1" /> Back
             </Button>
           </Link>
-          <div className="text-xs font-semibold text-[#f1889b] tracking-[2px] uppercase">Pilates in Pink</div>
-          <div className="w-16" />
+          <div className="text-xs font-semibold text-[#f1889b] tracking-[1px] uppercase">Pilates in Pink</div>
+          <div className="w-12" />
         </div>
 
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">End of Day Reports</h1>
-          <p className="text-sm text-gray-500 mt-1">Calendar view of submitted shift reports</p>
+        <div className="mb-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">End of Day Reports</h1>
         </div>
 
         {/* Summary tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-4">
           <SummaryCard label="Reports this month" value={monthReports.length} />
           <SummaryCard label="Days covered" value={new Set(monthReports.map(r => r.shift_date)).size} />
           <SummaryCard label="Total calls" value={monthReports.reduce((s, r) => s + (r.calls_handled || 0), 0)} />
@@ -165,9 +164,9 @@ export default function EndOfDayCalendar() {
 
 function SummaryCard({ label, value }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-4">
-      <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{label}</div>
-      <div className="text-2xl font-bold text-gray-800 mt-1">{value}</div>
+    <div className="bg-white rounded-lg border border-gray-100 p-2.5 sm:p-3">
+      <div className="text-[8px] font-semibold text-gray-400 uppercase tracking-wider">{label}</div>
+      <div className="text-lg sm:text-xl font-bold text-gray-800 mt-0.5">{value}</div>
     </div>
   );
 }
