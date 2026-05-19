@@ -91,7 +91,7 @@ export default function AnnouncementBannerWidget() {
             <div className="flex items-center gap-2 mb-2">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[10px] font-semibold uppercase tracking-[0.15em]">
                 <Megaphone className="w-3 h-3" />
-                Announcement
+                What's New
               </div>
             </div>
 
