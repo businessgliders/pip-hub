@@ -1,0 +1,107 @@
+{
+  "name": "App",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "App name"
+    },
+    "url": {
+      "type": "string",
+      "description": "App URL"
+    },
+    "icon_url": {
+      "type": "string",
+      "description": "Icon/favicon URL"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description"
+    },
+    "section_id": {
+      "type": "string",
+      "description": "Section this app belongs to"
+    },
+    "is_new": {
+      "type": "boolean",
+      "default": false,
+      "description": "Show 'New' badge on this app"
+    },
+    "open_in_new_tab": {
+      "type": "boolean",
+      "default": false,
+      "description": "Open directly in new tab instead of iframe popup"
+    },
+    "is_global": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, visible to all users"
+    },
+    "order": {
+      "type": "number",
+      "description": "Display order within the app list"
+    }
+  },
+  "required": [
+    "name",
+    "url",
+    "section_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.is_global": {
+            "$eq": false
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "data.is_global": {
+            "$eq": true
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
