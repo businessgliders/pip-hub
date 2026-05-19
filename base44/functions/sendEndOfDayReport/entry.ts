@@ -170,7 +170,7 @@ Deno.serve(async (req) => {
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
 
     const raw = await buildMime({
-      from: `${STORE_NAME} <me@gmail.com>`,
+      from: `${STORE_NAME} <frontdesk@pilatesinpinkstudio.com>`,
       to: 'gurpreen@pilatesinpinkstudio.com',
       subject,
       html,
