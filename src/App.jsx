@@ -51,11 +51,6 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/splitview" element={<SplitView />} />
       <Route path="/end-of-day" element={<EndOfDayCalendar />} />
-      <Route path="/end-shift" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}

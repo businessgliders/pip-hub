@@ -68,9 +68,18 @@ export default function AppHub() {
   const [showMoreSheet, setShowMoreSheet] = useState(false);
   const [showAnnouncementsAdmin, setShowAnnouncementsAdmin] = useState(false);
   const [showEndShift, setShowEndShift] = useState(
-    typeof window !== 'undefined' && window.location.pathname === '/end-shift'
+    typeof window !== 'undefined' && window.location.hash === '#end-shift'
   );
         const queryClient = useQueryClient();
+
+  // Listen for hash changes so external links/buttons to #end-shift open the modal
+  useEffect(() => {
+    const onHashChange = () => {
+      if (window.location.hash === '#end-shift') setShowEndShift(true);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   // When AppHub is mounted inside SplitView (either via direct render or via ?splitview=1 in an iframe),
   // clicking an app should open in the parent's right panel instead of the standard AppViewerModal.
@@ -1096,8 +1105,8 @@ export default function AppHub() {
             <EndShiftModal
               onClose={() => {
                 setShowEndShift(false);
-                if (window.location.pathname === '/end-shift') {
-                  window.history.replaceState({}, '', '/');
+                if (window.location.hash === '#end-shift') {
+                  window.history.replaceState({}, '', window.location.pathname + window.location.search);
                 }
               }}
               defaultSignature={user?.full_name || ''}
