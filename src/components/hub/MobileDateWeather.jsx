@@ -32,12 +32,9 @@ export default function MobileDateWeather() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  const weekday = now.toLocaleDateString('en-US', { weekday: 'short' });
+  const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
   const dateLine = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-  const timeParts = timeStr.split(' ');
-  const timeValue = timeParts[0];
-  const timePeriod = timeParts[1];
+  const timeLine = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
   const Icon = getWeatherIcon(weather?.condition);
 
@@ -58,7 +55,7 @@ export default function MobileDateWeather() {
         {/* Center: Time */}
         <div className="flex flex-col items-center">
           <div className="text-2xl font-bold text-gray-800 leading-tight">
-            {timeValue} <span className="text-xs font-medium">{timePeriod}</span>
+            {timeLine}
           </div>
         </div>
 
@@ -92,7 +89,7 @@ export default function MobileDateWeather() {
 
       <div className="flex flex-col items-center">
         <div className="text-lg font-bold text-gray-800 leading-tight">
-          {timeValue} <span className="text-xs font-medium">{timePeriod}</span>
+          {timeLine}
         </div>
       </div>
 
