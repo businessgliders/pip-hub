@@ -616,19 +616,19 @@ export default function AppHub() {
           {/* Search */}
           <button
             onClick={() => setShowMobileSearch(s => !s)}
-            className={`w-9 h-9 flex items-center justify-center rounded-xl border shadow-sm transition-colors ${showMobileSearch ? 'bg-[#f1889b]/10 border-[#f1889b]/40' : 'bg-white/70 border-gray-200'}`}
+            className={`w-8 h-8 flex items-center justify-center rounded-lg border shadow-sm transition-colors ${showMobileSearch ? 'bg-[#f1889b]/10 border-[#f1889b]/40' : 'bg-white/70 border-gray-200'}`}
             title="Search"
           >
-            <Search className={`w-4 h-4 ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-600'}`} />
+            <Search className={`w-3.5 h-3.5 ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-600'}`} />
           </button>
 
           {/* Edit mode toggle */}
           <button
             onClick={() => setIsEditMode(e => !e)}
-            className={`w-9 h-9 flex items-center justify-center rounded-xl border shadow-sm transition-colors ${isEditMode ? 'bg-[#f1889b]/10 border-[#f1889b]/40' : 'bg-white/70 border-gray-200'}`}
+            className={`w-8 h-8 flex items-center justify-center rounded-lg border shadow-sm transition-colors ${isEditMode ? 'bg-[#f1889b]/10 border-[#f1889b]/40' : 'bg-white/70 border-gray-200'}`}
             title={isEditMode ? 'Done editing' : 'Edit'}
           >
-            {isEditMode ? <Check className="w-4 h-4 text-[#f1889b]" /> : <Pencil className="w-4 h-4 text-gray-600" />}
+            {isEditMode ? <Check className="w-3.5 h-3.5 text-[#f1889b]" /> : <Pencil className="w-3.5 h-3.5 text-gray-600" />}
           </button>
         </div>
         {/* Mobile search - shown when search tab active or query present */}
