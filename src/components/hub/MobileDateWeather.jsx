@@ -75,33 +75,34 @@ export default function MobileDateWeather() {
     );
   }
 
-  // Mobile: date on left, time centered, weather on right
+  // Mobile: date with weather below on left, time on right
   return (
     <div className="flex items-center justify-between gap-2 flex-1 min-w-0">
-      <div className="flex flex-col min-w-0">
-        <div className="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#f1889b]">
-          {weekday}
+      <div className="flex flex-col min-w-0 gap-1.5">
+        <div>
+          <div className="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#f1889b]">
+            {weekday}
+          </div>
+          <div className="text-sm font-bold text-gray-800 leading-tight truncate">
+            {dateLine}
+          </div>
         </div>
-        <div className="text-sm font-bold text-gray-800 leading-tight truncate">
-          {dateLine}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gradient-to-br from-[#fbe0e2]/80 to-white/60 border border-white/60 shadow-sm flex-shrink-0">
+          <Icon className="w-5 h-5 text-[#f1889b]" strokeWidth={2.2} />
+          <div className="flex flex-col leading-tight">
+            <span className="text-base font-bold text-gray-800">
+              {weather ? `${weather.temp}°` : '—'}
+            </span>
+            <span className="text-[9px] text-gray-500 truncate max-w-[80px]">
+              {weather?.condition || 'Loading'}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-end">
         <div className="text-lg font-bold text-gray-800 leading-tight">
           {timeLine}
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gradient-to-br from-[#fbe0e2]/80 to-white/60 border border-white/60 shadow-sm flex-shrink-0">
-        <Icon className="w-5 h-5 text-[#f1889b]" strokeWidth={2.2} />
-        <div className="flex flex-col leading-tight">
-          <span className="text-base font-bold text-gray-800">
-            {weather ? `${weather.temp}°` : '—'}
-          </span>
-          <span className="text-[9px] text-gray-500 truncate max-w-[80px]">
-            {weather?.condition || 'Loading'}
-          </span>
         </div>
       </div>
     </div>
