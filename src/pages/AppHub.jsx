@@ -461,28 +461,29 @@ export default function AppHub() {
     // Update cache optimistically for immediate UI update
     queryClient.setQueryData(['sections', user?.email], updatedSections);
     
-    // Save user's custom section order
-    await Promise.all(
-      updatedSections.map(async (section) => {
-        // Check if preference already exists
-        const existing = await base44.entities.UserSectionPreference.filter({
-          user_email: user.email,
-          section_id: section.id
-        });
-        
-        if (existing.length > 0) {
-          await base44.entities.UserSectionPreference.update(existing[0].id, {
-            custom_order: section.displayOrder
-          });
-        } else {
-          await base44.entities.UserSectionPreference.create({
-            user_email: user.email,
-            section_id: section.id,
+    // Save user's custom section order — fetch existing prefs once, then run
+    // updates sequentially to avoid hitting the API rate limit.
+    const existingPrefs = await base44.entities.UserSectionPreference.filter({
+      user_email: user.email
+    });
+    const prefBySection = new Map(existingPrefs.map(p => [p.section_id, p]));
+
+    for (const section of updatedSections) {
+      const existing = prefBySection.get(section.id);
+      if (existing) {
+        if (existing.custom_order !== section.displayOrder) {
+          await base44.entities.UserSectionPreference.update(existing.id, {
             custom_order: section.displayOrder
           });
         }
-      })
-    );
+      } else {
+        await base44.entities.UserSectionPreference.create({
+          user_email: user.email,
+          section_id: section.id,
+          custom_order: section.displayOrder
+        });
+      }
+    }
     
     // Invalidate to ensure consistency
     queryClient.invalidateQueries(['sections']);
