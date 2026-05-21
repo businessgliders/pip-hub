@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Droppable, Draggable } from '@hello-pangea/dnd';
 import LaunchpadIcon from './LaunchpadIcon';
 import { LaunchpadFolderTile, LaunchpadFolderExpanded } from './LaunchpadFolder';
+import LaunchpadGrid from './LaunchpadGrid';
 
 // Desktop breakpoint matches MacDock visibility (lg: 1024px)
 function useIsDesktop() {
@@ -32,6 +32,7 @@ export default function LaunchpadView({
   onHideApp,
   onRenameSection,
   onToggleFavorite,
+  onReorder,
 }) {
   const [openFolderId, setOpenFolderId] = useState(null);
   const [page, setPage] = useState(0);
@@ -114,58 +115,40 @@ export default function LaunchpadView({
             {pagedItems.length === 0 ? (
               <div className="text-center text-gray-600 py-12">No apps found</div>
             ) : (
-              <Droppable droppableId="launchpad" type="LAUNCHPAD" isDropDisabled={!isEditMode || !!trimmedSearch}>
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-x-2 sm:gap-x-4 gap-y-5 sm:gap-y-7 justify-items-center"
-                  >
-                    {pagedItems.map((it, idx) => (
-                      <Draggable
-                        key={it.key}
-                        draggableId={it.key}
-                        index={idx}
-                        isDragDisabled={!isEditMode || !!trimmedSearch}
-                      >
-                        {(prov, snap) => (
-                          <div
-                            ref={prov.innerRef}
-                            {...prov.draggableProps}
-                            {...prov.dragHandleProps}
-                            style={prov.draggableProps.style}
-                            className={snap.isDragging ? 'z-50' : ''}
-                          >
-                            {it.kind === 'app' ? (
-                              <LaunchpadIcon
-                                app={it.app}
-                                onOpen={onOpenApp}
-                                isEditMode={isEditMode}
-                                onEdit={onEditApp}
-                                onDelete={onDeleteApp}
-                                onHide={onHideApp}
-                                isFavorited={favorites.includes(it.app.id)}
-                                onToggleFavorite={onToggleFavorite}
-                                isDragging={snap.isDragging}
-                              />
-                            ) : (
-                              <LaunchpadFolderTile
-                                section={it.section}
-                                apps={it.apps}
-                                onOpen={() => setOpenFolderId(it.section.id)}
-                                isEditMode={isEditMode}
-                                onRename={onRenameSection}
-                                isDragging={snap.isDragging}
-                              />
-                            )}
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
+              <LaunchpadGrid
+                items={pagedItems}
+                isEditMode={isEditMode && !trimmedSearch}
+                gridClassName="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-x-2 sm:gap-x-4 gap-y-5 sm:gap-y-7 justify-items-center"
+                onReorder={(from, to) => {
+                  // Map paged indices back to global indices in the full items list.
+                  const offset = safePage * PAGE_SIZE;
+                  onReorder?.(offset + from, offset + to);
+                }}
+                renderItem={(it, { isDragging }) =>
+                  it.kind === 'app' ? (
+                    <LaunchpadIcon
+                      app={it.app}
+                      onOpen={onOpenApp}
+                      isEditMode={isEditMode}
+                      onEdit={onEditApp}
+                      onDelete={onDeleteApp}
+                      onHide={onHideApp}
+                      isFavorited={favorites.includes(it.app.id)}
+                      onToggleFavorite={onToggleFavorite}
+                      isDragging={isDragging}
+                    />
+                  ) : (
+                    <LaunchpadFolderTile
+                      section={it.section}
+                      apps={it.apps}
+                      onOpen={() => setOpenFolderId(it.section.id)}
+                      isEditMode={isEditMode}
+                      onRename={onRenameSection}
+                      isDragging={isDragging}
+                    />
+                  )
+                }
+              />
             )}
           </motion.div>
         </AnimatePresence>

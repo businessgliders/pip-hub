@@ -489,6 +489,49 @@ export default function AppHub() {
     queryClient.invalidateQueries(['sections']);
   };
 
+  const handleLaunchpadReorder = (sourceIndex, destinationIndex) => {
+    if (sourceIndex === destinationIndex) return;
+    // Rebuild the items list as LaunchpadView builds it. On tablet/mobile (no MacDock),
+    // favorites appear loose first; on desktop they live in the dock and are not in the list.
+    const isDesktopVp = typeof window !== 'undefined' && window.innerWidth >= 1024;
+    const favApps = isDesktopVp
+      ? []
+      : favorites.map((id) => apps.find((a) => a.id === id)).filter(Boolean);
+    const folderSections = sections.filter((s) => {
+      const secApps = apps.filter((a) => a.section_id === s.id && (isDesktopVp || !favorites.includes(a.id)));
+      return secApps.length > 0;
+    });
+    const items = [
+      ...favApps.map((a) => ({ kind: 'app', app: a })),
+      ...folderSections.map((s) => ({ kind: 'folder', section: s })),
+    ];
+
+    const draggedItem = items[sourceIndex];
+    if (!draggedItem) return;
+
+    const reordered = Array.from(items);
+    const [removed] = reordered.splice(sourceIndex, 1);
+    reordered.splice(destinationIndex, 0, removed);
+
+    if (draggedItem.kind === 'app') {
+      const fromAppIdx = items.filter((it, i) => it.kind === 'app' && i < sourceIndex).length;
+      const toAppIdx = reordered.filter((it, i) => it.kind === 'app' && i < destinationIndex).length;
+      if (fromAppIdx === toAppIdx) return;
+      handleReorderFavorites(fromAppIdx, toAppIdx);
+    } else {
+      const fromFolderIdx = items.filter((it, i) => it.kind === 'folder' && i < sourceIndex).length;
+      const toFolderIdx = reordered.filter((it, i) => it.kind === 'folder' && i < destinationIndex).length;
+      if (fromFolderIdx === toFolderIdx) return;
+      const srcSec = folderSections[fromFolderIdx];
+      const dstSec = folderSections[toFolderIdx];
+      if (!srcSec || !dstSec) return;
+      const srcIdx = sections.findIndex((s) => s.id === srcSec.id);
+      const dstIdx = sections.findIndex((s) => s.id === dstSec.id);
+      if (srcIdx === -1 || dstIdx === -1 || srcIdx === dstIdx) return;
+      handleReorderSections(srcIdx, dstIdx);
+    }
+  };
+
   const handlePageDragEnd = (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -502,49 +545,7 @@ export default function AppHub() {
     }
 
     if (type === 'LAUNCHPAD') {
-      // Rebuild the items list as LaunchpadView builds it. On tablet/mobile (no MacDock),
-      // favorites appear loose first; on desktop they live in the dock and are not in the list.
-      const isDesktopVp = typeof window !== 'undefined' && window.innerWidth >= 1024;
-      const favApps = isDesktopVp
-        ? []
-        : favorites.map((id) => apps.find((a) => a.id === id)).filter(Boolean);
-      const folderSections = sections.filter((s) => {
-        const secApps = apps.filter((a) => a.section_id === s.id && (isDesktopVp || !favorites.includes(a.id)));
-        return secApps.length > 0;
-      });
-      const items = [
-        ...favApps.map((a) => ({ kind: 'app', app: a })),
-        ...folderSections.map((s) => ({ kind: 'folder', section: s })),
-      ];
-
-      const draggedItem = items[source.index];
-      if (!draggedItem) return;
-
-      // Move the item locally to compute the new SAME-KIND index. This lets users drop
-      // anywhere in any row — between apps, between folders, or across the boundary —
-      // and we map it back to a valid in-kind reorder.
-      const reordered = Array.from(items);
-      const [removed] = reordered.splice(source.index, 1);
-      reordered.splice(destination.index, 0, removed);
-
-      if (draggedItem.kind === 'app') {
-        const fromAppIdx = items.filter((it, i) => it.kind === 'app' && i < source.index).length;
-        const toAppIdx = reordered.filter((it, i) => it.kind === 'app' && i < destination.index).length;
-        if (fromAppIdx === toAppIdx) return;
-        // Reordering apps in the launchpad = reordering favorites (only favorites appear as loose apps).
-        handleReorderFavorites(fromAppIdx, toAppIdx);
-      } else {
-        const fromFolderIdx = items.filter((it, i) => it.kind === 'folder' && i < source.index).length;
-        const toFolderIdx = reordered.filter((it, i) => it.kind === 'folder' && i < destination.index).length;
-        if (fromFolderIdx === toFolderIdx) return;
-        const srcSec = folderSections[fromFolderIdx];
-        const dstSec = folderSections[toFolderIdx];
-        if (!srcSec || !dstSec) return;
-        const srcIdx = sections.findIndex((s) => s.id === srcSec.id);
-        const dstIdx = sections.findIndex((s) => s.id === dstSec.id);
-        if (srcIdx === -1 || dstIdx === -1 || srcIdx === dstIdx) return;
-        handleReorderSections(srcIdx, dstIdx);
-      }
+      handleLaunchpadReorder(source.index, destination.index);
       return;
     }
 
