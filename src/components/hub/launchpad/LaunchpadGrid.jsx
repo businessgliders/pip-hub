@@ -214,12 +214,15 @@ export default function LaunchpadGrid({
         }}
         onPointerDown={(e) => onPointerDown(e, key)}
         style={{
-          visibility: isDragging ? 'hidden' : 'visible',
+          opacity: isDragging ? 0 : 1,
+          pointerEvents: isDragging ? 'none' : 'auto',
           touchAction: isEditMode ? 'none' : 'auto',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
         }}
         className="flex items-start justify-center"
       >
-        {renderItem(item, { isDragging: false })}
+        {renderItem(item, { isDragging })}
       </motion.div>
     );
   };

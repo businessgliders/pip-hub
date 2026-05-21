@@ -22,7 +22,11 @@ export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelet
   };
 
   return (
-    <div className="group relative flex flex-col items-center gap-2 w-20 sm:w-24">
+    <div
+      draggable={false}
+      onDragStart={(e) => e.preventDefault()}
+      className="group relative flex flex-col items-center gap-2 w-20 sm:w-24 select-none"
+    >
       <div
         role="button"
         tabIndex={0}
@@ -32,7 +36,13 @@ export default function LaunchpadIcon({ app, onOpen, isEditMode, onEdit, onDelet
       >
         <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 flex items-center justify-center overflow-hidden shadow-xl transition-transform duration-200 ${isEditMode && !isDragging ? 'animate-[wiggle_0.6s_ease-in-out_infinite]' : ''} ${!isEditMode ? 'group-hover:scale-110 group-active:scale-95' : ''}`}>
           {app.icon_url ? (
-            <img src={app.icon_url} alt={app.name} className="w-12 h-12 sm:w-14 sm:h-14 object-contain" />
+            <img
+              src={app.icon_url}
+              alt={app.name}
+              draggable={false}
+              onDragStart={(e) => e.preventDefault()}
+              className="w-12 h-12 sm:w-14 sm:h-14 object-contain select-none pointer-events-none"
+            />
           ) : (
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
           )}
