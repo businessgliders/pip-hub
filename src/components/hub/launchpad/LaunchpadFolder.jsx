@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { Pencil, Check } from 'lucide-react';
-import { Droppable, Draggable } from '@hello-pangea/dnd';
 import LaunchpadIcon from './LaunchpadIcon';
+import LaunchpadGrid from './LaunchpadGrid';
 
 // Folder tile shown in the main grid — preview of up to 9 mini icons.
 // In edit mode the section name becomes inline-editable.
@@ -97,8 +96,9 @@ export function LaunchpadFolderTile({ section, apps, onOpen, isEditMode, onRenam
 // Expanded folder — inline overlay revealing all the apps inside.
 // In edit mode, apps inside the folder can be reordered via drag-and-drop
 // (handled by the page-level DragDropContext via the FOLDER_APP type).
-export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isEditMode, onEditApp, onDeleteApp, onHideApp, favorites = [], onToggleFavorite }) {
+export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isEditMode, onEditApp, onDeleteApp, onHideApp, favorites = [], onToggleFavorite, onReorderApps }) {
   const gridClass = "grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 gap-x-3 gap-y-5 sm:gap-x-4 sm:gap-y-6 max-h-[60vh] overflow-y-auto px-1 justify-items-center";
+  const items = apps.map((app) => ({ key: `folder-app-${app.id}`, app }));
 
   return (
     <motion.div
@@ -122,47 +122,25 @@ export function LaunchpadFolderExpanded({ section, apps, onClose, onOpenApp, isE
         </h3>
 
         {isEditMode ? (
-          <Droppable droppableId={`folder-${section.id}`} type="FOLDER_APP" direction="horizontal">
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps} className={gridClass}>
-                {apps.map((app, index) => (
-                  <Draggable key={app.id} draggableId={`folder-app-${app.id}`} index={index}>
-                    {(prov, snap) => {
-                      const child = (
-                        <div
-                          ref={prov.innerRef}
-                          {...prov.draggableProps}
-                          {...prov.dragHandleProps}
-                          style={prov.draggableProps.style}
-                          className={snap.isDragging ? 'z-[60]' : ''}
-                        >
-                          <LaunchpadIcon
-                            app={app}
-                            onOpen={() => onOpenApp(app)}
-                            isEditMode={isEditMode}
-                            onEdit={onEditApp}
-                            onDelete={onDeleteApp}
-                            onHide={onHideApp}
-                            isFavorited={favorites.includes(app.id)}
-                            onToggleFavorite={onToggleFavorite}
-                            isDragging={snap.isDragging}
-                          />
-                        </div>
-                      );
-                      // Portal the dragged item to body to escape transformed/scrolled ancestors
-                      // (the folder modal uses framer-motion scale + overflow-y-auto, which break
-                      // @hello-pangea/dnd's position calculations).
-                      if (snap.isDragging && typeof document !== 'undefined') {
-                        return createPortal(child, document.body);
-                      }
-                      return child;
-                    }}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
+          <LaunchpadGrid
+            items={items}
+            isEditMode={isEditMode}
+            gridClassName={gridClass}
+            onReorder={(from, to) => onReorderApps?.(section.id, from, to)}
+            renderItem={(it, { isDragging }) => (
+              <LaunchpadIcon
+                app={it.app}
+                onOpen={() => onOpenApp(it.app)}
+                isEditMode={isEditMode}
+                onEdit={onEditApp}
+                onDelete={onDeleteApp}
+                onHide={onHideApp}
+                isFavorited={favorites.includes(it.app.id)}
+                onToggleFavorite={onToggleFavorite}
+                isDragging={isDragging}
+              />
             )}
-          </Droppable>
+          />
         ) : (
           <div className={gridClass}>
             {apps.map((app) => (

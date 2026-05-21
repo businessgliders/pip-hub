@@ -33,6 +33,7 @@ export default function LaunchpadView({
   onRenameSection,
   onToggleFavorite,
   onReorder,
+  onReorderAppsInSection,
 }) {
   const [openFolderId, setOpenFolderId] = useState(null);
   const [page, setPage] = useState(0);
@@ -205,6 +206,7 @@ export default function LaunchpadView({
               onHideApp={onHideApp}
               favorites={favorites}
               onToggleFavorite={onToggleFavorite}
+              onReorderApps={onReorderAppsInSection}
             />
           )}
         </AnimatePresence>

@@ -806,6 +806,8 @@ export default function AppHub() {
               onHideApp={(appId) => hideAppMutation.mutate(appId)}
               onRenameSection={handleRenameSection}
               onToggleFavorite={(appId) => toggleFavoriteMutation.mutate(appId)}
+              onReorder={handleLaunchpadReorder}
+              onReorderAppsInSection={handleReorderAppsInSection}
             />
           ) : (() => {
             // On tablet/mobile, favorited apps appear in the dedicated Favorites section
