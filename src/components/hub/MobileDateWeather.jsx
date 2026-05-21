@@ -33,6 +33,7 @@ export default function MobileDateWeather() {
   }, []);
 
   const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
+  const weekdayShort = now.toLocaleDateString('en-US', { weekday: 'short' });
   const dateLine = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
   const timeLine = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
@@ -80,7 +81,7 @@ export default function MobileDateWeather() {
     <div className="flex items-center justify-between gap-1.5 flex-1 min-w-0">
       <div className="flex flex-col min-w-0 flex-shrink-0">
         <div className="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#f1889b]">
-          {weekday}
+          {weekdayShort}
         </div>
         <div className="text-xs font-bold text-gray-800 leading-tight truncate">
           {dateLine}
