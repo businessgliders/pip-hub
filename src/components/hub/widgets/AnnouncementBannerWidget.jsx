@@ -7,6 +7,8 @@ import { ChevronLeft, ChevronRight, ExternalLink, Megaphone } from 'lucide-react
 export default function AnnouncementBannerWidget() {
   const [banners, setBanners] = useState([]);
   const [index, setIndex] = useState(0);
+  const touchStart = React.useRef(null);
+  const touchMoved = React.useRef(false);
 
   // Load active banners
   useEffect(() => {
@@ -56,18 +58,53 @@ export default function AnnouncementBannerWidget() {
   };
 
   const goPrev = (e) => {
-    e.stopPropagation();
+    e?.stopPropagation?.();
     setIndex((i) => (i - 1 + banners.length) % banners.length);
   };
   const goNext = (e) => {
-    e.stopPropagation();
+    e?.stopPropagation?.();
     setIndex((i) => (i + 1) % banners.length);
+  };
+
+  // Touch swipe support (mobile)
+  const onTouchStart = (e) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+    touchMoved.current = false;
+  };
+  const onTouchMove = (e) => {
+    if (!touchStart.current) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) touchMoved.current = true;
+  };
+  const onTouchEnd = (e) => {
+    if (!touchStart.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) && banners.length > 1) {
+      e.stopPropagation();
+      if (dx < 0) goNext(); else goPrev();
+    }
+  };
+  const handleContainerClick = (e) => {
+    if (touchMoved.current) {
+      touchMoved.current = false;
+      return;
+    }
+    handleClick();
   };
 
   return (
     <div className="h-full w-full">
       <div
-        onClick={handleClick}
+        onClick={handleContainerClick}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
         className={`relative h-full w-full rounded-[1rem] overflow-hidden group ${current?.link_url ? 'cursor-pointer' : ''}`}
       >
         {/* Slides */}
