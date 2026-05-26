@@ -584,7 +584,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
               <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="space-y-8">
                   <div>
-                   <h3 className="text-base font-bold text-gray-800 mb-3 px-1">My Apps</h3>
+                   <h3 className="text-base font-bold text-gray-800 mb-3 px-1">My Custom Apps</h3>
                    {myAppsBySection.length === 0 && (
                      <p className="text-sm text-gray-500 px-2 italic">No personal apps yet.</p>
                    )}
