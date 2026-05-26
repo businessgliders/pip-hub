@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // iOS-style grid with pointer-driven drag-and-drop:
@@ -230,12 +231,13 @@ export default function LaunchpadGrid({
   // The floating drag preview (rendered last, positioned fixed).
   const draggedItem = dragKey ? itemByKey.get(dragKey) : null;
 
-  return (
-    <div ref={containerRef} className={gridClassName}>
-      {order.map((k) => renderTile(k))}
-
-      <AnimatePresence>
-        {draggedItem && (
+  // Render the floating drag preview through a portal to <body> so that
+  // ancestors with `transform`/`filter`/`backdrop-filter` (which create a
+  // containing block for fixed-position descendants — e.g. the framer-motion
+  // scaled folder modal) don't offset the preview from the pointer.
+  const dragPreview = draggedItem && typeof document !== 'undefined'
+    ? createPortal(
+        <AnimatePresence>
           <motion.div
             key="drag-preview"
             initial={{ scale: 1 }}
@@ -257,8 +259,15 @@ export default function LaunchpadGrid({
               {renderItem(draggedItem, { isDragging: true })}
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )
+    : null;
+
+  return (
+    <div ref={containerRef} className={gridClassName}>
+      {order.map((k) => renderTile(k))}
+      {dragPreview}
     </div>
   );
 }
