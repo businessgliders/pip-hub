@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle, Maximize2, Minimize2, Palette, Wallpaper, LayoutGrid, FolderKanban, Box, Megaphone, ExternalLink, ArrowLeft } from 'lucide-react';
+import { X, GripVertical, Edit, Trash2, EyeOff, Plus, Check, ChevronUp, ChevronDown, Image, RefreshCw, Upload, XCircle, Maximize2, Minimize2, Palette, Wallpaper, LayoutGrid, FolderKanban, Box, Megaphone, ExternalLink, ArrowLeft, Globe, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AVAILABLE_WIDGETS } from './widgets/utils';
 import { Input } from '@/components/ui/input';
@@ -593,8 +593,11 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                        {sectionApps.map((app) => (
                          <div
                            key={app.id}
-                           className="flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
+                           className="relative flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
                          >
+                           <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#f1889b]/15 border border-[#f1889b]/30 flex items-center justify-center" title="My App">
+                             <User className="w-3 h-3 text-[#f1889b]" />
+                           </div>
                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
                              {app.icon_url ? (
                                <img src={app.icon_url} alt={app.name} className="w-10 h-10 object-contain" />
@@ -655,8 +658,11 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                       {sectionApps.map((app) => (
                                         <div
                                           key={app.id}
-                                          className="flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
+                                          className="relative flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
                                         >
+                                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center" title="Global App">
+                                            <Globe className="w-3 h-3 text-blue-600" />
+                                          </div>
                                           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
                                             {app.icon_url ? (
                                               <img src={app.icon_url} alt={app.name} className="w-10 h-10 object-contain" />
@@ -666,7 +672,6 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                           </div>
                                           <div className="text-center">
                                             <h5 className="font-medium text-gray-800 text-xs truncate max-w-full">{app.name}</h5>
-                                            <p className="text-[9px] text-gray-500 uppercase tracking-wide">Global</p>
                                           </div>
                                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Button
