@@ -422,193 +422,136 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
               <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="space-y-8">
                   <div>
-                    <h3 className="text-base font-bold text-gray-800 mb-3 px-1">My Apps</h3>
-                    {myAppsBySection.length === 0 && (
-                      <p className="text-sm text-gray-500 px-2 italic">No personal apps yet.</p>
-                    )}
-                    <div className="space-y-6">
+                   <h3 className="text-base font-bold text-gray-800 mb-3 px-1">My Apps</h3>
+                   {myAppsBySection.length === 0 && (
+                     <p className="text-sm text-gray-500 px-2 italic">No personal apps yet.</p>
+                   )}
+                   <div className="space-y-8">
                   {myAppsBySection.map(({ section, apps: sectionApps }) => (
-                    <Droppable key={section.id} droppableId={section.id} type="APP">
-                      {(provided) => (
-                        <div ref={provided.innerRef} {...provided.droppableProps}>
-                          <h4 className="text-sm font-semibold text-gray-600 mb-2 px-2">{section.name}</h4>
-                          <div className="space-y-2">
-                            {sectionApps.map((app, index) => (
-                              <Draggable key={app.id} draggableId={app.id} index={index}>
-                                {(provided, snapshot) => {
-                                  const node = (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    style={{
-                                      ...provided.draggableProps.style,
-                                      cursor: snapshot.isDragging ? 'grabbing' : 'grab',
-                                    }}
-                                    className={`flex items-center gap-3 p-3 rounded-lg border group ${
-                                      snapshot.isDragging 
-                                        ? 'shadow-2xl bg-white border-[#f1889b] z-[60]' 
-                                        : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
-                                    }`}
-                                  >
-                                    <div {...provided.dragHandleProps}>
-                                      <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
-                                    </div>
-
-                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                      {app.icon_url ? (
-                                        <img src={app.icon_url} alt={app.name} className="w-6 h-6 object-contain" />
-                                      ) : (
-                                        <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
-                                      )}
-                                    </div>
-
-                                    <div className="flex-1 min-w-0">
-                                      <h5 className="font-medium text-gray-800 text-sm truncate">{app.name}</h5>
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-8 w-8 p-0 hover:bg-blue-50"
-                                        onClick={() => onEditApp(app)}
-                                      >
-                                        <Edit className="w-4 h-4 text-blue-500" />
-                                      </Button>
-                                      {isOwner || !app.is_global ? (
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          className="h-8 w-8 p-0 hover:bg-red-50"
-                                          onClick={() => setConfirmAction({
-                                            type: 'delete',
-                                            message: `Delete "${app.name}"?`,
-                                            action: () => onDeleteApp(app.id)
-                                          })}
-                                          title="Delete App"
-                                        >
-                                          <Trash2 className="w-4 h-4 text-red-500" />
-                                        </Button>
-                                      ) : (
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          className="h-8 w-8 p-0 hover:bg-gray-50"
-                                          onClick={() => onHideApp(app.id)}
-                                          title="Hide App"
-                                        >
-                                          <EyeOff className="w-4 h-4 text-gray-500" />
-                                        </Button>
-                                      )}
-                                    </div>
-                                  </div>
-                                  );
-                                  return snapshot.isDragging && typeof document !== 'undefined'
-                                   ? createPortal(node, document.body)
-                                   : node;
-                                  }}
-                                  </Draggable>
-                                  ))}
-                                  {provided.placeholder}
-                                  </div>
-                                  </div>
-                                  )}
-                                  </Droppable>
-                                  ))}
-                                  </div>
-                                  </div>
+                   <div key={section.id}>
+                     <h4 className="text-sm font-semibold text-gray-600 mb-3 px-2">{section.name}</h4>
+                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                       {sectionApps.map((app) => (
+                         <div
+                           key={app.id}
+                           className="flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
+                         >
+                           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                             {app.icon_url ? (
+                               <img src={app.icon_url} alt={app.name} className="w-10 h-10 object-contain" />
+                             ) : (
+                               <div className="w-10 h-10 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
+                             )}
+                           </div>
+                           <h5 className="font-medium text-gray-800 text-xs text-center truncate max-w-full">{app.name}</h5>
+                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <Button
+                               size="sm"
+                               variant="ghost"
+                               className="h-6 w-6 p-0 hover:bg-blue-50"
+                               onClick={() => onEditApp(app)}
+                             >
+                               <Edit className="w-3 h-3 text-blue-500" />
+                             </Button>
+                             {isOwner || !app.is_global ? (
+                               <Button
+                                 size="sm"
+                                 variant="ghost"
+                                 className="h-6 w-6 p-0 hover:bg-red-50"
+                                 onClick={() => setConfirmAction({
+                                   type: 'delete',
+                                   message: `Delete "${app.name}"?`,
+                                   action: () => onDeleteApp(app.id)
+                                 })}
+                                 title="Delete App"
+                               >
+                                 <Trash2 className="w-3 h-3 text-red-500" />
+                               </Button>
+                             ) : (
+                               <Button
+                                 size="sm"
+                                 variant="ghost"
+                                 className="h-6 w-6 p-0 hover:bg-gray-50"
+                                 onClick={() => onHideApp(app.id)}
+                                 title="Hide App"
+                               >
+                                 <EyeOff className="w-3 h-3 text-gray-500" />
+                               </Button>
+                             )}
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                  ))}
+                   </div>
+                   </div>
 
                                   <div>
                                   <h3 className="text-base font-bold text-gray-800 mb-3 px-1">Global Apps</h3>
                                   {globalAppsBySection.length === 0 && (
                                   <p className="text-sm text-gray-500 px-2 italic">No global apps.</p>
                                   )}
-                                  <div className="space-y-6">
+                                  <div className="space-y-8">
                                   {globalAppsBySection.map(({ section, apps: sectionApps }) => (
-                                  <Droppable key={`global-${section.id}`} droppableId={`global-${section.id}`} type="APP">
-                                  {(provided) => (
-                                  <div ref={provided.innerRef} {...provided.droppableProps}>
-                                  <h4 className="text-sm font-semibold text-gray-600 mb-2 px-2">{section.name}</h4>
-                                  <div className="space-y-2">
-                                  {sectionApps.map((app, index) => (
-                                  <Draggable key={app.id} draggableId={app.id} index={index}>
-                                   {(provided, snapshot) => {
-                                     const node = (
-                                       <div
-                                         ref={provided.innerRef}
-                                         {...provided.draggableProps}
-                                         style={{
-                                           ...provided.draggableProps.style,
-                                           cursor: snapshot.isDragging ? 'grabbing' : 'grab',
-                                         }}
-                                         className={`flex items-center gap-3 p-3 rounded-lg border group ${
-                                           snapshot.isDragging
-                                             ? 'shadow-2xl bg-white border-[#f1889b] z-[60]'
-                                             : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
-                                         }`}
-                                       >
-                                         <div {...provided.dragHandleProps}>
-                                           <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
-                                         </div>
-                                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                           {app.icon_url ? (
-                                             <img src={app.icon_url} alt={app.name} className="w-6 h-6 object-contain" />
-                                           ) : (
-                                             <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
-                                           )}
-                                         </div>
-                                         <div className="flex-1 min-w-0">
-                                           <h5 className="font-medium text-gray-800 text-sm truncate">{app.name}</h5>
-                                           <p className="text-[10px] text-gray-500 uppercase tracking-wide">Global</p>
-                                         </div>
-                                         <div className="flex gap-2">
-                                           <Button
-                                             size="sm"
-                                             variant="ghost"
-                                             className="h-8 w-8 p-0 hover:bg-blue-50"
-                                             onClick={() => onEditApp(app)}
-                                           >
-                                             <Edit className="w-4 h-4 text-blue-500" />
-                                           </Button>
-                                           {isOwner ? (
-                                             <Button
-                                               size="sm"
-                                               variant="ghost"
-                                               className="h-8 w-8 p-0 hover:bg-red-50"
-                                               onClick={() => setConfirmAction({
-                                                 type: 'delete',
-                                                 message: `Delete "${app.name}"?`,
-                                                 action: () => onDeleteApp(app.id)
-                                               })}
-                                               title="Delete App"
-                                             >
-                                               <Trash2 className="w-4 h-4 text-red-500" />
-                                             </Button>
-                                           ) : (
-                                             <Button
-                                               size="sm"
-                                               variant="ghost"
-                                               className="h-8 w-8 p-0 hover:bg-gray-50"
-                                               onClick={() => onHideApp(app.id)}
-                                               title="Hide App"
-                                             >
-                                               <EyeOff className="w-4 h-4 text-gray-500" />
-                                             </Button>
-                                           )}
-                                         </div>
-                                       </div>
-                                     );
-                                     return snapshot.isDragging && typeof document !== 'undefined'
-                                       ? createPortal(node, document.body)
-                                       : node;
-                                   }}
-                                  </Draggable>
-                                  ))}
-                                  {provided.placeholder}
+                                  <div key={`global-${section.id}`}>
+                                    <h4 className="text-sm font-semibold text-gray-600 mb-3 px-2">{section.name}</h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                      {sectionApps.map((app) => (
+                                        <div
+                                          key={app.id}
+                                          className="flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
+                                        >
+                                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                            {app.icon_url ? (
+                                              <img src={app.icon_url} alt={app.name} className="w-10 h-10 object-contain" />
+                                            ) : (
+                                              <div className="w-10 h-10 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
+                                            )}
+                                          </div>
+                                          <div className="text-center">
+                                            <h5 className="font-medium text-gray-800 text-xs truncate max-w-full">{app.name}</h5>
+                                            <p className="text-[9px] text-gray-500 uppercase tracking-wide">Global</p>
+                                          </div>
+                                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                              size="sm"
+                                              variant="ghost"
+                                              className="h-6 w-6 p-0 hover:bg-blue-50"
+                                              onClick={() => onEditApp(app)}
+                                            >
+                                              <Edit className="w-3 h-3 text-blue-500" />
+                                            </Button>
+                                            {isOwner ? (
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-6 w-6 p-0 hover:bg-red-50"
+                                                onClick={() => setConfirmAction({
+                                                  type: 'delete',
+                                                  message: `Delete "${app.name}"?`,
+                                                  action: () => onDeleteApp(app.id)
+                                                })}
+                                                title="Delete App"
+                                              >
+                                                <Trash2 className="w-3 h-3 text-red-500" />
+                                              </Button>
+                                            ) : (
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-6 w-6 p-0 hover:bg-gray-50"
+                                                onClick={() => onHideApp(app.id)}
+                                                title="Hide App"
+                                              >
+                                                <EyeOff className="w-3 h-3 text-gray-500" />
+                                              </Button>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
-                                  </div>
-                                  )}
-                                  </Droppable>
                                   ))}
                                   </div>
                                   </div>
