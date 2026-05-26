@@ -718,7 +718,6 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                   </div>
                                   </DragDropContext>
                                   </div>
-                                  </div>
                                   {hasChanges && (
                                   <div className="flex gap-3 pt-4 border-t border-gray-200 mt-6">
                                   <Button
