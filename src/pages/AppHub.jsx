@@ -1078,8 +1078,10 @@ export default function AppHub() {
           }}
           onClose={() => setShowCustomizePanel(false)}
           isOwner={isOwner}
+          user={user}
           hiddenApps={hiddenApps}
           onDeleteWidget={(id) => deleteWidgetMutation.mutate(id)}
+          onAddWidget={(type) => createWidgetMutation.mutate({ user_email: user.email, widget_type: type })}
         />
       )}
 

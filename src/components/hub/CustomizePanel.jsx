@@ -65,7 +65,8 @@ const THEME_WALLPAPERS = {
   ],
 };
 
-export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onManageAnnouncements, onClose, isOwner, hiddenApps = [], onDeleteWidget }) {
+export default function CustomizePanel({ apps, sections, userWidgets = [], selectedGradient, onGradientChange, customWallpaper, onWallpaperChange, onReorderApps, onReorderSections, onDeleteApp, onHideApp, onEditApp, onManageSections, onManageAnnouncements, onClose, isOwner, user, hiddenApps = [], onDeleteWidget, onAddWidget }) {
+  const isAdmin = isOwner || user?.role === 'admin';
   useBodyScrollLock(true);
   const queryClient = useQueryClient();
   // null = show tile grid; otherwise show the selected section's content.
@@ -75,15 +76,14 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
   const activeTab = openCard === 'sections' ? 'sections' : openCard === 'widgets' ? 'widgets' : 'apps';
 
   const TILES = [];
-  if (isOwner && onManageAnnouncements) {
+  if (isAdmin && onManageAnnouncements) {
     TILES.push({ key: 'announcements', icon: Megaphone, title: 'Announcements', description: 'Manage banner slides' });
   }
   TILES.push(
     { key: 'apps', icon: LayoutGrid, title: 'All Apps', description: `${(apps || []).length} apps` },
     { key: 'sections', icon: FolderKanban, title: 'Sections', description: `${(sections || []).length} sections` },
     { key: 'widgets', icon: Box, title: 'Widgets', description: `${userWidgets.length} widgets` },
-    { key: 'wallpaper', icon: Wallpaper, title: 'Wallpaper', description: customWallpaper ? 'Custom wallpaper set' : 'Pick a background image' },
-    { key: 'theme', icon: Palette, title: 'Background Theme', description: GRADIENT_OPTIONS.find(g => g.id === selectedGradient)?.name || 'Choose a color theme' },
+    { key: 'appearance', icon: Wallpaper, title: 'Appearance', description: `${GRADIENT_OPTIONS.find(g => g.id === selectedGradient)?.name || 'Theme'} • ${customWallpaper ? 'Custom wallpaper' : 'Default wallpaper'}` },
   );
   const activeTile = TILES.find(t => t.key === openCard);
   const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false);
@@ -147,6 +147,17 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
   const groupedApps = localSections.map(section => ({
     section,
     apps: localApps.filter(app => app.section_id === section.id)
+  })).filter(group => group.apps.length > 0);
+
+  // Split apps into user-specific vs global, grouped by section
+  const myAppsBySection = localSections.map(section => ({
+    section,
+    apps: localApps.filter(app => app.section_id === section.id && !app.is_global)
+  })).filter(group => group.apps.length > 0);
+
+  const globalAppsBySection = localSections.map(section => ({
+    section,
+    apps: localApps.filter(app => app.section_id === section.id && app.is_global === true)
   })).filter(group => group.apps.length > 0);
 
   const handleDragEnd = (result) => {
@@ -321,29 +332,30 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
         )}
 
         <div className={openCard ? 'block' : 'hidden'}>
-          {/* Background Theme */}
-          {openCard === 'theme' && (
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-              {GRADIENT_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => onGradientChange(option.id)}
-                  className={`p-2 rounded-lg transition-all border-2 ${
-                    selectedGradient === option.id
-                      ? 'border-[#f1889b] scale-105'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className={`w-full h-12 rounded bg-gradient-to-br ${option.gradient} mb-1`} />
-                  <p className="text-xs font-medium text-gray-700 text-center">{option.name}</p>
-                </button>
-              ))}
+          {/* Appearance — combined theme + wallpaper */}
+          {openCard === 'appearance' && (
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">Background Theme</h4>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                {GRADIENT_OPTIONS.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => onGradientChange(option.id)}
+                    className={`p-2 rounded-lg transition-all border-2 ${
+                      selectedGradient === option.id
+                        ? 'border-[#f1889b] scale-105'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className={`w-full h-12 rounded bg-gradient-to-br ${option.gradient} mb-1`} />
+                    <p className="text-xs font-medium text-gray-700 text-center">{option.name}</p>
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
-
-          {/* Wallpaper */}
-          {openCard === 'wallpaper' && (
-          <div>
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">Wallpaper</h4>
             <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
               {/* Random from Unsplash tile */}
               <div className="relative group">
@@ -399,16 +411,23 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
 
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadWallpaper} />
+            </div>
           </div>
           )}
 
-          {/* All Apps */}
+          {/* All Apps — split by user vs global, sorted by section */}
           {openCard === 'apps' && (
           <div>
             <div>
               <DragDropContext onDragEnd={handleDragEnd}>
-                <div className="space-y-6">
-                  {groupedApps.map(({ section, apps: sectionApps }) => (
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-800 mb-3 px-1">My Apps</h3>
+                    {myAppsBySection.length === 0 && (
+                      <p className="text-sm text-gray-500 px-2 italic">No personal apps yet.</p>
+                    )}
+                    <div className="space-y-6">
+                  {myAppsBySection.map(({ section, apps: sectionApps }) => (
                     <Droppable key={section.id} droppableId={section.id} type="APP">
                       {(provided) => (
                         <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -485,24 +504,121 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                   </div>
                                   );
                                   return snapshot.isDragging && typeof document !== 'undefined'
-                                    ? createPortal(node, document.body)
-                                    : node;
-                                }}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                        </div>
-                      )}
-                    </Droppable>
-                  ))}
-                </div>
-              </DragDropContext>
-            </div>
-          </div>
-          )}
+                                   ? createPortal(node, document.body)
+                                   : node;
+                                  }}
+                                  </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                  </div>
+                                  </div>
+                                  )}
+                                  </Droppable>
+                                  ))}
+                                  </div>
+                                  </div>
 
-          {/* Sections */}
+                                  <div>
+                                  <h3 className="text-base font-bold text-gray-800 mb-3 px-1">Global Apps</h3>
+                                  {globalAppsBySection.length === 0 && (
+                                  <p className="text-sm text-gray-500 px-2 italic">No global apps.</p>
+                                  )}
+                                  <div className="space-y-6">
+                                  {globalAppsBySection.map(({ section, apps: sectionApps }) => (
+                                  <Droppable key={`global-${section.id}`} droppableId={`global-${section.id}`} type="APP">
+                                  {(provided) => (
+                                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                                  <h4 className="text-sm font-semibold text-gray-600 mb-2 px-2">{section.name}</h4>
+                                  <div className="space-y-2">
+                                  {sectionApps.map((app, index) => (
+                                  <Draggable key={app.id} draggableId={app.id} index={index}>
+                                   {(provided, snapshot) => {
+                                     const node = (
+                                       <div
+                                         ref={provided.innerRef}
+                                         {...provided.draggableProps}
+                                         style={{
+                                           ...provided.draggableProps.style,
+                                           cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+                                         }}
+                                         className={`flex items-center gap-3 p-3 rounded-lg border group ${
+                                           snapshot.isDragging
+                                             ? 'shadow-2xl bg-white border-[#f1889b] z-[60]'
+                                             : 'bg-white/60 border-white/80 hover:bg-white/80 transition-all'
+                                         }`}
+                                       >
+                                         <div {...provided.dragHandleProps}>
+                                           <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
+                                         </div>
+                                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                           {app.icon_url ? (
+                                             <img src={app.icon_url} alt={app.name} className="w-6 h-6 object-contain" />
+                                           ) : (
+                                             <div className="w-6 h-6 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
+                                           )}
+                                         </div>
+                                         <div className="flex-1 min-w-0">
+                                           <h5 className="font-medium text-gray-800 text-sm truncate">{app.name}</h5>
+                                           <p className="text-[10px] text-gray-500 uppercase tracking-wide">Global</p>
+                                         </div>
+                                         <div className="flex gap-2">
+                                           <Button
+                                             size="sm"
+                                             variant="ghost"
+                                             className="h-8 w-8 p-0 hover:bg-blue-50"
+                                             onClick={() => onEditApp(app)}
+                                           >
+                                             <Edit className="w-4 h-4 text-blue-500" />
+                                           </Button>
+                                           {isOwner ? (
+                                             <Button
+                                               size="sm"
+                                               variant="ghost"
+                                               className="h-8 w-8 p-0 hover:bg-red-50"
+                                               onClick={() => setConfirmAction({
+                                                 type: 'delete',
+                                                 message: `Delete "${app.name}"?`,
+                                                 action: () => onDeleteApp(app.id)
+                                               })}
+                                               title="Delete App"
+                                             >
+                                               <Trash2 className="w-4 h-4 text-red-500" />
+                                             </Button>
+                                           ) : (
+                                             <Button
+                                               size="sm"
+                                               variant="ghost"
+                                               className="h-8 w-8 p-0 hover:bg-gray-50"
+                                               onClick={() => onHideApp(app.id)}
+                                               title="Hide App"
+                                             >
+                                               <EyeOff className="w-4 h-4 text-gray-500" />
+                                             </Button>
+                                           )}
+                                         </div>
+                                       </div>
+                                     );
+                                     return snapshot.isDragging && typeof document !== 'undefined'
+                                       ? createPortal(node, document.body)
+                                       : node;
+                                   }}
+                                  </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                  </div>
+                                  </div>
+                                  )}
+                                  </Droppable>
+                                  ))}
+                                  </div>
+                                  </div>
+                                  </div>
+                                  </DragDropContext>
+                                  </div>
+                                  </div>
+                                  )}
+
+                                  {/* Sections */}
           {openCard === 'sections' && (
           <div>
             <div className="space-y-4">
@@ -672,8 +788,12 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
 
           {/* Widgets */}
           {openCard === 'widgets' && (
-          <div>
+          <div className="space-y-6">
             <div>
+              <h3 className="text-base font-bold text-gray-800 mb-3 px-1">Your Widgets</h3>
+              {localWidgets.length === 0 && (
+                <p className="text-sm text-gray-500 px-2 italic mb-2">No widgets added yet. Pick one below to get started.</p>
+              )}
               <DragDropContext onDragEnd={(result) => {
                 if (!result.destination) return;
                 const reordered = Array.from(localWidgets);
@@ -731,21 +851,54 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                  </div>
                                  );
                                  return snapshot.isDragging && typeof document !== 'undefined'
-                                   ? createPortal(node, document.body)
-                                   : node;
-                               }}
-                             </Draggable>
-                           )
-                        })}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              </div>
-            </div>
-          )}
-        </div>
+                                  ? createPortal(node, document.body)
+                                  : node;
+                                 }}
+                                 </Draggable>
+                                 )
+                                 })}
+                                 {provided.placeholder}
+                                 </div>
+                                 )}
+                                 </Droppable>
+                                 </DragDropContext>
+                                 </div>
+
+                                 <div>
+                                 <h3 className="text-base font-bold text-gray-800 mb-3 px-1">Available Widgets</h3>
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                 {AVAILABLE_WIDGETS.map((w) => {
+                                 const alreadyAdded = localWidgets.some((lw) => lw.widget_type === w.type);
+                                 return (
+                                 <div
+                                 key={w.type}
+                                 className="flex items-center gap-3 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all"
+                                 >
+                                 <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center flex-shrink-0">
+                                 <img src={w.icon_url} alt={w.name} className="w-5 h-5 object-contain" />
+                                 </div>
+                                 <div className="flex-1 min-w-0">
+                                 <h5 className="font-medium text-gray-800 text-sm truncate">{w.name}</h5>
+                                 <p className="text-xs text-gray-500 truncate">{w.description}</p>
+                                 </div>
+                                 <Button
+                                 size="sm"
+                                 variant={alreadyAdded ? 'outline' : 'default'}
+                                 disabled={alreadyAdded || !onAddWidget}
+                                 className={alreadyAdded ? 'h-8 px-2' : 'h-8 px-2 bg-[#f1889b] hover:bg-[#f1889b]/90 text-white'}
+                                 onClick={() => onAddWidget?.(w.type)}
+                                 title={alreadyAdded ? 'Already added' : 'Add widget'}
+                                 >
+                                 {alreadyAdded ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                                 </Button>
+                                 </div>
+                                 );
+                                 })}
+                                 </div>
+                                 </div>
+                                 </div>
+                                 )}
+                                 </div>
 
         </div>
       </div>
