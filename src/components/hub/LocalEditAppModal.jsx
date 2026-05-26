@@ -159,7 +159,7 @@ export default function LocalEditAppModal({ app, sections, onClose, onStage }) {
               className="flex-1 bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
-              Stage Changes
+              Confirm
             </Button>
           </div>
         </form>

@@ -576,8 +576,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
 
           {/* All Apps — split by user vs global, sorted by section */}
           {openCard === 'apps' && (
-          <div>
-            <div>
+          <div className="flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto">
               <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="space-y-8">
                   <div>
@@ -591,21 +591,23 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                      <h4 className="text-sm font-semibold text-gray-600 mb-3 px-2">{section.name}</h4>
                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                        {sectionApps.map((app) => (
-                         <div
-                           key={app.id}
-                           className="relative flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
-                         >
-                           <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#f1889b]/15 border border-[#f1889b]/30 flex items-center justify-center" title="My App">
-                             <User className="w-3 h-3 text-[#f1889b]" />
-                           </div>
-                           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                             {app.icon_url ? (
-                               <img src={app.icon_url} alt={app.name} className="w-10 h-10 object-contain" />
-                             ) : (
-                               <div className="w-10 h-10 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
-                             )}
-                           </div>
-                           <h5 className="font-medium text-gray-800 text-xs text-center truncate max-w-full">{app.name}</h5>
+                        <div
+                          key={app.id}
+                          className="flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
+                        >
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {app.icon_url ? (
+                              <img src={app.icon_url} alt={app.name} className="w-10 h-10 object-contain" />
+                            ) : (
+                              <div className="w-10 h-10 rounded bg-gradient-to-br from-[#f1889b] to-[#f7b1bd]" />
+                            )}
+                          </div>
+                          <h5 className="font-medium text-gray-800 text-xs text-center truncate max-w-full">{app.name}</h5>
+                          <div className="flex items-center gap-1">
+                            <div className="w-4 h-4 rounded-full bg-[#f1889b]/15 border border-[#f1889b]/30 flex items-center justify-center" title="My App">
+                              <User className="w-2.5 h-2.5 text-[#f1889b]" />
+                            </div>
+                          </div>
                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                              <Button
                                size="sm"
@@ -658,11 +660,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                       {sectionApps.map((app) => (
                                         <div
                                           key={app.id}
-                                          className="relative flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
+                                          className="flex flex-col items-center gap-2 p-3 rounded-lg border bg-white/60 border-white/80 hover:bg-white/80 transition-all group"
                                         >
-                                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center" title="Global App">
-                                            <Globe className="w-3 h-3 text-blue-600" />
-                                          </div>
                                           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 border border-[#f1889b]/20 flex items-center justify-center overflow-hidden flex-shrink-0">
                                             {app.icon_url ? (
                                               <img src={app.icon_url} alt={app.name} className="w-10 h-10 object-contain" />
@@ -672,6 +671,11 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                           </div>
                                           <div className="text-center">
                                             <h5 className="font-medium text-gray-800 text-xs truncate max-w-full">{app.name}</h5>
+                                            <div className="flex items-center justify-center gap-1 mt-1">
+                                              <div className="w-4 h-4 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center" title="Global App">
+                                                <Globe className="w-2.5 h-2.5 text-blue-600" />
+                                              </div>
+                                            </div>
                                           </div>
                                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Button
@@ -714,6 +718,35 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                   </div>
                                   </DragDropContext>
                                   </div>
+                                  </div>
+                                  {hasChanges && (
+                                  <div className="flex gap-3 pt-4 border-t border-gray-200 mt-6">
+                                  <Button
+                                  variant="outline"
+                                  onClick={() => {
+                                  setPendingAppEdits({});
+                                  setPendingAppDeletes(new Set());
+                                  setPendingAppHides(new Set());
+                                  setPendingSectionDeletes(new Set());
+                                  setPendingNewSections([]);
+                                  setPendingWidgetDeletes(new Set());
+                                  setLocalApps(apps);
+                                  setLocalSections(sections);
+                                  setLocalWidgets(userWidgets);
+                                  setHasChanges(false);
+                                  }}
+                                  className="flex-1 rounded-xl"
+                                  >
+                                  Discard
+                                  </Button>
+                                  <Button
+                                  onClick={handleSave}
+                                  className="flex-1 rounded-xl bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"
+                                  >
+                                  Save Changes
+                                  </Button>
+                                  </div>
+                                  )}
                                   </div>
                                   )}
 
