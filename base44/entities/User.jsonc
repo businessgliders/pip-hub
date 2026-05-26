@@ -1,0 +1,32 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "default": "user"
+    },
+    "selectedGradient": {
+      "type": "string",
+      "description": "User's selected background gradient theme"
+    },
+    "customWallpaper": {
+      "type": "string",
+      "description": "URL of user's currently active custom wallpaper"
+    },
+    "uploadedWallpapers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of uploaded wallpaper image URLs saved by the user"
+    }
+  },
+  "required": [
+    "selectedGradient"
+  ]
+}
