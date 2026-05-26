@@ -22,8 +22,10 @@ export default function ConfirmationModal({ type, message, onConfirm, onCancel }
     setProgress(0);
     await onConfirm();
     setProgress(100);
+    // Close shortly after to let the progress bar finish; data updates reactively
+    // through React Query invalidation (no page reload needed).
     setTimeout(() => {
-      window.location.reload();
+      onCancel?.();
     }, 300);
   };
 

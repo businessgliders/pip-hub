@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import ConfirmationModal from './ConfirmationModal';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 import CustomizeTile from './CustomizeTile';
+import LocalEditAppModal from './LocalEditAppModal';
 
 const GRADIENT_OPTIONS = [
   { id: 'default', name: 'Pink', gradient: 'from-[#fbe0e2] via-[#f7b1bd] to-[#fbe0e2]' },
@@ -110,9 +111,78 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
   const [hasChanges, setHasChanges] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
 
+  // Pending changes — only persisted when "Save Changes" is clicked.
+  // pendingAppEdits: { [appId]: { ...partialUpdates } }
+  const [pendingAppEdits, setPendingAppEdits] = useState({});
+  // Apps the user marked for delete/hide locally
+  const [pendingAppDeletes, setPendingAppDeletes] = useState(new Set());
+  const [pendingAppHides, setPendingAppHides] = useState(new Set());
+  // Sections to delete (rename is captured in localSections.name)
+  const [pendingSectionDeletes, setPendingSectionDeletes] = useState(new Set());
+  // Newly-created sections (id starts with "__new_")
+  const [pendingNewSections, setPendingNewSections] = useState([]);
+  // Widgets to delete
+  const [pendingWidgetDeletes, setPendingWidgetDeletes] = useState(new Set());
+
   // Re-sync local state with props when fresh data arrives (only if user has no pending edits).
   useEffect(() => { if (!hasChanges) setLocalApps(apps); }, [apps, hasChanges]);
   useEffect(() => { if (!hasChanges) setLocalSections(sections); }, [sections, hasChanges]);
+
+  // Apply pending edits & filter out pending deletes/hides for the UI
+  const displayApps = localApps
+    .filter(a => !pendingAppDeletes.has(a.id) && !pendingAppHides.has(a.id))
+    .map(a => pendingAppEdits[a.id] ? { ...a, ...pendingAppEdits[a.id] } : a);
+  const displaySections = [
+    ...localSections.filter(s => !pendingSectionDeletes.has(s.id)),
+    ...pendingNewSections,
+  ];
+  const displayWidgets = localWidgets.filter(w => !pendingWidgetDeletes.has(w.id));
+
+  // Local-only handlers that stage changes
+  const stageAppEdit = (appId, partial) => {
+    setPendingAppEdits(prev => ({ ...prev, [appId]: { ...(prev[appId] || {}), ...partial } }));
+    setHasChanges(true);
+  };
+  const stageAppDelete = (appId) => {
+    setPendingAppDeletes(prev => new Set(prev).add(appId));
+    setHasChanges(true);
+  };
+  const stageAppHide = (appId) => {
+    setPendingAppHides(prev => new Set(prev).add(appId));
+    setHasChanges(true);
+  };
+  const stageSectionDelete = (sectionId) => {
+    if (sectionId.startsWith('__new_')) {
+      setPendingNewSections(prev => prev.filter(s => s.id !== sectionId));
+    } else {
+      setPendingSectionDeletes(prev => new Set(prev).add(sectionId));
+    }
+    setHasChanges(true);
+  };
+  const stageWidgetDelete = (widgetId) => {
+    setPendingWidgetDeletes(prev => new Set(prev).add(widgetId));
+    setHasChanges(true);
+  };
+  const stageAddSection = (name) => {
+    const tempId = `__new_${Date.now()}`;
+    const maxOrder = Math.max(...localSections.map(s => s.order || 0), 0);
+    setPendingNewSections(prev => [...prev, { id: tempId, name, order: maxOrder + 1 + prev.length }]);
+    setHasChanges(true);
+  };
+  const stageSectionRename = (sectionId, newName) => {
+    if (sectionId.startsWith('__new_')) {
+      setPendingNewSections(prev => prev.map(s => s.id === sectionId ? { ...s, name: newName } : s));
+    } else {
+      setLocalSections(prev => prev.map(s => s.id === sectionId ? { ...s, name: newName } : s));
+    }
+    setHasChanges(true);
+  };
+
+  // EditAppModal callback (when used inside Customize) — stages instead of saving.
+  // Exposed so AppHub's edit modal can route through Customize when desired,
+  // but for simplicity we stage when openEditApp is set.
+  const [openEditApp, setOpenEditApp] = useState(null);
+  const openLocalEditModal = (app) => setOpenEditApp(app);
   
   const getSection = (sectionId) => sections.find(s => s.id === sectionId);
 
@@ -144,20 +214,15 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
     if (customWallpaper === url) onWallpaperChange(null);
   };
 
-  const groupedApps = localSections.map(section => ({
+  // Split apps into user-specific vs global, grouped by section (using staged data)
+  const myAppsBySection = displaySections.map(section => ({
     section,
-    apps: localApps.filter(app => app.section_id === section.id)
+    apps: displayApps.filter(app => app.section_id === section.id && !app.is_global)
   })).filter(group => group.apps.length > 0);
 
-  // Split apps into user-specific vs global, grouped by section
-  const myAppsBySection = localSections.map(section => ({
+  const globalAppsBySection = displaySections.map(section => ({
     section,
-    apps: localApps.filter(app => app.section_id === section.id && !app.is_global)
-  })).filter(group => group.apps.length > 0);
-
-  const globalAppsBySection = localSections.map(section => ({
-    section,
-    apps: localApps.filter(app => app.section_id === section.id && app.is_global === true)
+    apps: displayApps.filter(app => app.section_id === section.id && app.is_global === true)
   })).filter(group => group.apps.length > 0);
 
   const handleDragEnd = (result) => {
@@ -168,10 +233,12 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
     setHasChanges(true);
 
     if (type === 'SECTION' || source.droppableId === 'sections') {
-      const reordered = Array.from(localSections);
+      const reordered = Array.from(displaySections);
       const [removed] = reordered.splice(source.index, 1);
       reordered.splice(destination.index, 0, removed);
-      setLocalSections(reordered);
+      // Split back into existing vs pending-new based on id prefix
+      setLocalSections(reordered.filter(s => !s.id.startsWith('__new_')));
+      setPendingNewSections(reordered.filter(s => s.id.startsWith('__new_')));
     } else {
       const sourceSectionId = source.droppableId;
       const destSectionId = destination.droppableId;
@@ -206,67 +273,129 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
     setHasChanges(true);
   };
 
+  // Commits ALL pending changes across apps, sections, and widgets in one go.
   const handleSave = () => {
     setConfirmAction({
       type: 'save',
-      message: 'Save your changes?',
+      message: 'Save all your changes?',
       action: async () => {
-        if (activeTab === 'apps') {
-          // Walk visible sections in display order so each app's new order
-          // matches the visual position in the panel (and section moves persist too).
-          const updates = [];
-          localSections.forEach(section => {
-            const sectionApps = localApps.filter(a => a.section_id === section.id);
-            sectionApps.forEach((app, index) => {
-              updates.push(
-                base44.entities.App.update(app.id, {
-                  order: index + 1,
-                  section_id: app.section_id,
-                })
-              );
-            });
+        const me = await base44.auth.me();
+
+        // 1) Create new sections first, mapping temp ids -> real ids
+        const tempIdToRealId = {};
+        for (const newSec of pendingNewSections) {
+          const created = await base44.entities.Section.create({
+            name: newSec.name,
+            order: newSec.order,
           });
-          await Promise.all(updates);
-          await queryClient.invalidateQueries({ queryKey: ['apps'] });
-          setHasChanges(false);
-        } else if (activeTab === 'sections') {
-          await onReorderSections(0, 0); // Trigger with dummy values  
-          // Update user section preferences
-          const user = await base44.auth.me();
-          await Promise.all(
-            localSections.map(async (section, index) => {
-              const existing = await base44.entities.UserSectionPreference.filter({
-                user_email: user.email,
-                section_id: section.id
-              });
-              
-              if (existing.length > 0) {
-                await base44.entities.UserSectionPreference.update(existing[0].id, {
-                  custom_order: index + 1
-                });
-              } else {
-                await base44.entities.UserSectionPreference.create({
-                  user_email: user.email,
-                  section_id: section.id,
-                  custom_order: index + 1
-                });
-              }
-            })
-          );
-          await queryClient.invalidateQueries({ queryKey: ['sections'] });
-          setHasChanges(false);
-        } else if (activeTab === 'widgets') {
-          await Promise.all(
-            localWidgets.map((w, index) => 
-              base44.entities.UserWidget.update(w.id, {
-                order: index,
-                is_floating: w.is_floating
-              })
-            )
-          );
-          await queryClient.invalidateQueries({ queryKey: ['userWidgets'] });
-          setHasChanges(false);
+          tempIdToRealId[newSec.id] = created.id;
         }
+
+        // 2) Delete sections marked for delete
+        await Promise.all(
+          Array.from(pendingSectionDeletes).map(id => base44.entities.Section.delete(id))
+        );
+
+        // 3) Rename + reorder sections (use displaySections current order, swap temp ids)
+        const finalSections = displaySections.map((s, idx) => ({
+          ...s,
+          id: tempIdToRealId[s.id] || s.id,
+          displayOrder: idx + 1,
+        }));
+
+        // Apply section name updates for existing (non-new) sections
+        const originalById = new Map(sections.map(s => [s.id, s]));
+        await Promise.all(
+          localSections.map(s => {
+            const original = originalById.get(s.id);
+            if (original && original.name !== s.name) {
+              return base44.entities.Section.update(s.id, { name: s.name });
+            }
+            return Promise.resolve();
+          })
+        );
+
+        // Update user section ordering preferences
+        const existingPrefs = await base44.entities.UserSectionPreference.filter({ user_email: me.email });
+        const prefBySection = new Map(existingPrefs.map(p => [p.section_id, p]));
+        for (const s of finalSections) {
+          const existing = prefBySection.get(s.id);
+          if (existing) {
+            if (existing.custom_order !== s.displayOrder) {
+              await base44.entities.UserSectionPreference.update(existing.id, { custom_order: s.displayOrder });
+            }
+          } else {
+            await base44.entities.UserSectionPreference.create({
+              user_email: me.email,
+              section_id: s.id,
+              custom_order: s.displayOrder,
+            });
+          }
+        }
+
+        // 4) Apps — apply edits, deletes, hides, reorders
+        // Deletes
+        await Promise.all(
+          Array.from(pendingAppDeletes).map(id => base44.entities.App.delete(id))
+        );
+        // Hides — uses parent's onHideApp (mutates HiddenApp entity)
+        for (const id of pendingAppHides) {
+          await onHideApp(id);
+        }
+        // Edits + reordering (walk display order so visual position is persisted)
+        const appUpdates = [];
+        displaySections.forEach(section => {
+          const realSectionId = tempIdToRealId[section.id] || section.id;
+          const sectionApps = displayApps.filter(a => {
+            const effectiveSectionId = pendingAppEdits[a.id]?.section_id || a.section_id;
+            return effectiveSectionId === section.id || effectiveSectionId === realSectionId;
+          });
+          sectionApps.forEach((app, index) => {
+            const edits = pendingAppEdits[app.id] || {};
+            // Resolve any temp section ids in edits to real ids
+            if (edits.section_id && tempIdToRealId[edits.section_id]) {
+              edits.section_id = tempIdToRealId[edits.section_id];
+            }
+            appUpdates.push(
+              base44.entities.App.update(app.id, {
+                ...edits,
+                order: index + 1,
+                section_id: edits.section_id || app.section_id,
+              })
+            );
+          });
+        });
+        await Promise.all(appUpdates);
+
+        // 5) Widgets — deletes + reorder + floating state
+        await Promise.all(
+          Array.from(pendingWidgetDeletes).map(id => base44.entities.UserWidget.delete(id))
+        );
+        await Promise.all(
+          displayWidgets.map((w, index) =>
+            base44.entities.UserWidget.update(w.id, {
+              order: index,
+              is_floating: w.is_floating,
+            })
+          )
+        );
+
+        // 6) Refresh all queries
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['apps'] }),
+          queryClient.invalidateQueries({ queryKey: ['sections'] }),
+          queryClient.invalidateQueries({ queryKey: ['userWidgets'] }),
+          queryClient.invalidateQueries({ queryKey: ['hiddenApps'] }),
+        ]);
+
+        // 7) Reset pending state
+        setPendingAppEdits({});
+        setPendingAppDeletes(new Set());
+        setPendingAppHides(new Set());
+        setPendingSectionDeletes(new Set());
+        setPendingNewSections([]);
+        setPendingWidgetDeletes(new Set());
+        setHasChanges(false);
       }
     });
   };
@@ -294,16 +423,46 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
             </div>
             <div className="flex gap-2">
               {hasChanges && (
-                <Button
-                  onClick={handleSave}
-                  className="rounded-xl bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"
-                >
-                  Save Changes
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setPendingAppEdits({});
+                      setPendingAppDeletes(new Set());
+                      setPendingAppHides(new Set());
+                      setPendingSectionDeletes(new Set());
+                      setPendingNewSections([]);
+                      setPendingWidgetDeletes(new Set());
+                      setLocalApps(apps);
+                      setLocalSections(sections);
+                      setLocalWidgets(userWidgets);
+                      setHasChanges(false);
+                    }}
+                    className="rounded-xl"
+                  >
+                    Discard
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    className="rounded-xl bg-gradient-to-r from-[#f1889b] to-[#f7b1bd] hover:from-[#f1889b]/90 hover:to-[#f7b1bd]/90 text-white"
+                  >
+                    Save Changes
+                  </Button>
+                </>
               )}
               <Button
                 variant="outline"
-                onClick={onClose}
+                onClick={() => {
+                  if (hasChanges) {
+                    setConfirmAction({
+                      type: 'delete',
+                      message: 'You have unsaved changes. Close anyway?',
+                      action: () => { onClose(); }
+                    });
+                  } else {
+                    onClose();
+                  }
+                }}
                 className="rounded-xl"
               >
                 Close
@@ -449,7 +608,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                size="sm"
                                variant="ghost"
                                className="h-6 w-6 p-0 hover:bg-blue-50"
-                               onClick={() => onEditApp(app)}
+                               onClick={() => openLocalEditModal(app)}
                              >
                                <Edit className="w-3 h-3 text-blue-500" />
                              </Button>
@@ -458,12 +617,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                  size="sm"
                                  variant="ghost"
                                  className="h-6 w-6 p-0 hover:bg-red-50"
-                                 onClick={() => setConfirmAction({
-                                   type: 'delete',
-                                   message: `Delete "${app.name}"?`,
-                                   action: () => onDeleteApp(app.id)
-                                 })}
-                                 title="Delete App"
+                                 onClick={() => stageAppDelete(app.id)}
+                                 title="Delete App (saved on Save Changes)"
                                >
                                  <Trash2 className="w-3 h-3 text-red-500" />
                                </Button>
@@ -472,20 +627,20 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                  size="sm"
                                  variant="ghost"
                                  className="h-6 w-6 p-0 hover:bg-gray-50"
-                                 onClick={() => onHideApp(app.id)}
-                                 title="Hide App"
+                                 onClick={() => stageAppHide(app.id)}
+                                 title="Hide App (saved on Save Changes)"
                                >
                                  <EyeOff className="w-3 h-3 text-gray-500" />
                                </Button>
                              )}
                            </div>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-                  ))}
-                   </div>
-                   </div>
+                           </div>
+                           ))}
+                           </div>
+                           </div>
+                           ))}
+                           </div>
+                           </div>
 
                                   <div>
                                   <h3 className="text-base font-bold text-gray-800 mb-3 px-1">Global Apps</h3>
@@ -518,7 +673,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                               size="sm"
                                               variant="ghost"
                                               className="h-6 w-6 p-0 hover:bg-blue-50"
-                                              onClick={() => onEditApp(app)}
+                                              onClick={() => openLocalEditModal(app)}
                                             >
                                               <Edit className="w-3 h-3 text-blue-500" />
                                             </Button>
@@ -527,12 +682,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                                 size="sm"
                                                 variant="ghost"
                                                 className="h-6 w-6 p-0 hover:bg-red-50"
-                                                onClick={() => setConfirmAction({
-                                                  type: 'delete',
-                                                  message: `Delete "${app.name}"?`,
-                                                  action: () => onDeleteApp(app.id)
-                                                })}
-                                                title="Delete App"
+                                                onClick={() => stageAppDelete(app.id)}
+                                                title="Delete App (saved on Save Changes)"
                                               >
                                                 <Trash2 className="w-3 h-3 text-red-500" />
                                               </Button>
@@ -541,8 +692,8 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                                 size="sm"
                                                 variant="ghost"
                                                 className="h-6 w-6 p-0 hover:bg-gray-50"
-                                                onClick={() => onHideApp(app.id)}
-                                                title="Hide App"
+                                                onClick={() => stageAppHide(app.id)}
+                                                title="Hide App (saved on Save Changes)"
                                               >
                                                 <EyeOff className="w-3 h-3 text-gray-500" />
                                               </Button>
@@ -584,8 +735,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && newSectionName.trim()) {
-                        const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
-                        base44.entities.Section.create({ name: newSectionName, order: maxOrder + 1 });
+                        stageAddSection(newSectionName.trim());
                         setNewSectionName('');
                         setIsAddingSection(false);
                       } else if (e.key === 'Escape') {
@@ -598,8 +748,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                     size="sm"
                     onClick={() => {
                       if (newSectionName.trim()) {
-                        const maxOrder = Math.max(...sections.map(s => s.order || 0), 0);
-                        base44.entities.Section.create({ name: newSectionName, order: maxOrder + 1 });
+                        stageAddSection(newSectionName.trim());
                         setNewSectionName('');
                         setIsAddingSection(false);
                       }
@@ -629,7 +778,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                       ref={provided.innerRef}
                       className="space-y-2"
                     >
-                      {localSections.map((section, index) => (
+                      {displaySections.map((section, index) => (
                         <Draggable key={section.id} draggableId={section.id} index={index}>
                           {(provided, snapshot) => {
                             const node = (
@@ -657,11 +806,9 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                     onChange={(e) => setRenamingSectionName(e.target.value)}
                                     className="h-8"
                                     autoFocus
-                                    onKeyDown={async (e) => {
+                                    onKeyDown={(e) => {
                                       if (e.key === 'Enter' && renamingSectionName.trim()) {
-                                        await base44.entities.Section.update(section.id, { name: renamingSectionName });
-                                        setLocalSections(prev => prev.map(s => s.id === section.id ? { ...s, name: renamingSectionName } : s));
-                                        await queryClient.invalidateQueries({ queryKey: ['sections'] });
+                                        stageSectionRename(section.id, renamingSectionName.trim());
                                         setRenamingSectionId(null);
                                       } else if (e.key === 'Escape') {
                                         setRenamingSectionId(null);
@@ -669,7 +816,12 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                     }}
                                   />
                                 ) : (
-                                  <h5 className="font-medium text-gray-800">{section.name}</h5>
+                                  <h5 className="font-medium text-gray-800">
+                                    {section.name}
+                                    {section.id.startsWith('__new_') && (
+                                      <span className="ml-2 text-[10px] uppercase tracking-wide text-[#f1889b] font-semibold">New</span>
+                                    )}
+                                  </h5>
                                 )}
                               </div>
 
@@ -677,11 +829,9 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                 <div className="flex gap-2">
                                   <Button
                                     size="sm"
-                                    onClick={async () => {
+                                    onClick={() => {
                                       if (renamingSectionName.trim()) {
-                                        await base44.entities.Section.update(section.id, { name: renamingSectionName });
-                                        setLocalSections(prev => prev.map(s => s.id === section.id ? { ...s, name: renamingSectionName } : s));
-                                        await queryClient.invalidateQueries({ queryKey: ['sections'] });
+                                        stageSectionRename(section.id, renamingSectionName.trim());
                                         setRenamingSectionId(null);
                                       }
                                     }}
@@ -699,18 +849,29 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                   </Button>
                                 </div>
                               ) : (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="text-xs"
-                                  onClick={() => {
-                                    setRenamingSectionId(section.id);
-                                    setRenamingSectionName(section.name);
-                                  }}
-                                >
-                                  <Edit className="w-3 h-3 mr-1" />
-                                  Rename
-                                </Button>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs"
+                                    onClick={() => {
+                                      setRenamingSectionId(section.id);
+                                      setRenamingSectionName(section.name);
+                                    }}
+                                  >
+                                    <Edit className="w-3 h-3 mr-1" />
+                                    Rename
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 hover:bg-red-50"
+                                    onClick={() => stageSectionDelete(section.id)}
+                                    title="Delete section (saved on Save Changes)"
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </Button>
+                                </div>
                               )}
                             </div>
                             );
@@ -739,16 +900,18 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
               )}
               <DragDropContext onDragEnd={(result) => {
                 if (!result.destination) return;
-                const reordered = Array.from(localWidgets);
+                const reordered = Array.from(displayWidgets);
                 const [removed] = reordered.splice(result.source.index, 1);
                 reordered.splice(result.destination.index, 0, removed);
-                setLocalWidgets(reordered);
+                // Re-merge with any deleted-staged widgets (keep them out of UI but preserve in localWidgets)
+                const deletedOnes = localWidgets.filter(w => pendingWidgetDeletes.has(w.id));
+                setLocalWidgets([...reordered, ...deletedOnes]);
                 setHasChanges(true);
               }}>
                 <Droppable droppableId="widgets">
                   {(provided) => (
                     <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                      {localWidgets.map((widget, index) => {
+                      {displayWidgets.map((widget, index) => {
                            const widgetInfo = AVAILABLE_WIDGETS.find(w => w.type === widget.widget_type) || {};
                            return (
                              <Draggable key={widget.id} draggableId={widget.id} index={index}>
@@ -781,13 +944,7 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
                                       }}>
                                         {widget.is_floating ? <Minimize2 className="w-4 h-4 text-gray-600" /> : <Maximize2 className="w-4 h-4 text-blue-500" />}
                                       </Button>
-                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-red-50" onClick={() => {
-                                        setConfirmAction({
-                                          type: 'delete',
-                                          message: `Remove widget?`,
-                                          action: () => onDeleteWidget(widget.id)
-                                        });
-                                      }}>
+                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-red-50" onClick={() => stageWidgetDelete(widget.id)} title="Remove widget (saved on Save Changes)">
                                         <Trash2 className="w-4 h-4 text-red-500" />
                                       </Button>
                                     </div>
@@ -852,6 +1009,15 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
           message={confirmAction.message}
           onConfirm={confirmAction.action}
           onCancel={() => setConfirmAction(null)}
+        />
+      )}
+
+      {openEditApp && (
+        <LocalEditAppModal
+          app={openEditApp}
+          sections={displaySections}
+          onClose={() => setOpenEditApp(null)}
+          onStage={(appId, partial) => stageAppEdit(appId, partial)}
         />
       )}
     </div>
