@@ -72,14 +72,26 @@ export default function useWeather() {
       }
     };
 
+    // Always load fallback immediately so the UI shows weather quickly,
+    // then upgrade to precise location if geolocation succeeds.
+    load(FALLBACK.lat, FALLBACK.lon, FALLBACK.city);
+
     if (navigator.geolocation) {
+      let resolved = false;
+      const safety = setTimeout(() => { resolved = true; }, 6000);
       navigator.geolocation.getCurrentPosition(
-        (pos) => load(pos.coords.latitude, pos.coords.longitude),
-        () => load(FALLBACK.lat, FALLBACK.lon, FALLBACK.city),
+        (pos) => {
+          if (resolved) return;
+          resolved = true;
+          clearTimeout(safety);
+          load(pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+          resolved = true;
+          clearTimeout(safety);
+        },
         { timeout: 5000, maximumAge: 600000 }
       );
-    } else {
-      load(FALLBACK.lat, FALLBACK.lon, FALLBACK.city);
     }
 
     return () => { cancelled = true; };
