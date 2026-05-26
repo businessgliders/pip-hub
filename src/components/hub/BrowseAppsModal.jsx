@@ -216,7 +216,7 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], u
     <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4 bg-black/20 backdrop-blur-sm overflow-hidden">
       <div className="w-full max-w-5xl rounded-3xl backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl p-4 md:p-8 max-h-[100dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Add Apps</h2>
+          <h2 className="text-2xl font-semibold text-gray-800">All Apps</h2>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
