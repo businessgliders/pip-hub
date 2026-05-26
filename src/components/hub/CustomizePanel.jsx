@@ -396,6 +396,9 @@ export default function CustomizePanel({ apps, sections, userWidgets = [], selec
         setPendingNewSections([]);
         setPendingWidgetDeletes(new Set());
         setHasChanges(false);
+
+        // 8) Close the customize panel after successful save
+        onClose?.();
       }
     });
   };
