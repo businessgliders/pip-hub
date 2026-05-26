@@ -293,15 +293,21 @@ export default function AppHub() {
     mutationFn: async (appId) => {
       if (!user) return;
       const existing = preferences.find(p => p.app_id === appId);
+      // Compute next custom_order so newly favorited apps go to the end of the list
+      const currentFavoritesCount = preferences.filter(p => p.is_favorited).length;
+      const nextOrder = currentFavoritesCount + 1;
       if (existing) {
+        const willBeFavorited = !existing.is_favorited;
         await base44.entities.UserAppPreference.update(existing.id, {
-          is_favorited: !existing.is_favorited
+          is_favorited: willBeFavorited,
+          ...(willBeFavorited ? { custom_order: nextOrder } : {}),
         });
       } else {
         await base44.entities.UserAppPreference.create({
           user_email: user.email,
           app_id: appId,
           is_favorited: true,
+          custom_order: nextOrder,
         });
       }
     },
