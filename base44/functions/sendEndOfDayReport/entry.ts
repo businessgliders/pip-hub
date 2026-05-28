@@ -142,12 +142,12 @@ const encodeRFC2047 = (text) => {
   return `=?UTF-8?B?${b64}?=`;
 };
 
-const buildMime = async ({ from, to, subject, html }) => {
+const buildMime = async ({ from, to, cc, subject, html }) => {
   const transport = nodemailer.createTransport({ streamTransport: true, newline: 'unix', buffer: true });
   const fromEncoded = from.includes('<') 
     ? from.replace(/^([^<]+)/, (name) => encodeRFC2047(name.trim()))
     : from;
-  const info = await transport.sendMail({ from: fromEncoded, to, subject, html });
+  const info = await transport.sendMail({ from: fromEncoded, to, cc, subject, html });
   return info.message.toString('base64')
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
@@ -171,7 +171,8 @@ Deno.serve(async (req) => {
 
     const raw = await buildMime({
       from: `${STORE_NAME} <frontdesk@pilatesinpinkstudio.com>`,
-      to: 'gurpreen@pilatesinpinkstudio.com',
+      to: 'sahil@pilatesinpinkstudio.com',
+      cc: 'gurpreen@pilatesinpinkstudio.com',
       subject,
       html,
     });
