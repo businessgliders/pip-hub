@@ -35,6 +35,7 @@ const initial = {
   posted_social_media: false,
   content_planned: '',
   low_inventory_items: '',
+  low_inventory_none: false,
   incidents_list: [],
   feedback_list: [],
   general_notes: '',
@@ -69,7 +70,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
       case 'social':
         return data.content_planned.trim().length > 0;
       case 'inventory':
-        return data.low_inventory_items.trim().length > 0;
+        return data.low_inventory_none || data.low_inventory_items.trim().length > 0;
       case 'notes':
         return data.general_notes.trim().length > 0;
       case 'sign':
@@ -247,19 +248,36 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
               )}
 
               {STEPS[step].id === 'inventory' && (
-                <Field
-                  label="Items that won't last 3 days"
-                  required
-                  hint="Socks, Water, Soap, Detergent, Toilet Rolls, Garbage Bags, Paper Towels (Kitchen & Reformer), Coffee, Tea, Sugar"
-                >
-                  <Textarea
-                    value={data.low_inventory_items}
-                    onChange={(e) => update('low_inventory_items', e.target.value)}
-                    placeholder="List low-stock items here"
-                    className="min-h-[140px]"
-                    style={{ fontSize: '16px' }}
-                  />
-                </Field>
+                <>
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                    <div>
+                      <div className="font-medium text-gray-800 text-sm">No low inventory items</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Everything is in stock</div>
+                    </div>
+                    <Switch
+                      checked={data.low_inventory_none}
+                      onCheckedChange={(v) => {
+                        update('low_inventory_none', v);
+                        if (v) update('low_inventory_items', '');
+                      }}
+                    />
+                  </div>
+                  {!data.low_inventory_none && (
+                    <Field
+                      label="Items that won't last 3 days"
+                      required
+                      hint="Socks, Water, Soap, Detergent, Toilet Rolls, Garbage Bags, Paper Towels (Kitchen & Reformer), Coffee, Tea, Sugar"
+                    >
+                      <Textarea
+                        value={data.low_inventory_items}
+                        onChange={(e) => update('low_inventory_items', e.target.value)}
+                        placeholder="List low-stock items here"
+                        className="min-h-[140px]"
+                        style={{ fontSize: '16px' }}
+                      />
+                    </Field>
+                  )}
+                </>
               )}
 
               {STEPS[step].id === 'notes' && (
