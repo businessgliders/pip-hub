@@ -38,7 +38,7 @@
     },
     "conversion_notes": {
       "type": "string",
-      "description": "If lead didn't convert, reason. NA if no walk-ins/calls."
+      "description": "Reasons why a lead did not want to convert. NA if no walk-ins/calls."
     },
     "reviews_solicited": {
       "type": "number",
@@ -60,11 +60,25 @@
     },
     "incidents": {
       "type": "string",
-      "description": "Any incidents to report"
+      "description": "Any incidents to report (legacy single field)"
+    },
+    "incidents_list": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Line items: incidents to report"
     },
     "feedback": {
       "type": "string",
-      "description": "Client feedback or improvement ideas"
+      "description": "Client feedback or improvement ideas (legacy single field)"
+    },
+    "feedback_list": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Line items: client feedback / improvement ideas"
     },
     "general_notes": {
       "type": "string",

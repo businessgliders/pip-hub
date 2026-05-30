@@ -32,9 +32,26 @@ const buildHtml = (r, appUrl) => {
 
   const row = (label, value) => `
     <tr>
-      <td style="padding:10px 14px;background:#fafafa;border-bottom:1px solid #f1f5f9;width:40%;font-size:13px;color:${muted};font-weight:500;">${esc(label)}</td>
+      <td style="padding:10px 14px;background:#fafafa;border-bottom:1px solid #f1f5f9;width:40%;font-size:13px;color:${muted};font-weight:500;vertical-align:top;">${esc(label)}</td>
       <td style="padding:10px 14px;background:#ffffff;border-bottom:1px solid #f1f5f9;font-size:14px;color:${text};">${esc(value || '—')}</td>
     </tr>`;
+
+  const listRow = (label, items, fallback) => {
+    const arr = Array.isArray(items) ? items.filter(Boolean) : [];
+    if (arr.length === 0) {
+      return row(label, fallback || '—');
+    }
+    const li = arr.map((it, i) => `
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:${i === arr.length - 1 ? 'none' : '1px dashed #f1f5f9'};">
+        <span style="display:inline-block;min-width:20px;height:20px;line-height:20px;text-align:center;background:${pinkLight};color:${pink};font-size:11px;font-weight:700;border-radius:999px;">${i + 1}</span>
+        <span style="font-size:14px;color:${text};">${esc(it)}</span>
+      </div>`).join('');
+    return `
+      <tr>
+        <td style="padding:10px 14px;background:#fafafa;border-bottom:1px solid #f1f5f9;width:40%;font-size:13px;color:${muted};font-weight:500;vertical-align:top;">${esc(label)}</td>
+        <td style="padding:10px 14px;background:#ffffff;border-bottom:1px solid #f1f5f9;">${li}</td>
+      </tr>`;
+  };
 
   const section = (title, content) => `
     <div style="margin-top:24px;">
@@ -111,8 +128,8 @@ const buildHtml = (r, appUrl) => {
 
           ${section('Notes & Feedback', `
             <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:12px;overflow:hidden;border:1px solid #f1f5f9;">
-              ${row('Incidents', r.incidents)}
-              ${row('Client feedback', r.feedback)}
+              ${listRow('Incidents', r.incidents_list, r.incidents)}
+              ${listRow('Client feedback', r.feedback_list, r.feedback)}
               ${row('General notes', r.general_notes)}
             </table>`)}
 

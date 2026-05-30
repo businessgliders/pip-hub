@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
+import LineItemsInput from './LineItemsInput';
 
 const STEPS = [
   { id: 'datetime', label: 'Shift', icon: Calendar },
@@ -34,8 +35,8 @@ const initial = {
   posted_social_media: false,
   content_planned: '',
   low_inventory_items: '',
-  incidents: '',
-  feedback: '',
+  incidents_list: [],
+  feedback_list: [],
   general_notes: '',
   signature: '',
   admin_name: '',
@@ -48,13 +49,31 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const update = (key, value) => setData(prev => ({ ...prev, [key]: value }));
+  const update = (key, value) => setData(prev => {
+    const next = { ...prev, [key]: value };
+    // Front Desk Admin Name drives the Signature field in real time
+    if (key === 'admin_name') next.signature = value;
+    return next;
+  });
   const num = (v) => (v === '' || v === null || v === undefined ? 0 : Number(v));
+  const hasNum = (v) => v !== '' && v !== null && v !== undefined && !Number.isNaN(Number(v));
 
   const isStepValid = useMemo(() => {
     switch (STEPS[step].id) {
-      case 'datetime': return !!data.shift_date && !!data.shift_time;
-      case 'sign': return data.signature.trim().length > 1 && data.admin_name.trim().length > 1;
+      case 'datetime':
+        return !!data.shift_date && !!data.shift_time && data.location.trim().length > 0;
+      case 'communication':
+        return hasNum(data.calls_handled) && hasNum(data.total_emails) &&
+          hasNum(data.total_walk_ins) && hasNum(data.leads_converted) &&
+          hasNum(data.reviews_solicited);
+      case 'social':
+        return data.content_planned.trim().length > 0;
+      case 'inventory':
+        return data.low_inventory_items.trim().length > 0;
+      case 'notes':
+        return data.general_notes.trim().length > 0;
+      case 'sign':
+        return data.signature.trim().length > 1 && data.admin_name.trim().length > 1;
       default: return true;
     }
   }, [step, data]);
@@ -171,7 +190,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
-                  <Field label="Location" hint="Defaults to Brampton / HQ.">
+                  <Field label="Location" required hint="Defaults to Brampton / HQ.">
                     <Input
                       value={data.location}
                       onChange={(e) => update('location', e.target.value)}
@@ -185,12 +204,12 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
               {STEPS[step].id === 'communication' && (
                 <>
                   <div className="grid grid-cols-2 gap-3">
-                    <StatField icon={Phone} label="Calls handled" value={data.calls_handled} onChange={(v) => update('calls_handled', v)} />
-                    <StatField icon={Mail} label="Total emails" value={data.total_emails} onChange={(v) => update('total_emails', v)} />
-                    <StatField icon={Users} label="Walk-ins" value={data.total_walk_ins} onChange={(v) => update('total_walk_ins', v)} />
-                    <StatField icon={Check} label="Leads converted" value={data.leads_converted} onChange={(v) => update('leads_converted', v)} />
+                    <StatField icon={Phone} label="Calls handled" required value={data.calls_handled} onChange={(v) => update('calls_handled', v)} />
+                    <StatField icon={Mail} label="Total emails" required value={data.total_emails} onChange={(v) => update('total_emails', v)} />
+                    <StatField icon={Users} label="Walk-ins" required value={data.total_walk_ins} onChange={(v) => update('total_walk_ins', v)} />
+                    <StatField icon={Check} label="Leads converted" required value={data.leads_converted} onChange={(v) => update('leads_converted', v)} />
                   </div>
-                  <Field label="If a lead didn't convert, why?" hint="Type NA if you had no walk-ins/calls.">
+                  <Field label="Reasons why a lead did not want to convert" hint="Type NA if you had no walk-ins/calls.">
                     <Textarea
                       value={data.conversion_notes}
                       onChange={(e) => update('conversion_notes', e.target.value)}
@@ -199,7 +218,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
-                  <StatField icon={Star} label="Reviews solicited" value={data.reviews_solicited} onChange={(v) => update('reviews_solicited', v)} fullWidth />
+                  <StatField icon={Star} label="Reviews solicited" required value={data.reviews_solicited} onChange={(v) => update('reviews_solicited', v)} fullWidth />
                 </>
               )}
 
@@ -215,7 +234,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       onCheckedChange={(v) => update('posted_social_media', v)}
                     />
                   </div>
-                  <Field label="How much content has been planned?">
+                  <Field label="How much content has been planned?" required>
                     <Textarea
                       value={data.content_planned}
                       onChange={(e) => update('content_planned', e.target.value)}
@@ -230,6 +249,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
               {STEPS[step].id === 'inventory' && (
                 <Field
                   label="Items that won't last 3 days"
+                  required
                   hint="Socks, Water, Soap, Detergent, Toilet Rolls, Garbage Bags, Paper Towels (Kitchen & Reformer), Coffee, Tea, Sugar"
                 >
                   <Textarea
@@ -244,25 +264,21 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
 
               {STEPS[step].id === 'notes' && (
                 <>
-                  <Field label="Any incidents to report?">
-                    <Textarea
-                      value={data.incidents}
-                      onChange={(e) => update('incidents', e.target.value)}
-                      placeholder="Anything notable that happened today"
-                      className="min-h-[90px]"
-                      style={{ fontSize: '16px' }}
+                  <Field label="Any incidents to report?" hint="Add each incident as its own line item.">
+                    <LineItemsInput
+                      items={data.incidents_list}
+                      onChange={(v) => update('incidents_list', v)}
+                      placeholder="Describe an incident"
                     />
                   </Field>
-                  <Field label="Client feedback / improvement ideas">
-                    <Textarea
-                      value={data.feedback}
-                      onChange={(e) => update('feedback', e.target.value)}
-                      placeholder="What did clients say? What could be better?"
-                      className="min-h-[90px]"
-                      style={{ fontSize: '16px' }}
+                  <Field label="Client feedback / improvement ideas" hint="Add each piece of feedback as its own line item.">
+                    <LineItemsInput
+                      items={data.feedback_list}
+                      onChange={(v) => update('feedback_list', v)}
+                      placeholder="Add feedback or an idea"
                     />
                   </Field>
-                  <Field label="General notes about the shift">
+                  <Field label="General notes about the shift" required>
                     <Textarea
                       value={data.general_notes}
                       onChange={(e) => update('general_notes', e.target.value)}
@@ -284,7 +300,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
-                  <Field label="Your Signature" required hint="Type your full name to sign this report.">
+                  <Field label="Your Signature" required hint="Auto-filled from the Front Desk Admin Name above.">
                     <Input
                       value={data.signature}
                       onChange={(e) => update('signature', e.target.value)}
@@ -371,12 +387,14 @@ function Field({ label, hint, required, children }) {
   );
 }
 
-function StatField({ icon: Icon, label, value, onChange, fullWidth }) {
+function StatField({ icon: Icon, label, value, onChange, fullWidth, required }) {
   return (
     <div className={`p-3 rounded-2xl bg-gray-50 border border-gray-100 ${fullWidth ? 'col-span-2' : ''}`}>
       <div className="flex items-center gap-2 mb-2">
         <Icon className="w-4 h-4 text-[#f1889b]" />
-        <span className="text-xs font-medium text-gray-600">{label}</span>
+        <span className="text-xs font-medium text-gray-600">
+          {label}{required && <span className="text-[#f1889b] ml-0.5">*</span>}
+        </span>
       </div>
       <Input
         type="number"
