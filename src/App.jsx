@@ -10,6 +10,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SplitView from './pages/SplitView';
 import EndOfDayCalendar from './pages/EndOfDayCalendar';
 import MasterKanbanDemo from './pages/MasterKanbanDemo';
+import SupportInbox from './pages/SupportInbox';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -53,6 +54,7 @@ const AuthenticatedApp = () => {
       <Route path="/splitview" element={<SplitView />} />
       <Route path="/end-of-day" element={<EndOfDayCalendar />} />
       <Route path="/master-kanban-demo" element={<MasterKanbanDemo />} />
+      <Route path="/support" element={<SupportInbox />} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
