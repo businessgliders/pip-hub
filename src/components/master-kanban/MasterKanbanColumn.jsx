@@ -1,0 +1,152 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Archive, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+import MasterKanbanCard from "./MasterKanbanCard";
+
+/**
+ * MasterKanbanColumn — generic kanban column.
+ *
+ * Combines:
+ *   - pip-events' clean props API (slim, predictable)
+ *   - pip-support's optional bulk actions (Tidy Up, Archive Some, Archive All)
+ *   - pip-events' portal-on-drag (escapes blurred/clipped ancestors)
+ *
+ * The column itself is presentational. The parent passes:
+ *   - `colorClasses` / `headerClasses` for per-status theming (so the spoke app
+ *     owns its own color palette — no hard-coded statuses here)
+ *   - `renderCardContent(ticket)` to render the ticket body
+ *
+ * Optional action props (hidden unless provided):
+ *   - onTidyUp, onArchiveSome, onArchiveAll
+ */
+export default function MasterKanbanColumn({
+  status,
+  tickets = [],
+  isLoading = false,
+  isDimmed = false,
+  highlightedTicketId,
+  unreadByTicket = {},
+  onTicketClick,
+  renderCardContent,
+  // Per-status theming (parent decides)
+  colorClasses = "from-white/20 to-white/10 border-white/30",
+  headerClasses = "bg-white/30 border-white/40",
+  // Optional bulk actions
+  onTidyUp,
+  onArchiveSome,
+  onArchiveAll,
+  emptyLabel = "No items",
+}) {
+  return (
+    <div
+      data-kanban-column
+      className={cn(
+        "flex-shrink-0 w-80 flex flex-col rounded-2xl border bg-gradient-to-b backdrop-blur-sm transition-opacity",
+        colorClasses,
+        isDimmed && "opacity-60"
+      )}
+    >
+      {/* Header */}
+      <div className={cn("flex items-center justify-between px-4 py-3 border-b rounded-t-2xl", headerClasses)}>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-slate-800">{status}</h3>
+          <span className="text-xs font-medium text-slate-600 bg-white/60 rounded-full px-2 py-0.5">
+            {tickets.length}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          {onTidyUp && tickets.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onTidyUp}
+              className="h-7 px-2 text-xs gap-1 text-slate-700 hover:bg-white/50"
+              title="Tidy Up"
+            >
+              <Sparkles className="w-3 h-3" />
+              Tidy
+            </Button>
+          )}
+          {onArchiveSome && tickets.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onArchiveSome}
+              className="h-7 px-2 text-xs text-slate-700 hover:bg-white/50"
+              title="Clean Up"
+            >
+              Clean
+            </Button>
+          )}
+          {onArchiveAll && tickets.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onArchiveAll}
+              className="h-7 px-2 text-xs gap-1 text-slate-700 hover:bg-white/50"
+              title="Archive All"
+            >
+              <Archive className="w-3 h-3" />
+              All
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Droppable list */}
+      <Droppable droppableId={status}>
+        {(dropProvided, dropSnapshot) => (
+          <div
+            ref={dropProvided.innerRef}
+            {...dropProvided.droppableProps}
+            className={cn(
+              "flex-1 p-3 space-y-2 min-h-32 overflow-y-auto transition-colors",
+              dropSnapshot.isDraggingOver && "bg-white/30"
+            )}
+          >
+            {isLoading ? (
+              [1, 2, 3].map((i) => <Skeleton key={i} className="h-20 rounded-xl" />)
+            ) : tickets.length === 0 ? (
+              <div className="text-center text-xs text-slate-500 py-8">{emptyLabel}</div>
+            ) : (
+              tickets.map((ticket, index) => (
+                <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
+                  {(provided, snapshot) => {
+                    const child = (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <MasterKanbanCard
+                          ticket={ticket}
+                          onClick={() => !snapshot.isDragging && onTicketClick?.(ticket)}
+                          isDragging={snapshot.isDragging}
+                          isHighlighted={ticket.id === highlightedTicketId}
+                          unreadCount={unreadByTicket[ticket.id] || 0}
+                          renderContent={renderCardContent}
+                        />
+                      </div>
+                    );
+                    // Portal dragged item to body — escapes blurred/clipped ancestors
+                    // and keeps the pointer aligned in viewport coordinates.
+                    if (snapshot.isDragging && typeof document !== "undefined") {
+                      return ReactDOM.createPortal(child, document.body);
+                    }
+                    return child;
+                  }}
+                </Draggable>
+              ))
+            )}
+            {dropProvided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </div>
+  );
+}
