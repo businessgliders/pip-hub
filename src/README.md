@@ -55,30 +55,68 @@ Mirrors pip-partner's 4-board pattern (Franchise / Instructor / Front Desk / Inf
 
 ---
 
-## 🚚 How Spokes Consume the Master Kanban
+## 📦 Spoke App Reality (audited 2026-06-05)
 
-**(Open question — see TODO at bottom.)** Current candidates:
+**All 3 spokes have self-sufficient ticket boards + Gmail integration.** The Master Kanban does NOT introduce new functionality — it consolidates duplicated UI primitives. Audit of `src/components/` in each repo:
 
-- **A) Manual copy-paste** — each spoke copies `components/master-kanban/` + `hooks/useHorizontalScroll.js` from this repo. Simple, but drifts over time.
-- **B) Published npm package** — `@pip/master-kanban`. Cleanest, but adds publish/version overhead.
-- **C) Git submodule or scripted sync** — pull from this repo at build time.
+### File-level drift across spokes
 
-The current state is **(A) implicit copy-paste**. pip-partner already has its own version of these components; the Hub's are a refined/generalized derivation that pip-partner, pip-support, and pip-events should eventually adopt.
+| Concept | pip-support | pip-events | pip-partner |
+|---|---|---|---|
+| **Kanban column** | `support/KanbanColumn.jsx` | `board/KanbanColumn.jsx` | `board/KanbanColumn.jsx` |
+| **Ticket card** | (inline / mixed) | `board/TicketCard.jsx` | `board/TicketCard.jsx` |
+| **Archived tickets list** | `support/ArchivedTicketsList.jsx` | `board/ArchivedTicketsList.jsx` | `board/ArchivedTicketsList.jsx` |
+| **Cleanup row** | `support/CleanupTicketRow.jsx` | — | `board/CleanupTicketRow.jsx` |
+| **Resolved cleanup popup** | `support/ResolvedCleanupPopup.jsx` | — | `board/ResolvedCleanupPopup.jsx` |
+| **Swimlane / sub-row scroller** | `support/EscalationSwimlane.jsx` | — | `board/SwimlaneScroller.jsx` |
+| **Side panel** | — | `board/HostedSidePanel.jsx` | `board/ClosedSidePanel.jsx` |
+| **Multi-board config** | — | — | `board/boardConfig.jsx` (4 boards) |
+
+Same purpose, same file names in two spokes, **three different implementations**. Every bug fixed in one is fixed three times.
+
+### Spoke-specific code (stays in the spoke)
+
+| Spoke | Spoke-only files |
+|---|---|
+| pip-support | `BugReportChat`, `BugReportIssueList`, `BugReportReplyComposer`, `NotificationCenter`, `NotificationRow`, `MobileTabBar`, `MobileUserFilter`, `FloatingUserFilter`, `CancellationFlow`, `ChangelogPopup`, `ReplyBubble` |
+| pip-events | `AddonLegend`, `StatusChangeDialog`, `HostedSidePanel` |
+| pip-partner | `MapView`, `FddCountdownPill`, `ProgramDock`, `BoardDialogs`, `landMask`, `tableColumns`, `boardConfig` |
+
+### Email infrastructure — each spoke has its own
+- **pip-support:** `ingestGmailReply`, `pollGmailReplies`, `sendTicketEmail`, `[Ticket #xxxxx]` tag matching → confirmed self-sufficient
+- **pip-events:** has its own `email/` components folder
+- **pip-partner:** has its own `email/` components folder
+
+→ **Hub's email routing is therefore redundant for support.** It may still be useful for unrouted/catch-all addresses, but it does NOT replace any spoke's pipeline.
 
 ---
 
-## 📦 Spoke App Snapshots (as of 2026-06-05)
+## 🎯 Tiered Scope for the Master Kanban Set
 
-### PiP-Support — self-sufficient email pipeline
-- Entities: `SupportTicket`, `EmailMessage`, `EmailTemplate`, `BugReport`, `BackupSettings`
-- Pages: `IntakeForm`, `TicketBoard`, `Analytics`, `Templates`, `ReportBug`, `SignatureSettings`, `AdminSettingsPage`, `Settings`
-- Functions: `ingestGmailReply`, `pollGmailReplies`, `sendTicketEmail`, `sendWelcomeEmail`, `sendAssignmentEmail`, `assignTicketNumber`, `aiEmailAssist`, `askTerms`, `renumberTickets`, `runBackup`, `sendBugReport`, `sendBugReportReply`, `sendDailyReminders`, `debugBugReplies`, `getUsersForSelection`
-- Public form: https://support.pilatesinpinkstudio.com/ → creates `SupportTicket`, assigns 5-digit number, sends branded welcome email with `[Ticket #xxxxx]` subject tag
-- Reply flow: client replies to `[Ticket #xxxxx]` → `pollGmailReplies` / `ingestGmailReply` matches the tag → creates `EmailMessage` attached to the ticket
-- **Bottom line: PiP-Support does NOT need the Hub for email.** It has its own complete pipeline.
+| Tier | Scope | Components |
+|---|---|---|
+| **T1 — Universal** (all 3 spokes have it, must consolidate) | `MasterKanbanBoard`, `MasterKanbanColumn`, `MasterKanbanCard`, `useHorizontalScroll` | ✅ already in `components/master-kanban/` |
+| **T2 — Common** (2 of 3 spokes) | `MasterArchivedTicketsList`, `MasterCleanupTicketRow`, `MasterResolvedCleanupPopup`, `MasterSwimlaneScroller` | ⚠️ `SwimlaneScroller` done. Others TBD. |
+| **T3 — Multi-board pattern** (pip-partner only today, but Master-ready) | `MasterBoardTabs` | ✅ done |
+| **T4 — Spoke-specific** (stays in spoke) | All bug-report / notification / map / FDD / addon-legend code | ❌ never moves |
 
-### PiP-Events — TBD (repo not yet inspected)
-### PiP-Partner — TBD (repo not yet inspected; demo mirrors its 4-board pattern)
+---
+
+## 🚚 How Spokes Consume the Master Kanban
+
+**Recommendation: start with manual copy-paste, graduate to npm only if pain is real.**
+
+- **A) Manual copy-paste** ← current path. Each spoke copies `components/master-kanban/` + `hooks/useHorizontalScroll.js` from this repo. Stamp every copy with a `MASTER_KANBAN_VERSION` constant so we can trace which version each spoke has.
+- **B) Published npm package** `@pip/master-kanban` — only if the same bug ends up fixed in 3 places too often.
+- **C) Scripted git sync** — middle ground, but custom tooling adds its own bugs. Skip for now.
+
+### Manual sync procedure (when ready to port)
+
+1. In Hub: bump `MASTER_KANBAN_VERSION` in `components/master-kanban/index.js`.
+2. In target spoke: copy `components/master-kanban/*` → `src/components/master-kanban/` and `hooks/useHorizontalScroll.js` → `src/hooks/`.
+3. In the spoke, rewrite the local `KanbanColumn.jsx` / `TicketCard.jsx` callsite to use `MasterKanbanBoard` + `renderCardContent` instead.
+4. Delete the spoke's now-replaced primitives (`KanbanColumn`, `TicketCard`, etc.).
+5. Record sync in the spoke's README: "Master Kanban v0.X.Y synced YYYY-MM-DD from pip-hub@<commit>".
 
 ---
 
@@ -143,10 +181,44 @@ functions/getAllUsers.js, validateUserPassword.js
 
 ---
 
+## 🔍 Code-Level Audit (read each spoke's `KanbanColumn.jsx` + `TicketCard.jsx` — 2026-06-05)
+
+### What the 3 spokes share (architecture is consistent ✅)
+- `@hello-pangea/dnd` Droppable/Draggable
+- Dragged card portaled to `document.body` (escapes blurred/clipped ancestors)
+- `columnColors` + `headerColors` lookup keyed by status name
+- Optional `onTidyUp` / `onArchiveSome` / `onArchiveAll` action buttons
+- Skeleton loader when `isLoading`, empty-state text otherwise
+
+### Where they drift
+| Concern | pip-support | pip-events | pip-partner |
+|---|---|---|---|
+| Status casing | `"New"` Title Case | `"New"` Title Case | `"new"` lowercase |
+| Touch-viewport DnD disabling | ❌ | ❌ | ✅ `useIsTouchViewport` |
+| Status meta (label + description tooltip) | ❌ | ❌ | ✅ `getStatusMeta(boardKey, key)` |
+| `boardKey` (multi-board) | ❌ | ❌ | ✅ |
+| `allUsers` prop | ✅ | ❌ | ❌ |
+| Buttons shown on which statuses | Resolved + Closed | Closed only | per status key |
+
+**pip-partner's column is the most sophisticated.** pip-support and pip-events are simpler. Hub's current `MasterKanbanColumn` is close to pip-events/pip-support level.
+
+### Card drift is huge (and that's fine)
+`TicketCard.jsx` is wildly different across spokes — each knows its domain (event_date, FDD countdown, scheduled_call_time, instagram_handle, etc.). **This is exactly why `renderCardContent(ticket)` is the right API.** The Master card stays dumb; each spoke renders its own body. ✅ Already done.
+
+### Gaps to close in Master before v0.1.0
+1. ✗ **Touch-viewport DnD disabling** — pip-partner solved this; Master should too. Borrow `useIsTouchViewport`.
+2. ✗ **Per-column description tooltip** — let parent pass `description` in each column config; render under the title.
+3. ✓ Otherwise the Master API is already as good or better than what any spoke has.
+
+---
+
 ## ✅ Open TODOs
 
-1. **Decide Master Kanban distribution mechanism** (A / B / C above) and document it here.
-2. **Inspect pip-events and pip-partner repos** — confirm whether they have their own email infra and how their existing kanbans compare to the Master Kanban set.
-3. **Audit Master Kanban API surface** — is it final? Any rough edges before declaring "ready for spokes"?
-4. **Decide email routing scope** — should the Hub stop routing `support@` (since PiP-Support handles it) and focus on `events@` / `partner@` / `frontdesk@` / `franchise@` / `instructors@` / `influencers@`?
-5. **Resolve Gmail Pub/Sub webhook delivery issue** (Base44 support ticket open).
+1. ~~Decide distribution mechanism~~ → **Manual copy-paste** with `MASTER_KANBAN_VERSION` stamping.
+2. ~~Inspect pip-events / pip-partner repos~~ → **Done.** File map + drift findings above.
+3. ~~Audit Master Kanban API surface~~ → **Done.** Two gaps identified (touch DnD, description tooltip).
+4. **Close the two API gaps** → bring Master to v0.1.0.
+5. **Add `MASTER_KANBAN_VERSION = "0.1.0"`** to `components/master-kanban/index.js`.
+6. **Port to pip-events as proof of concept** (smallest surface: 6 files).
+7. **Decide email routing scope** — Hub probably stops routing `support@` since PiP-Support handles it. Keep for `events@` / `partner@` / catch-all.
+8. **Resolve Gmail Pub/Sub webhook delivery issue** (Base44 support ticket open).
