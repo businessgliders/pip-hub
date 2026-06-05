@@ -1,0 +1,97 @@
+{
+  "name": "IncomingEmail",
+  "type": "object",
+  "properties": {
+    "gmail_message_id": {
+      "type": "string",
+      "description": "Gmail message ID \u2014 unique per email"
+    },
+    "gmail_thread_id": {
+      "type": "string",
+      "description": "Gmail thread ID for conversation grouping"
+    },
+    "spoke_key": {
+      "type": "string",
+      "description": "Which spoke app this email is routed to (e.g. 'support', 'events', 'partner', 'unrouted')"
+    },
+    "matched_recipient": {
+      "type": "string",
+      "description": "The recipient address that matched the routing rule (lowercased)"
+    },
+    "from_email": {
+      "type": "string"
+    },
+    "from_name": {
+      "type": "string"
+    },
+    "to": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "All To: addresses"
+    },
+    "cc": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "subject": {
+      "type": "string"
+    },
+    "snippet": {
+      "type": "string",
+      "description": "Gmail-provided short preview"
+    },
+    "body_text": {
+      "type": "string",
+      "description": "Plain text body"
+    },
+    "body_html": {
+      "type": "string",
+      "description": "HTML body"
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When Gmail received the message"
+    },
+    "label_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "processed",
+        "ignored",
+        "error"
+      ],
+      "default": "new",
+      "description": "Processing status. Spokes flip to 'processed' once consumed."
+    },
+    "processing_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "gmail_message_id",
+    "spoke_key"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

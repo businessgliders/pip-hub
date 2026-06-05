@@ -1,0 +1,43 @@
+{
+  "name": "EmailRoute",
+  "type": "object",
+  "properties": {
+    "recipient": {
+      "type": "string",
+      "description": "Recipient email address to match (case-insensitive, e.g. 'support@pilatesinpinkstudio.com'). Supports wildcard prefix '*@domain.com'."
+    },
+    "spoke_key": {
+      "type": "string",
+      "description": "Which spoke app to route to (e.g. 'support', 'events', 'partner')"
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label for the admin UI"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "priority": {
+      "type": "number",
+      "default": 100,
+      "description": "Lower number = higher priority when multiple routes match"
+    }
+  },
+  "required": [
+    "recipient",
+    "spoke_key"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
