@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Archive, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MasterKanbanCard from "./MasterKanbanCard";
+import useIsTouchViewport from "@/hooks/useIsTouchViewport";
 
 /**
  * MasterKanbanColumn — generic kanban column.
@@ -40,7 +41,12 @@ export default function MasterKanbanColumn({
   onArchiveSome,
   onArchiveAll,
   emptyLabel = "No items",
+  // Optional per-column subtitle (e.g. workflow description / next-step hint)
+  description,
 }) {
+  // Disable DnD on touch viewports so vertical card-list scroll and horizontal
+  // lane swipe aren't hijacked by @hello-pangea/dnd. Borrowed from pip-partner.
+  const isTouch = useIsTouchViewport();
   return (
     <div
       data-kanban-column
@@ -51,12 +57,19 @@ export default function MasterKanbanColumn({
       )}
     >
       {/* Header */}
-      <div className={cn("flex items-center justify-between px-4 py-3 border-b rounded-t-2xl", headerClasses)}>
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-slate-800">{status}</h3>
-          <span className="text-xs font-medium text-slate-600 bg-white/60 rounded-full px-2 py-0.5">
-            {tickets.length}
-          </span>
+      <div className={cn("flex items-start justify-between px-4 py-3 border-b rounded-t-2xl gap-2", headerClasses)}>
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-800">{status}</h3>
+            <span className="text-xs font-medium text-slate-600 bg-white/60 rounded-full px-2 py-0.5">
+              {tickets.length}
+            </span>
+          </div>
+          {description && (
+            <p className="text-[11px] text-slate-600/80 mt-0.5 leading-snug">
+              {description}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-1">
@@ -115,13 +128,18 @@ export default function MasterKanbanColumn({
               <div className="text-center text-xs text-slate-500 py-8">{emptyLabel}</div>
             ) : (
               tickets.map((ticket, index) => (
-                <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
+                <Draggable
+                  key={ticket.id}
+                  draggableId={ticket.id}
+                  index={index}
+                  isDragDisabled={isTouch}
+                >
                   {(provided, snapshot) => {
                     const child = (
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        {...provided.dragHandleProps}
+                        {...(isTouch ? {} : provided.dragHandleProps)}
                       >
                         <MasterKanbanCard
                           ticket={ticket}

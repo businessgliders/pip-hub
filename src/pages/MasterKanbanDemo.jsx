@@ -6,7 +6,23 @@ import {
   MasterKanbanBoard,
   MasterBoardTabs,
   MasterSwimlaneScroller,
+  MASTER_KANBAN_VERSION,
 } from "@/components/master-kanban";
+
+// Optional per-column descriptions (workflow hints). Parent owns these.
+const STATUS_DESCRIPTIONS = {
+  new: "Just arrived — needs first touch",
+  pending: "Awaiting first review",
+  scheduled: "Discovery call booked",
+  discussion: "Active back-and-forth",
+  qualified: "Ready to advance",
+  training: "Onboarding in progress",
+  approved: "Cleared to proceed",
+  invited: "Invitation sent",
+  reviewed: "Reviewed — awaiting decision",
+  closed: "Archived / won",
+  declined: "Not moving forward",
+};
 
 /**
  * MasterKanbanDemo — visual sandbox for the Master Kanban set.
@@ -112,6 +128,7 @@ export default function MasterKanbanDemo() {
       colorClasses: theme.col,
       headerClasses: theme.head,
       isDimmed: status === "closed" || status === "declined",
+      description: STATUS_DESCRIPTIONS[status],
     };
   });
 
@@ -171,9 +188,15 @@ export default function MasterKanbanDemo() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Master Kanban — Demo</h1>
+              <h1 className="text-2xl font-bold text-slate-900">
+                Master Kanban — Demo
+                <span className="ml-2 text-xs font-mono font-normal text-slate-500 align-middle">
+                  v{MASTER_KANBAN_VERSION}
+                </span>
+              </h1>
               <p className="text-sm text-slate-500">
                 Sandbox for the reusable kanban set. Drag cards between columns.
+                On narrow viewports (&lt;1024px) drag is auto-disabled so touch scroll works.
               </p>
             </div>
           </div>

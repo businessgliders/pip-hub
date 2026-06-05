@@ -205,10 +205,10 @@ functions/getAllUsers.js, validateUserPassword.js
 ### Card drift is huge (and that's fine)
 `TicketCard.jsx` is wildly different across spokes — each knows its domain (event_date, FDD countdown, scheduled_call_time, instagram_handle, etc.). **This is exactly why `renderCardContent(ticket)` is the right API.** The Master card stays dumb; each spoke renders its own body. ✅ Already done.
 
-### Gaps to close in Master before v0.1.0
-1. ✗ **Touch-viewport DnD disabling** — pip-partner solved this; Master should too. Borrow `useIsTouchViewport`.
-2. ✗ **Per-column description tooltip** — let parent pass `description` in each column config; render under the title.
-3. ✓ Otherwise the Master API is already as good or better than what any spoke has.
+### Gaps closed for v0.1.0 ✅
+1. ✅ **Touch-viewport DnD disabling** — added `useIsTouchViewport` hook (`hooks/useIsTouchViewport.js`). `MasterKanbanColumn` now disables drag below 1024px so touch scroll/swipe works.
+2. ✅ **Per-column description** — `MasterKanbanColumn` accepts an optional `description` prop; renders as a small subtitle under the title. Column configs passed to `MasterKanbanBoard` can include `description`.
+3. ✅ **Version stamped** — `MASTER_KANBAN_VERSION = "0.1.0"` exported from `components/master-kanban/index.js`. Spokes should record which version they have synced.
 
 ---
 
@@ -216,9 +216,9 @@ functions/getAllUsers.js, validateUserPassword.js
 
 1. ~~Decide distribution mechanism~~ → **Manual copy-paste** with `MASTER_KANBAN_VERSION` stamping.
 2. ~~Inspect pip-events / pip-partner repos~~ → **Done.** File map + drift findings above.
-3. ~~Audit Master Kanban API surface~~ → **Done.** Two gaps identified (touch DnD, description tooltip).
-4. **Close the two API gaps** → bring Master to v0.1.0.
-5. **Add `MASTER_KANBAN_VERSION = "0.1.0"`** to `components/master-kanban/index.js`.
-6. **Port to pip-events as proof of concept** (smallest surface: 6 files).
+3. ~~Audit Master Kanban API surface~~ → **Done.** Two gaps identified.
+4. ~~Close the two API gaps~~ → **Done. Master Kanban v0.1.0 shipped.**
+5. ~~Add `MASTER_KANBAN_VERSION`~~ → **Done.** Exported from `components/master-kanban/index.js`.
+6. **Port to pip-events as proof of concept** (smallest surface: 6 files). ← NEXT
 7. **Decide email routing scope** — Hub probably stops routing `support@` since PiP-Support handles it. Keep for `events@` / `partner@` / catch-all.
 8. **Resolve Gmail Pub/Sub webhook delivery issue** (Base44 support ticket open).

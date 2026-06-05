@@ -72,6 +72,7 @@ export default function MasterKanbanBoard({
                 isDimmed={col.isDimmed}
                 colorClasses={col.colorClasses}
                 headerClasses={col.headerClasses}
+                description={col.description}
                 highlightedTicketId={highlightedTicketId}
                 unreadByTicket={unreadByTicket}
                 onTicketClick={onTicketClick}
