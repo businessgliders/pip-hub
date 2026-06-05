@@ -15,9 +15,10 @@ export default function MasterKanbanCard({
   isHighlighted = false,
   unreadCount = 0,
   renderContent,
-  // Optional: tailwind classes matched to the source column's header so the
-  // card tints to the current swimlane's color while being dragged.
-  dragTintClasses,
+  // Optional: tailwind border-color class matched to the source column so the
+  // card's border tints to the current swimlane's color while being dragged.
+  // (Pass e.g. "border-pink-300" — only the border-* class is used.)
+  dragBorderClasses,
 }) {
   return (
     <div
@@ -25,8 +26,8 @@ export default function MasterKanbanCard({
       className={cn(
         "relative bg-white rounded-xl border border-slate-200 p-3 shadow-sm cursor-pointer transition-all",
         "hover:shadow-md hover:border-slate-300",
-        isDragging && "shadow-2xl ring-2 ring-pink-300 rotate-1",
-        isDragging && dragTintClasses,
+        isDragging && "shadow-2xl rotate-1 border-2",
+        isDragging && (dragBorderClasses || "border-pink-300"),
         isHighlighted && "ring-2 ring-pink-400 animate-pulse"
       )}
     >

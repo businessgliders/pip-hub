@@ -148,7 +148,7 @@ export default function MasterKanbanColumn({
                           isHighlighted={ticket.id === highlightedTicketId}
                           unreadCount={unreadByTicket[ticket.id] || 0}
                           renderContent={renderCardContent}
-                          dragTintClasses={headerClasses}
+                          dragBorderClasses={headerClasses}
                         />
                       </div>
                     );
