@@ -117,13 +117,46 @@ export default function MasterKanbanDemo() {
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    const { draggableId, destination } = result;
-    setTickets((prev) => ({
-      ...prev,
-      [board.key]: prev[board.key].map((t) =>
-        t.id === draggableId ? { ...t, status: destination.droppableId } : t
-      ),
-    }));
+    const { draggableId, source, destination } = result;
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    ) {
+      return;
+    }
+
+    setTickets((prev) => {
+      const list = [...prev[board.key]];
+      const moved = list.find((t) => t.id === draggableId);
+      if (!moved) return prev;
+
+      // Remove the dragged ticket from the flat list
+      const without = list.filter((t) => t.id !== draggableId);
+
+      // Find indices of tickets currently in the destination column (in
+      // their natural array order) — these define the insertion slots.
+      const destIndices = [];
+      without.forEach((t, i) => {
+        if (t.status === destination.droppableId) destIndices.push(i);
+      });
+
+      // Build the updated card with the new status
+      const updated = { ...moved, status: destination.droppableId };
+
+      // Compute the flat-array insert position based on the destination index
+      let insertAt;
+      if (destination.index >= destIndices.length) {
+        insertAt = destIndices.length
+          ? destIndices[destIndices.length - 1] + 1
+          : without.length;
+      } else {
+        insertAt = destIndices[destination.index];
+      }
+
+      const next = [...without];
+      next.splice(insertAt, 0, updated);
+      return { ...prev, [board.key]: next };
+    });
   };
 
   return (
