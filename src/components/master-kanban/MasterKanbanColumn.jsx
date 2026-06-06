@@ -16,9 +16,13 @@ import MasterKanbanCard from "./MasterKanbanCard";
  *   - pip-events' portal-on-drag (escapes blurred/clipped ancestors)
  *
  * The column itself is presentational. The parent passes:
- *   - `colorClasses` / `headerClasses` for per-status theming (so the spoke app
- *     owns its own color palette — no hard-coded statuses here)
+ *   - `colorClasses` / `headerClasses` for per-status theming
  *   - `renderCardContent(ticket)` to render the ticket body
+ *
+ * Theming overrides (v0.1.2 — all optional, default to previous hard-coded values):
+ *   - shellClasses, listClasses, titleClasses, countBadgeClasses,
+ *     descriptionClasses, emptyClasses
+ *   - bareCard — forwarded to MasterKanbanCard to skip the default white chrome
  *
  * Optional action props (hidden unless provided):
  *   - onTidyUp, onArchiveSome, onArchiveAll
@@ -42,16 +46,23 @@ export default function MasterKanbanColumn({
   emptyLabel = "No items",
   // Optional per-column subtitle (e.g. workflow description / next-step hint)
   description,
+  // v0.1.2 — opt-in theming overrides (all default to previous hard-coded values,
+  // so existing callsites are unaffected)
+  shellClasses = "flex-shrink-0 w-80 flex flex-col rounded-2xl border bg-gradient-to-b backdrop-blur-sm transition-opacity",
+  listClasses = "flex-1 p-3 space-y-2 min-h-32 overflow-y-auto transition-colors",
+  titleClasses = "text-sm font-semibold text-slate-800",
+  countBadgeClasses = "text-xs font-medium text-slate-600 bg-white/60 rounded-full px-2 py-0.5",
+  descriptionClasses = "text-[11px] text-slate-600/80 mt-0.5 leading-snug",
+  emptyClasses = "text-center text-xs text-slate-500 py-8",
+  bareCard = false,
 }) {
   // Drag is enabled on ALL viewports (including touch). The portal-to-body
   // pattern on the dragged card keeps the pointer aligned correctly on mobile.
-  // (Earlier v0.1.0 disabled touch drag, but that pattern is now removed —
-  // matches pip-support's working implementation.)
   return (
     <div
       data-kanban-column
       className={cn(
-        "flex-shrink-0 w-80 flex flex-col rounded-2xl border bg-gradient-to-b backdrop-blur-sm transition-opacity",
+        shellClasses,
         colorClasses,
         isDimmed && "opacity-60"
       )}
@@ -60,13 +71,13 @@ export default function MasterKanbanColumn({
       <div className={cn("flex items-start justify-between px-4 py-3 border-b rounded-t-2xl gap-2", headerClasses)}>
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-800">{status}</h3>
-            <span className="text-xs font-medium text-slate-600 bg-white/60 rounded-full px-2 py-0.5">
+            <h3 className={titleClasses}>{status}</h3>
+            <span className={countBadgeClasses}>
               {tickets.length}
             </span>
           </div>
           {description && (
-            <p className="text-[11px] text-slate-600/80 mt-0.5 leading-snug">
+            <p className={descriptionClasses}>
               {description}
             </p>
           )}
@@ -118,14 +129,14 @@ export default function MasterKanbanColumn({
             ref={dropProvided.innerRef}
             {...dropProvided.droppableProps}
             className={cn(
-              "flex-1 p-3 space-y-2 min-h-32 overflow-y-auto transition-colors",
+              listClasses,
               dropSnapshot.isDraggingOver && "bg-white/30"
             )}
           >
             {isLoading ? (
               [1, 2, 3].map((i) => <Skeleton key={i} className="h-20 rounded-xl" />)
             ) : tickets.length === 0 ? (
-              <div className="text-center text-xs text-slate-500 py-8">{emptyLabel}</div>
+              <div className={emptyClasses}>{emptyLabel}</div>
             ) : (
               tickets.map((ticket, index) => (
                 <Draggable
@@ -139,6 +150,10 @@ export default function MasterKanbanColumn({
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
+                        style={{
+                          ...provided.draggableProps.style,
+                          zIndex: snapshot.isDragging ? 9999 : "auto",
+                        }}
                       >
                         <MasterKanbanCard
                           ticket={ticket}
@@ -148,6 +163,7 @@ export default function MasterKanbanColumn({
                           unreadCount={unreadByTicket[ticket.id] || 0}
                           renderContent={renderCardContent}
                           dragBorderClasses={headerClasses}
+                          bareCard={bareCard}
                         />
                       </div>
                     );

@@ -5,6 +5,24 @@
  * Bump on any breaking change to the public API of these components/hooks.
  *
  * Changelog:
+ *   0.1.2 — Theme-able columns & cards (back-compatible).
+ *           + MasterKanbanColumn: new optional className props
+ *             shellClasses, listClasses, titleClasses, countBadgeClasses,
+ *             descriptionClasses, emptyClasses. All default to the previous
+ *             hard-coded values — existing callsites unaffected.
+ *           + MasterKanbanColumn: new optional `bareCard` prop, forwarded
+ *             to MasterKanbanCard.
+ *           + MasterKanbanCard: new optional `bareCard` prop. When true,
+ *             skips the default white chrome (bg/border/padding/shadow + drag
+ *             border) so a spoke's renderContent can supply a fully-styled card
+ *             (e.g. pip-partner's dark glassmorphic Influencer board) without
+ *             ending up with a double card background.
+ *           * Dragged item gets inline z-index 9999 to prevent layering
+ *             surprises against blurred / overlay ancestors.
+ *           * Card wrapper now always has rounded-xl so the highlight ring
+ *             follows the card shape (also when bareCard is on).
+ *           * Unread badge bumped to z-10 so it stays above a custom inner
+ *             card body.
  *   0.1.1 — Re-enable drag on touch viewports.
  *           * MasterKanbanColumn no longer gates Draggable with
  *             useIsTouchViewport / isDragDisabled. Drag now works on
@@ -18,7 +36,7 @@
  *           + MasterKanbanColumn now accepts optional `description` per
  *             column (renders as a small subtitle under the title)
  */
-export const MASTER_KANBAN_VERSION = "0.1.1";
+export const MASTER_KANBAN_VERSION = "0.1.2";
 
 export { default as MasterKanbanBoard } from "./MasterKanbanBoard";
 export { default as MasterKanbanColumn } from "./MasterKanbanColumn";

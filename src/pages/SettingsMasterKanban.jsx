@@ -43,7 +43,7 @@ export default function SettingsMasterKanban() {
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Master Kanban</h1>
             <p className="text-sm text-slate-500 mt-1">
-              Source of truth: <code className="text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">components/master-kanban/</code> · Current version <code className="text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">v0.1.1</code>
+              Source of truth: <code className="text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">components/master-kanban/</code> · Current version <code className="text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">v0.1.2</code>
             </p>
           </div>
         </header>

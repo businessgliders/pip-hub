@@ -11,9 +11,10 @@ Barrel file: \`src/components/master-kanban/index.jsx\`
 
 ## Synced Versions
 
-| Date       | Version | Files Synced                              | Changes                                              |
-|------------|---------|-------------------------------------------|------------------------------------------------------|
-| 2026-06-06 | 0.1.1   | All 8 Master Kanban files (first sync)    | Re-enable drag on touch; remove isDragDisabled gate  |
+| Date       | Version | Files Synced                                                          | Changes                                              |
+|------------|---------|-----------------------------------------------------------------------|------------------------------------------------------|
+| 2026-06-06 | 0.1.1   | All 8 Master Kanban files (first sync)                                | Re-enable drag on touch; remove isDragDisabled gate  |
+| 2026-06-06 | 0.1.2   | MasterKanbanColumn.jsx, MasterKanbanCard.jsx, index.jsx               | Theme-able columns + bareCard (back-compatible)      |
 `;
 
 const AGENT_PROMPT = `Sync the Master Kanban from pip-hub (source of truth).
@@ -92,7 +93,7 @@ export default function SettingsMasterKanbanInstructions() {
               </li>
               <li>
                 <span className="text-slate-500">Current version:</span>{" "}
-                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">v0.1.1</code>
+                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">v0.1.2</code>
               </li>
               <li>
                 <span className="text-slate-500">Barrel file:</span>{" "}

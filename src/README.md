@@ -28,9 +28,11 @@ The Hub owns the **canonical implementation** of the reusable kanban UI used acr
 PiP-Support  PiP-Events  PiP-Partner
 ```
 
-**Current version: `v0.1.1`** (exported as `MASTER_KANBAN_VERSION` from `components/master-kanban/index.jsx`).
+**Current version: `v0.1.2`** (exported as `MASTER_KANBAN_VERSION` from `components/master-kanban/index.jsx`).
 
-> **v0.1.1 patch (2026-06-06)** — Touch drag re-enabled. v0.1.0's `useIsTouchViewport` + `isDragDisabled` gate broke mobile/tablet drag everywhere. `MasterKanbanColumn` no longer touches the touch gate — drag now works on all viewports (matches pip-support's working pattern; the portal-to-body trick handles pointer alignment). **Sync 2 files to each spoke:** `components/master-kanban/MasterKanbanColumn.jsx` and `components/master-kanban/index.jsx`.
+> **v0.1.2 (2026-06-06)** — Theme-able columns & cards. Originated in pip-partner (dark glassmorphic Influencer board) and back-ported here. `MasterKanbanColumn` gains optional `shellClasses` / `listClasses` / `titleClasses` / `countBadgeClasses` / `descriptionClasses` / `emptyClasses` overrides, all defaulting to the previous hard-coded values. New `bareCard` prop (on both column + card) skips the default white chrome so a spoke's `renderContent` can supply a fully-styled card without doubling up backgrounds. Dragged item now gets inline `z-index: 9999`; card wrapper always carries `rounded-xl` so the highlight ring follows on bare cards; unread badge bumped to `z-10`. **Fully back-compatible** — no callsite changes required. **Sync 3 files to each spoke:** `components/master-kanban/MasterKanbanColumn.jsx`, `components/master-kanban/MasterKanbanCard.jsx`, and `components/master-kanban/index.jsx`.
+
+> **v0.1.1 patch (2026-06-06)** — Touch drag re-enabled. v0.1.0's `useIsTouchViewport` + `isDragDisabled` gate broke mobile/tablet drag everywhere. `MasterKanbanColumn` no longer touches the touch gate — drag now works on all viewports (matches pip-support's working pattern; the portal-to-body trick handles pointer alignment).
 
 > 📌 **Barrel filename:** the Master Kanban barrel file is `index.jsx` (NOT `index.js`). Use the `.jsx` extension in any raw GitHub URL or sync command, otherwise the fetch will 404.
 
