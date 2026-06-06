@@ -5,6 +5,21 @@
  * Bump on any breaking change to the public API of these components/hooks.
  *
  * Changelog:
+ *   0.1.3 — Responsive default sizing + bounded board height.
+ *           * MasterKanbanColumn default shellClasses width:
+ *             `w-80` → `w-[42vw] md:w-72 lg:w-80`. Phones/portrait tablets
+ *             now show ~2.5 lanes (signals horizontal scrollability);
+ *             desktop unchanged at 320px.
+ *           * MasterKanbanColumn default shellClasses now includes `h-full`
+ *             so columns fill the bounded board row.
+ *           + MasterKanbanBoard: new optional `boardHeightClasses` prop
+ *             (default `h-[calc(100dvh-220px)] md:h-[calc(100dvh-180px)]`).
+ *             Applied to the horizontal scroll row so each column's inner
+ *             list scrolls independently — column headers stay put, page
+ *             doesn't grow with ticket count. Spokes can override per-app
+ *             (e.g. if their chrome above the board is taller/shorter).
+ *           Back-compatible: any callsite that was passing custom
+ *           shellClasses continues to override the new defaults.
  *   0.1.2 — Theme-able columns & cards (back-compatible).
  *           + MasterKanbanColumn: new optional className props
  *             shellClasses, listClasses, titleClasses, countBadgeClasses,
@@ -36,7 +51,7 @@
  *           + MasterKanbanColumn now accepts optional `description` per
  *             column (renders as a small subtitle under the title)
  */
-export const MASTER_KANBAN_VERSION = "0.1.2";
+export const MASTER_KANBAN_VERSION = "0.1.3";
 
 export { default as MasterKanbanBoard } from "./MasterKanbanBoard";
 export { default as MasterKanbanColumn } from "./MasterKanbanColumn";

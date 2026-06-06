@@ -28,6 +28,10 @@ export default function MasterKanbanBoard({
   renderCardContent,
   getActions,
   className,
+  // v0.1.3 — bounded height on the scroll row so each column's inner list
+  // scrolls independently (sticky column headers, content doesn't push the
+  // whole page). Spokes can override per-app via this prop.
+  boardHeightClasses = "h-[calc(100dvh-220px)] md:h-[calc(100dvh-180px)]",
 }) {
   const { ref, canScrollLeft, canScrollRight, scrollBy } = useHorizontalScroll();
 
@@ -59,7 +63,10 @@ export default function MasterKanbanBoard({
       <DragDropContext onDragEnd={onDragEnd}>
         <div
           ref={ref}
-          className="flex gap-4 overflow-x-auto pb-4 px-2 scroll-smooth snap-x"
+          className={cn(
+            "flex gap-4 overflow-x-auto pb-4 px-2 scroll-smooth snap-x",
+            boardHeightClasses
+          )}
         >
           {columns.map((col) => {
             const actions = getActions?.(col.status) || {};
