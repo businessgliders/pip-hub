@@ -2,8 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, BookOpen, ChevronRight, LayoutGrid } from "lucide-react";
-import MasterKanbanVersionTracker from "@/components/settings/MasterKanbanVersionTracker";
+import { ArrowLeft, Play, BookOpen, ChevronRight, LayoutGrid, GitBranch } from "lucide-react";
 
 const subItems = [
   {
@@ -14,6 +13,15 @@ const subItems = [
     path: "/settings/master-kanban-demo",
     accent: "from-violet-100 to-fuchsia-100 border-violet-200",
     iconBg: "bg-violet-500/10 text-violet-600",
+  },
+  {
+    key: "versions",
+    title: "Spoke Version Tracker",
+    description: "Live comparison of the hub's MASTER_KANBAN_VERSION against each spoke repo, with latest commit info.",
+    icon: GitBranch,
+    path: "/settings/master-kanban/versions",
+    accent: "from-emerald-100 to-teal-100 border-emerald-200",
+    iconBg: "bg-emerald-500/10 text-emerald-600",
   },
   {
     key: "instructions",
@@ -49,11 +57,7 @@ export default function SettingsMasterKanban() {
           </div>
         </header>
 
-        <div className="mb-6">
-          <MasterKanbanVersionTracker />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {subItems.map((s) => {
             const Icon = s.icon;
             return (
