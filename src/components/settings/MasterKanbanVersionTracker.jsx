@@ -4,9 +4,9 @@ import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, CheckCircle2, AlertTriangle, HelpCircle, ExternalLink, Github } from "lucide-react";
+import { RefreshCw, CheckCircle2, AlertTriangle, HelpCircle, ExternalLink, Github, GitCommit } from "lucide-react";
 import { MASTER_KANBAN_VERSION as HUB_LOCAL_VERSION } from "@/components/master-kanban";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 
 function StatusPill({ status }) {
   if (status === "up_to_date") {
@@ -57,6 +57,23 @@ function SpokeRow({ spoke }) {
             <div className="text-xs text-red-600 mt-1 truncate" title={spoke.error}>
               {spoke.error}
             </div>
+          )}
+          {spoke.last_commit?.sha && (
+            <a
+              href={`https://github.com/${spoke.repo}/commit/${spoke.last_commit.sha}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-slate-500 hover:text-slate-700 inline-flex items-center gap-1 mt-1"
+              title={spoke.last_commit.message || ""}
+            >
+              <GitCommit className="w-3 h-3" />
+              <code className="font-mono">{spoke.last_commit.sha}</code>
+              {spoke.last_commit.date && (
+                <span className="text-slate-400">
+                  · {formatDistanceToNow(new Date(spoke.last_commit.date), { addSuffix: true })}
+                </span>
+              )}
+            </a>
           )}
         </div>
       </div>

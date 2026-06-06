@@ -18,6 +18,26 @@ function parseVersion(source) {
   return m ? m[1] : null;
 }
 
+async function fetchLastCommit(repo, token) {
+  // GitHub API: last commit that touched INDEX_PATH on main
+  const url = `https://api.github.com/repos/${repo}/commits?path=${encodeURIComponent(INDEX_PATH)}&sha=main&per_page=1`;
+  const headers = {
+    "User-Agent": "pip-hub-version-tracker",
+    "Accept": "application/vnd.github+json",
+  };
+  if (token) headers.Authorization = `token ${token}`;
+  const res = await fetch(url, { headers });
+  if (!res.ok) return { sha: null, date: null, message: null };
+  const arr = await res.json();
+  if (!Array.isArray(arr) || arr.length === 0) return { sha: null, date: null, message: null };
+  const c = arr[0];
+  return {
+    sha: c.sha ? c.sha.slice(0, 7) : null,
+    date: c.commit?.author?.date || c.commit?.committer?.date || null,
+    message: c.commit?.message?.split("\n")[0] || null,
+  };
+}
+
 async function fetchSpoke(repo, token) {
   // Use raw.githubusercontent.com (works for public; with a PAT in Authorization for private)
   const url = `https://raw.githubusercontent.com/${repo}/main/${INDEX_PATH}`;
@@ -26,17 +46,18 @@ async function fetchSpoke(repo, token) {
 
   const res = await fetch(url, { headers });
   if (res.status === 404) {
-    return { version: null, error: "Not found (file missing or repo private without token)", http_status: 404, source_url: url };
+    return { version: null, error: "Not found (file missing or repo private without token)", http_status: 404, source_url: url, last_commit: null };
   }
   if (!res.ok) {
-    return { version: null, error: `HTTP ${res.status}`, http_status: res.status, source_url: url };
+    return { version: null, error: `HTTP ${res.status}`, http_status: res.status, source_url: url, last_commit: null };
   }
   const text = await res.text();
   const version = parseVersion(text);
+  const last_commit = await fetchLastCommit(repo, token);
   if (!version) {
-    return { version: null, error: "Could not parse MASTER_KANBAN_VERSION from file", http_status: 200, source_url: url };
+    return { version: null, error: "Could not parse MASTER_KANBAN_VERSION from file", http_status: 200, source_url: url, last_commit };
   }
-  return { version, error: null, http_status: 200, source_url: url };
+  return { version, error: null, http_status: 200, source_url: url, last_commit };
 }
 
 Deno.serve(async (req) => {
@@ -74,6 +95,7 @@ Deno.serve(async (req) => {
         error: r.error,
         http_status: r.http_status,
         source_url: r.source_url,
+        last_commit: r.last_commit,
       };
     });
 
