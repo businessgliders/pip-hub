@@ -28,9 +28,11 @@ The Hub owns the **canonical implementation** of the reusable kanban UI used acr
 PiP-Support  PiP-Events  PiP-Partner
 ```
 
-**Current version: `v0.1.1`** (exported as `MASTER_KANBAN_VERSION` from `components/master-kanban/index.js`).
+**Current version: `v0.1.1`** (exported as `MASTER_KANBAN_VERSION` from `components/master-kanban/index.jsx`).
 
-> **v0.1.1 patch (2026-06-06)** — Touch drag re-enabled. v0.1.0's `useIsTouchViewport` + `isDragDisabled` gate broke mobile/tablet drag everywhere. `MasterKanbanColumn` no longer touches the touch gate — drag now works on all viewports (matches pip-support's working pattern; the portal-to-body trick handles pointer alignment). **Sync 2 files to each spoke:** `components/master-kanban/MasterKanbanColumn.jsx` and `components/master-kanban/index.js`.
+> **v0.1.1 patch (2026-06-06)** — Touch drag re-enabled. v0.1.0's `useIsTouchViewport` + `isDragDisabled` gate broke mobile/tablet drag everywhere. `MasterKanbanColumn` no longer touches the touch gate — drag now works on all viewports (matches pip-support's working pattern; the portal-to-body trick handles pointer alignment). **Sync 2 files to each spoke:** `components/master-kanban/MasterKanbanColumn.jsx` and `components/master-kanban/index.jsx`.
+
+> 📌 **Barrel filename:** the Master Kanban barrel file is `index.jsx` (NOT `index.js`). Use the `.jsx` extension in any raw GitHub URL or sync command, otherwise the fetch will 404.
 
 ### Components (in `components/master-kanban/`)
 
@@ -118,7 +120,7 @@ Same purpose, same file names in two spokes, **three different implementations**
 
 ### Manual sync procedure (when ready to port)
 
-1. In Hub: bump `MASTER_KANBAN_VERSION` in `components/master-kanban/index.js`.
+1. In Hub: bump `MASTER_KANBAN_VERSION` in `components/master-kanban/index.jsx`.
 2. In target spoke: copy `components/master-kanban/*` → `src/components/master-kanban/` and `hooks/useHorizontalScroll.js` + `hooks/useIsTouchViewport.js` → `src/hooks/`.
 3. In the spoke, rewrite the local `KanbanColumn.jsx` / `TicketCard.jsx` callsite to use `MasterKanbanBoard` + `renderCardContent` instead.
 4. Delete the spoke's now-replaced primitives (`KanbanColumn`, `TicketCard`, etc.).
