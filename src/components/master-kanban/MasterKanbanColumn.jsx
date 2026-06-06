@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Archive, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MasterKanbanCard from "./MasterKanbanCard";
-import useIsTouchViewport from "@/hooks/useIsTouchViewport";
 
 /**
  * MasterKanbanColumn — generic kanban column.
@@ -44,9 +43,10 @@ export default function MasterKanbanColumn({
   // Optional per-column subtitle (e.g. workflow description / next-step hint)
   description,
 }) {
-  // Disable DnD on touch viewports so vertical card-list scroll and horizontal
-  // lane swipe aren't hijacked by @hello-pangea/dnd. Borrowed from pip-partner.
-  const isTouch = useIsTouchViewport();
+  // Drag is enabled on ALL viewports (including touch). The portal-to-body
+  // pattern on the dragged card keeps the pointer aligned correctly on mobile.
+  // (Earlier v0.1.0 disabled touch drag, but that pattern is now removed —
+  // matches pip-support's working implementation.)
   return (
     <div
       data-kanban-column
@@ -132,14 +132,13 @@ export default function MasterKanbanColumn({
                   key={ticket.id}
                   draggableId={ticket.id}
                   index={index}
-                  isDragDisabled={isTouch}
                 >
                   {(provided, snapshot) => {
                     const child = (
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        {...(isTouch ? {} : provided.dragHandleProps)}
+                        {...provided.dragHandleProps}
                       >
                         <MasterKanbanCard
                           ticket={ticket}
