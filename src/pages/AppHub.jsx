@@ -630,6 +630,15 @@ export default function AppHub() {
           >
             {isEditMode ? <Check className="w-4 h-4 text-[#f1889b]" /> : <Pencil className="w-4 h-4 text-gray-600" />}
           </button>
+          {user?.email === 'gurpreen@pilatesinpinkstudio.com' && (
+            <Link
+              to="/settings"
+              className="w-9 h-9 flex items-center justify-center rounded-xl border shadow-sm bg-white/70 border-gray-200"
+              title="Settings"
+            >
+              <SettingsIcon className="w-4 h-4 text-gray-600" />
+            </Link>
+          )}
         </div>
         {/* Mobile search - shown when search tab active or query present */}
         {(showMobileSearch || searchQuery) && (
