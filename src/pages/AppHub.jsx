@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X } from 'lucide-react';
+import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X, Settings as SettingsIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppCard from '../components/hub/AppCard';
@@ -726,6 +727,13 @@ export default function AppHub() {
             >
               {isEditMode ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
             </Button>
+            {user?.email === 'gurpreen@pilatesinpinkstudio.com' && (
+              <Link to="/settings">
+                <Button variant="outline" size="icon" className="rounded-xl border-gray-300" title="Settings">
+                  <SettingsIcon className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
             <div className="relative group">
               <Button variant="outline" size="icon" className="rounded-xl border-gray-300">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white">

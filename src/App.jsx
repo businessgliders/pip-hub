@@ -60,7 +60,7 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/splitview" element={<SplitView />} />
       <Route path="/end-of-day" element={<EndOfDayCalendar />} />
-      <Route path="/master-kanban-demo" element={<MasterKanbanDemo />} />
+      <Route path="/settings/master-kanban-demo" element={<MasterKanbanDemo />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/settings/master-kanban" element={<SettingsMasterKanban />} />
       <Route path="/settings/master-kanban/instructions" element={<SettingsMasterKanbanInstructions />} />

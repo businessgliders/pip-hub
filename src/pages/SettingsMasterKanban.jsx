@@ -11,7 +11,7 @@ const subItems = [
     title: "Demo / Sandbox",
     description: "Visual sandbox showing the 4-board pattern with fake data. Toggle admin view to test allowedKeys filtering.",
     icon: Play,
-    path: "/master-kanban-demo",
+    path: "/settings/master-kanban-demo",
     accent: "from-violet-100 to-fuchsia-100 border-violet-200",
     iconBg: "bg-violet-500/10 text-violet-600",
   },
