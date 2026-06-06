@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Play, BookOpen, ChevronRight, LayoutGrid } from "lucide-react";
+import MasterKanbanVersionTracker from "@/components/settings/MasterKanbanVersionTracker";
 
 const subItems = [
   {
@@ -47,6 +48,10 @@ export default function SettingsMasterKanban() {
             </p>
           </div>
         </header>
+
+        <div className="mb-6">
+          <MasterKanbanVersionTracker />
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {subItems.map((s) => {
