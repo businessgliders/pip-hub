@@ -15,9 +15,16 @@ Barrel file: \`src/components/master-kanban/index.jsx\`
 |------------|---------|-----------------------------------------------------------------------|------------------------------------------------------|
 | 2026-06-06 | 0.1.1   | All 8 Master Kanban files (first sync)                                | Re-enable drag on touch; remove isDragDisabled gate  |
 | 2026-06-06 | 0.1.2   | MasterKanbanColumn.jsx, MasterKanbanCard.jsx, index.jsx               | Theme-able columns + bareCard (back-compatible)      |
+| 2026-06-06 | 0.1.3   | MasterKanbanColumn.jsx, MasterKanbanBoard.jsx, index.jsx              | Responsive lane widths + bounded board height       |
 `;
 
 const AGENT_PROMPT = `Sync the Master Kanban from pip-hub (source of truth).
+
+PRE-CHECK (do this BEFORE touching any files):
+   a. Read the CURRENT MASTER_KANBAN_VERSION from the local
+      src/components/master-kanban/index.jsx and remember it as FROM_VERSION.
+      If the file doesn't exist locally, STOP — this is a new install, not a sync.
+      Tell me and use the "First-time install" prompt instead.
 
 1. Fetch ALL of these raw files from pip-hub and overwrite the local copies verbatim.
    This is the full Master Kanban library — always sync the whole set so versions stay
@@ -37,13 +44,74 @@ const AGENT_PROMPT = `Sync the Master Kanban from pip-hub (source of truth).
 
    NOTE: The barrel file is index.jsx (NOT index.js). Using .js will 404.
 
-2. Read the new MASTER_KANBAN_VERSION constant from index.jsx and tell me what it is.
-3. Read the changelog block at the top of index.jsx and summarize what changed.
+2. Read the new MASTER_KANBAN_VERSION from the freshly-pulled index.jsx → TO_VERSION.
+3. Read the changelog block at the top of index.jsx. Summarize each entry between
+   FROM_VERSION (exclusive) and TO_VERSION (inclusive). Explicitly flag anything that
+   looks like a BREAKING change to the public component/hook API (renamed props,
+   removed exports, changed default behavior that callsites rely on).
 4. Do NOT edit any spoke-specific files (pages/*, ticket callsites, entities, functions).
-   Master Kanban is presentational — callsites don't need updating.
-5. Create or update SYNC.md at the project root using the template from pip-hub
-   Settings → Master Kanban → Instructions. Add a new row for today's sync.
-6. Report back: version synced + files changed + any breaking API changes.
+   Master Kanban is presentational — callsites don't need updating UNLESS step 3
+   surfaced a breaking change. In that case, list the callsites that need attention
+   but do NOT auto-edit them — wait for confirmation.
+5. Smoke check: confirm the project still compiles (no missing imports, no removed
+   exports). Report any errors verbatim.
+6. Create or update SYNC.md at the project root using the template from pip-hub
+   Settings → Master Kanban → Instructions. Add a new row: today's date,
+   TO_VERSION, files synced, and a one-line summary of changes.
+7. Report back in this format:
+      Synced: FROM_VERSION → TO_VERSION
+      Files changed: <list>
+      Breaking changes: <none | bulleted list>
+      Smoke check: <pass | error details>
+`;
+
+const NEW_INSTALL_PROMPT = `First-time install of the Master Kanban into this spoke.
+(Use this ONLY if src/components/master-kanban/ does not already exist.
+ For existing installs, use the "Agent prompt" instead — that's a sync.)
+
+1. Install required dependencies if not already present:
+   - @hello-pangea/dnd
+   - lucide-react
+   - framer-motion (only if your spoke uses Master Kanban features that import it)
+
+2. Create the folders:
+   - src/components/master-kanban/
+   - src/hooks/  (if it doesn't exist)
+
+3. Fetch ALL of these raw files from pip-hub verbatim into the paths above:
+
+   Components (→ src/components/master-kanban/):
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/index.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanBoard.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanColumn.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanCard.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterBoardTabs.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterSwimlaneScroller.jsx
+
+   Hooks (→ src/hooks/):
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/hooks/useHorizontalScroll.js
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/hooks/useIsTouchViewport.js
+
+   NOTE: The barrel file is index.jsx (NOT index.js). Using .js will 404.
+
+4. MIGRATION (only if this spoke already has its own bespoke kanban):
+   - Identify existing kanban components / pages.
+   - List them back to me with a short note on what each does.
+   - DO NOT auto-replace — wait for confirmation on a per-callsite basis.
+   - Master Kanban is presentational; the spoke keeps owning entities,
+     business logic, drag handlers, and render functions.
+
+5. Read MASTER_KANBAN_VERSION from the new index.jsx → record it.
+6. Create SYNC.md at the project root using the template from pip-hub
+   Settings → Master Kanban → Instructions. First row = today's date,
+   the version installed, "All 8 Master Kanban files (first install)",
+   and "Initial install".
+7. Smoke check: confirm the project still compiles. Report any errors verbatim.
+8. Report back:
+      Installed version: <version>
+      Files created: <list>
+      Existing kanban code found: <none | list>
+      Smoke check: <pass | error details>
 `;
 
 export default function SettingsMasterKanbanInstructions() {
@@ -71,9 +139,15 @@ export default function SettingsMasterKanbanInstructions() {
 
         <div className="space-y-6">
           <CopyBlock
-            title="Agent prompt"
-            subtitle="Paste this directly into the spoke agent's chat."
+            title="Agent prompt — Sync (existing spoke)"
+            subtitle="Paste this into a spoke that already has src/components/master-kanban/."
             content={AGENT_PROMPT}
+          />
+
+          <CopyBlock
+            title="Agent prompt — First-time install (new spoke)"
+            subtitle="Use this only when the spoke has never had the Master Kanban before."
+            content={NEW_INSTALL_PROMPT}
           />
 
           <CopyBlock
@@ -99,7 +173,7 @@ export default function SettingsMasterKanbanInstructions() {
               </li>
               <li>
                 <span className="text-slate-500">Current version:</span>{" "}
-                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">v0.1.2</code>
+                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">v0.1.3</code>
               </li>
               <li>
                 <span className="text-slate-500">Barrel file:</span>{" "}
