@@ -28,19 +28,21 @@ The Hub owns the **canonical implementation** of the reusable kanban UI used acr
 PiP-Support  PiP-Events  PiP-Partner
 ```
 
-**Current version: `v0.1.0`** (exported as `MASTER_KANBAN_VERSION` from `components/master-kanban/index.js`).
+**Current version: `v0.1.1`** (exported as `MASTER_KANBAN_VERSION` from `components/master-kanban/index.js`).
+
+> **v0.1.1 patch (2026-06-06)** — Touch drag re-enabled. v0.1.0's `useIsTouchViewport` + `isDragDisabled` gate broke mobile/tablet drag everywhere. `MasterKanbanColumn` no longer touches the touch gate — drag now works on all viewports (matches pip-support's working pattern; the portal-to-body trick handles pointer alignment). **Sync 2 files to each spoke:** `components/master-kanban/MasterKanbanColumn.jsx` and `components/master-kanban/index.js`.
 
 ### Components (in `components/master-kanban/`)
 
 | Component | Purpose |
 |---|---|
 | `MasterKanbanBoard` | Top-level orchestrator. Wraps columns in a `DragDropContext`, adds the gold-standard horizontal scroll arrows. |
-| `MasterKanbanColumn` | One column. Presentational: takes `colorClasses` / `headerClasses` from the parent. Supports optional bulk actions (Tidy Up, Clean, Archive All). Portals the dragged card to `document.body` so it escapes blurred / clipped ancestors. Auto-disables drag on touch viewports (<1024px). |
+| `MasterKanbanColumn` | One column. Presentational: takes `colorClasses` / `headerClasses` from the parent. Supports optional bulk actions (Tidy Up, Clean, Archive All). Portals the dragged card to `document.body` so it escapes blurred / clipped ancestors. Drag is enabled on all viewports (touch included). |
 | `MasterKanbanCard` | Dumb card shell. Spoke renders the body via `renderContent(ticket)`. Provides drag styling (border tinted to source column), highlight glow, unread badge. |
 | `MasterBoardTabs` | Generic board-type switcher (mirrors pip-partner's 4-board pattern). Supports per-user access via `allowedKeys`. |
 | `MasterSwimlaneScroller` | Inline horizontal scroller for sub-rows inside a column. |
 | `useHorizontalScroll` (hook, `hooks/useHorizontalScroll.js`) | Shared scroll-arrow visibility + step-scrolling logic. |
-| `useIsTouchViewport` (hook, `hooks/useIsTouchViewport.js`) | Reports when viewport is touch-sized so DnD can be disabled. |
+| `useIsTouchViewport` (hook, `hooks/useIsTouchViewport.js`) | Reports when viewport is touch-sized. No longer used by `MasterKanbanColumn` (v0.1.1+), but still exported for spokes that want it for other purposes. |
 
 ### Design rules
 
@@ -195,5 +197,6 @@ If we ever revive a Hub-level inbox (e.g. for unrouted catch-all addresses), re-
 2. ~~Inspect pip-events / pip-partner repos~~ → **Done.** File map + drift findings above.
 3. ~~Audit Master Kanban API surface~~ → **Done.** v0.1.0 closes all known T1 gaps.
 4. ~~Decide email routing scope~~ → **Done.** Hub drops email centralization (2026-06-05). Files archived in place.
-5. **Port to pip-events as proof of concept** (smallest surface: 6 files). ← NEXT
-6. **T2 components** — port `MasterArchivedTicketsList`, `MasterCleanupTicketRow`, `MasterResolvedCleanupPopup` as those become needed.
+5. ~~Port to pip-events as proof of concept~~ → **Done.** v0.1.0 synced to pip-events (8 files); v0.1.1 patch (2 files) ready to push.
+6. **Sync v0.1.1 to pip-partner + pip-support** when they're ported (mobile drag fix).
+7. **T2 components** — port `MasterArchivedTicketsList`, `MasterCleanupTicketRow`, `MasterResolvedCleanupPopup` after pip-partner migration confirms shared API shape.
