@@ -19,15 +19,21 @@ Barrel file: \`src/components/master-kanban/index.jsx\`
 
 const AGENT_PROMPT = `Sync the Master Kanban from pip-hub (source of truth).
 
-1. Fetch these raw files from pip-hub and overwrite the local copies verbatim:
-   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanColumn.jsx
-     → src/components/master-kanban/MasterKanbanColumn.jsx
-   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/index.jsx
-     → src/components/master-kanban/index.jsx
+1. Fetch ALL of these raw files from pip-hub and overwrite the local copies verbatim.
+   This is the full Master Kanban library — always sync the whole set so versions stay
+   coherent (don't cherry-pick).
 
-   (Also sync MasterKanbanBoard.jsx, MasterKanbanCard.jsx, MasterBoardTabs.jsx,
-    MasterSwimlaneScroller.jsx, src/hooks/useHorizontalScroll.js,
-    src/hooks/useIsTouchViewport.js if their content differs from pip-hub.)
+   Components (→ src/components/master-kanban/):
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/index.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanBoard.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanColumn.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanCard.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterBoardTabs.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterSwimlaneScroller.jsx
+
+   Hooks (→ src/hooks/):
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/hooks/useHorizontalScroll.js
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/hooks/useIsTouchViewport.js
 
    NOTE: The barrel file is index.jsx (NOT index.js). Using .js will 404.
 
