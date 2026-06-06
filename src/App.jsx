@@ -10,6 +10,9 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SplitView from './pages/SplitView';
 import EndOfDayCalendar from './pages/EndOfDayCalendar';
 import MasterKanbanDemo from './pages/MasterKanbanDemo';
+import Settings from './pages/Settings';
+import SettingsMasterKanban from './pages/SettingsMasterKanban';
+import SettingsMasterKanbanInstructions from './pages/SettingsMasterKanbanInstructions';
 // SupportInbox archived 2026-06-05 — Hub no longer centralizes Gmail routing.
 // Files kept in place (pages/SupportInbox.jsx, components/support/*, functions/gmailInboxWebhook.js,
 // functions/sendSupportReply.js, entities/IncomingEmail.json, entities/EmailRoute.json)
@@ -58,6 +61,9 @@ const AuthenticatedApp = () => {
       <Route path="/splitview" element={<SplitView />} />
       <Route path="/end-of-day" element={<EndOfDayCalendar />} />
       <Route path="/master-kanban-demo" element={<MasterKanbanDemo />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/settings/master-kanban" element={<SettingsMasterKanban />} />
+      <Route path="/settings/master-kanban/instructions" element={<SettingsMasterKanbanInstructions />} />
       {/* /support archived — see import comment above */}
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
