@@ -3,7 +3,6 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
-import { OWNER_EMAIL } from '@/lib/studioConfig';
 
 const getPinkGradient = (index) => {
   const pinkGradients = [
@@ -21,11 +20,11 @@ const getInitials = (name) => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 };
 
-const getDisplayName = (email, fullName) => {
-  if (email === OWNER_EMAIL) {
+const getDisplayName = (user, fullName) => {
+  if (user?.is_owner) {
     return 'Front Desk';
   }
-  return fullName ? fullName.split(' ')[0] : email.split('@')[0];
+  return fullName ? fullName.split(' ')[0] : (user?.email || '').split('@')[0];
 };
 
 export default function UserSelection({ onUserSelected, onClose, currentGradient = 'default' }) {
@@ -49,10 +48,11 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
       try {
         const response = await base44.functions.invoke('getAllUsers', {});
         const allUsers = response.data.users || [];
-        // Sort with Front Desk (owner account) first
+        // Sort with Front Desk (owner account) first.
+        // Emails are masked server-side; use the `is_owner` flag instead.
         const sortedUsers = allUsers.sort((a, b) => {
-          if (a.email === OWNER_EMAIL) return -1;
-          if (b.email === OWNER_EMAIL) return 1;
+          if (a.is_owner) return -1;
+          if (b.is_owner) return 1;
           return 0;
         });
         setUsers(sortedUsers);
@@ -74,7 +74,6 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
   const handleGoogleAuth = async () => {
     if (!selectedUser) return;
     try {
-      sessionStorage.setItem('selectedUserEmail', selectedUser.email);
       await base44.auth.redirectToLogin();
     } catch (err) {
       setError('Authentication failed');
@@ -101,8 +100,8 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
                 <span className="text-white font-bold text-lg">{getInitials(selectedUser.full_name)}</span>
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-800">{getDisplayName(selectedUser.email, selectedUser.full_name)}</h2>
-                <p className="text-xs text-gray-500">{selectedUser.email.split('@')[0][0]}***@{selectedUser.email.split('@')[1]}</p>
+                <h2 className="text-xl font-semibold text-gray-800">{getDisplayName(selectedUser, selectedUser.full_name)}</h2>
+                <p className="text-xs text-gray-500">{selectedUser.email}</p>
               </div>
             </div>
             <button
@@ -162,7 +161,7 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
                   </div>
                 </button>
                 <p className="text-gray-300 text-xs md:text-base font-medium text-center truncate w-20 md:w-32 mt-3">
-                  {getDisplayName(user.email, user.full_name.split(' ')[0])}
+                  {getDisplayName(user, user.full_name.split(' ')[0])}
                 </p>
               </div>
             ))}
