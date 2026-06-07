@@ -30,8 +30,9 @@ export default function MasterKanbanBoard({
   className,
   // v0.1.3 — bounded height on the scroll row so each column's inner list
   // scrolls independently (sticky column headers, content doesn't push the
-  // whole page). Spokes can override per-app via this prop.
-  boardHeightClasses = "h-[calc(100dvh-220px)] md:h-[calc(100dvh-180px)]",
+  // whole page). Defaults tuned by pip-events (140px desktop / 120px mobile based
+  // on actual header heights). Override per-app if your chrome is taller/shorter.
+  boardHeightClasses = "h-[calc(100dvh-140px)] md:h-[calc(100dvh-120px-56px-env(safe-area-inset-bottom,0px))]",
 }) {
   const { ref, canScrollLeft, canScrollRight, scrollBy } = useHorizontalScroll();
 
