@@ -182,8 +182,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const execEmails = (Deno.env.get('EXEC_EMAILS') || '')
-      .split(',').map(e => e.trim()).filter(Boolean);
+    let testEmail = null;
+    try {
+      const body = await req.json();
+      testEmail = body?.testEmail || null;
+    } catch { /* no body */ }
+
+    const execEmails = testEmail
+      ? [testEmail]
+      : (Deno.env.get('EXEC_EMAILS') || '').split(',').map(e => e.trim()).filter(Boolean);
     if (execEmails.length === 0) {
       return Response.json({ error: 'EXEC_EMAILS not set' }, { status: 400 });
     }
