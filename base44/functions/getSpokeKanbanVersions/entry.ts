@@ -67,6 +67,9 @@ Deno.serve(async (req) => {
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
+    if (user.role !== 'admin') {
+      return Response.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+    }
 
     const token = Deno.env.get("GITHUB_TOKEN") || null;
 

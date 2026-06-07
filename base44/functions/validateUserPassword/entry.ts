@@ -1,5 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// In-memory throttle: max attempts per user within the window.
+// Persists for the lifetime of the (warm) function instance.
+const ATTEMPTS = new Map();
+const MAX_ATTEMPTS = 5;
+const WINDOW_MS = 60_000;
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -7,6 +13,18 @@ Deno.serve(async (req) => {
 
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Per-user brute-force throttle.
+    const now = Date.now();
+    const rec = ATTEMPTS.get(user.id);
+    if (rec && now - rec.first < WINDOW_MS && rec.count >= MAX_ATTEMPTS) {
+      return Response.json({ error: 'Too many attempts. Try again later.' }, { status: 429 });
+    }
+    if (!rec || now - rec.first >= WINDOW_MS) {
+      ATTEMPTS.set(user.id, { first: now, count: 1 });
+    } else {
+      rec.count += 1;
     }
 
     const { password } = await req.json();
