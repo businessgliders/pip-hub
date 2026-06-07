@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 import LineItemsInput from './LineItemsInput';
 
-const LOCATIONS = ['Brampton / HQ', 'Downtown', 'North York', 'Mississauga'];
+const LOCATIONS = ['Brampton / HQ'];
 
 const STEPS = [
   { id: 'datetime', label: 'Shift', icon: Calendar },
