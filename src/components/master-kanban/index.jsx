@@ -76,6 +76,7 @@ export const MASTER_KANBAN_VERSION = "0.1.5";
 
 export { default as MasterKanbanBoard } from "./MasterKanbanBoard";
 export { default as DragLiftWrapper } from "./DragLiftWrapper";
+export { default as MasterKanbanGlassTheme } from "./MasterKanbanGlassTheme";
 export { default as MasterKanbanColumn } from "./MasterKanbanColumn";
 export { default as MasterKanbanCard } from "./MasterKanbanCard";
 export { default as MasterSwimlaneScroller } from "./MasterSwimlaneScroller";

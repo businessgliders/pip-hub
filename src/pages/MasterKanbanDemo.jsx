@@ -6,6 +6,7 @@ import {
   MasterKanbanBoard,
   MasterBoardTabs,
   MasterSwimlaneScroller,
+  MasterKanbanGlassTheme,
   MASTER_KANBAN_VERSION,
 } from "@/components/master-kanban";
 
@@ -243,8 +244,11 @@ export default function MasterKanbanDemo() {
           </MasterSwimlaneScroller>
         </div>
 
-        {/* The main board */}
+        {/* The main board — wrapped in the glass theme (bounded height +
+            glassy columns/cards + desktop fit-all) from the pip-events bundle */}
+        <div className="board-height-wrap">
         <MasterKanbanBoard
+          className="h-full"
           columns={columns}
           onDragEnd={handleDragEnd}
           onTicketClick={(t) => alert(`Clicked: ${t.client_name} (${t.id})`)}
@@ -271,6 +275,8 @@ export default function MasterKanbanDemo() {
             return {};
           }}
         />
+        <MasterKanbanGlassTheme />
+        </div>
       </div>
     </div>
   );
