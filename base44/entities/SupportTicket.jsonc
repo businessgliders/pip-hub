@@ -1,0 +1,70 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the person who submitted"
+    },
+    "email": {
+      "type": "string",
+      "description": "Submitter email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Submitter phone"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Short subject / title"
+    },
+    "message": {
+      "type": "string",
+      "description": "Full message / details"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "in_progress",
+        "waiting",
+        "resolved"
+      ],
+      "default": "new",
+      "description": "Kanban status"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "source_app": {
+      "type": "string",
+      "description": "Which spoke app submitted this (e.g. 'pip-support')"
+    },
+    "extra": {
+      "type": "object",
+      "description": "Any additional fields from the spoke form",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

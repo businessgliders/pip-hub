@@ -1,0 +1,70 @@
+{
+  "name": "PartnerInquiry",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the contact / influencer"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone"
+    },
+    "company": {
+      "type": "string",
+      "description": "Company / brand name"
+    },
+    "social_handle": {
+      "type": "string",
+      "description": "Instagram / TikTok handle or website"
+    },
+    "partnership_type": {
+      "type": "string",
+      "description": "Type of partnership proposed"
+    },
+    "message": {
+      "type": "string",
+      "description": "Proposal details"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "reviewing",
+        "negotiating",
+        "active",
+        "declined"
+      ],
+      "default": "new",
+      "description": "Kanban status"
+    },
+    "source_app": {
+      "type": "string",
+      "description": "Which spoke app submitted this (e.g. 'pip-partner')"
+    },
+    "extra": {
+      "type": "object",
+      "description": "Any additional fields from the spoke form",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

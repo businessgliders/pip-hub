@@ -14,6 +14,9 @@ import Settings from './pages/Settings';
 import SettingsMasterKanban from './pages/SettingsMasterKanban';
 import SettingsMasterKanbanInstructions from './pages/SettingsMasterKanbanInstructions';
 import SettingsMasterKanbanVersions from './pages/SettingsMasterKanbanVersions';
+import SupportBoard from './pages/SupportBoard';
+import EventsBoard from './pages/EventsBoard';
+import PartnerBoard from './pages/PartnerBoard';
 // SupportInbox archived 2026-06-05 — Hub no longer centralizes Gmail routing.
 // Files kept in place (pages/SupportInbox.jsx, components/support/*, functions/gmailInboxWebhook.js,
 // functions/sendSupportReply.js, entities/IncomingEmail.json, entities/EmailRoute.json)
@@ -66,6 +69,9 @@ const AuthenticatedApp = () => {
       <Route path="/settings/master-kanban" element={<SettingsMasterKanban />} />
       <Route path="/settings/master-kanban/instructions" element={<SettingsMasterKanbanInstructions />} />
       <Route path="/settings/master-kanban/versions" element={<SettingsMasterKanbanVersions />} />
+      <Route path="/boards/support" element={<SupportBoard />} />
+      <Route path="/boards/events" element={<EventsBoard />} />
+      <Route path="/boards/partner" element={<PartnerBoard />} />
       {/* /support archived — see import comment above */}
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
