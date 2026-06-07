@@ -47,8 +47,8 @@ const buildAiSummary = async (base44, reports) => {
   });
 };
 
-const buildHtml = ({ reports, totals, ai, rangeLabel, daily, maxDaily, appUrl }) => {
-  const reportsUrl = `${appUrl}/end-of-day`;
+const buildHtml = ({ reports, totals, ai, rangeLabel, daily, maxDaily }) => {
+  const reportsUrl = `https://hub.pilatesinpinkstudio.com/end-of-day?analytics=1`;
 
   const stat = (label, value) => `
     <td align="center" style="padding:14px 8px;background:#ffffff;border:1px solid #f3e8eb;border-radius:14px;">
@@ -230,11 +230,9 @@ Deno.serve(async (req) => {
 
     const ai = await buildAiSummary(base44, reports);
 
-    const origin = req.headers.get('origin') || req.headers.get('referer')?.replace(/\/[^/]*$/, '') || 'https://app.base44.com';
-    const appUrl = origin.replace(/\/$/, '');
     const rangeLabel = fmtRange(start, end);
 
-    const html = buildHtml({ reports, totals, ai, rangeLabel, daily, maxDaily, appUrl });
+    const html = buildHtml({ reports, totals, ai, rangeLabel, daily, maxDaily });
     const subject = `Weekly Exec Report — ${rangeLabel} · ${totals.reports} reports`;
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');

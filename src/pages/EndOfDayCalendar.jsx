@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
@@ -21,6 +21,11 @@ export default function EndOfDayCalendar() {
   });
   const [selected, setSelected] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('analytics') === '1') setShowAnalytics(true);
+  }, []);
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ['shiftReports'],
