@@ -195,17 +195,30 @@ export default function AppHub() {
 
   const createWidgetMutation = useMutation({
     mutationFn: (widgetData) => base44.entities.UserWidget.create({ ...widgetData, order: userWidgets.length }),
-    onSuccess: () => queryClient.invalidateQueries(['userWidgets']),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['userWidgets'] }),
   });
 
   const updateWidgetMutation = useMutation({
+    // Optimistically apply the change so the new size sticks immediately and
+    // never visually reverts while the save round-trips.
     mutationFn: ({ id, data }) => base44.entities.UserWidget.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries(['userWidgets']),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['userWidgets', user?.email] });
+      const previous = queryClient.getQueryData(['userWidgets', user?.email]);
+      queryClient.setQueryData(['userWidgets', user?.email], (old = []) =>
+        old.map((w) => (w.id === id ? { ...w, ...data } : w))
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['userWidgets', user?.email], ctx.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['userWidgets', user?.email] }),
   });
 
   const deleteWidgetMutation = useMutation({
     mutationFn: (id) => base44.entities.UserWidget.delete(id),
-    onSuccess: () => queryClient.invalidateQueries(['userWidgets']),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['userWidgets', user?.email] }),
   });
 
   const handleReorderWidgets = async (sourceIndex, destinationIndex, gridWidgets) => {
