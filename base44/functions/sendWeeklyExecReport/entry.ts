@@ -57,15 +57,16 @@ const buildHtml = ({ reports, totals, ai, rangeLabel, daily, maxDaily, appUrl })
     </td>`;
 
   // Simple HTML bar chart (calls per day) — a "snapshot" of analytics
+  const colW = `${Math.floor(100 / (daily.length || 1))}%`;
   const bars = daily.map(d => {
     const h = maxDaily > 0 ? Math.round((d.calls / maxDaily) * 90) : 0;
     return `
-      <td align="center" valign="bottom" style="padding:0 3px;">
-        <div style="height:90px;display:flex;align-items:flex-end;justify-content:center;">
-          <div style="width:18px;height:${Math.max(h, 2)}px;background:${PINK};border-radius:4px 4px 0 0;"></div>
-        </div>
-        <div style="font-size:9px;color:${MUTED};margin-top:4px;">${esc(d.label)}</div>
-        <div style="font-size:10px;font-weight:700;color:${TEXT};">${d.calls}</div>
+      <td align="center" valign="bottom" width="${colW}" style="padding:0;text-align:center;">
+        <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" valign="bottom" height="90" style="height:90px;">
+          <div style="width:18px;height:${Math.max(h, 2)}px;background:${PINK};border-radius:4px 4px 0 0;margin:0 auto;"></div>
+        </td></tr></table>
+        <div style="font-size:9px;color:${MUTED};margin-top:4px;text-align:center;">${esc(d.label)}</div>
+        <div style="font-size:10px;font-weight:700;color:${TEXT};text-align:center;">${d.calls}</div>
       </td>`;
   }).join('');
 
