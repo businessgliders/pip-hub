@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Shield, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X, Settings as SettingsIcon } from 'lucide-react';
+import { Star, Plus, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X, Settings as SettingsIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +10,8 @@ import AppListRow from '../components/hub/AppListRow';
 import SectionGroup from '../components/hub/SectionGroup';
 import AddAppModal from '../components/hub/AddAppModal';
 import EditAppModal from '../components/hub/EditAppModal';
-import AdminPanel from '../components/hub/AdminPanel';
 import SectionManagementPanel from '../components/hub/SectionManagementPanel';
 import AppViewerModal from '../components/hub/AppViewerModal';
-import PasswordPrompt from '../components/hub/PasswordPrompt';
 import CustomizePanel from '../components/hub/CustomizePanel';
 import UserSelection from '../components/hub/UserSelection';
 import BrowseAppsModal from '../components/hub/BrowseAppsModal';
@@ -52,9 +50,6 @@ export default function AppHub() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingApp, setEditingApp] = useState(null);
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showSectionPanel, setShowSectionPanel] = useState(false);
         const [draggingAppId, setDraggingAppId] = useState(null);
         const [viewingApp, setViewingApp] = useState(null);
@@ -348,20 +343,6 @@ export default function AppHub() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
-  const handleToggleAdmin = () => {
-    if (isAdminMode) {
-      setIsAdminMode(false);
-      setShowAdminPanel(false);
-    } else {
-      // Only require password for owner accounts
-      if (isOwner) {
-        setShowPasswordPrompt(true);
-      } else {
-        setIsAdminMode(true);
-      }
-    }
-  };
-
   const handleLogout = () => {
     base44.auth.logout();
   };
@@ -377,11 +358,6 @@ export default function AppHub() {
   };
 
   const isOwner = user?.email === OWNER_EMAIL;
-
-  const handleAdminSuccess = () => {
-    setIsAdminMode(true);
-    setShowPasswordPrompt(false);
-  };
 
   const filteredApps = apps.filter(app =>
     app.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -1036,24 +1012,6 @@ export default function AppHub() {
           sections={sections}
           onClose={() => setShowAddModal(false)}
           onSave={(appData) => createAppMutation.mutate(appData)}
-        />
-      )}
-
-      {showPasswordPrompt && (
-        <PasswordPrompt
-          onClose={() => setShowPasswordPrompt(false)}
-          onSuccess={handleAdminSuccess}
-        />
-      )}
-
-      {showAdminPanel && (
-        <AdminPanel
-          apps={apps}
-          sections={sections}
-          onDeleteApp={(appId) => deleteAppMutation.mutate(appId)}
-          onEditApp={handleEditApp}
-          onReorderApps={handleReorderApps}
-          onClose={() => setShowAdminPanel(false)}
         />
       )}
 
