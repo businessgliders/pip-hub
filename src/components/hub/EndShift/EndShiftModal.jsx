@@ -10,8 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 import LineItemsInput from './LineItemsInput';
+
+const LOCATIONS = ['Brampton / HQ', 'Downtown', 'North York', 'Mississauga'];
 
 const STEPS = [
   { id: 'datetime', label: 'Shift', icon: Calendar },
@@ -192,12 +195,18 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                     />
                   </Field>
                   <Field label="Location" required hint="Defaults to Brampton / HQ.">
-                    <Input
-                      value={data.location}
-                      onChange={(e) => update('location', e.target.value)}
-                      placeholder="Brampton / HQ"
-                      style={{ fontSize: '16px' }}
-                    />
+                    <Select value={data.location} onValueChange={(value) => update('location', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LOCATIONS.map((loc) => (
+                          <SelectItem key={loc} value={loc}>
+                            {loc}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </Field>
                 </>
               )}
