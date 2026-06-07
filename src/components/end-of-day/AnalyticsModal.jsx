@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from 'recharts';
-import { Sparkles, Phone, Mail, Users, Star, Loader2, TrendingUp } from 'lucide-react';
+import { Sparkles, Phone, Mail, Users, Star, Loader2, TrendingUp, User as UserIcon } from 'lucide-react';
 
 const PINK = '#f1889b';
 
@@ -65,15 +65,16 @@ export default function AnalyticsModal({ open, onClose, reports }) {
     })).filter(i => i.conversion_notes || i.low_inventory || i.incidents || i.feedback || i.general_notes);
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are analyzing end-of-day shift reports for a Pilates studio. Below is a JSON array of report notes. Summarize the trends and most commonly reported items across these categories: incidents, client feedback, low inventory items, conversion blockers (why leads didn't convert), and general notes. Identify recurring themes and how often they appear. Be specific and actionable.\n\nReports:\n${JSON.stringify(items, null, 2)}`,
+      prompt: `You are analyzing end-of-day shift reports for a Pilates studio. Each report has an "admin" field — the submitter who wrote it. Below is a JSON array of report notes. Summarize the trends and most commonly reported items across these categories: incidents, client feedback, low inventory items, conversion blockers (why leads didn't convert), and general notes. For each reported item, attribute WHICH submitter(s) reported it. Also provide a per-submitter breakdown describing what each person is reporting/focusing on. Identify recurring themes and how often they appear. Be specific and actionable.\n\nReports:\n${JSON.stringify(items, null, 2)}`,
       response_json_schema: {
         type: 'object',
         properties: {
           overview: { type: 'string', description: '2-3 sentence high level summary' },
-          common_incidents: { type: 'array', items: { type: 'object', properties: { item: { type: 'string' }, count: { type: 'number' } } } },
-          common_feedback: { type: 'array', items: { type: 'object', properties: { item: { type: 'string' }, count: { type: 'number' } } } },
-          common_inventory: { type: 'array', items: { type: 'object', properties: { item: { type: 'string' }, count: { type: 'number' } } } },
-          conversion_blockers: { type: 'array', items: { type: 'object', properties: { item: { type: 'string' }, count: { type: 'number' } } } },
+          common_incidents: { type: 'array', items: { type: 'object', properties: { item: { type: 'string' }, count: { type: 'number' }, submitters: { type: 'array', items: { type: 'string' } } } } },
+          common_feedback: { type: 'array', items: { type: 'object', properties: { item: { type: 'string' }, count: { type: 'number' }, submitters: { type: 'array', items: { type: 'string' } } } } },
+          common_inventory: { type: 'array', items: { type: 'object', properties: { item: { type: 'string' }, count: { type: 'number' }, submitters: { type: 'array', items: { type: 'string' } } } } },
+          conversion_blockers: { type: 'array', items: { type: 'object', properties: { item: { type: 'string' }, count: { type: 'number' }, submitters: { type: 'array', items: { type: 'string' } } } } },
+          by_submitter: { type: 'array', items: { type: 'object', properties: { submitter: { type: 'string' }, report_count: { type: 'number' }, summary: { type: 'string' }, key_items: { type: 'array', items: { type: 'string' } } } } },
           recommendations: { type: 'array', items: { type: 'string' } },
         },
       },
@@ -148,6 +149,33 @@ export default function AnalyticsModal({ open, onClose, reports }) {
                 <ThemeList title="Client feedback" items={aiSummary.common_feedback} />
                 <ThemeList title="Low inventory" items={aiSummary.common_inventory} />
                 <ThemeList title="Conversion blockers" items={aiSummary.conversion_blockers} />
+
+                {aiSummary.by_submitter?.length > 0 && (
+                  <div>
+                    <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">By submitter</div>
+                    <div className="space-y-2">
+                      {aiSummary.by_submitter.map((s, i) => (
+                        <div key={i} className="bg-white border border-gray-200 rounded-xl p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
+                              <UserIcon className="w-3.5 h-3.5 text-[#f1889b]" /> {s.submitter}
+                            </div>
+                            <span className="text-[10px] text-gray-400">{s.report_count} report{s.report_count === 1 ? '' : 's'}</span>
+                          </div>
+                          <p className="text-sm text-gray-600 leading-relaxed">{s.summary}</p>
+                          {s.key_items?.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {s.key_items.map((k, j) => (
+                                <span key={j} className="text-[11px] bg-[#fbe0e2]/60 text-[#c45a6e] rounded-full px-2 py-0.5">{k}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {aiSummary.recommendations?.length > 0 && (
                   <div>
                     <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Recommendations</div>
@@ -184,12 +212,17 @@ function ThemeList({ title, items }) {
   return (
     <div>
       <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{title}</div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="space-y-1.5">
         {items.map((it, i) => (
-          <span key={i} className="inline-flex items-center gap-1.5 text-xs bg-white border border-gray-200 rounded-full px-2.5 py-1 text-gray-700">
-            {it.item}
-            {it.count > 1 && <span className="bg-[#fbe0e2] text-[#c45a6e] font-semibold rounded-full px-1.5 text-[10px]">{it.count}</span>}
-          </span>
+          <div key={i} className="flex items-start gap-2 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5">
+            <div className="flex-1 text-xs text-gray-700">{it.item}</div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {it.submitters?.length > 0 && (
+                <span className="text-[10px] text-gray-500">{it.submitters.join(', ')}</span>
+              )}
+              {it.count > 1 && <span className="bg-[#fbe0e2] text-[#c45a6e] font-semibold rounded-full px-1.5 text-[10px]">{it.count}</span>}
+            </div>
+          </div>
         ))}
       </div>
     </div>
