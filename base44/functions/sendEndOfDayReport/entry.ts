@@ -175,6 +175,12 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // Intentionally open to any authenticated studio user: front-desk staff
+    // (non-admin) legitimately submit and send their own End-of-Day reports.
+    // Recipients are fixed via EOD_REPORT_TO/CC env vars, so the report can only
+    // ever be delivered to the pre-configured studio addresses — an authenticated
+    // user cannot redirect it elsewhere.
+
     const { report } = await req.json();
     if (!report) return Response.json({ error: 'Missing report' }, { status: 400 });
 
