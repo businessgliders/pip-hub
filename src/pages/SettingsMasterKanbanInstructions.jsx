@@ -16,6 +16,8 @@ Barrel file: \`src/components/master-kanban/index.jsx\`
 | 2026-06-06 | 0.1.1   | All 8 Master Kanban files (first sync)                                | Re-enable drag on touch; remove isDragDisabled gate  |
 | 2026-06-06 | 0.1.2   | MasterKanbanColumn.jsx, MasterKanbanCard.jsx, index.jsx               | Theme-able columns + bareCard (back-compatible)      |
 | 2026-06-06 | 0.1.3   | MasterKanbanColumn.jsx, MasterKanbanBoard.jsx, index.jsx              | Responsive lane widths + bounded board height       |
+| 2026-06-07 | 0.1.4   | MasterKanbanBoard.jsx, index.jsx                                      | Tighter board height defaults                        |
+| 2026-06-07 | 0.1.5   | DragLiftWrapper.jsx (new), MasterKanbanGlassTheme.jsx (new), MasterKanbanColumn.jsx, MasterKanbanBoard.jsx, MasterKanbanCard.jsx, index.jsx | iOS drag lift + haptic, scroll-lock on drag, glass theme |
 `;
 
 const AGENT_PROMPT = `Sync the Master Kanban from pip-hub (source of truth).
@@ -37,6 +39,8 @@ PRE-CHECK (do this BEFORE touching any files):
    - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanCard.jsx
    - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterBoardTabs.jsx
    - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterSwimlaneScroller.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/DragLiftWrapper.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanGlassTheme.jsx
 
    Hooks (→ src/hooks/):
    - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/hooks/useHorizontalScroll.js
@@ -87,6 +91,8 @@ const NEW_INSTALL_PROMPT = `First-time install of the Master Kanban into this sp
    - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanCard.jsx
    - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterBoardTabs.jsx
    - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterSwimlaneScroller.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/DragLiftWrapper.jsx
+   - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/components/master-kanban/MasterKanbanGlassTheme.jsx
 
    Hooks (→ src/hooks/):
    - https://raw.githubusercontent.com/businessgliders/pip-hub/main/src/hooks/useHorizontalScroll.js
@@ -104,7 +110,7 @@ const NEW_INSTALL_PROMPT = `First-time install of the Master Kanban into this sp
 5. Read MASTER_KANBAN_VERSION from the new index.jsx → record it.
 6. Create SYNC.md at the project root using the template from pip-hub
    Settings → Master Kanban → Instructions. First row = today's date,
-   the version installed, "All 8 Master Kanban files (first install)",
+   the version installed, "All Master Kanban files (first install)",
    and "Initial install".
 7. Smoke check: confirm the project still compiles. Report any errors verbatim.
 8. Report back:
@@ -173,7 +179,7 @@ export default function SettingsMasterKanbanInstructions() {
               </li>
               <li>
                 <span className="text-slate-500">Current version:</span>{" "}
-                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">v0.1.3</code>
+                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">v0.1.5</code>
               </li>
               <li>
                 <span className="text-slate-500">Barrel file:</span>{" "}
