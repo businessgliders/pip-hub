@@ -6,6 +6,10 @@
       "type": "string",
       "description": "Name of the person who submitted"
     },
+    "full_name": {
+      "type": "string",
+      "description": "Full name (pip-events field, mirrors name)"
+    },
     "email": {
       "type": "string",
       "description": "Submitter email"
@@ -16,16 +20,50 @@
     },
     "event_type": {
       "type": "string",
-      "description": "Type of event (e.g. party, corporate, workshop)"
+      "description": "Type of event (e.g. Birthday, Bridal Shower, Corporate Wellness Event)"
     },
     "event_date": {
       "type": "string",
       "format": "date",
       "description": "Requested event date"
     },
+    "additional_dates": {
+      "type": "string"
+    },
+    "preferred_times": {
+      "type": "string"
+    },
     "guest_count": {
       "type": "number",
       "description": "Estimated number of guests"
+    },
+    "number_of_guests": {
+      "type": "number",
+      "description": "Number of guests (pip-events field)"
+    },
+    "time_slot": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "string"
+    },
+    "selected_classes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "add_ons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "budget": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
     },
     "message": {
       "type": "string",
@@ -34,14 +72,123 @@
     "status": {
       "type": "string",
       "enum": [
-        "new",
-        "contacted",
-        "quoted",
-        "booked",
-        "lost"
+        "New",
+        "In Conversations",
+        "Waiting for Payment",
+        "Confirmed",
+        "Closed",
+        "No Response",
+        "Hosted",
+        "Pending",
+        "Cancelled"
       ],
-      "default": "new",
+      "default": "New",
       "description": "Kanban status"
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "submitted_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Original submission date from the client's form or CSV"
+    },
+    "ticket_number": {
+      "type": "number",
+      "description": "Sequential ticket number used in email subject for threading"
+    },
+    "gmail_thread_id": {
+      "type": "string",
+      "description": "Gmail thread ID for the email conversation with this client"
+    },
+    "gmail_root_message_id": {
+      "type": "string",
+      "description": "RFC Message-ID header of the very first email sent (used for threading replies)"
+    },
+    "ai_suggestions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "body_html": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Cached AI reply suggestions"
+    },
+    "ai_suggestions_generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_suggestions_message_count": {
+      "type": "number",
+      "description": "Count of EmailMessage rows when suggestions were generated (used for cache invalidation)"
+    },
+    "email_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sent_at": {
+            "type": "string"
+          },
+          "template_name": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "body_html": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "description": "outbound or initial"
+          },
+          "gmail_message_id": {
+            "type": "string"
+          },
+          "rfc_message_id": {
+            "type": "string",
+            "description": "RFC Message-ID header value (for threading)"
+          }
+        }
+      }
+    },
+    "archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the request has been archived off the Kanban board"
+    },
+    "manual_order": {
+      "type": "number",
+      "description": "Manual sort position within a column. Set when user drags to reorder; cleared when status changes."
+    },
+    "status_history": {
+      "type": "array",
+      "description": "Audit log of status changes",
+      "items": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
     },
     "source_app": {
       "type": "string",
