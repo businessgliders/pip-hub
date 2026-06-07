@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
+import { OWNER_EMAIL } from '@/lib/studioConfig';
 
 const getPinkGradient = (index) => {
   const pinkGradients = [
@@ -21,7 +22,7 @@ const getInitials = (name) => {
 };
 
 const getDisplayName = (email, fullName) => {
-  if (email === 'info@pilatesinpinkstudio.com') {
+  if (email === OWNER_EMAIL) {
     return 'Front Desk';
   }
   return fullName ? fullName.split(' ')[0] : email.split('@')[0];
@@ -50,8 +51,8 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
         const allUsers = response.data.users || [];
         // Sort with Front Desk (owner account) first
         const sortedUsers = allUsers.sort((a, b) => {
-          if (a.email === 'info@pilatesinpinkstudio.com') return -1;
-          if (b.email === 'info@pilatesinpinkstudio.com') return 1;
+          if (a.email === OWNER_EMAIL) return -1;
+          if (b.email === OWNER_EMAIL) return 1;
           return 0;
         });
         setUsers(sortedUsers);

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 
 import { AVAILABLE_WIDGETS } from './widgets/utils';
+import { OWNER_EMAIL } from '@/lib/studioConfig';
 
 export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], userWidgets = [], onClose, onAddApp, onUnhideApp, onAddWidget }) {
   useBodyScrollLock(true);
@@ -52,7 +53,7 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], u
         
         // Only get apps from the primary owner account
         const ownerCreatedApps = allApps.filter(app => 
-          app.created_by === 'info@pilatesinpinkstudio.com'
+          app.created_by === OWNER_EMAIL
         );
         
         // Remove duplicates, keeping the first occurrence
@@ -64,7 +65,7 @@ export default function BrowseAppsModal({ sections, userApps, hiddenApps = [], u
         
         // Only keep sections created by the owner
         const ownerCreatedSections = allSections.filter(s => 
-          s.created_by === 'info@pilatesinpinkstudio.com'
+          s.created_by === OWNER_EMAIL
         );
         setOwnerSections(ownerCreatedSections);
       } catch (err) {

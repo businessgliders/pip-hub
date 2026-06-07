@@ -186,10 +186,20 @@ Deno.serve(async (req) => {
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
 
+    // Recipients are configurable via environment variables.
+    // EOD_REPORT_TO / EOD_REPORT_CC accept comma-separated addresses.
+    const fromAddress = Deno.env.get('EOD_REPORT_FROM') || 'frontdesk@pilatesinpinkstudio.com';
+    const toRecipients = Deno.env.get('EOD_REPORT_TO');
+    const ccRecipients = Deno.env.get('EOD_REPORT_CC');
+
+    if (!toRecipients) {
+      return Response.json({ error: 'EOD_REPORT_TO is not configured' }, { status: 500 });
+    }
+
     const raw = await buildMime({
-      from: `${STORE_NAME} <frontdesk@pilatesinpinkstudio.com>`,
-      to: 'sahil@pilatesinpinkstudio.com',
-      cc: 'gurpreen@pilatesinpinkstudio.com',
+      from: `${STORE_NAME} <${fromAddress}>`,
+      to: toRecipients,
+      cc: ccRecipients || undefined,
       subject,
       html,
     });

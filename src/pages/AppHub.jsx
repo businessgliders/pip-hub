@@ -27,6 +27,7 @@ import AnnouncementsAdminPanel from '../components/hub/AnnouncementsAdminPanel';
 import EndShiftButton from '../components/hub/EndShift/EndShiftButton';
 import EndShiftModal from '../components/hub/EndShift/EndShiftModal';
 import MobileDateWeather from '../components/hub/MobileDateWeather';
+import { OWNER_EMAIL } from '@/lib/studioConfig';
 
 // Track desktop breakpoint (lg: 1024px). On tablet/mobile, favorites are surfaced
 // separately (FavoritesSection / loose launchpad icons), so they're hidden from
@@ -375,7 +376,7 @@ export default function AppHub() {
     await base44.auth.updateMe({ customWallpaper: wallpaperUrl });
   };
 
-  const isOwner = user?.email === 'info@pilatesinpinkstudio.com';
+  const isOwner = user?.email === OWNER_EMAIL;
 
   const handleAdminSuccess = () => {
     setIsAdminMode(true);
@@ -1139,7 +1140,7 @@ export default function AppHub() {
       )}
 
       {/* End Shift floating button + modal (owner only) */}
-      {user?.email === 'info@pilatesinpinkstudio.com' && !showCustomizePanel && !showMoreSheet && (
+      {isOwner && !showCustomizePanel && !showMoreSheet && (
         <>
           <EndShiftButton onClick={() => setShowEndShift(true)} />
           {showEndShift && (
