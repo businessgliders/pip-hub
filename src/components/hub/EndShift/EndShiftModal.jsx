@@ -199,7 +199,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[70]">
                         {LOCATIONS.map((loc) => (
                           <SelectItem key={loc} value={loc}>
                             {loc}
