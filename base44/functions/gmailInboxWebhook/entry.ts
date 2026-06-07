@@ -89,8 +89,12 @@ const pickRoute = (recipients, routes) => {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json();
 
+    // This endpoint is invoked by the Base44 platform's Gmail connector dispatcher,
+    // which authenticates the call — no custom secret/auth check is needed (and adding
+    // one would break platform invocation). We only guard against malformed/empty
+    // bodies so forged or junk requests fail closed instead of throwing.
+    const body = await req.json().catch(() => null);
     const messageIds = body?.data?.new_message_ids ?? [];
     if (messageIds.length === 0) {
       return Response.json({ ok: true, processed: 0, reason: 'no new messages' });
