@@ -8,6 +8,7 @@ import { MasterKanbanBoard } from "@/components/master-kanban";
 import { BOARD_CONFIGS, getTheme, statusLabel } from "./boardConfigs";
 import SpokeCardContent from "./SpokeCardContent";
 import SpokeTicketModal from "./SpokeTicketModal";
+import { getColorPalette } from "@/lib/boardColorPalettes";
 
 /**
  * Generic dashboard for one spoke board (support / events / partner).
@@ -19,6 +20,7 @@ export default function SpokeKanbanPage({ boardKey }) {
   const Entity = base44.entities[config.entityName];
   const queryClient = useQueryClient();
   const queryKey = ["spoke-board", boardKey];
+  const colors = getColorPalette(boardKey);
 
   const [selected, setSelected] = useState(null);
 
@@ -53,7 +55,7 @@ export default function SpokeKanbanPage({ boardKey }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6">
+    <div className="min-h-screen p-4 md:p-6" style={{ background: colors.background }}>
       <div className="max-w-[1600px] mx-auto">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -63,8 +65,8 @@ export default function SpokeKanbanPage({ boardKey }) {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{config.title} Board</h1>
-              <p className="text-sm text-slate-500">
+              <h1 className="text-2xl font-bold" style={{ color: '#5a3535' }}>{config.title} Board</h1>
+              <p className="text-sm" style={{ color: colors.accentPrimary }}>
                 {records.length} total · drag cards to update status
               </p>
             </div>

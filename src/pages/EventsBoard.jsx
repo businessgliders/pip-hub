@@ -7,13 +7,14 @@ import { Link } from 'react-router-dom';
 import { Search, LayoutGrid, Archive, ArrowLeft } from 'lucide-react';
 import MasterKanbanBoard from '@/components/master-kanban/MasterKanbanBoard';
 import TicketCardContent from '@/components/board/TicketCardContent';
-import { COLUMN_COLOR_CLASSES, COLUMN_HEADER_CLASSES, DEFAULT_COLOR, DEFAULT_HEADER } from '@/components/board/columnTheme';
+import { getColumnTheme } from '@/components/board/columnTheme';
 import HostedSidePanel from '@/components/board/HostedSidePanel';
 import ArchivedTicketsList from '@/components/board/ArchivedTicketsList';
 import StatusChangeDialog from '@/components/board/StatusChangeDialog';
 import AddonLegend from '@/components/board/AddonLegend';
 import RequestDetailModal from '@/components/dashboard/RequestDetailModal';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { getColorPalette } from '@/lib/boardColorPalettes';
 
 const STATUS_COLUMNS = ['New', 'In Conversations', 'Waiting for Payment', 'Confirmed', 'Closed', 'Hosted'];
 const BOARD_COLUMNS = STATUS_COLUMNS.filter(c => c !== 'Hosted');
@@ -21,6 +22,7 @@ const BOARD_COLUMNS = STATUS_COLUMNS.filter(c => c !== 'Hosted');
 export default function EventsBoard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const colors = getColorPalette('events');
   const [search, setSearch] = useState('');
   const [view, setView] = useState('board'); // 'board' | 'archive'
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -182,20 +184,23 @@ export default function EventsBoard() {
     queryClient.invalidateQueries({ queryKey: ['eventLeads'] });
   };
 
-  const columns = BOARD_COLUMNS.map(status => ({
-    status,
-    tickets: ticketsByColumn[status] || [],
-    colorClasses: COLUMN_COLOR_CLASSES[status] || DEFAULT_COLOR,
-    headerClasses: COLUMN_HEADER_CLASSES[status] || DEFAULT_HEADER,
-    emptyLabel: 'No requests',
-  }));
+  const columns = BOARD_COLUMNS.map(status => {
+    const theme = getColumnTheme('events', status);
+    return {
+      status,
+      tickets: ticketsByColumn[status] || [],
+      colorClasses: theme.colorClasses,
+      headerClasses: theme.headerClasses,
+      emptyLabel: 'No requests',
+    };
+  });
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #fdf2f6 0%, #fce7ef 45%, #f9d9e6 100%)' }}>
+    <div className="min-h-screen" style={{ background: colors.background }}>
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/40 border-b border-white/40 px-4 md:px-6 py-3">
         <div className="flex items-center gap-3 flex-wrap">
-          <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-pink-700 hover:text-pink-900">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-medium hover:opacity-80" style={{ color: colors.accentPrimary }}>
             <ArrowLeft className="w-4 h-4" /> Hub
           </Link>
           <h1 className="text-lg font-bold" style={{ color: '#5a3535' }}>Request Board</h1>
@@ -204,15 +209,15 @@ export default function EventsBoard() {
           <div className="inline-flex rounded-full overflow-hidden bg-white/50 ml-auto">
             <button
               onClick={() => setView('board')}
-              className={`px-4 py-1.5 text-sm font-semibold flex items-center gap-1.5 transition-colors ${view === 'board' ? 'text-white' : 'text-pink-700'}`}
-              style={view === 'board' ? { background: 'linear-gradient(135deg, #f1889b, #e86c84)' } : undefined}
+              className={`px-4 py-1.5 text-sm font-semibold flex items-center gap-1.5 transition-colors ${view === 'board' ? 'text-white' : ''}`}
+              style={view === 'board' ? { background: `linear-gradient(135deg, ${colors.accentPrimary}, ${colors.accentSecondary})` } : { color: colors.accentPrimary }}
             >
               <LayoutGrid className="w-4 h-4" /> Board
             </button>
             <button
               onClick={() => setView('archive')}
-              className={`px-4 py-1.5 text-sm font-semibold flex items-center gap-1.5 transition-colors ${view === 'archive' ? 'text-white' : 'text-pink-700'}`}
-              style={view === 'archive' ? { background: 'linear-gradient(135deg, #f1889b, #e86c84)' } : undefined}
+              className={`px-4 py-1.5 text-sm font-semibold flex items-center gap-1.5 transition-colors ${view === 'archive' ? 'text-white' : ''}`}
+              style={view === 'archive' ? { background: `linear-gradient(135deg, ${colors.accentPrimary}, ${colors.accentSecondary})` } : { color: colors.accentPrimary }}
             >
               <Archive className="w-4 h-4" /> Archive
             </button>
