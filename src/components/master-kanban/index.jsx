@@ -5,6 +5,14 @@
  * Bump on any breaking change to the public API of these components/hooks.
  *
  * Changelog:
+ *   0.1.4 — Tighter board height defaults (from pip-events feedback).
+ *           * MasterKanbanBoard: default `boardHeightClasses` changed from
+ *             `h-[calc(100dvh-220px)] md:h-[calc(100dvh-180px)]` to
+ *             `h-[calc(100dvh-140px)] md:h-[calc(100dvh-120px-56px-env(safe-area-inset-bottom,0px))]`.
+ *             Aligns with actual header heights (~140px desktop / ~120px mobile),
+ *             allowing swimlanes to fill available space before tab bar.
+ *           Back-compatible: spokes passing custom boardHeightClasses override
+ *           the new default.
  *   0.1.3 — Responsive default sizing + bounded board height.
  *           * MasterKanbanColumn default shellClasses width:
  *             `w-80` → `w-[42vw] md:w-72 lg:w-80`. Phones/portrait tablets
@@ -51,7 +59,7 @@
  *           + MasterKanbanColumn now accepts optional `description` per
  *             column (renders as a small subtitle under the title)
  */
-export const MASTER_KANBAN_VERSION = "0.1.3";
+export const MASTER_KANBAN_VERSION = "0.1.4";
 
 export { default as MasterKanbanBoard } from "./MasterKanbanBoard";
 export { default as MasterKanbanColumn } from "./MasterKanbanColumn";
