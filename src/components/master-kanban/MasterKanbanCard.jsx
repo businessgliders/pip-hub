@@ -34,8 +34,8 @@ export default function MasterKanbanCard({
       className={cn(
         "relative rounded-xl cursor-pointer transition-all",
         !bareCard && "bg-white border border-slate-200 p-3 shadow-sm hover:shadow-md hover:border-slate-300",
-        !bareCard && isDragging && "shadow-2xl border-2",
-        !bareCard && isDragging && (dragBorderClasses || "border-pink-300"),
+        isDragging && "shadow-2xl border-2",
+        isDragging && (dragBorderClasses || "border-pink-300"),
         isHighlighted && "ring-2 ring-pink-400 animate-pulse"
       )}
     >

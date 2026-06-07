@@ -5,6 +5,19 @@
  * Bump on any breaking change to the public API of these components/hooks.
  *
  * Changelog:
+ *   0.1.5 — iOS-style drag feel synced from pip-events (now the default).
+ *           + NEW DragLiftWrapper: dragged card "pops" with a springy
+ *             scale(1.04) + rotate(1.5deg) and fires a short haptic on pickup.
+ *           * MasterKanbanColumn: each card is wrapped in DragLiftWrapper;
+ *             adds iOS touch styles (userSelect/touchCallout/touchAction) and
+ *             data-kanban-list on the list. Archive All now always renders
+ *             (disabled when the column is empty).
+ *           * MasterKanbanBoard: onDragStart/onDragEnd toggle a `dnd-dragging`
+ *             body class + injected <style> that freezes page & column scroll
+ *             during drag, so only the card moves under the finger (matches
+ *             desktop mouse-drag feel). Sticky headers/page don't pan.
+ *           * MasterKanbanCard: drag chrome (shadow lift + tinted border) is
+ *             no longer gated behind !bareCard, so glass/dark cards lift too.
  *   0.1.4 — Tighter board height defaults (from pip-events feedback).
  *           * MasterKanbanBoard: default `boardHeightClasses` changed from
  *             `h-[calc(100dvh-220px)] md:h-[calc(100dvh-180px)]` to
@@ -59,9 +72,10 @@
  *           + MasterKanbanColumn now accepts optional `description` per
  *             column (renders as a small subtitle under the title)
  */
-export const MASTER_KANBAN_VERSION = "0.1.4";
+export const MASTER_KANBAN_VERSION = "0.1.5";
 
 export { default as MasterKanbanBoard } from "./MasterKanbanBoard";
+export { default as DragLiftWrapper } from "./DragLiftWrapper";
 export { default as MasterKanbanColumn } from "./MasterKanbanColumn";
 export { default as MasterKanbanCard } from "./MasterKanbanCard";
 export { default as MasterSwimlaneScroller } from "./MasterSwimlaneScroller";
