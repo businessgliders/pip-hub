@@ -1,8 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
-import { LifeBuoy, CalendarHeart, Sparkles, HelpCircle, Settings, Moon, Sun } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { LifeBuoy, CalendarHeart, Sparkles, HelpCircle, Settings, Moon, Sun, Users, LogOut } from "lucide-react";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/6deb854f5_logo.png";
 
@@ -42,15 +44,6 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         </span>
       </Link>
 
-      {/* Open count badge */}
-      <span
-        className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold shrink-0"
-        style={{ background: `${accent}22`, color: accent }}
-        title="Open conversations"
-      >
-        {openCount} Open
-      </span>
-
       {/* Tabs: 3 team inboxes */}
       <nav className="flex items-center gap-1 ml-2">
         {TEAM_TABS.map((t) => (
@@ -83,12 +76,31 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         <button className="p-2 rounded-full text-pink-900/50 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10 transition-colors">
           <Settings className="w-5 h-5" />
         </button>
-        <div
-          className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm ml-1"
-          style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
-        >
-          {(currentUser?.full_name || currentUser?.email || "?").slice(0, 1).toUpperCase()}
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              title={currentUser?.full_name || currentUser?.email || "Account"}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm ml-1 hover:opacity-90 transition-opacity"
+              style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
+            >
+              {(currentUser?.full_name || currentUser?.email || "?").slice(0, 1).toUpperCase()}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            {currentUser && (
+              <div className="px-2 py-1.5 mb-1 border-b border-border">
+                <p className="text-sm font-medium truncate">{currentUser.full_name || "Account"}</p>
+                <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
+              </div>
+            )}
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => base44.auth.logout(window.location.href)}>
+              <Users className="w-4 h-4" /> Switch User
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer text-red-600 focus:text-red-600" onClick={() => base44.auth.logout()}>
+              <LogOut className="w-4 h-4" /> Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

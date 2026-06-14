@@ -1,6 +1,5 @@
 import React from "react";
 import Avatar from "./Avatar";
-import SourceBadge from "./SourceBadge";
 import StatusPill from "./StatusPill";
 import { displayName } from "./inboxConfig";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -19,7 +18,6 @@ export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h2 className="font-bold text-pink-900 dark:text-white truncate">{displayName(thread.contact_name, thread.contact_email)}</h2>
-          <SourceBadge source={thread.source_app} />
         </div>
         <p className="text-xs text-pink-900/50 dark:text-white/60 truncate">{thread.subject}</p>
       </div>
