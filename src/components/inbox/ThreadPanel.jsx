@@ -23,6 +23,8 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
     queryKey: ["thread-messages", thread.id],
     queryFn: () => base44.entities.EmailMessage.filter({ ticket_id: thread.id }, "sent_at"),
     initialData: [],
+    refetchInterval: 20000,
+    refetchOnWindowFocus: true,
   });
 
   const { data: notes, isLoading: loadingNotes } = useQuery({

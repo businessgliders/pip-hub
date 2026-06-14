@@ -1,0 +1,155 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
+/**
+ * gmailInboundCapture — connector webhook handler for the 'gmail' mailbox event.
+ *
+ * Called by the Base44 platform (NOT Google directly) when new mail arrives.
+ * For each new message it:
+ *   1. Fetches full content from the Gmail API
+ *   2. Matches it to an existing Thread (by gmail_thread_id, then by [Ticket #N]
+ *      in the subject, then by sender email)
+ *   3. Records an inbound EmailMessage (idempotent on gmail_message_id)
+ *   4. Bumps the thread's last_activity_at / snippet and marks it unread
+ *
+ * NOTE: Do NOT add custom auth — the platform authenticates this call.
+ */
+
+function getHeader(headers, name) {
+  const h = (headers || []).find((x) => x.name.toLowerCase() === name.toLowerCase());
+  return h?.value || '';
+}
+
+function parseEmail(raw) {
+  // "Jane Doe <jane@x.com>" -> { name, email }
+  const m = (raw || '').match(/^\s*"?([^"<]*)"?\s*<([^>]+)>\s*$/);
+  if (m) return { name: m[1].trim(), email: m[2].trim().toLowerCase() };
+  return { name: '', email: (raw || '').trim().toLowerCase() };
+}
+
+function decodeBase64Url(data) {
+  if (!data) return '';
+  const norm = data.replace(/-/g, '+').replace(/_/g, '/');
+  try {
+    return decodeURIComponent(escape(atob(norm)));
+  } catch (_) {
+    try { return atob(norm); } catch (_) { return ''; }
+  }
+}
+
+function extractBodies(payload) {
+  let html = '';
+  let text = '';
+  const walk = (part) => {
+    if (!part) return;
+    const mime = part.mimeType || '';
+    if (mime === 'text/html' && part.body?.data) html += decodeBase64Url(part.body.data);
+    else if (mime === 'text/plain' && part.body?.data) text += decodeBase64Url(part.body.data);
+    if (Array.isArray(part.parts)) part.parts.forEach(walk);
+  };
+  walk(payload);
+  return { html, text };
+}
+
+Deno.serve(async (req) => {
+  try {
+    const body = await req.json();
+    const base44 = createClientFromRequest(req);
+    const db = base44.asServiceRole.entities;
+
+    const messageIds = body?.data?.new_message_ids ?? [];
+    if (!messageIds.length) {
+      return Response.json({ success: true, processed: 0, note: 'no new messages' });
+    }
+
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
+    const authHeader = { Authorization: `Bearer ${accessToken}` };
+
+    let processed = 0;
+    const results = [];
+
+    for (const messageId of messageIds) {
+      // Idempotency: skip if we already stored this gmail_message_id
+      const existing = await db.EmailMessage.filter({ gmail_message_id: messageId }, '-created_date', 1);
+      if (existing.length) { results.push({ messageId, skipped: 'duplicate' }); continue; }
+
+      const res = await fetch(
+        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}?format=full`,
+        { headers: authHeader }
+      );
+      if (!res.ok) { results.push({ messageId, skipped: 'fetch_failed' }); continue; }
+      const msg = await res.json();
+
+      const headers = msg.payload?.headers || [];
+      const labelIds = msg.labelIds || [];
+      // Only ingest inbound mail (skip our own sent copies)
+      if (labelIds.includes('SENT')) { results.push({ messageId, skipped: 'sent_copy' }); continue; }
+
+      const from = parseEmail(getHeader(headers, 'From'));
+      const subject = getHeader(headers, 'Subject');
+      const rfcMessageId = getHeader(headers, 'Message-ID');
+      const inReplyTo = getHeader(headers, 'In-Reply-To');
+      const references = getHeader(headers, 'References');
+      const { html, text } = extractBodies(msg.payload);
+      const snippet = (msg.snippet || text || html.replace(/<[^>]+>/g, '')).slice(0, 200);
+      const gmailThreadId = msg.threadId || '';
+
+      // --- Match to a thread ---
+      let thread = null;
+      // 1) by gmail_thread_id
+      if (gmailThreadId) {
+        const byGtid = await db.Thread.filter({ gmail_thread_id: gmailThreadId }, '-last_activity_at', 1);
+        if (byGtid.length) thread = byGtid[0];
+      }
+      // 2) by [Ticket #N] tag in subject
+      if (!thread) {
+        const tag = subject.match(/\[Ticket\s*#(\d+)\]/i);
+        if (tag) {
+          const byTicket = await db.Thread.filter({ ticket_number: Number(tag[1]) }, '-last_activity_at', 1);
+          if (byTicket.length) thread = byTicket[0];
+        }
+      }
+      // 3) by sender email (most recent open thread)
+      if (!thread && from.email) {
+        const byEmail = await db.Thread.filter({ contact_email: from.email }, '-last_activity_at', 1);
+        if (byEmail.length) thread = byEmail[0];
+      }
+
+      if (!thread) { results.push({ messageId, skipped: 'no_matching_thread', from: from.email }); continue; }
+
+      const nowIso = new Date().toISOString();
+      await db.EmailMessage.create({
+        ticket_id: thread.id,
+        gmail_thread_id: gmailThreadId,
+        gmail_message_id: messageId,
+        rfc_message_id: rfcMessageId,
+        in_reply_to: inReplyTo,
+        references,
+        direction: 'inbound',
+        from_email: from.email,
+        from_name: from.name,
+        to_email: thread.contact_email,
+        subject,
+        body_html: html,
+        body_text: text,
+        snippet,
+        sent_at: nowIso,
+        send_status: 'received',
+      });
+
+      await db.Thread.update(thread.id, {
+        last_activity_at: nowIso,
+        snippet,
+        is_read: false,
+        gmail_thread_id: thread.gmail_thread_id || gmailThreadId,
+        ...(thread.status === 'resolved' || thread.status === 'closed' ? { status: 'open' } : {}),
+      });
+
+      processed++;
+      results.push({ messageId, thread_id: thread.id });
+    }
+
+    return Response.json({ success: true, processed, results });
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});
