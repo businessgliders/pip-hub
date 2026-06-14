@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Search, Inbox as InboxIcon, User, Users, ChevronDown, LifeBuoy, CalendarHeart, Sparkles, Eye, Archive } from "lucide-react";
+import { Inbox as InboxIcon, User, Users, ChevronDown, LifeBuoy, CalendarHeart, Sparkles } from "lucide-react";
 import { SOURCE_META } from "./inboxConfig";
+import UniversalSearch from "./UniversalSearch";
 
 const NavItem = ({ icon: Icon, label, count, active, onClick, dot }) => (
   <button
@@ -27,7 +28,7 @@ const SectionLabel = ({ children }) => (
   </div>
 );
 
-export default function InboxNav({ view, setView, counts, currentUser }) {
+export default function InboxNav({ view, setView, counts, currentUser, threads = [], onSearchSelect }) {
   const teamInboxes = [
     { key: "support", icon: LifeBuoy },
     { key: "events", icon: CalendarHeart },
@@ -40,10 +41,13 @@ export default function InboxNav({ view, setView, counts, currentUser }) {
         <Link to="/" className="text-base font-bold text-slate-900 hover:text-slate-600">Inbox</Link>
       </div>
 
+      <div className="px-2.5 pb-2">
+        <UniversalSearch threads={threads} onSelect={onSearchSelect} />
+      </div>
+
       <div className="flex-1 overflow-y-auto px-2 pb-4">
         {/* Inbox section */}
         <div className="space-y-0.5">
-          <NavItem icon={Search} label="Search" active={view === "search"} onClick={() => setView("search")} />
           <NavItem icon={InboxIcon} label="All" count={counts.all} active={view === "all"} onClick={() => setView("all")} />
           <NavItem icon={User} label="My Inbox" count={counts.mine} active={view === "mine"} onClick={() => setView("mine")} />
           <NavItem icon={Users} label="Unassigned" count={counts.unassigned} active={view === "unassigned"} onClick={() => setView("unassigned")} />
@@ -62,14 +66,6 @@ export default function InboxNav({ view, setView, counts, currentUser }) {
               onClick={() => setView(t.key)}
             />
           ))}
-        </div>
-
-        {/* Views */}
-        <SectionLabel>Views</SectionLabel>
-        <div className="space-y-0.5">
-          <NavItem icon={Eye} label="Open" active={view === "open"} onClick={() => setView("open")} />
-          <NavItem icon={Eye} label="Resolved" active={view === "resolved"} onClick={() => setView("resolved")} />
-          <NavItem icon={Archive} label="Closed" count={counts.closed} active={view === "closed"} onClick={() => setView("closed")} />
         </div>
       </div>
 

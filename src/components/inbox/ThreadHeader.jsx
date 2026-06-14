@@ -3,9 +3,9 @@ import Avatar from "./Avatar";
 import SourceBadge from "./SourceBadge";
 import StatusPill from "./StatusPill";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, UserPlus, Info } from "lucide-react";
+import { ArrowLeft, UserPlus, PanelRight } from "lucide-react";
 
-export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, onBack, onToggleContact }) {
+export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
   const assignee = staff.find((s) => s.email === thread.assignee_email);
 
   return (
@@ -42,8 +42,14 @@ export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, 
 
         <StatusPill status={thread.status} onChange={onStatusChange} />
 
-        <button onClick={onToggleContact} className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100">
-          <Info className="w-5 h-5 text-slate-600" />
+        <button
+          onClick={onToggleContact}
+          title={contactOpen ? "Hide details" : "Show details"}
+          className={`p-1.5 rounded-lg transition-colors ${
+            contactOpen ? "bg-slate-200 text-slate-700" : "hover:bg-slate-100 text-slate-600"
+          }`}
+        >
+          <PanelRight className="w-5 h-5" />
         </button>
       </div>
     </div>

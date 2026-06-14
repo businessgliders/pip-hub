@@ -15,7 +15,7 @@ const BODY_TABS = [
   { key: "submission", label: "Submission" },
 ];
 
-export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onBack, onToggleContact }) {
+export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
   const [bodyTab, setBodyTab] = useState("email");
   const qc = useQueryClient();
 
@@ -56,7 +56,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
       <ThreadHeader
         thread={thread} staff={staff}
         onStatusChange={onStatusChange} onAssign={onAssign}
-        onBack={onBack} onToggleContact={onToggleContact}
+        onBack={onBack} onToggleContact={onToggleContact} contactOpen={contactOpen}
       />
 
       <div className="flex items-center gap-1 px-4 border-b border-slate-200 bg-white">

@@ -28,7 +28,7 @@ export default function ThreadList({
   const shown = threads.slice(0, visible);
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-slate-200">
+    <div className="flex flex-col h-full bg-white">
       <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
           <h1 className="text-base font-bold text-slate-900">{title}</h1>
