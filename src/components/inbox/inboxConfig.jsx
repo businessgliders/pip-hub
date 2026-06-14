@@ -8,7 +8,7 @@ export const SOURCE_META = {
 
 export const STATUS_META = {
   open: { label: "Open", chip: "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-200" },
-  in_progress: { label: "In Progress", chip: "bg-amber-100/80 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200" },
+  in_progress: { label: "Progress", chip: "bg-amber-100/80 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200" },
   waiting: { label: "Waiting", chip: "bg-pink-100/80 text-pink-700 dark:bg-pink-400/20 dark:text-pink-200" },
   resolved: { label: "Resolved", chip: "bg-violet-100/80 text-violet-700 dark:bg-violet-400/25 dark:text-violet-200" },
   closed: { label: "Closed", chip: "bg-slate-100/80 text-slate-500 dark:bg-white/15 dark:text-white/70" },

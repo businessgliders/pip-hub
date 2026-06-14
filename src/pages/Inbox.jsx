@@ -203,7 +203,7 @@ export default function Inbox() {
         style={{ background: viewBackdrop(view, dark) }}
       />
 
-      <InboxTopBar view={view} setView={setView} currentUser={currentUser} openCount={openCount} />
+      <InboxTopBar view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={counts} />
 
       {/* 3 floating glass panels */}
       <div ref={centerRef} className="flex-1 flex gap-3 md:gap-4 p-3 md:p-4 overflow-hidden">

@@ -12,7 +12,7 @@ const TEAM_TABS = [
   { key: "influencer", icon: Sparkles },
 ];
 
-function TabButton({ active, onClick, icon: Icon, label, accent }) {
+function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
   return (
     <button
       onClick={onClick}
@@ -24,12 +24,12 @@ function TabButton({ active, onClick, icon: Icon, label, accent }) {
       }`}
     >
       <Icon className="w-4 h-4" />
-      {label}
+      {label} {count > 0 && <span className="text-xs font-bold">{count}</span>}
     </button>
   );
 }
 
-export default function InboxTopBar({ view, setView, currentUser, openCount = 0 }) {
+export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {} }) {
   const { dark, toggle } = useTheme();
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
@@ -60,6 +60,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0 
             onClick={() => setView(t.key)}
             icon={t.icon}
             label={SOURCE_META[t.key]?.label || t.key}
+            count={counts[t.key] || 0}
             accent={(VIEW_THEME[t.key] || VIEW_THEME.events).accent}
           />
         ))}
