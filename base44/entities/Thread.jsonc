@@ -52,9 +52,21 @@
       "description": "All raw fields from the spoke form submission",
       "additionalProperties": true
     },
+    "ticket_number": {
+      "type": "number",
+      "description": "Sequential ticket number used in email subject for threading (e.g. [Ticket #238])"
+    },
+    "source_ticket_id": {
+      "type": "string",
+      "description": "Original record id from the spoke app (used to link imported EmailMessages by ticket_id)"
+    },
     "gmail_thread_id": {
       "type": "string",
       "description": "Gmail thread ID for the email conversation"
+    },
+    "gmail_root_message_id": {
+      "type": "string",
+      "description": "RFC Message-ID header of the very first email sent (used for threading replies)"
     },
     "last_activity_at": {
       "type": "string",
