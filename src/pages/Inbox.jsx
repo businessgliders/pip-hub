@@ -116,7 +116,7 @@ export default function Inbox() {
         <InboxNav view={view} setView={setView} counts={counts} currentUser={currentUser} />
       </div>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-[340px_1fr] lg:grid-cols-[340px_1fr_320px] overflow-hidden">
+      <div className={`flex-1 grid grid-cols-1 md:grid-cols-[340px_1fr] overflow-hidden ${selectedThread && showContact ? "lg:grid-cols-[340px_1fr_320px]" : ""}`}>
         {/* Thread list */}
         <div className={`${selectedThread ? "hidden md:block" : "block"} h-full overflow-hidden`}>
           <ThreadList
@@ -141,9 +141,9 @@ export default function Inbox() {
           )}
         </div>
 
-        {/* Right: contact panel (desktop persistent, mobile overlay) */}
-        {selectedThread && (
-          <div className={`${showContact ? "fixed inset-0 z-40 lg:static lg:z-auto" : "hidden lg:block"} h-full overflow-hidden`}>
+        {/* Right: contact panel — collapsed by default, toggled via header */}
+        {selectedThread && showContact && (
+          <div className="fixed inset-0 z-40 lg:static lg:z-auto h-full overflow-hidden">
             <ContactPanel
               thread={selectedThread}
               onSelectThread={(t) => handleSelect(t)}
