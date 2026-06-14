@@ -34,7 +34,8 @@ export default function Inbox() {
   const [subFilter, setSubFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
-  const [showContact, setShowContact] = useState(false);
+  const [showContact, setShowContact] = useState(true);
+  const [navCollapsed, setNavCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
@@ -138,7 +139,6 @@ export default function Inbox() {
 
   const handleSelect = (t) => {
     setSelected(t);
-    setShowContact(false);
     if (!t.is_read) updateThread.mutate({ id: t.id, data: { is_read: true } });
   };
 
@@ -159,14 +159,15 @@ export default function Inbox() {
   return (
     <div className="h-screen flex bg-white overflow-hidden">
       {/* Far left: Heyy-style nav panel */}
-      <div className={`${selectedThread ? "hidden lg:block" : "hidden md:block"} w-[230px] shrink-0 h-full`}>
+      <div className={`${selectedThread ? "hidden lg:block" : "hidden md:block"} ${navCollapsed ? "w-[60px]" : "w-[230px]"} shrink-0 h-full transition-[width] duration-200`}>
         <InboxNav
           view={view} setView={setView} counts={counts} currentUser={currentUser}
           threads={threads} onSearchSelect={handleSelect}
+          collapsed={navCollapsed} onToggleCollapse={() => setNavCollapsed((c) => !c)}
         />
       </div>
 
-      <div className={`flex-1 grid grid-cols-1 md:grid-cols-[340px_1fr] overflow-hidden ${selectedThread && showContact ? "lg:grid-cols-[340px_1fr_320px]" : ""}`}>
+      <div className={`flex-1 grid grid-cols-1 md:grid-cols-[340px_1fr] overflow-hidden ${selectedThread && showContact ? "lg:grid-cols-[320px_minmax(0,1fr)_280px]" : ""}`}>
         {/* Thread list */}
         <div className={`${selectedThread ? "hidden md:block" : "block"} h-full overflow-hidden flex flex-col border-r border-slate-200`}>
           {activeTabs && (
