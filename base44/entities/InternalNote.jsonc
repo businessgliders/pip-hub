@@ -24,33 +24,7 @@
     "body"
   ],
   "rls": {
-    "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "email": "info@pilatesinpinkstudio.com"
-          }
-        }
-      ]
-    },
-    "write": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "email": "info@pilatesinpinkstudio.com"
-          }
-        }
-      ]
-    }
+    "read": {},
+    "write": {}
   }
 }
