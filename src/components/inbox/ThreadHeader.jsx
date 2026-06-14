@@ -1,14 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "./Avatar";
-import StatusPill from "./StatusPill";
+import StatusTrack from "./StatusTrack";
+import StatusChangeDialog from "./StatusChangeDialog";
 import { displayName } from "./inboxConfig";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ArrowLeft, UserPlus, PanelRight, CheckCircle2, RotateCcw } from "lucide-react";
 
-export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
+export default function ThreadHeader({ thread, staff, currentUser, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
   const assignee = staff.find((s) => s.email === thread.assignee_email);
   const isResolved = thread.status === "resolved" || thread.status === "closed";
   const isEvents = thread.source_app === "events";
+  const [pending, setPending] = useState(null); // target status awaiting name/reason
+
+  const requestChange = (status) => {
+    if (!status || status === thread.status) return;
+    setPending(status);
+  };
+
+  const confirmChange = ({ name, reason }) => {
+    onStatusChange(pending, { name, reason });
+    setPending(null);
+  };
 
   return (
     <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/50 dark:border-white/15">
@@ -23,7 +35,10 @@ export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, 
         <p className="text-xs text-pink-900/50 dark:text-white/60 truncate">{thread.subject}</p>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 min-w-0">
+        {/* Status — visual thread (desktop) / dropdown (mobile), now before assign */}
+        <StatusTrack status={thread.status} source={thread.source_app} onSelect={requestChange} />
+
         {/* Assign — icon only (shows assignee photo/initials when assigned) */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -50,13 +65,10 @@ export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, 
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Status — kept as a labeled dropdown */}
-        <StatusPill status={thread.status} onChange={onStatusChange} source={thread.source_app} />
-
         {/* Resolve / Reopen — icon only (Events use pipeline stages, no resolve toggle) */}
         {!isEvents && (
           <button
-            onClick={() => onStatusChange(isResolved ? "open" : "resolved")}
+            onClick={() => requestChange(isResolved ? "open" : "resolved")}
             title={isResolved ? "Reopen" : "Resolve"}
             className="p-2 rounded-full text-white bg-pink-950/90 hover:bg-pink-950 transition-colors shadow-sm"
           >
@@ -75,6 +87,15 @@ export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, 
           <PanelRight className="w-5 h-5" />
         </button>
       </div>
+
+      <StatusChangeDialog
+        open={!!pending}
+        target={pending}
+        fromStatus={thread.status}
+        defaultName={currentUser?.full_name || ""}
+        onConfirm={confirmChange}
+        onCancel={() => setPending(null)}
+      />
     </div>
   );
 }

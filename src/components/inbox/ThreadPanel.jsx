@@ -25,7 +25,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
   return (
     <div className="flex flex-col h-full">
       <ThreadHeader
-        thread={thread} staff={staff}
+        thread={thread} staff={staff} currentUser={currentUser}
         onStatusChange={onStatusChange} onAssign={onAssign}
         onBack={onBack} onToggleContact={onToggleContact} contactOpen={contactOpen}
       />

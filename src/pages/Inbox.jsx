@@ -194,9 +194,15 @@ export default function Inbox() {
     if (!t.is_read) updateThread.mutate({ id: t.id, data: { is_read: true } });
   };
 
-  const handleStatus = (status) => {
+  const handleStatus = (status, meta = {}) => {
     if (!selectedThread) return;
-    const entry = { status, changed_by: currentUser?.email || "staff", timestamp: new Date().toISOString() };
+    const entry = {
+      status,
+      changed_by: currentUser?.email || "staff",
+      name: meta.name || currentUser?.full_name || "",
+      note: meta.reason || "",
+      timestamp: new Date().toISOString(),
+    };
     updateThread.mutate({
       id: selectedThread.id,
       data: { status, status_history: [...(selectedThread.status_history || []), entry] },

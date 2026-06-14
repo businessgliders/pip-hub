@@ -123,6 +123,14 @@
           "changed_by": {
             "type": "string"
           },
+          "name": {
+            "type": "string",
+            "description": "Name entered by the person making the change"
+          },
+          "note": {
+            "type": "string",
+            "description": "Reason provided for the status change"
+          },
           "timestamp": {
             "type": "string",
             "format": "date-time"
