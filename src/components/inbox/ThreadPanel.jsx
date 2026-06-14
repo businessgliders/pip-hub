@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import ThreadHeader from "./ThreadHeader";
 import EmailThreadTab from "./EmailThreadTab";
-import ComposeFooter from "./ComposeFooter";
+import EmailComposer from "./email/EmailComposer";
 import { MessagesSquare } from "lucide-react";
-import { toast } from "sonner";
 
 export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
   const qc = useQueryClient();
@@ -18,15 +17,10 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
     refetchOnWindowFocus: true,
   });
 
-  const sendMutation = useMutation({
-    mutationFn: (body_html) => base44.functions.invoke("sendThreadReply", { thread_id: thread.id, body_html }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["thread-messages", thread.id] });
-      qc.invalidateQueries({ queryKey: ["threads"] });
-      toast.success("Reply sent");
-    },
-    onError: () => toast.error("Failed to send reply"),
-  });
+  const handleSent = () => {
+    qc.invalidateQueries({ queryKey: ["thread-messages", thread.id] });
+    qc.invalidateQueries({ queryKey: ["threads"] });
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -40,10 +34,14 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
         <div className="flex-1 overflow-y-auto">
           <EmailThreadTab messages={messages} loading={loadingMsgs} thread={thread} />
         </div>
-        <ComposeFooter
-          sending={sendMutation.isPending}
-          onSend={(html, reset) => sendMutation.mutate(html, { onSuccess: reset })}
-        />
+        <div className="border-t border-white/50 dark:border-white/10 p-3">
+          <EmailComposer
+            key={thread.id}
+            thread={thread}
+            currentUser={currentUser}
+            onSent={handleSent}
+          />
+        </div>
       </div>
     </div>
   );
