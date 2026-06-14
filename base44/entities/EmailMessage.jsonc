@@ -125,61 +125,9 @@
     "subject"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "email": "info@pilatesinpinkstudio.com"
-          }
-        }
-      ]
-    },
-    "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "email": "info@pilatesinpinkstudio.com"
-          }
-        }
-      ]
-    },
-    "update": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "email": "info@pilatesinpinkstudio.com"
-          }
-        }
-      ]
-    },
-    "delete": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "email": "info@pilatesinpinkstudio.com"
-          }
-        }
-      ]
-    }
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
   }
 }
