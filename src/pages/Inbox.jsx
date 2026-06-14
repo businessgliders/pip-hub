@@ -112,6 +112,17 @@ export default function Inbox() {
     return c;
   }, [threads]);
 
+  // "Open" count per source for the compact header badge.
+  // Events use "New" as their open stage; support/influencer use "open".
+  const openCounts = useMemo(() => {
+    const c = { support: 0, events: 0, influencer: 0 };
+    threads.forEach((t) => {
+      const openStatus = t.source_app === "events" ? "New" : "open";
+      if (t.status === openStatus && c[t.source_app] !== undefined) c[t.source_app]++;
+    });
+    return c;
+  }, [threads]);
+
   // Open conversations within the current view (for the top-bar badge).
   const openCount = useMemo(() => {
     return threads.filter((t) => {
@@ -205,7 +216,7 @@ export default function Inbox() {
         style={{ background: viewBackdrop(view, dark) }}
       />
 
-      <InboxTopBar view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={counts} />
+      <InboxTopBar view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={openCounts} />
 
       {/* 3 floating glass panels */}
       <div ref={centerRef} className="flex-1 flex gap-3 md:gap-4 p-3 md:p-4 overflow-hidden">
