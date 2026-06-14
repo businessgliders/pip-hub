@@ -7,13 +7,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import SplitView from './pages/SplitView';
-import EndOfDayCalendar from './pages/EndOfDayCalendar';
-import MasterKanbanDemo from './pages/MasterKanbanDemo';
-import Settings from './pages/Settings';
-import SettingsMasterKanban from './pages/SettingsMasterKanban';
-import SettingsMasterKanbanInstructions from './pages/SettingsMasterKanbanInstructions';
-import SettingsMasterKanbanVersions from './pages/SettingsMasterKanbanVersions';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -54,24 +47,19 @@ const AuthenticatedApp = () => {
           <MainPage />
         </LayoutWrapper>
       } />
-      <Route path="/splitview" element={<SplitView />} />
-      <Route path="/end-of-day" element={<EndOfDayCalendar />} />
-      <Route path="/settings/master-kanban-demo" element={<MasterKanbanDemo />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/settings/master-kanban" element={<SettingsMasterKanban />} />
-      <Route path="/settings/master-kanban/instructions" element={<SettingsMasterKanbanInstructions />} />
-      <Route path="/settings/master-kanban/versions" element={<SettingsMasterKanbanVersions />} />
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          }
-        />
-      ))}
+      {Object.entries(Pages)
+        .filter(([path]) => path !== mainPageKey)
+        .map(([path, Page]) => (
+          <Route
+            key={path}
+            path={`/${path}`}
+            element={
+              <LayoutWrapper currentPageName={path}>
+                <Page />
+              </LayoutWrapper>
+            }
+          />
+        ))}
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

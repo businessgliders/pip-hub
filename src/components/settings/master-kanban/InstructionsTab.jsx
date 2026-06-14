@@ -1,8 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, ExternalLink } from "lucide-react";
-import CopyBlock from "../components/settings/CopyBlock";
+import { ExternalLink } from "lucide-react";
+import CopyBlock from "../CopyBlock";
 
 const SYNC_MD = `# Master Kanban Sync Log
 
@@ -120,76 +118,53 @@ const NEW_INSTALL_PROMPT = `First-time install of the Master Kanban into this sp
       Smoke check: <pass | error details>
 `;
 
-export default function SettingsMasterKanbanInstructions() {
+export default function InstructionsTab() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        <Link to="/settings/master-kanban">
-          <Button variant="ghost" size="sm" className="mb-4 gap-1.5 text-slate-600">
-            <ArrowLeft className="w-4 h-4" />
-            Master Kanban
-          </Button>
-        </Link>
+    <div className="space-y-6">
+      <CopyBlock
+        title="Agent prompt — Sync (existing spoke)"
+        subtitle="Paste this into a spoke that already has src/components/master-kanban/."
+        content={AGENT_PROMPT}
+      />
 
-        <header className="mb-8 flex items-start gap-4">
-          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-700">
-            <BookOpen className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Instructions</h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Copy these into a spoke agent (pip-support / pip-events / pip-partner) to sync the latest Master Kanban.
-            </p>
-          </div>
-        </header>
+      <CopyBlock
+        title="Agent prompt — First-time install (new spoke)"
+        subtitle="Use this only when the spoke has never had the Master Kanban before."
+        content={NEW_INSTALL_PROMPT}
+      />
 
-        <div className="space-y-6">
-          <CopyBlock
-            title="Agent prompt — Sync (existing spoke)"
-            subtitle="Paste this into a spoke that already has src/components/master-kanban/."
-            content={AGENT_PROMPT}
-          />
+      <CopyBlock
+        title="SYNC.md template"
+        subtitle="The spoke agent will create / update this at the project root."
+        content={SYNC_MD}
+      />
 
-          <CopyBlock
-            title="Agent prompt — First-time install (new spoke)"
-            subtitle="Use this only when the spoke has never had the Master Kanban before."
-            content={NEW_INSTALL_PROMPT}
-          />
-
-          <CopyBlock
-            title="SYNC.md template"
-            subtitle="The spoke agent will create / update this at the project root."
-            content={SYNC_MD}
-          />
-
-          <section className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <h3 className="font-semibold text-slate-900 text-sm mb-2">Quick references</h3>
-            <ul className="text-xs text-slate-600 space-y-1.5">
-              <li>
-                <span className="text-slate-500">Source repo:</span>{" "}
-                <a
-                  href="https://github.com/businessgliders/pip-hub/tree/main/src/components/master-kanban"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-fuchsia-600 hover:underline"
-                >
-                  pip-hub/src/components/master-kanban
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </li>
-              <li>
-                <span className="text-slate-500">Current version:</span>{" "}
-                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">v0.1.5</code>
-              </li>
-              <li>
-                <span className="text-slate-500">Barrel file:</span>{" "}
-                <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">index.jsx</code>{" "}
-                <span className="text-slate-400">(not <code>.js</code> — will 404)</span>
-              </li>
-            </ul>
-          </section>
-        </div>
-      </div>
+      <section className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h3 className="font-semibold text-slate-900 text-sm mb-2">Quick references</h3>
+        <ul className="text-xs text-slate-600 space-y-1.5">
+          <li>
+            <span className="text-slate-500">Source repo:</span>{" "}
+            <a
+              href="https://github.com/businessgliders/pip-hub/tree/main/src/components/master-kanban"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-fuchsia-600 hover:underline"
+            >
+              pip-hub/src/components/master-kanban
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </li>
+          <li>
+            <span className="text-slate-500">Current version:</span>{" "}
+            <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">v0.1.5</code>
+          </li>
+          <li>
+            <span className="text-slate-500">Barrel file:</span>{" "}
+            <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">index.jsx</code>{" "}
+            <span className="text-slate-400">(not <code>.js</code> — will 404)</span>
+          </li>
+        </ul>
+      </section>
     </div>
   );
 }
