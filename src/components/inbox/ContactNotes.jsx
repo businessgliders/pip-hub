@@ -50,8 +50,8 @@ export default function ContactNotes({ threadId }) {
   };
 
   return (
-    <div className="px-4 py-4 border-b border-white/50">
-      <h4 className="text-[11px] font-semibold text-pink-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+    <div className="px-4 py-4 border-b border-white/50 dark:border-white/15">
+      <h4 className="text-[11px] font-semibold text-pink-400 dark:text-pink-300/80 uppercase tracking-wide mb-2 flex items-center gap-1.5">
         <StickyNote className="w-3.5 h-3.5" /> Internal Notes
       </h4>
 
@@ -60,7 +60,7 @@ export default function ContactNotes({ threadId }) {
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Add a private note (admins only)…"
-          className="resize-none h-16 text-sm bg-amber-50/50 border-amber-200"
+          className="resize-none h-16 text-sm bg-amber-50/50 border-amber-200 dark:bg-amber-300/10 dark:border-amber-300/30 dark:text-white dark:placeholder:text-white/40"
         />
         <div className="flex justify-end mt-1.5">
           <Button size="sm" onClick={submit} disabled={addMutation.isPending || !body.trim()} className="gap-1.5 h-7 text-xs">
@@ -73,13 +73,13 @@ export default function ContactNotes({ threadId }) {
         {isLoading ? (
           <div className="h-14 bg-amber-50 rounded-lg animate-pulse" />
         ) : notes.length === 0 ? (
-          <p className="text-xs text-slate-400">No notes yet.</p>
+          <p className="text-xs text-slate-400 dark:text-white/50">No notes yet.</p>
         ) : (
           notes.map((n) => (
-            <div key={n.id} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 group">
+            <div key={n.id} className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-300/25 dark:bg-amber-300/10 px-3 py-2 group">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-semibold text-amber-800 truncate">{n.author_name || n.author_email}</span>
-                <span className="text-[10px] text-amber-600">{relativeTime(n.created_date)}</span>
+                <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-200 truncate">{n.author_name || n.author_email}</span>
+                <span className="text-[10px] text-amber-600 dark:text-amber-300/80">{relativeTime(n.created_date)}</span>
               </div>
               {editingId === n.id ? (
                 <div>
@@ -99,9 +99,9 @@ export default function ContactNotes({ threadId }) {
                 </div>
               ) : (
                 <>
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap">{n.body}</p>
+                  <p className="text-sm text-slate-700 dark:text-white/85 whitespace-pre-wrap">{n.body}</p>
                   <div className="flex justify-end gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => { setEditingId(n.id); setEditBody(n.body); }} className="text-[11px] text-slate-500 hover:text-slate-700 flex items-center gap-1">
+                    <button onClick={() => { setEditingId(n.id); setEditBody(n.body); }} className="text-[11px] text-slate-500 dark:text-white/60 hover:text-slate-700 dark:hover:text-white flex items-center gap-1">
                       <Pencil className="w-3 h-3" /> Edit
                     </button>
                     <button onClick={() => deleteMutation.mutate(n.id)} className="text-[11px] text-rose-500 hover:text-rose-700 flex items-center gap-1">

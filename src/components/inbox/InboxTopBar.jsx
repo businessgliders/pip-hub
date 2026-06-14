@@ -29,18 +29,27 @@ function TabButton({ active, onClick, icon: Icon, label, accent }) {
   );
 }
 
-export default function InboxTopBar({ view, setView, currentUser }) {
+export default function InboxTopBar({ view, setView, currentUser, openCount = 0 }) {
   const { dark, toggle } = useTheme();
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
     <header className="shrink-0 px-4 py-3 flex items-center gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2.5 shrink-0">
-        <img src={LOGO_URL} alt="Unified Inbox" className="w-8 h-8 object-contain" />
+        <img src={LOGO_URL} alt="PiP Inbox" className="w-8 h-8 object-contain" />
         <span className="hidden sm:block font-extrabold text-lg tracking-tight" style={{ fontStyle: "italic", color: accent }}>
-          Unified Inbox
+          PiP Inbox
         </span>
       </Link>
+
+      {/* Open count badge */}
+      <span
+        className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold shrink-0"
+        style={{ background: `${accent}22`, color: accent }}
+        title="Open conversations"
+      >
+        {openCount} Open
+      </span>
 
       {/* Tabs: 3 team inboxes */}
       <nav className="flex items-center gap-1 ml-2">

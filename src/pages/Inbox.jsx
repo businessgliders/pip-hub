@@ -110,6 +110,15 @@ export default function Inbox() {
     return c;
   }, [threads]);
 
+  // Open conversations within the current view (for the top-bar badge).
+  const openCount = useMemo(() => {
+    return threads.filter((t) => {
+      if (t.status !== "open") return false;
+      if (SOURCE_META[view]) return t.source_app === view;
+      return true;
+    }).length;
+  }, [threads, view]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return threads.filter((t) => {
@@ -194,7 +203,7 @@ export default function Inbox() {
         style={{ background: viewBackdrop(view, dark) }}
       />
 
-      <InboxTopBar view={view} setView={setView} currentUser={currentUser} />
+      <InboxTopBar view={view} setView={setView} currentUser={currentUser} openCount={openCount} />
 
       {/* 3 floating glass panels */}
       <div ref={centerRef} className="flex-1 flex gap-3 md:gap-4 p-3 md:p-4 overflow-hidden">

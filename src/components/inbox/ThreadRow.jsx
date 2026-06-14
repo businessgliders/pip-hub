@@ -1,7 +1,7 @@
 import React from "react";
 import Avatar from "./Avatar";
 import SourceBadge from "./SourceBadge";
-import { relativeTime } from "./inboxConfig";
+import { relativeTime, displayName } from "./inboxConfig";
 
 export default function ThreadRow({ thread, active, onClick }) {
   const unread = !thread.is_read;
@@ -22,7 +22,7 @@ export default function ThreadRow({ thread, active, onClick }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <span className={`truncate text-sm ${unread ? "font-bold text-pink-900 dark:text-white" : "font-medium text-pink-900/80 dark:text-white/85"}`}>
-            {thread.contact_name || thread.contact_email}
+            {displayName(thread.contact_name, thread.contact_email)}
           </span>
           <span className="text-[11px] text-pink-400 dark:text-white/50 shrink-0">{relativeTime(thread.last_activity_at || thread.created_date)}</span>
         </div>

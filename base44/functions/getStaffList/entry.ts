@@ -18,6 +18,7 @@ Deno.serve(async (req) => {
       id: u.id,
       email: u.email,
       full_name: u.full_name || u.email,
+      photo_url: u.photo_url || u.avatar_url || null,
     }));
 
     return Response.json({ staff });

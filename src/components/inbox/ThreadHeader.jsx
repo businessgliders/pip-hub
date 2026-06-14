@@ -2,8 +2,9 @@ import React from "react";
 import Avatar from "./Avatar";
 import SourceBadge from "./SourceBadge";
 import StatusPill from "./StatusPill";
+import { displayName } from "./inboxConfig";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, UserPlus, PanelRight, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, UserPlus, PanelRight, CheckCircle2, RotateCcw } from "lucide-react";
 
 export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
   const assignee = staff.find((s) => s.email === thread.assignee_email);
@@ -17,39 +18,52 @@ export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, 
       <Avatar name={thread.contact_name} email={thread.contact_email} size="md" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h2 className="font-bold text-pink-900 dark:text-white truncate">{thread.contact_name || thread.contact_email}</h2>
+          <h2 className="font-bold text-pink-900 dark:text-white truncate">{displayName(thread.contact_name, thread.contact_email)}</h2>
           <SourceBadge source={thread.source_app} />
         </div>
         <p className="text-xs text-pink-900/50 dark:text-white/60 truncate">{thread.subject}</p>
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Assign — icon only (shows assignee photo/initials when assigned) */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-white/60 dark:bg-white/10 text-pink-700 dark:text-pink-200 hover:bg-white/80 dark:hover:bg-white/20 transition-colors">
-              <UserPlus className="w-3.5 h-3.5" />
-              {assignee ? assignee.full_name : "Assign"}
+            <button
+              title={assignee ? `Assigned to ${assignee.full_name}` : "Assign"}
+              className="p-1 rounded-full hover:bg-white/60 dark:hover:bg-white/10 transition-colors"
+            >
+              {assignee ? (
+                <Avatar name={assignee.full_name} email={assignee.email} photoUrl={assignee.photo_url} size="sm" />
+              ) : (
+                <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white/60 dark:bg-white/10 text-pink-700 dark:text-pink-200">
+                  <UserPlus className="w-4 h-4" />
+                </span>
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
             {staff.map((s) => (
-              <DropdownMenuItem key={s.id} onClick={() => onAssign(s.email)} className="text-sm">
+              <DropdownMenuItem key={s.id} onClick={() => onAssign(s.email)} className="text-sm gap-2">
+                <Avatar name={s.full_name} email={s.email} photoUrl={s.photo_url} size="sm" />
                 {s.full_name}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Status — kept as a labeled dropdown */}
         <StatusPill status={thread.status} onChange={onStatusChange} />
 
+        {/* Resolve / Reopen — icon only */}
         <button
           onClick={() => onStatusChange(isResolved ? "open" : "resolved")}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold bg-pink-950/90 text-white hover:bg-pink-950 transition-colors shadow-sm"
+          title={isResolved ? "Reopen" : "Resolve"}
+          className="p-2 rounded-full text-white bg-pink-950/90 hover:bg-pink-950 transition-colors shadow-sm"
         >
-          <CheckCircle2 className="w-4 h-4" />
-          {isResolved ? "Reopen" : "Resolve"}
+          {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
         </button>
 
+        {/* Toggle details — icon only */}
         <button
           onClick={onToggleContact}
           title={contactOpen ? "Hide details" : "Show details"}

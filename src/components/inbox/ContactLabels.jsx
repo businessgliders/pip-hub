@@ -33,7 +33,7 @@ export default function ContactLabels({ labels = [], onChange }) {
           className="h-6 w-20 text-xs px-2"
         />
       ) : (
-        <button onClick={() => setAdding(true)} className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs text-pink-400 border border-dashed border-pink-300 hover:text-pink-600 hover:border-pink-400">
+        <button onClick={() => setAdding(true)} className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-xs text-pink-400 dark:text-pink-300/80 border border-dashed border-pink-300 dark:border-pink-300/40 hover:text-pink-600 hover:border-pink-400 dark:hover:text-pink-200">
           <Plus className="w-3 h-3" /> Tag
         </button>
       )}

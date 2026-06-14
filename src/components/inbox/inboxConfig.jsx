@@ -1,17 +1,17 @@
 // Shared config + helpers for the Unified Inbox CRM.
 
 export const SOURCE_META = {
-  support: { label: "Support", badge: "bg-sky-100/80 text-sky-700 border-sky-200/70", dot: "bg-sky-500", ring: "ring-sky-500" },
-  events: { label: "Events", badge: "bg-pink-100/80 text-pink-700 border-pink-200/70", dot: "bg-pink-500", ring: "ring-pink-500" },
-  influencer: { label: "Influencer", badge: "bg-fuchsia-100/80 text-fuchsia-700 border-fuchsia-200/70", dot: "bg-fuchsia-500", ring: "ring-fuchsia-500" },
+  support: { label: "Support", badge: "bg-sky-100/80 text-sky-700 border-sky-200/70 dark:bg-sky-400/20 dark:text-sky-200 dark:border-sky-300/30", dot: "bg-sky-500", ring: "ring-sky-500" },
+  events: { label: "Events", badge: "bg-pink-100/80 text-pink-700 border-pink-200/70 dark:bg-pink-400/20 dark:text-pink-200 dark:border-pink-300/30", dot: "bg-pink-500", ring: "ring-pink-500" },
+  influencer: { label: "Influencer", badge: "bg-fuchsia-100/80 text-fuchsia-700 border-fuchsia-200/70 dark:bg-fuchsia-400/20 dark:text-fuchsia-200 dark:border-fuchsia-300/30", dot: "bg-fuchsia-500", ring: "ring-fuchsia-500" },
 };
 
 export const STATUS_META = {
-  open: { label: "Open", chip: "bg-emerald-100/80 text-emerald-700" },
-  in_progress: { label: "In Progress", chip: "bg-amber-100/80 text-amber-700" },
-  waiting: { label: "Waiting", chip: "bg-pink-100/80 text-pink-700" },
-  resolved: { label: "Resolved", chip: "bg-violet-100/80 text-violet-700" },
-  closed: { label: "Closed", chip: "bg-slate-100/80 text-slate-500" },
+  open: { label: "Open", chip: "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-200" },
+  in_progress: { label: "In Progress", chip: "bg-amber-100/80 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200" },
+  waiting: { label: "Waiting", chip: "bg-pink-100/80 text-pink-700 dark:bg-pink-400/20 dark:text-pink-200" },
+  resolved: { label: "Resolved", chip: "bg-violet-100/80 text-violet-700 dark:bg-violet-400/25 dark:text-violet-200" },
+  closed: { label: "Closed", chip: "bg-slate-100/80 text-slate-500 dark:bg-white/15 dark:text-white/70" },
 };
 
 export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed"];
@@ -47,6 +47,15 @@ export const TABS = [
   { key: "events", label: "Events" },
   { key: "influencer", label: "Influencer" },
 ];
+
+// The studio's own mailbox should display as "Front Desk" everywhere.
+const FRONT_DESK_EMAIL = "info@pilatesinpinkstudio.com";
+export function displayName(name = "", email = "") {
+  const e = String(email).trim().toLowerCase();
+  const n = String(name).trim().toLowerCase();
+  if (e === FRONT_DESK_EMAIL || n === "pilates in pink studio") return "Front Desk";
+  return name || email || "";
+}
 
 export function initials(name = "") {
   const parts = String(name).trim().split(/\s+/).filter(Boolean);
