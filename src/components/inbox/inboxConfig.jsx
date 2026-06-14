@@ -66,6 +66,20 @@ export function viewBackdrop(view, isDark) {
   return isDark ? t.dark : t.light;
 }
 
+// Per-inbox ticket/request number prefix.
+export const SOURCE_PREFIX = {
+  support: "SUP",
+  events: "EVT",
+  influencer: "INF",
+};
+
+// Formats a thread's ticket number as e.g. "SUP-1001". Returns "" if no number.
+export function ticketLabel(thread) {
+  if (!thread || thread.ticket_number == null) return "";
+  const prefix = SOURCE_PREFIX[thread.source_app] || "TKT";
+  return `${prefix}-${thread.ticket_number}`;
+}
+
 export const TABS = [
   { key: "all", label: "All" },
   { key: "support", label: "Support" },

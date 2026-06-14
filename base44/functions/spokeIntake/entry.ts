@@ -13,6 +13,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
  *  3. Create a Thread linked to the contact, storing all raw fields in form_data.
  */
 Deno.serve(async (req) => {
+  // Handles spoke form submissions; assigns per-inbox ticket numbers.
   try {
     if (req.method !== 'POST') {
       return Response.json({ error: 'Method not allowed' }, { status: 405 });
@@ -76,7 +77,18 @@ Deno.serve(async (req) => {
       return Response.json({ thread_id: dupe.id, contact_id: contact.id, duplicate: true });
     }
 
-    // 3. Create Thread
+    // 3. Assign a per-inbox sequential ticket number (SUP/EVT/INF + N).
+    // Numbering starts at 1001 per source. We read the latest thread for this
+    // source that has a ticket_number and increment it.
+    const lastNumbered = await db.Thread.filter(
+      { source_app: source_app },
+      '-ticket_number',
+      1
+    );
+    const lastNum = lastNumbered.find((t) => typeof t.ticket_number === 'number');
+    const nextTicketNumber = lastNum ? lastNum.ticket_number + 1 : 1001;
+
+    // 4. Create Thread
     const snippet = (rest.message || rest.notes || subject || '')
       .toString()
       .slice(0, 140);
@@ -88,6 +100,7 @@ Deno.serve(async (req) => {
       source_app,
       subject: subject || `New ${source_app} submission`,
       snippet,
+      ticket_number: nextTicketNumber,
       status: 'open',
       form_data: { name, email: normalizedEmail, phone, subject, ...rest },
       last_activity_at: nowIso,
