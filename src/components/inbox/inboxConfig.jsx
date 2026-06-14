@@ -16,6 +16,15 @@ export const STATUS_META = {
 
 export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed"];
 
+// Mostly-white page backdrops with a subtle tint per selected team tab.
+// Palette: f1889b / f7b1bd / fbe0e2 / b67651 / f6eee7
+export const VIEW_BACKDROPS = {
+  all: "radial-gradient(900px 500px at 10% 0%, #fbe0e2 0%, transparent 45%), linear-gradient(180deg, #ffffff 0%, #fdf6f7 100%)",
+  support: "radial-gradient(900px 500px at 12% 0%, #fbe0e2 0%, transparent 42%), linear-gradient(180deg, #ffffff 0%, #fdeef0 100%)",
+  events: "radial-gradient(900px 500px at 12% 0%, #f7b1bd55 0%, transparent 42%), linear-gradient(180deg, #ffffff 0%, #fdeaee 100%)",
+  influencer: "radial-gradient(900px 500px at 12% 0%, #f6eee7 0%, transparent 42%), linear-gradient(180deg, #ffffff 0%, #faf3ee 100%)",
+};
+
 export const TABS = [
   { key: "all", label: "All" },
   { key: "support", label: "Support" },

@@ -7,7 +7,7 @@ import ThreadPanel, { EmptyThreadState } from "@/components/inbox/ThreadPanel";
 import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxFilterTabs from "@/components/inbox/InboxFilterTabs";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
-import { SOURCE_META, STATUS_META, STATUS_ORDER } from "@/components/inbox/inboxConfig";
+import { SOURCE_META, STATUS_META, STATUS_ORDER, VIEW_BACKDROPS } from "@/components/inbox/inboxConfig";
 
 const VIEW_TITLES = {
   all: "Inbox",
@@ -29,12 +29,12 @@ const STATUS_TABS = [
 
 export default function Inbox() {
   const qc = useQueryClient();
-  const [view, setView] = useState("all");
+  const [view, setView] = useState("support");
   const [subFilter, setSubFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [showContact, setShowContact] = useState(true);
-  const [listWidth, setListWidth] = useState(340);
+  const [listWidth, setListWidth] = useState(560);
   const [currentUser, setCurrentUser] = useState(null);
   const centerRef = useRef(null);
 
@@ -117,6 +117,16 @@ export default function Inbox() {
     });
   }, [threads, view, subFilter, search]);
 
+  // Auto-select the first available conversation when nothing is selected.
+  useEffect(() => {
+    if (!selected && filtered.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get("thread")) {
+        handleSelect(filtered[0]);
+      }
+    }
+  }, [filtered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const title = VIEW_TITLES[view] || SOURCE_META[view]?.label || "Inbox";
 
   // Counts for the sub-filter tabs (based on current main view, ignoring sub-tab)
@@ -158,11 +168,8 @@ export default function Inbox() {
     <div className="h-screen flex flex-col overflow-hidden relative">
       {/* Vibrant pink gradient backdrop */}
       <div
-        className="absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(1200px 600px at 15% 0%, #ffe3f1 0%, transparent 55%), radial-gradient(1000px 700px at 100% 100%, #ffc2dd 0%, transparent 50%), linear-gradient(135deg, #fff0f6 0%, #ffd9ea 45%, #ffb6d5 100%)",
-        }}
+        className="absolute inset-0 -z-10 transition-[background] duration-700"
+        style={{ background: VIEW_BACKDROPS[view] || VIEW_BACKDROPS.all }}
       />
 
       <InboxTopBar view={view} setView={setView} currentUser={currentUser} />

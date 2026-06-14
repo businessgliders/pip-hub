@@ -11,8 +11,6 @@ const TEAM_TABS = [
   { key: "influencer", icon: Sparkles },
 ];
 
-const PERSONAL = [{ key: "all", label: "All", icon: InboxIcon }];
-
 function TabButton({ active, onClick, icon: Icon, label }) {
   return (
     <button
@@ -34,17 +32,14 @@ export default function InboxTopBar({ view, setView, currentUser }) {
     <header className="shrink-0 px-4 py-3 flex items-center gap-4 bg-white/40 backdrop-blur-xl border-b border-white/50">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2.5 shrink-0">
-        <img src={LOGO_URL} alt="Pilates in Pink" className="w-8 h-8 object-contain" />
+        <img src={LOGO_URL} alt="Unified Inbox" className="w-8 h-8 object-contain" />
         <span className="hidden sm:block font-extrabold text-lg tracking-tight text-pink-600" style={{ fontStyle: "italic" }}>
-          Pilates in Pink
+          Unified Inbox
         </span>
       </Link>
 
-      {/* Tabs: All + 3 team inboxes */}
+      {/* Tabs: 3 team inboxes */}
       <nav className="flex items-center gap-1 ml-2">
-        {PERSONAL.map((p) => (
-          <TabButton key={p.key} active={view === p.key} onClick={() => setView(p.key)} icon={p.icon} label={p.label} />
-        ))}
         {TEAM_TABS.map((t) => (
           <TabButton
             key={t.key}
