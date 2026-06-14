@@ -37,14 +37,32 @@
   ],
   "rls": {
     "read": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "email": "info@pilatesinpinkstudio.com"
+          }
+        }
+      ]
     },
     "write": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "email": "info@pilatesinpinkstudio.com"
+          }
+        }
+      ]
     }
   }
 }
