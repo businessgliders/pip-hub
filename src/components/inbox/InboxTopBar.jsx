@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { SOURCE_META } from "./inboxConfig";
-import { LifeBuoy, CalendarHeart, Sparkles, Inbox as InboxIcon, HelpCircle, Settings } from "lucide-react";
+import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
+import { useTheme } from "@/lib/ThemeContext";
+import { LifeBuoy, CalendarHeart, Sparkles, HelpCircle, Settings, Moon, Sun } from "lucide-react";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/6deb854f5_logo.png";
 
@@ -11,14 +12,15 @@ const TEAM_TABS = [
   { key: "influencer", icon: Sparkles },
 ];
 
-function TabButton({ active, onClick, icon: Icon, label }) {
+function TabButton({ active, onClick, icon: Icon, label, accent }) {
   return (
     <button
       onClick={onClick}
+      style={active ? { color: accent } : undefined}
       className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
         active
-          ? "text-pink-600 bg-white/70 shadow-sm"
-          : "text-pink-900/60 hover:text-pink-700 hover:bg-white/40"
+          ? "bg-white/80 dark:bg-white/15 shadow-sm"
+          : "text-pink-900/60 dark:text-white/55 hover:text-pink-700 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10"
       }`}
     >
       <Icon className="w-4 h-4" />
@@ -28,12 +30,14 @@ function TabButton({ active, onClick, icon: Icon, label }) {
 }
 
 export default function InboxTopBar({ view, setView, currentUser }) {
+  const { dark, toggle } = useTheme();
+  const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
-    <header className="shrink-0 px-4 py-3 flex items-center gap-4 bg-white/40 backdrop-blur-xl border-b border-white/50">
+    <header className="shrink-0 px-4 py-3 flex items-center gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2.5 shrink-0">
         <img src={LOGO_URL} alt="Unified Inbox" className="w-8 h-8 object-contain" />
-        <span className="hidden sm:block font-extrabold text-lg tracking-tight text-pink-600" style={{ fontStyle: "italic" }}>
+        <span className="hidden sm:block font-extrabold text-lg tracking-tight" style={{ fontStyle: "italic", color: accent }}>
           Unified Inbox
         </span>
       </Link>
@@ -47,6 +51,7 @@ export default function InboxTopBar({ view, setView, currentUser }) {
             onClick={() => setView(t.key)}
             icon={t.icon}
             label={SOURCE_META[t.key]?.label || t.key}
+            accent={(VIEW_THEME[t.key] || VIEW_THEME.events).accent}
           />
         ))}
       </nav>
@@ -55,13 +60,23 @@ export default function InboxTopBar({ view, setView, currentUser }) {
 
       {/* Right icons */}
       <div className="flex items-center gap-1">
-        <button className="p-2 rounded-full text-pink-900/50 hover:bg-white/50 hover:text-pink-600 transition-colors">
+        <button className="p-2 rounded-full text-pink-900/50 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10 transition-colors">
           <HelpCircle className="w-5 h-5" />
         </button>
-        <button className="p-2 rounded-full text-pink-900/50 hover:bg-white/50 hover:text-pink-600 transition-colors">
+        <button
+          onClick={toggle}
+          title={dark ? "Switch to light mode" : "Switch to dark mode"}
+          className="p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+        >
+          {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+        <button className="p-2 rounded-full text-pink-900/50 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10 transition-colors">
           <Settings className="w-5 h-5" />
         </button>
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white text-sm font-semibold shadow-sm ml-1">
+        <div
+          className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm ml-1"
+          style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
+        >
           {(currentUser?.full_name || currentUser?.email || "?").slice(0, 1).toUpperCase()}
         </div>
       </div>

@@ -16,14 +16,30 @@ export const STATUS_META = {
 
 export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed"];
 
-// Mostly-white page backdrops with a subtle tint per selected team tab.
-// Palette: f1889b / f7b1bd / fbe0e2 / b67651 / f6eee7
-export const VIEW_BACKDROPS = {
-  all: "radial-gradient(900px 500px at 10% 0%, #fbe0e2 0%, transparent 45%), linear-gradient(180deg, #ffffff 0%, #fdf6f7 100%)",
-  support: "radial-gradient(900px 500px at 12% 0%, #fbe0e2 0%, transparent 42%), linear-gradient(180deg, #ffffff 0%, #fdeef0 100%)",
-  events: "radial-gradient(900px 500px at 12% 0%, #f7b1bd55 0%, transparent 42%), linear-gradient(180deg, #ffffff 0%, #fdeaee 100%)",
-  influencer: "radial-gradient(900px 500px at 12% 0%, #f6eee7 0%, transparent 42%), linear-gradient(180deg, #ffffff 0%, #faf3ee 100%)",
+// Per-tab brand theme. Brown = Support, Pink = Events, Dark Purple = Influencer.
+// Darker, saturated backdrops so the frosted glass panels show depth on top.
+export const VIEW_THEME = {
+  support: {
+    accent: "#b67651",
+    light:  "radial-gradient(1100px 600px at 12% 0%, #d8a784 0%, transparent 50%), radial-gradient(900px 600px at 100% 100%, #b67651 0%, transparent 55%), linear-gradient(135deg, #e9d3c2 0%, #c79570 55%, #9c5f3d 100%)",
+    dark:   "radial-gradient(1100px 600px at 12% 0%, #6b452c 0%, transparent 55%), radial-gradient(900px 600px at 100% 100%, #3a2317 0%, transparent 55%), linear-gradient(135deg, #2a1a12 0%, #1c130d 100%)",
+  },
+  events: {
+    accent: "#f1889b",
+    light:  "radial-gradient(1100px 600px at 12% 0%, #ffd2de 0%, transparent 50%), radial-gradient(900px 600px at 100% 100%, #f1889b 0%, transparent 55%), linear-gradient(135deg, #ffe0e9 0%, #f7a7b8 55%, #e8657d 100%)",
+    dark:   "radial-gradient(1100px 600px at 12% 0%, #7a2f43 0%, transparent 55%), radial-gradient(900px 600px at 100% 100%, #45111f 0%, transparent 55%), linear-gradient(135deg, #2c1018 0%, #1d0a10 100%)",
+  },
+  influencer: {
+    accent: "#7c3aed",
+    light:  "radial-gradient(1100px 600px at 12% 0%, #d7c2f0 0%, transparent 50%), radial-gradient(900px 600px at 100% 100%, #7c3aed 0%, transparent 55%), linear-gradient(135deg, #e3d6f5 0%, #9f74e0 55%, #5b2ca8 100%)",
+    dark:   "radial-gradient(1100px 600px at 12% 0%, #3d2168 0%, transparent 55%), radial-gradient(900px 600px at 100% 100%, #1e0f38 0%, transparent 55%), linear-gradient(135deg, #1a1030 0%, #110a20 100%)",
+  },
 };
+
+export function viewBackdrop(view, isDark) {
+  const t = VIEW_THEME[view] || VIEW_THEME.events;
+  return isDark ? t.dark : t.light;
+}
 
 export const TABS = [
   { key: "all", label: "All" },

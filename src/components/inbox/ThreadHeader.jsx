@@ -32,7 +32,6 @@ export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, 
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-            <DropdownMenuItem onClick={() => onAssign("")} className="text-sm text-slate-500">Unassigned</DropdownMenuItem>
             {staff.map((s) => (
               <DropdownMenuItem key={s.id} onClick={() => onAssign(s.email)} className="text-sm">
                 {s.full_name}

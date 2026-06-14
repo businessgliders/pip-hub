@@ -7,7 +7,8 @@ import ThreadPanel, { EmptyThreadState } from "@/components/inbox/ThreadPanel";
 import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxFilterTabs from "@/components/inbox/InboxFilterTabs";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
-import { SOURCE_META, STATUS_META, STATUS_ORDER, VIEW_BACKDROPS } from "@/components/inbox/inboxConfig";
+import { SOURCE_META, STATUS_META, STATUS_ORDER, viewBackdrop } from "@/components/inbox/inboxConfig";
+import { useTheme } from "@/lib/ThemeContext";
 
 const VIEW_TITLES = {
   all: "Inbox",
@@ -21,14 +22,12 @@ const SOURCE_TABS = [
   { key: "influencer", label: "Influencer" },
 ];
 
-// Status tabs shown for team inboxes (support/events/influencer)
-const STATUS_TABS = [
-  { key: "all", label: "All" },
-  ...STATUS_ORDER.map((s) => ({ key: s, label: STATUS_META[s].label })),
-];
+// Status tabs shown for team inboxes (support/events/influencer) — no "All"
+const STATUS_TABS = STATUS_ORDER.map((s) => ({ key: s, label: STATUS_META[s].label }));
 
 export default function Inbox() {
   const qc = useQueryClient();
+  const { dark } = useTheme();
   const [view, setView] = useState("support");
   const [subFilter, setSubFilter] = useState("all");
   const [search, setSearch] = useState("");
@@ -82,7 +81,8 @@ export default function Inbox() {
   const activeTabs = isSourceView ? STATUS_TABS : SOURCE_TABS;
 
   // Reset the sub-filter whenever the main view changes.
-  useEffect(() => { setSubFilter("all"); }, [view]);
+  // Team inboxes have no "All" status tab, so default to the first status.
+  useEffect(() => { setSubFilter(SOURCE_META[view] ? STATUS_ORDER[0] : "all"); }, [view]);
 
   const counts = useMemo(() => {
     const c = { all: 0, support: 0, events: 0, influencer: 0, closed: 0 };
@@ -169,7 +169,7 @@ export default function Inbox() {
       {/* Vibrant pink gradient backdrop */}
       <div
         className="absolute inset-0 -z-10 transition-[background] duration-700"
-        style={{ background: VIEW_BACKDROPS[view] || VIEW_BACKDROPS.all }}
+        style={{ background: viewBackdrop(view, dark) }}
       />
 
       <InboxTopBar view={view} setView={setView} currentUser={currentUser} />
@@ -178,7 +178,7 @@ export default function Inbox() {
       <div ref={centerRef} className="flex-1 flex gap-4 p-4 overflow-hidden">
         {/* Thread list (resizable) */}
         <div
-          className={`${selectedThread ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-col rounded-3xl bg-white/55 backdrop-blur-2xl border border-white/60 shadow-xl shadow-pink-200/40 shrink-0`}
+          className={`${selectedThread ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-col rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
           style={{ width: selectedThread ? listWidth : undefined, flex: selectedThread ? undefined : "1 1 100%" }}
         >
           {activeTabs && (
@@ -198,7 +198,7 @@ export default function Inbox() {
 
         {/* Center: thread panel */}
         <div
-          className={`${selectedThread ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/55 backdrop-blur-2xl border border-white/60 shadow-xl shadow-pink-200/40`}
+          className={`${selectedThread ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20`}
         >
           {selectedThread ? (
             <ThreadPanel
@@ -217,7 +217,7 @@ export default function Inbox() {
         {/* Right: contact panel — open by default, toggled via header */}
         {selectedThread && showContact && (
           <div className="fixed inset-0 z-40 p-4 lg:static lg:z-auto lg:p-0 lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
-            <div className="h-full rounded-3xl bg-white/55 backdrop-blur-2xl border border-white/60 shadow-xl shadow-pink-200/40 overflow-hidden">
+            <div className="h-full rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <ContactPanel
                 thread={selectedThread}
                 onSelectThread={(t) => handleSelect(t)}

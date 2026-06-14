@@ -107,7 +107,7 @@ export default function MacDock({ favoritedApps, onOpenApp, onReorderFavorites }
         <div
           className="flex items-center cursor-pointer"
           onClick={() => window.open('https://www.pilatesinpinkstudio.com/', '_blank', 'noopener,noreferrer')}
-          title="Pilates in Pink Studio"
+          title="Front Desk"
         >
           <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg bg-white/60">
             <img src={LOGO_URL} alt="Pilates in Pink" className="w-full h-full object-contain p-1" draggable={false} />
