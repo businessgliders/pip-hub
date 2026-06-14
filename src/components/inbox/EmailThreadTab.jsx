@@ -48,19 +48,19 @@ export default function EmailThreadTab({ messages, loading, thread }) {
           <div className="flex justify-start">
             <button
               onClick={() => setSubmissionOpen(true)}
-              className="group max-w-[75%] text-left rounded-3xl rounded-bl-lg px-4 py-3 bg-white/80 backdrop-blur-sm border border-white/70 text-pink-900 shadow-sm transition-shadow hover:shadow-md"
+              className="group max-w-[75%] text-left rounded-3xl rounded-bl-lg px-4 py-3 bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white shadow-sm transition-shadow hover:shadow-md"
             >
-              <div className="flex items-center gap-1.5 text-[11px] text-pink-400 mb-1">
+              <div className="flex items-center gap-1.5 text-[11px] text-pink-400 dark:text-white/55 mb-1">
                 <FileText className="w-3.5 h-3.5" />
-                <span className="font-medium text-pink-500 truncate">{thread.contact_name || thread.contact_email}</span>
+                <span className="font-medium text-pink-500 dark:text-white/80 truncate">{thread.contact_name || thread.contact_email}</span>
                 <span>·</span>
                 <span>{SOURCE_META[thread.source_app]?.label || "Form"} submission</span>
               </div>
               {thread.subject && (
-                <div className="text-xs font-semibold text-pink-700 mb-0.5 truncate">{thread.subject}</div>
+                <div className="text-xs font-semibold text-pink-700 dark:text-white/90 mb-0.5 truncate">{thread.subject}</div>
               )}
-              <div className="text-sm leading-snug text-pink-900/70">{submissionPreview(thread.form_data)}</div>
-              <div className="text-[11px] text-pink-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="text-sm leading-snug text-pink-900/70 dark:text-white/75">{submissionPreview(thread.form_data)}</div>
+              <div className="text-[11px] text-pink-500 dark:text-white/60 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 Tap to view full form
               </div>
             </button>
@@ -83,21 +83,21 @@ export default function EmailThreadTab({ messages, loading, thread }) {
                 className={`group max-w-[75%] text-left rounded-3xl px-4 py-3 shadow-sm transition-shadow hover:shadow-md ${
                   outbound
                     ? "bg-gradient-to-br from-pink-300/90 to-rose-300/90 text-pink-950 rounded-br-lg border border-white/40"
-                    : "bg-white/80 backdrop-blur-sm border border-white/70 text-pink-900 rounded-bl-lg"
+                    : "bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white rounded-bl-lg"
                 }`}
               >
-                <div className={`flex items-center gap-1.5 text-[11px] mb-1 ${outbound ? "text-pink-700/70" : "text-pink-400"}`}>
-                  <span className={`font-medium truncate ${outbound ? "text-pink-800/80" : "text-pink-500"}`}>
+                <div className={`flex items-center gap-1.5 text-[11px] mb-1 ${outbound ? "text-pink-700/70" : "text-pink-400 dark:text-white/55"}`}>
+                  <span className={`font-medium truncate ${outbound ? "text-pink-800/80" : "text-pink-500 dark:text-white/80"}`}>
                     {m.from_name || m.from_email}
                   </span>
                   <span>·</span>
                   <span>{m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
                 </div>
                 {m.subject && (
-                  <div className={`text-xs font-semibold mb-0.5 truncate ${outbound ? "text-pink-900" : "text-pink-700"}`}>{m.subject}</div>
+                  <div className={`text-xs font-semibold mb-0.5 truncate ${outbound ? "text-pink-900" : "text-pink-700 dark:text-white/90"}`}>{m.subject}</div>
                 )}
                 <div className="text-sm leading-snug whitespace-pre-wrap">{toPreview(m)}</div>
-                <div className={`text-[11px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? "text-pink-700" : "text-pink-500"}`}>
+                <div className={`text-[11px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? "text-pink-700" : "text-pink-500 dark:text-white/60"}`}>
                   Tap to view full email
                 </div>
               </button>

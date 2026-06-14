@@ -5,9 +5,10 @@ import InboxTopBar from "@/components/inbox/InboxTopBar";
 import ThreadList from "@/components/inbox/ThreadList";
 import ThreadPanel, { EmptyThreadState } from "@/components/inbox/ThreadPanel";
 import ContactPanel from "@/components/inbox/ContactPanel";
-import InboxFilterTabs from "@/components/inbox/InboxFilterTabs";
+import InboxStatusRail from "@/components/inbox/InboxStatusRail";
+import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
-import { SOURCE_META, STATUS_META, STATUS_ORDER, viewBackdrop } from "@/components/inbox/inboxConfig";
+import { SOURCE_META, STATUS_META, STATUS_ORDER, VIEW_THEME, viewBackdrop } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
 const VIEW_TITLES = {
@@ -30,17 +31,20 @@ export default function Inbox() {
   const { dark } = useTheme();
   const [view, setView] = useState("support");
   const [subFilter, setSubFilter] = useState("all");
+  const [inquiryType, setInquiryType] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [showContact, setShowContact] = useState(true);
-  const [listWidth, setListWidth] = useState(560);
+  const [listWidth, setListWidth] = useState(360);
   const [currentUser, setCurrentUser] = useState(null);
+  // On mobile/tablet the thread panel is full-screen; only open it on an explicit tap.
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
   const centerRef = useRef(null);
 
   const handleListResize = (clientX) => {
     const left = centerRef.current?.getBoundingClientRect().left || 0;
     const w = clientX - left;
-    setListWidth(Math.max(260, Math.min(560, w)));
+    setListWidth(Math.max(240, Math.min(440, w)));
   };
 
   useEffect(() => {
@@ -59,7 +63,7 @@ export default function Inbox() {
     const tid = params.get("thread");
     if (tid && threads.length && !selected) {
       const found = threads.find((t) => t.id === tid);
-      if (found) setSelected(found);
+      if (found) handleSelect(found);
     }
   }, [threads]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -82,7 +86,19 @@ export default function Inbox() {
 
   // Reset the sub-filter whenever the main view changes.
   // Team inboxes have no "All" status tab, so default to the first status.
-  useEffect(() => { setSubFilter(SOURCE_META[view] ? STATUS_ORDER[0] : "all"); }, [view]);
+  useEffect(() => { setSubFilter(SOURCE_META[view] ? STATUS_ORDER[0] : "all"); setInquiryType("all"); }, [view]);
+
+  // Distinct inquiry types within the current Support view (for the icon filter).
+  const inquiryTypes = useMemo(() => {
+    if (view !== "support") return [];
+    const set = new Set();
+    threads.forEach((t) => {
+      if (t.source_app !== "support") return;
+      const it = t.form_data?.inquiry_type;
+      if (it) set.add(String(it));
+    });
+    return Array.from(set).sort();
+  }, [threads, view]);
 
   const counts = useMemo(() => {
     const c = { all: 0, support: 0, events: 0, influencer: 0, closed: 0 };
@@ -102,6 +118,8 @@ export default function Inbox() {
         // Team inbox: filter by source, then by status sub-tab
         if (t.source_app !== view) return false;
         if (subFilter !== "all" && t.status !== subFilter) return false;
+        // Support-only inquiry type filter
+        if (view === "support" && inquiryType !== "all" && String(t.form_data?.inquiry_type || "") !== inquiryType) return false;
       } else {
         // "All" view: hide closed
         if (t.status === "closed") return false;
@@ -115,14 +133,16 @@ export default function Inbox() {
         (t.subject || "").toLowerCase().includes(q)
       );
     });
-  }, [threads, view, subFilter, search]);
+  }, [threads, view, subFilter, search, inquiryType]);
 
   // Auto-select the first available conversation when nothing is selected.
   useEffect(() => {
     if (!selected && filtered.length > 0) {
       const params = new URLSearchParams(window.location.search);
       if (!params.get("thread")) {
-        handleSelect(filtered[0]);
+        // Auto-select the first thread, but only auto-OPEN the panel on desktop.
+        const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+        handleSelect(filtered[0], { open: isDesktop });
       }
     }
   }, [filtered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -144,9 +164,11 @@ export default function Inbox() {
     return c;
   }, [threads, view, isSourceView]);
   const selectedThread = threads.find((t) => t.id === selected?.id) || selected;
+  const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
 
-  const handleSelect = (t) => {
+  const handleSelect = (t, { open = true } = {}) => {
     setSelected(t);
+    if (open) setMobilePanelOpen(true);
     if (!t.is_read) updateThread.mutate({ id: t.id, data: { is_read: true } });
   };
 
@@ -175,37 +197,44 @@ export default function Inbox() {
       <InboxTopBar view={view} setView={setView} currentUser={currentUser} />
 
       {/* 3 floating glass panels */}
-      <div ref={centerRef} className="flex-1 flex gap-4 p-4 overflow-hidden">
-        {/* Thread list (resizable) */}
+      <div ref={centerRef} className="flex-1 flex gap-3 md:gap-4 p-3 md:p-4 overflow-hidden">
+        {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
-          className={`${selectedThread ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-col rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
+          className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
           style={{ width: selectedThread ? listWidth : undefined, flex: selectedThread ? undefined : "1 1 100%" }}
         >
+          {/* Vertical status rail (side panels) */}
           {activeTabs && (
-            <InboxFilterTabs tabs={activeTabs} active={subFilter} onChange={setSubFilter} counts={tabCounts} />
+            <InboxStatusRail
+              tabs={activeTabs} active={subFilter} onChange={setSubFilter}
+              counts={tabCounts} accent={accent}
+            />
           )}
           <div className="flex-1 overflow-hidden">
             <ThreadList
               threads={filtered} title={title} count={filtered.length}
               search={search} setSearch={setSearch}
               selectedId={selectedThread?.id} onSelect={handleSelect} loading={isLoading}
+              filterSlot={view === "support" && inquiryTypes.length > 0 ? (
+                <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
+              ) : null}
             />
           </div>
         </div>
 
-        {/* Resize grabber — only when a thread is open */}
+        {/* Resize grabber — desktop split view only (component is hidden on mobile) */}
         {selectedThread && <ResizeHandle onDrag={handleListResize} />}
 
-        {/* Center: thread panel */}
+        {/* Center: thread panel — full-screen on mobile only when opened */}
         <div
-          className={`${selectedThread ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20`}
+          className={`${mobilePanelOpen ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20`}
         >
           {selectedThread ? (
             <ThreadPanel
               key={selectedThread.id}
               thread={selectedThread} staff={staff} currentUser={currentUser}
               onStatusChange={handleStatus} onAssign={handleAssign}
-              onBack={() => setSelected(null)}
+              onBack={() => setMobilePanelOpen(false)}
               onToggleContact={() => setShowContact((s) => !s)}
               contactOpen={showContact}
             />
@@ -215,7 +244,7 @@ export default function Inbox() {
         </div>
 
         {/* Right: contact panel — open by default, toggled via header */}
-        {selectedThread && showContact && (
+        {selectedThread && showContact && mobilePanelOpen && (
           <div className="fixed inset-0 z-40 p-4 lg:static lg:z-auto lg:p-0 lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
             <div className="h-full rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <ContactPanel

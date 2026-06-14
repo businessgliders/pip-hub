@@ -13,13 +13,13 @@ export default function ComposeFooter({ onSend, sending }) {
   };
 
   return (
-    <div className="border-t border-white/50 p-3">
-      <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-white/70 p-2 shadow-sm">
+    <div className="border-t border-white/50 dark:border-white/10 p-3">
+      <div className="rounded-3xl bg-white/70 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 p-2 shadow-sm">
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type your reply here… (sent via Gmail)"
-          className="resize-none h-20 border-0 bg-transparent focus-visible:ring-0 shadow-none placeholder:text-pink-300 text-pink-900"
+          className="resize-none h-20 border-0 bg-transparent focus-visible:ring-0 shadow-none placeholder:text-pink-300 dark:placeholder:text-white/40 text-pink-900 dark:text-white"
         />
         <div className="flex justify-end">
           <Button

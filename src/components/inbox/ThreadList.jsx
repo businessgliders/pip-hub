@@ -7,7 +7,7 @@ const PAGE_SIZE = 50;
 
 export default function ThreadList({
   threads, title, count, search, setSearch,
-  selectedId, onSelect, loading,
+  selectedId, onSelect, loading, filterSlot,
 }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const scrollRef = useRef(null);
@@ -29,24 +29,25 @@ export default function ThreadList({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-4 pt-4 pb-3">
-        <div className="flex items-center gap-2">
-          <h1 className="text-lg font-bold text-pink-900">{title}</h1>
-          {count > 0 && <span className="text-sm text-pink-400 font-medium">{count}</span>}
+      <div className="flex items-center justify-between px-4 pt-4 pb-3 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <h1 className="text-lg font-bold text-pink-900 dark:text-white truncate">{title}</h1>
+          {count > 0 && <span className="text-sm text-pink-400 dark:text-white/60 font-medium shrink-0">{count}</span>}
         </div>
-        <div className="flex items-center gap-1 text-pink-400">
-          <button className="p-1.5 rounded-full hover:bg-white/60"><Plus className="w-4 h-4" /></button>
+        <div className="flex items-center gap-1 text-pink-400 dark:text-white/60 shrink-0">
+          {filterSlot}
+          <button className="p-1.5 rounded-full hover:bg-white/60 dark:hover:bg-white/10"><Plus className="w-4 h-4" /></button>
         </div>
       </div>
 
       <div className="px-4 pb-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-400 dark:text-white/50" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations…"
-            className="pl-9 h-9 bg-white/60 border-white/70 rounded-full placeholder:text-pink-300 focus-visible:ring-pink-300"
+            className="pl-9 h-9 bg-white/60 dark:bg-white/10 border-white/70 dark:border-white/15 rounded-full text-pink-900 dark:text-white placeholder:text-pink-300 dark:placeholder:text-white/40 focus-visible:ring-pink-300"
           />
         </div>
       </div>
