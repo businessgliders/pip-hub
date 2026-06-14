@@ -38,10 +38,19 @@
         "in_progress",
         "waiting",
         "resolved",
-        "closed"
+        "closed",
+        "New",
+        "In Conversations",
+        "Waiting for Payment",
+        "Pending",
+        "Confirmed",
+        "Hosted",
+        "No Response",
+        "Cancelled",
+        "Closed"
       ],
       "default": "open",
-      "description": "Workflow status"
+      "description": "Workflow status. Support/Influencer use the generic set; Events use the EventLead pipeline stages."
     },
     "assignee_email": {
       "type": "string",

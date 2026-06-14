@@ -1,10 +1,11 @@
 import React from "react";
-import { STATUS_META, STATUS_ORDER } from "./inboxConfig";
+import { ALL_STATUS_META, STATUS_META, statusOrderFor } from "./inboxConfig";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
-export default function StatusPill({ status, onChange, readOnly = false }) {
-  const meta = STATUS_META[status] || STATUS_META.open;
+export default function StatusPill({ status, onChange, readOnly = false, source }) {
+  const meta = ALL_STATUS_META[status] || STATUS_META.open;
+  const order = statusOrderFor(source);
 
   if (readOnly) {
     return (
@@ -22,11 +23,11 @@ export default function StatusPill({ status, onChange, readOnly = false }) {
           <ChevronDown className="w-3 h-3" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {STATUS_ORDER.map((s) => (
+      <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
+        {order.map((s) => (
           <DropdownMenuItem key={s} onClick={() => onChange?.(s)} className="text-sm">
-            <span className={`w-2 h-2 rounded-full mr-2 ${STATUS_META[s].chip.split(" ")[0]}`} />
-            {STATUS_META[s].label}
+            <span className={`w-2 h-2 rounded-full mr-2 ${ALL_STATUS_META[s].chip.split(" ")[0]}`} />
+            {ALL_STATUS_META[s].label}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

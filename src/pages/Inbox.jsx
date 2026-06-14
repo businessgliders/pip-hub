@@ -8,7 +8,7 @@ import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxStatusRail from "@/components/inbox/InboxStatusRail";
 import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
-import { SOURCE_META, STATUS_META, STATUS_ORDER, VIEW_THEME, viewBackdrop } from "@/components/inbox/inboxConfig";
+import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
 const VIEW_TITLES = {
@@ -23,8 +23,7 @@ const SOURCE_TABS = [
   { key: "influencer", label: "Influencer" },
 ];
 
-// Status tabs shown for team inboxes (support/events/influencer) — no "All"
-const STATUS_TABS = STATUS_ORDER.map((s) => ({ key: s, label: STATUS_META[s].label }));
+
 
 export default function Inbox() {
   const qc = useQueryClient();
@@ -82,11 +81,14 @@ export default function Inbox() {
 
   // Which sub-filter tabs to show in the conversation view.
   const isSourceView = !!SOURCE_META[view]; // team inbox
+  // Events use the EventLead pipeline stages; other inboxes use the generic set.
+  const statusOrder = view === "events" ? EVENTS_STATUS_ORDER : STATUS_ORDER;
+  const STATUS_TABS = statusOrder.map((s) => ({ key: s, label: ALL_STATUS_META[s].label }));
   const activeTabs = isSourceView ? STATUS_TABS : SOURCE_TABS;
 
   // Reset the sub-filter whenever the main view changes.
   // Team inboxes have no "All" status tab, so default to the first status.
-  useEffect(() => { setSubFilter(SOURCE_META[view] ? STATUS_ORDER[0] : "all"); setInquiryType("all"); }, [view]);
+  useEffect(() => { setSubFilter(SOURCE_META[view] ? (view === "events" ? EVENTS_STATUS_ORDER : STATUS_ORDER)[0] : "all"); setInquiryType("all"); }, [view]);
 
   // Distinct inquiry types within the current Support view (for the icon filter).
   const inquiryTypes = useMemo(() => {
@@ -166,12 +168,12 @@ export default function Inbox() {
     });
     const c = { all: base.length };
     if (isSourceView) {
-      STATUS_ORDER.forEach((s) => { c[s] = base.filter((t) => t.status === s).length; });
+      statusOrder.forEach((s) => { c[s] = base.filter((t) => t.status === s).length; });
     } else {
       ["support", "events", "influencer"].forEach((s) => { c[s] = base.filter((t) => t.source_app === s).length; });
     }
     return c;
-  }, [threads, view, isSourceView]);
+  }, [threads, view, isSourceView, statusOrder]);
   const selectedThread = threads.find((t) => t.id === selected?.id) || selected;
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
 

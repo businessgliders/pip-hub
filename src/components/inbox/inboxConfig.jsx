@@ -16,6 +16,31 @@ export const STATUS_META = {
 
 export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed"];
 
+// Events inbox uses the original EventLead pipeline stages instead of the generic statuses.
+export const EVENTS_STATUS_META = {
+  "New": { label: "New", chip: "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-200" },
+  "In Conversations": { label: "In Conversations", chip: "bg-amber-100/80 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200" },
+  "Waiting for Payment": { label: "Waiting for Payment", chip: "bg-orange-100/80 text-orange-700 dark:bg-orange-400/20 dark:text-orange-200" },
+  "Pending": { label: "Pending", chip: "bg-yellow-100/80 text-yellow-700 dark:bg-yellow-400/20 dark:text-yellow-200" },
+  "Confirmed": { label: "Confirmed", chip: "bg-sky-100/80 text-sky-700 dark:bg-sky-400/20 dark:text-sky-200" },
+  "Hosted": { label: "Hosted", chip: "bg-violet-100/80 text-violet-700 dark:bg-violet-400/25 dark:text-violet-200" },
+  "No Response": { label: "No Response", chip: "bg-rose-100/80 text-rose-700 dark:bg-rose-400/20 dark:text-rose-200" },
+  "Cancelled": { label: "Cancelled", chip: "bg-red-100/80 text-red-700 dark:bg-red-400/20 dark:text-red-200" },
+  "Closed": { label: "Closed", chip: "bg-slate-100/80 text-slate-500 dark:bg-white/15 dark:text-white/70" },
+};
+
+export const EVENTS_STATUS_ORDER = [
+  "New", "In Conversations", "Waiting for Payment", "Pending", "Confirmed", "Hosted", "No Response", "Cancelled", "Closed",
+];
+
+// Combined lookup so any status value (generic or events) can be rendered.
+export const ALL_STATUS_META = { ...STATUS_META, ...EVENTS_STATUS_META };
+
+// Which status set a given source/view uses.
+export function statusOrderFor(view) {
+  return view === "events" ? EVENTS_STATUS_ORDER : STATUS_ORDER;
+}
+
 // Per-tab brand theme. Brown = Support, Pink = Events, Dark Purple = Influencer.
 // Darker, saturated backdrops so the frosted glass panels show depth on top.
 export const VIEW_THEME = {

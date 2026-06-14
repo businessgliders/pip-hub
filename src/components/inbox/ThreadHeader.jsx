@@ -8,6 +8,7 @@ import { ArrowLeft, UserPlus, PanelRight, CheckCircle2, RotateCcw } from "lucide
 export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
   const assignee = staff.find((s) => s.email === thread.assignee_email);
   const isResolved = thread.status === "resolved" || thread.status === "closed";
+  const isEvents = thread.source_app === "events";
 
   return (
     <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/50 dark:border-white/15">
@@ -50,16 +51,18 @@ export default function ThreadHeader({ thread, staff, onStatusChange, onAssign, 
         </DropdownMenu>
 
         {/* Status — kept as a labeled dropdown */}
-        <StatusPill status={thread.status} onChange={onStatusChange} />
+        <StatusPill status={thread.status} onChange={onStatusChange} source={thread.source_app} />
 
-        {/* Resolve / Reopen — icon only */}
-        <button
-          onClick={() => onStatusChange(isResolved ? "open" : "resolved")}
-          title={isResolved ? "Reopen" : "Resolve"}
-          className="p-2 rounded-full text-white bg-pink-950/90 hover:bg-pink-950 transition-colors shadow-sm"
-        >
-          {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
-        </button>
+        {/* Resolve / Reopen — icon only (Events use pipeline stages, no resolve toggle) */}
+        {!isEvents && (
+          <button
+            onClick={() => onStatusChange(isResolved ? "open" : "resolved")}
+            title={isResolved ? "Reopen" : "Resolve"}
+            className="p-2 rounded-full text-white bg-pink-950/90 hover:bg-pink-950 transition-colors shadow-sm"
+          >
+            {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+          </button>
+        )}
 
         {/* Toggle details — icon only */}
         <button
