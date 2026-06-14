@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
 
     const { source_app, name, email, phone, subject, ...rest } = body;
 
-    if (!source_app || !['support', 'events', 'partner'].includes(source_app)) {
+    if (!source_app || !['support', 'events', 'influencer'].includes(source_app)) {
       return Response.json({ error: 'Invalid or missing source_app' }, { status: 400 });
     }
     if (!email) {

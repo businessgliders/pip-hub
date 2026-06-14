@@ -19,7 +19,7 @@
       "enum": [
         "support",
         "events",
-        "partner"
+        "influencer"
       ],
       "description": "Which spoke app this thread originated from"
     },

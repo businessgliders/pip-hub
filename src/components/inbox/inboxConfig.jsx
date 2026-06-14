@@ -3,7 +3,7 @@
 export const SOURCE_META = {
   support: { label: "Support", badge: "bg-blue-100 text-blue-700 border-blue-200", dot: "bg-blue-500", ring: "ring-blue-500" },
   events: { label: "Events", badge: "bg-rose-100 text-rose-700 border-rose-200", dot: "bg-rose-500", ring: "ring-rose-500" },
-  partner: { label: "Partner", badge: "bg-purple-100 text-purple-700 border-purple-200", dot: "bg-purple-500", ring: "ring-purple-500" },
+  influencer: { label: "Influencer", badge: "bg-purple-100 text-purple-700 border-purple-200", dot: "bg-purple-500", ring: "ring-purple-500" },
 };
 
 export const STATUS_META = {
@@ -20,7 +20,7 @@ export const TABS = [
   { key: "all", label: "All" },
   { key: "support", label: "Support" },
   { key: "events", label: "Events" },
-  { key: "partner", label: "Partner" },
+  { key: "influencer", label: "Influencer" },
 ];
 
 export function initials(name = "") {
