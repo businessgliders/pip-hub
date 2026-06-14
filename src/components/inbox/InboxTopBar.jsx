@@ -14,6 +14,12 @@ const TEAM_TABS = [
   { key: "influencer", icon: Sparkles },
 ];
 
+const LOGO_TITLES = {
+  support: "PiP Support",
+  events: "PiP Events",
+  influencer: "PiP Partner",
+};
+
 function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
   return (
     <button
@@ -40,7 +46,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       <Link to="/" className="flex items-center gap-2.5 shrink-0">
         <img src={LOGO_URL} alt="PiP Inbox" className="w-8 h-8 object-contain" />
         <span className="hidden sm:block font-extrabold text-lg tracking-tight" style={{ fontStyle: "italic", color: accent }}>
-          PiP Inbox
+          {LOGO_TITLES[view] || "PiP Inbox"}
         </span>
       </Link>
 

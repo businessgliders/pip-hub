@@ -13,9 +13,6 @@ import { useTheme } from "@/lib/ThemeContext";
 
 const VIEW_TITLES = {
   all: "Inbox",
-  support: "PiP Support",
-  events: "PiP Events",
-  influencer: "PiP Partner",
 };
 
 // Source tabs shown for the "All" view
