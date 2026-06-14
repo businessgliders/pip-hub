@@ -1,6 +1,5 @@
 import React from "react";
 import Avatar from "./Avatar";
-import SourceBadge from "./SourceBadge";
 import { relativeTime, displayName } from "./inboxConfig";
 
 export default function ThreadRow({ thread, active, onClick }) {
@@ -27,7 +26,6 @@ export default function ThreadRow({ thread, active, onClick }) {
           <span className="text-[11px] text-pink-400 dark:text-white/50 shrink-0">{relativeTime(thread.last_activity_at || thread.created_date)}</span>
         </div>
         <div className="flex items-center gap-1.5 mt-0.5">
-          <SourceBadge source={thread.source_app} />
           <span className={`truncate text-xs ${unread ? "text-pink-700 dark:text-white/80 font-medium" : "text-pink-900/50 dark:text-white/55"}`}>{thread.subject}</span>
         </div>
         <p className="truncate text-xs text-pink-900/40 dark:text-white/45 mt-1">{thread.snippet || "—"}</p>

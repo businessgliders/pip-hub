@@ -34,13 +34,13 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
       <Icon className="w-4 h-4" />
       {label}
       {count > 0 && (
-        <sub
-          className="ml-0.5 -mb-1 text-[10px] font-bold leading-none px-1 py-0.5 rounded-full bg-current/10"
+        <span
+          className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-bold leading-none rounded-full bg-current/10"
           style={{ color: accent || "inherit" }}
           title={`${count} open`}
         >
           {count}
-        </sub>
+        </span>
       )}
     </button>
   );
