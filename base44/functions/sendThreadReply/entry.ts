@@ -4,37 +4,114 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
  * sendThreadReply — sends an outbound Gmail reply for a Thread, records an
  * EmailMessage, and bumps the thread's last_activity_at.
  *
- * Payload: { thread_id, body_html }
+ * Payload: { thread_id, body_html, attachments?: [{ url, filename, contentType, size }] }
  */
-function buildMime({ to, from, subject, bodyHtml, inReplyTo, references }) {
-  const headers = [
+const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
+
+function stripHtml(html) {
+  return (html || '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<\/?(p|div|br|h[1-6]|li)[^>]*>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function toQuotedPrintable(str) {
+  const encoded = unescape(encodeURIComponent(str)).replace(/([^\x20-\x7E\n])/g, (m) =>
+    '=' + m.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')
+  );
+  return encoded.replace(/(.{1,75})(?=.)/g, '$1=\r\n');
+}
+
+function chunkBase64(b64, size = 76) {
+  return b64.replace(new RegExp(`(.{1,${size}})`, 'g'), '$1\r\n').trim();
+}
+
+function base64url(str) {
+  return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function fetchAttachmentBase64(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch attachment: ${url}`);
+  const buf = new Uint8Array(await res.arrayBuffer());
+  let bin = '';
+  for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+  const contentType = res.headers.get('content-type') || 'application/octet-stream';
+  return { base64: btoa(bin), contentType };
+}
+
+function buildMime({ to, from, subject, htmlBody, textBody, inReplyTo, references, attachments = [] }) {
+  const altBoundary = `alt_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const mixedBoundary = `mix_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const hasAttachments = attachments && attachments.length > 0;
+
+  const lines = [
     `From: ${from}`,
     `To: ${to}`,
     `Subject: ${subject}`,
     'MIME-Version: 1.0',
-    'Content-Type: text/html; charset="UTF-8"',
   ];
-  if (inReplyTo) headers.push(`In-Reply-To: ${inReplyTo}`);
-  if (references) headers.push(`References: ${references}`);
-  return headers.join('\r\n') + '\r\n\r\n' + bodyHtml;
-}
+  if (hasAttachments) {
+    lines.push(`Content-Type: multipart/mixed; boundary="${mixedBoundary}"`);
+  } else {
+    lines.push(`Content-Type: multipart/alternative; boundary="${altBoundary}"`);
+  }
+  if (inReplyTo) lines.push(`In-Reply-To: ${inReplyTo}`);
+  if (references) lines.push(`References: ${references}`);
+  lines.push('');
 
-function base64url(str) {
-  return btoa(unescape(encodeURIComponent(str)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+  if (hasAttachments) {
+    lines.push(`--${mixedBoundary}`);
+    lines.push(`Content-Type: multipart/alternative; boundary="${altBoundary}"`);
+    lines.push('');
+  }
+
+  lines.push(`--${altBoundary}`);
+  lines.push('Content-Type: text/plain; charset=UTF-8');
+  lines.push('Content-Transfer-Encoding: quoted-printable');
+  lines.push('');
+  lines.push(toQuotedPrintable(textBody));
+
+  lines.push(`--${altBoundary}`);
+  lines.push('Content-Type: text/html; charset=UTF-8');
+  lines.push('Content-Transfer-Encoding: quoted-printable');
+  lines.push('');
+  lines.push(toQuotedPrintable(htmlBody));
+
+  lines.push(`--${altBoundary}--`);
+
+  if (hasAttachments) {
+    for (const att of attachments) {
+      lines.push(`--${mixedBoundary}`);
+      lines.push(`Content-Type: ${att.contentType}; name="${att.filename}"`);
+      lines.push('Content-Transfer-Encoding: base64');
+      lines.push(`Content-Disposition: attachment; filename="${att.filename}"`);
+      lines.push('');
+      lines.push(chunkBase64(att.base64));
+    }
+    lines.push(`--${mixedBoundary}--`);
+  }
+
+  return lines.join('\r\n');
 }
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me().catch(() => null);
-    if (!user || user.role !== 'admin') {
+    const isStaff = user && (user.role === 'admin' || String(user.email || '').toLowerCase().endsWith(`@${STAFF_DOMAIN}`));
+    if (!isStaff) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { thread_id, body_html } = await req.json();
+    const { thread_id, body_html, attachments: attachmentInputs } = await req.json();
     if (!thread_id || !body_html) {
       return Response.json({ error: 'Missing thread_id or body_html' }, { status: 400 });
     }
@@ -45,18 +122,27 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Thread not found' }, { status: 404 });
     }
 
+    // Fetch + base64-encode attachments server-side
+    const mimeAttachments = [];
+    const attachmentMeta = [];
+    if (Array.isArray(attachmentInputs)) {
+      for (const att of attachmentInputs) {
+        if (!att?.url || !att?.filename) continue;
+        const { base64, contentType } = await fetchAttachmentBase64(att.url);
+        const resolvedType = att.contentType || contentType;
+        mimeAttachments.push({ filename: att.filename, contentType: resolvedType, base64 });
+        attachmentMeta.push({ filename: att.filename, url: att.url, content_type: resolvedType, size: att.size || null });
+      }
+    }
+
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
     const authHeader = { Authorization: `Bearer ${accessToken}` };
 
-    // Build threaded subject: include [Ticket #N] so replies thread reliably even
-    // across Gmail thread splits. Keep "Re:" prefix on existing conversations.
     const ticketTag = thread.ticket_number ? `[Ticket #${thread.ticket_number}] ` : '';
     const baseSubject = thread.subject || 'Your inquiry';
     const hasReplies = !!thread.gmail_thread_id;
     const subject = `${hasReplies ? 'Re: ' : ''}${ticketTag}${baseSubject}`.replace(/\s+/g, ' ').trim();
 
-    // RFC threading: find the most recent message in this thread to chain off,
-    // and use the thread's root Message-ID for the References header.
     const priorMsgs = await db.EmailMessage.filter({ ticket_id: thread_id }, '-sent_at', 1);
     const lastRfcId = priorMsgs[0]?.rfc_message_id || thread.gmail_root_message_id || '';
     const rootId = thread.gmail_root_message_id || lastRfcId || '';
@@ -66,9 +152,11 @@ Deno.serve(async (req) => {
       to: thread.contact_email,
       from: user.email,
       subject,
-      bodyHtml: body_html,
+      htmlBody: body_html,
+      textBody: stripHtml(body_html),
       inReplyTo: lastRfcId,
       references,
+      attachments: mimeAttachments,
     });
 
     const sendBody = { raw: base64url(mime) };
@@ -87,7 +175,6 @@ Deno.serve(async (req) => {
     const sent = await res.json();
     const nowIso = new Date().toISOString();
 
-    // Fetch the sent message's RFC Message-ID header so future replies can chain off it.
     let rfcMessageId = '';
     try {
       const metaRes = await fetch(
@@ -114,16 +201,16 @@ Deno.serve(async (req) => {
       to_email: thread.contact_email,
       subject,
       body_html,
+      attachments: attachmentMeta,
       sent_by: user.email,
       sent_at: nowIso,
       send_status: 'sent',
     });
 
-    // If the thread had no root Message-ID yet, this becomes the root.
     const threadUpdate = {
       last_activity_at: nowIso,
       gmail_thread_id: sent.threadId || thread.gmail_thread_id || '',
-      snippet: body_html.replace(/<[^>]+>/g, '').slice(0, 140),
+      snippet: stripHtml(body_html).slice(0, 140),
     };
     if (!thread.gmail_root_message_id && rfcMessageId) {
       threadUpdate.gmail_root_message_id = rfcMessageId;

@@ -87,6 +87,30 @@
       "default": false,
       "description": "Whether staff has read this thread"
     },
+    "ai_suggestions": {
+      "type": "array",
+      "description": "Cached AI reply suggestions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "body_html": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ai_suggestions_generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When AI suggestions were last generated"
+    },
+    "ai_suggestions_message_count": {
+      "type": "number",
+      "description": "EmailMessage count when suggestions were generated (cache invalidation)"
+    },
     "status_history": {
       "type": "array",
       "description": "Audit log of status changes",
