@@ -5,7 +5,12 @@ import StatusPill from "./StatusPill";
 // Desktop: a horizontal "thread" of all available statuses for easy one-tap moves.
 // Mobile/Tablet: falls back to the compact StatusPill dropdown.
 export default function StatusTrack({ status, source, onSelect }) {
-  const order = statusOrderFor(source);
+  const baseOrder = statusOrderFor(source);
+  // Ensure the thread's actual current status is always shown, even if it's a
+  // legacy value outside this inbox's standard set (e.g. an old "open" on an event).
+  const order = status && !baseOrder.includes(status) && ALL_STATUS_META[status]
+    ? [status, ...baseOrder]
+    : baseOrder;
 
   return (
     <>
