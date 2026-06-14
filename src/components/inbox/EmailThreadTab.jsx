@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { Mail } from "lucide-react";
+import { Mail, FileText } from "lucide-react";
 import EmailPreviewModal from "./EmailPreviewModal";
+import SubmissionPreviewModal from "./SubmissionPreviewModal";
+import { SOURCE_META } from "./inboxConfig";
 
 // Strip HTML to a short plain-text preview for the bubble
 function toPreview(m) {
@@ -9,8 +11,22 @@ function toPreview(m) {
   return text.length > 280 ? text.slice(0, 280) + "…" : text;
 }
 
-export default function EmailThreadTab({ messages, loading }) {
+// Build a short preview of the form submission for the bubble
+function submissionPreview(formData) {
+  const entries = Object.entries(formData || {}).filter(
+    ([k, v]) => k !== "source_app" && v !== null && v !== undefined && v !== ""
+  );
+  const text = entries
+    .map(([k, v]) => `${k.replace(/_/g, " ")}: ${Array.isArray(v) ? v.join(", ") : v}`)
+    .join(" · ");
+  return text.length > 220 ? text.slice(0, 220) + "…" : text;
+}
+
+export default function EmailThreadTab({ messages, loading, thread }) {
   const [preview, setPreview] = useState(null);
+  const [submissionOpen, setSubmissionOpen] = useState(false);
+
+  const hasSubmission = thread?.form_data && Object.keys(thread.form_data).length > 0;
 
   if (loading) {
     return (
@@ -22,19 +38,43 @@ export default function EmailThreadTab({ messages, loading }) {
     );
   }
 
-  if (!messages || messages.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-        <Mail className="w-10 h-10 mb-2" />
-        <p className="text-sm">No emails yet. Send the first reply below.</p>
-      </div>
-    );
-  }
+  const noEmails = !messages || messages.length === 0;
 
   return (
     <>
       <div className="p-4 space-y-3">
-        {messages.map((m) => {
+        {/* Submission as the first inbound bubble */}
+        {hasSubmission && (
+          <div className="flex justify-start">
+            <button
+              onClick={() => setSubmissionOpen(true)}
+              className="group max-w-[75%] text-left rounded-2xl rounded-bl-md px-4 py-2.5 bg-white border border-slate-200 text-slate-900 transition-shadow hover:shadow-md"
+            >
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-1">
+                <FileText className="w-3.5 h-3.5" />
+                <span className="font-medium text-slate-500 truncate">{thread.contact_name || thread.contact_email}</span>
+                <span>·</span>
+                <span>{SOURCE_META[thread.source_app]?.label || "Form"} submission</span>
+              </div>
+              {thread.subject && (
+                <div className="text-xs font-semibold text-slate-700 mb-0.5 truncate">{thread.subject}</div>
+              )}
+              <div className="text-sm leading-snug text-slate-600">{submissionPreview(thread.form_data)}</div>
+              <div className="text-[11px] text-rose-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                Tap to view full form
+              </div>
+            </button>
+          </div>
+        )}
+
+        {noEmails && !hasSubmission && (
+          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+            <Mail className="w-10 h-10 mb-2" />
+            <p className="text-sm">No emails yet. Send the first reply below.</p>
+          </div>
+        )}
+
+        {(messages || []).map((m) => {
           const outbound = m.direction === "outbound";
           return (
             <div key={m.id} className={`flex ${outbound ? "justify-end" : "justify-start"}`}>
@@ -67,6 +107,7 @@ export default function EmailThreadTab({ messages, loading }) {
       </div>
 
       <EmailPreviewModal message={preview} open={!!preview} onClose={() => setPreview(null)} />
+      <SubmissionPreviewModal thread={thread} open={submissionOpen} onClose={() => setSubmissionOpen(false)} />
     </>
   );
 }

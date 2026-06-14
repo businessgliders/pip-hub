@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import InboxNav from "@/components/inbox/InboxNav";
@@ -6,6 +6,7 @@ import ThreadList from "@/components/inbox/ThreadList";
 import ThreadPanel, { EmptyThreadState } from "@/components/inbox/ThreadPanel";
 import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxFilterTabs from "@/components/inbox/InboxFilterTabs";
+import ResizeHandle from "@/components/inbox/ResizeHandle";
 import { SOURCE_META, STATUS_META, STATUS_ORDER } from "@/components/inbox/inboxConfig";
 
 const VIEW_TITLES = {
@@ -36,7 +37,15 @@ export default function Inbox() {
   const [selected, setSelected] = useState(null);
   const [showContact, setShowContact] = useState(true);
   const [navCollapsed, setNavCollapsed] = useState(false);
+  const [listWidth, setListWidth] = useState(340);
   const [currentUser, setCurrentUser] = useState(null);
+  const centerRef = useRef(null);
+
+  const handleListResize = (clientX) => {
+    const left = centerRef.current?.getBoundingClientRect().left || 0;
+    const w = clientX - left;
+    setListWidth(Math.max(260, Math.min(560, w)));
+  };
 
   useEffect(() => {
     base44.auth.me().then(setCurrentUser).catch(() => {});
@@ -167,9 +176,12 @@ export default function Inbox() {
         />
       </div>
 
-      <div className={`flex-1 grid grid-cols-1 md:grid-cols-[340px_1fr] overflow-hidden ${selectedThread && showContact ? "lg:grid-cols-[320px_minmax(0,1fr)_280px]" : ""}`}>
-        {/* Thread list */}
-        <div className={`${selectedThread ? "hidden md:block" : "block"} h-full overflow-hidden flex flex-col border-r border-slate-200`}>
+      <div ref={centerRef} className="flex-1 flex overflow-hidden">
+        {/* Thread list (resizable) */}
+        <div
+          className={`${selectedThread ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-col border-r border-slate-200 shrink-0`}
+          style={{ width: selectedThread ? listWidth : undefined, flex: selectedThread ? undefined : "1 1 100%" }}
+        >
           {activeTabs && (
             <InboxFilterTabs tabs={activeTabs} active={subFilter} onChange={setSubFilter} counts={tabCounts} />
           )}
@@ -182,8 +194,13 @@ export default function Inbox() {
           </div>
         </div>
 
+        {/* Resize grabber — only when a thread is open (list + panel both visible) */}
+        {selectedThread && (
+          <ResizeHandle onDrag={handleListResize} />
+        )}
+
         {/* Center: thread panel */}
-        <div className={`${selectedThread ? "block" : "hidden md:block"} h-full overflow-hidden`}>
+        <div className={`${selectedThread ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0`}>
           {selectedThread ? (
             <ThreadPanel
               key={selectedThread.id}
@@ -198,9 +215,9 @@ export default function Inbox() {
           )}
         </div>
 
-        {/* Right: contact panel — collapsed by default, toggled via header */}
+        {/* Right: contact panel — open by default, toggled via header */}
         {selectedThread && showContact && (
-          <div className="fixed inset-0 z-40 lg:static lg:z-auto h-full overflow-hidden">
+          <div className="fixed inset-0 z-40 lg:static lg:z-auto lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
             <ContactPanel
               thread={selectedThread}
               onSelectThread={(t) => handleSelect(t)}

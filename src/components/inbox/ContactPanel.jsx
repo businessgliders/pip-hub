@@ -5,6 +5,7 @@ import Avatar from "./Avatar";
 import SourceBadge from "./SourceBadge";
 import StatusPill from "./StatusPill";
 import ContactLabels from "./ContactLabels";
+import ContactNotes from "./ContactNotes";
 import { Mail, Phone, X } from "lucide-react";
 import { relativeTime } from "./inboxConfig";
 
@@ -59,6 +60,8 @@ export default function ContactPanel({ thread, onSelectThread, onClose }) {
         <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Labels</h4>
         <ContactLabels labels={contact.labels || []} onChange={(l) => labelMutation.mutate(l)} />
       </div>
+
+      <ContactNotes threadId={thread.id} />
 
       <div className="px-4 py-4">
         <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
