@@ -1,12 +1,32 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ThreadRow from "./ThreadRow";
 import { Search, Inbox, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
+
+const PAGE_SIZE = 50;
 
 export default function ThreadList({
   threads, title, count, search, setSearch,
   selectedId, onSelect, loading,
 }) {
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const scrollRef = useRef(null);
+
+  // Reset paging when the underlying list changes (view switch / search)
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [title, search, threads]);
+
+  const handleScroll = (e) => {
+    const el = e.currentTarget;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 200) {
+      setVisible((v) => (v < threads.length ? v + PAGE_SIZE : v));
+    }
+  };
+
+  const shown = threads.slice(0, visible);
+
   return (
     <div className="flex flex-col h-full bg-white border-r border-slate-200">
       <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100">
@@ -32,7 +52,7 @@ export default function ThreadList({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" ref={scrollRef} onScroll={handleScroll}>
         {loading ? (
           <div className="p-4 space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -51,9 +71,14 @@ export default function ThreadList({
             <p className="text-sm">No conversations here.</p>
           </div>
         ) : (
-          threads.map((t) => (
-            <ThreadRow key={t.id} thread={t} active={t.id === selectedId} onClick={() => onSelect(t)} />
-          ))
+          <>
+            {shown.map((t) => (
+              <ThreadRow key={t.id} thread={t} active={t.id === selectedId} onClick={() => onSelect(t)} />
+            ))}
+            {visible < threads.length && (
+              <div className="py-4 text-center text-xs text-slate-400">Loading more…</div>
+            )}
+          </>
         )}
       </div>
     </div>

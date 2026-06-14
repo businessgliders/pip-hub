@@ -14,6 +14,7 @@ const VIEW_TITLES = {
   unassigned: "Unassigned",
   open: "Open",
   resolved: "Resolved",
+  closed: "Closed",
 };
 
 export default function Inbox() {
@@ -30,7 +31,7 @@ export default function Inbox() {
 
   const { data: threads, isLoading } = useQuery({
     queryKey: ["threads"],
-    queryFn: () => base44.entities.Thread.list("-last_activity_at", 200),
+    queryFn: () => base44.entities.Thread.list("-last_activity_at", 1000),
     initialData: [],
   });
 
@@ -58,9 +59,9 @@ export default function Inbox() {
   const myEmail = currentUser?.email;
 
   const counts = useMemo(() => {
-    const c = { all: 0, mine: 0, unassigned: 0, support: 0, events: 0, influencer: 0 };
+    const c = { all: 0, mine: 0, unassigned: 0, support: 0, events: 0, influencer: 0, closed: 0 };
     threads.forEach((t) => {
-      if (t.status === "closed") return;
+      if (t.status === "closed") { c.closed++; return; }
       c.all++;
       if (t.assignee_email && t.assignee_email === myEmail) c.mine++;
       if (!t.assignee_email) c.unassigned++;
@@ -72,11 +73,16 @@ export default function Inbox() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return threads.filter((t) => {
-      if (view === "mine" && t.assignee_email !== myEmail) return false;
+      if (view === "closed") {
+        if (t.status !== "closed") return false;
+      } else if (SOURCE_META[view]) {
+        if (t.source_app !== view) return false;
+      } else if (t.status === "closed") {
+        return false; // hide closed from all non-source, non-closed views
+      } else if (view === "mine" && t.assignee_email !== myEmail) return false;
       else if (view === "unassigned" && t.assignee_email) return false;
       else if (view === "open" && t.status !== "open") return false;
       else if (view === "resolved" && t.status !== "resolved") return false;
-      else if (SOURCE_META[view] && t.source_app !== view) return false;
       if (!q) return true;
       return (
         (t.contact_name || "").toLowerCase().includes(q) ||

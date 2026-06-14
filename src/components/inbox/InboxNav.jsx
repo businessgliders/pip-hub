@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Search, Inbox as InboxIcon, User, Users, ChevronDown, LifeBuoy, CalendarHeart, Sparkles, Eye } from "lucide-react";
+import { Search, Inbox as InboxIcon, User, Users, ChevronDown, LifeBuoy, CalendarHeart, Sparkles, Eye, Archive } from "lucide-react";
 import { SOURCE_META } from "./inboxConfig";
 
 const NavItem = ({ icon: Icon, label, count, active, onClick, dot }) => (
@@ -69,6 +69,7 @@ export default function InboxNav({ view, setView, counts, currentUser }) {
         <div className="space-y-0.5">
           <NavItem icon={Eye} label="Open" active={view === "open"} onClick={() => setView("open")} />
           <NavItem icon={Eye} label="Resolved" active={view === "resolved"} onClick={() => setView("resolved")} />
+          <NavItem icon={Archive} label="Closed" count={counts.closed} active={view === "closed"} onClick={() => setView("closed")} />
         </div>
       </div>
 
