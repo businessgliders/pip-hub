@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import InboxNav from "@/components/inbox/InboxNav";
+import InboxTopBar from "@/components/inbox/InboxTopBar";
 import ThreadList from "@/components/inbox/ThreadList";
 import ThreadPanel, { EmptyThreadState } from "@/components/inbox/ThreadPanel";
 import ContactPanel from "@/components/inbox/ContactPanel";
@@ -10,12 +10,10 @@ import ResizeHandle from "@/components/inbox/ResizeHandle";
 import { SOURCE_META, STATUS_META, STATUS_ORDER } from "@/components/inbox/inboxConfig";
 
 const VIEW_TITLES = {
-  all: "All",
-  mine: "My Inbox",
-  unassigned: "Unassigned",
+  all: "Inbox",
 };
 
-// Source tabs shown for All / My Inbox / Unassigned views
+// Source tabs shown for the "All" view
 const SOURCE_TABS = [
   { key: "all", label: "All" },
   { key: "support", label: "Support" },
@@ -36,7 +34,6 @@ export default function Inbox() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [showContact, setShowContact] = useState(true);
-  const [navCollapsed, setNavCollapsed] = useState(false);
   const [listWidth, setListWidth] = useState(340);
   const [currentUser, setCurrentUser] = useState(null);
   const centerRef = useRef(null);
@@ -82,23 +79,20 @@ export default function Inbox() {
 
   // Which sub-filter tabs to show in the conversation view.
   const isSourceView = !!SOURCE_META[view]; // team inbox
-  const isPersonalView = ["all", "mine", "unassigned"].includes(view);
-  const activeTabs = isSourceView ? STATUS_TABS : isPersonalView ? SOURCE_TABS : null;
+  const activeTabs = isSourceView ? STATUS_TABS : SOURCE_TABS;
 
   // Reset the sub-filter whenever the main view changes.
   useEffect(() => { setSubFilter("all"); }, [view]);
 
   const counts = useMemo(() => {
-    const c = { all: 0, mine: 0, unassigned: 0, support: 0, events: 0, influencer: 0, closed: 0 };
+    const c = { all: 0, support: 0, events: 0, influencer: 0, closed: 0 };
     threads.forEach((t) => {
       if (t.status === "closed") { c.closed++; return; }
       c.all++;
-      if (t.assignee_email && t.assignee_email === myEmail) c.mine++;
-      if (!t.assignee_email) c.unassigned++;
       if (c[t.source_app] !== undefined) c[t.source_app]++;
     });
     return c;
-  }, [threads, myEmail]);
+  }, [threads]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -109,10 +103,8 @@ export default function Inbox() {
         if (t.source_app !== view) return false;
         if (subFilter !== "all" && t.status !== subFilter) return false;
       } else {
-        // Personal views (all / mine / unassigned): hide closed
+        // "All" view: hide closed
         if (t.status === "closed") return false;
-        if (view === "mine" && t.assignee_email !== myEmail) return false;
-        if (view === "unassigned" && t.assignee_email) return false;
         // Source sub-tab filter
         if (subFilter !== "all" && t.source_app !== subFilter) return false;
       }
@@ -123,7 +115,7 @@ export default function Inbox() {
         (t.subject || "").toLowerCase().includes(q)
       );
     });
-  }, [threads, view, subFilter, search, myEmail]);
+  }, [threads, view, subFilter, search]);
 
   const title = VIEW_TITLES[view] || SOURCE_META[view]?.label || "Inbox";
 
@@ -131,10 +123,7 @@ export default function Inbox() {
   const tabCounts = useMemo(() => {
     const base = threads.filter((t) => {
       if (SOURCE_META[view]) return t.source_app === view;
-      if (t.status === "closed") return false;
-      if (view === "mine") return t.assignee_email === myEmail;
-      if (view === "unassigned") return !t.assignee_email;
-      return true;
+      return t.status !== "closed";
     });
     const c = { all: base.length };
     if (isSourceView) {
@@ -143,7 +132,7 @@ export default function Inbox() {
       ["support", "events", "influencer"].forEach((s) => { c[s] = base.filter((t) => t.source_app === s).length; });
     }
     return c;
-  }, [threads, view, myEmail, isSourceView]);
+  }, [threads, view, isSourceView]);
   const selectedThread = threads.find((t) => t.id === selected?.id) || selected;
 
   const handleSelect = (t) => {
@@ -166,20 +155,23 @@ export default function Inbox() {
   };
 
   return (
-    <div className="h-screen flex bg-white overflow-hidden">
-      {/* Far left: Heyy-style nav panel */}
-      <div className={`${selectedThread ? "hidden lg:block" : "hidden md:block"} ${navCollapsed ? "w-[60px]" : "w-[230px]"} shrink-0 h-full transition-[width] duration-200`}>
-        <InboxNav
-          view={view} setView={setView} counts={counts} currentUser={currentUser}
-          threads={threads} onSearchSelect={handleSelect}
-          collapsed={navCollapsed} onToggleCollapse={() => setNavCollapsed((c) => !c)}
-        />
-      </div>
+    <div className="h-screen flex flex-col overflow-hidden relative">
+      {/* Vibrant pink gradient backdrop */}
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(1200px 600px at 15% 0%, #ffe3f1 0%, transparent 55%), radial-gradient(1000px 700px at 100% 100%, #ffc2dd 0%, transparent 50%), linear-gradient(135deg, #fff0f6 0%, #ffd9ea 45%, #ffb6d5 100%)",
+        }}
+      />
 
-      <div ref={centerRef} className="flex-1 flex overflow-hidden">
+      <InboxTopBar view={view} setView={setView} currentUser={currentUser} />
+
+      {/* 3 floating glass panels */}
+      <div ref={centerRef} className="flex-1 flex gap-4 p-4 overflow-hidden">
         {/* Thread list (resizable) */}
         <div
-          className={`${selectedThread ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-col border-r border-slate-200 shrink-0`}
+          className={`${selectedThread ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-col rounded-3xl bg-white/55 backdrop-blur-2xl border border-white/60 shadow-xl shadow-pink-200/40 shrink-0`}
           style={{ width: selectedThread ? listWidth : undefined, flex: selectedThread ? undefined : "1 1 100%" }}
         >
           {activeTabs && (
@@ -194,13 +186,13 @@ export default function Inbox() {
           </div>
         </div>
 
-        {/* Resize grabber — only when a thread is open (list + panel both visible) */}
-        {selectedThread && (
-          <ResizeHandle onDrag={handleListResize} />
-        )}
+        {/* Resize grabber — only when a thread is open */}
+        {selectedThread && <ResizeHandle onDrag={handleListResize} />}
 
         {/* Center: thread panel */}
-        <div className={`${selectedThread ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0`}>
+        <div
+          className={`${selectedThread ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/55 backdrop-blur-2xl border border-white/60 shadow-xl shadow-pink-200/40`}
+        >
           {selectedThread ? (
             <ThreadPanel
               key={selectedThread.id}
@@ -217,12 +209,14 @@ export default function Inbox() {
 
         {/* Right: contact panel — open by default, toggled via header */}
         {selectedThread && showContact && (
-          <div className="fixed inset-0 z-40 lg:static lg:z-auto lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
-            <ContactPanel
-              thread={selectedThread}
-              onSelectThread={(t) => handleSelect(t)}
-              onClose={() => setShowContact(false)}
-            />
+          <div className="fixed inset-0 z-40 p-4 lg:static lg:z-auto lg:p-0 lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
+            <div className="h-full rounded-3xl bg-white/55 backdrop-blur-2xl border border-white/60 shadow-xl shadow-pink-200/40 overflow-hidden">
+              <ContactPanel
+                thread={selectedThread}
+                onSelectThread={(t) => handleSelect(t)}
+                onClose={() => setShowContact(false)}
+              />
+            </div>
           </div>
         )}
       </div>

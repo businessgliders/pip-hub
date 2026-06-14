@@ -1,17 +1,17 @@
 // Shared config + helpers for the Unified Inbox CRM.
 
 export const SOURCE_META = {
-  support: { label: "Support", badge: "bg-blue-100 text-blue-700 border-blue-200", dot: "bg-blue-500", ring: "ring-blue-500" },
-  events: { label: "Events", badge: "bg-rose-100 text-rose-700 border-rose-200", dot: "bg-rose-500", ring: "ring-rose-500" },
-  influencer: { label: "Influencer", badge: "bg-purple-100 text-purple-700 border-purple-200", dot: "bg-purple-500", ring: "ring-purple-500" },
+  support: { label: "Support", badge: "bg-sky-100/80 text-sky-700 border-sky-200/70", dot: "bg-sky-500", ring: "ring-sky-500" },
+  events: { label: "Events", badge: "bg-pink-100/80 text-pink-700 border-pink-200/70", dot: "bg-pink-500", ring: "ring-pink-500" },
+  influencer: { label: "Influencer", badge: "bg-fuchsia-100/80 text-fuchsia-700 border-fuchsia-200/70", dot: "bg-fuchsia-500", ring: "ring-fuchsia-500" },
 };
 
 export const STATUS_META = {
-  open: { label: "Open", chip: "bg-emerald-100 text-emerald-700" },
-  in_progress: { label: "In Progress", chip: "bg-amber-100 text-amber-700" },
-  waiting: { label: "Waiting", chip: "bg-slate-200 text-slate-700" },
-  resolved: { label: "Resolved", chip: "bg-indigo-100 text-indigo-700" },
-  closed: { label: "Closed", chip: "bg-slate-100 text-slate-500" },
+  open: { label: "Open", chip: "bg-emerald-100/80 text-emerald-700" },
+  in_progress: { label: "In Progress", chip: "bg-amber-100/80 text-amber-700" },
+  waiting: { label: "Waiting", chip: "bg-pink-100/80 text-pink-700" },
+  resolved: { label: "Resolved", chip: "bg-violet-100/80 text-violet-700" },
+  closed: { label: "Closed", chip: "bg-slate-100/80 text-slate-500" },
 };
 
 export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed"];
@@ -32,11 +32,11 @@ export function initials(name = "") {
 
 export function avatarGradient(seed = "") {
   const palettes = [
-    "from-blue-400 to-indigo-500",
+    "from-pink-400 to-rose-500",
     "from-rose-400 to-pink-500",
-    "from-purple-400 to-fuchsia-500",
-    "from-emerald-400 to-teal-500",
-    "from-amber-400 to-orange-500",
+    "from-fuchsia-400 to-pink-500",
+    "from-pink-300 to-fuchsia-400",
+    "from-rose-300 to-pink-400",
   ];
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) % palettes.length;

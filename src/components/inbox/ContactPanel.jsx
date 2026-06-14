@@ -30,22 +30,24 @@ export default function ContactPanel({ thread, onSelectThread, onClose }) {
   });
 
   if (!contact) {
-    return <div className="h-full bg-white border-l border-slate-200 p-4 animate-pulse" />;
+    return <div className="h-full p-4 animate-pulse" />;
   }
 
   return (
-    <div className="flex flex-col h-full bg-white border-l border-slate-200 overflow-y-auto">
+    <div className="flex flex-col h-full overflow-y-auto">
       <div className="lg:hidden flex justify-end p-2">
-        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100">
-          <X className="w-5 h-5 text-slate-600" />
+        <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/60">
+          <X className="w-5 h-5 text-pink-700" />
         </button>
       </div>
 
-      <div className="flex flex-col items-center text-center px-4 pt-4 pb-6 border-b border-slate-100">
-        <Avatar name={contact.name} email={contact.email} size="lg" />
-        <h3 className="mt-3 font-semibold text-slate-900">{contact.name}</h3>
-        <div className="mt-2 space-y-1 text-sm text-slate-500">
-          <a href={`mailto:${contact.email}`} className="flex items-center justify-center gap-1.5 hover:text-slate-700">
+      <div className="flex flex-col items-center text-center px-4 pt-6 pb-6 border-b border-white/50">
+        <div className="p-1 rounded-full bg-gradient-to-br from-pink-300/60 to-rose-300/60">
+          <Avatar name={contact.name} email={contact.email} size="lg" />
+        </div>
+        <h3 className="mt-3 font-bold text-lg text-pink-900">{contact.name}</h3>
+        <div className="mt-2 space-y-1 text-sm text-pink-900/60">
+          <a href={`mailto:${contact.email}`} className="flex items-center justify-center gap-1.5 hover:text-pink-700">
             <Mail className="w-3.5 h-3.5" /> {contact.email}
           </a>
           {contact.phone && (
@@ -56,15 +58,15 @@ export default function ContactPanel({ thread, onSelectThread, onClose }) {
         </div>
       </div>
 
-      <div className="px-4 py-4 border-b border-slate-100">
-        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Labels</h4>
+      <div className="px-4 py-4 border-b border-white/50">
+        <h4 className="text-[11px] font-semibold text-pink-400 uppercase tracking-wide mb-2">Labels</h4>
         <ContactLabels labels={contact.labels || []} onChange={(l) => labelMutation.mutate(l)} />
       </div>
 
       <ContactNotes threadId={thread.id} />
 
       <div className="px-4 py-4">
-        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+        <h4 className="text-[11px] font-semibold text-pink-400 uppercase tracking-wide mb-2">
           All Threads ({allThreads.length})
         </h4>
         <div className="space-y-1.5">
@@ -72,15 +74,15 @@ export default function ContactPanel({ thread, onSelectThread, onClose }) {
             <button
               key={t.id}
               onClick={() => onSelectThread(t)}
-              className={`w-full text-left rounded-lg border p-2.5 transition-colors ${
-                t.id === thread.id ? "border-slate-300 bg-slate-50" : "border-slate-200 hover:bg-slate-50"
+              className={`w-full text-left rounded-2xl border p-2.5 transition-colors ${
+                t.id === thread.id ? "border-pink-200 bg-white/70" : "border-white/60 bg-white/40 hover:bg-white/60"
               }`}
             >
               <div className="flex items-center justify-between gap-2 mb-1">
                 <SourceBadge source={t.source_app} />
-                <span className="text-[11px] text-slate-400">{relativeTime(t.last_activity_at || t.created_date)}</span>
+                <span className="text-[11px] text-pink-400">{relativeTime(t.last_activity_at || t.created_date)}</span>
               </div>
-              <p className="text-xs font-medium text-slate-700 truncate">{t.subject}</p>
+              <p className="text-xs font-medium text-pink-900/80 truncate">{t.subject}</p>
               <div className="mt-1.5">
                 <StatusPill status={t.status} readOnly />
               </div>

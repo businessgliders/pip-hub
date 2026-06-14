@@ -28,26 +28,25 @@ export default function ThreadList({
   const shown = threads.slice(0, visible);
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <div className="flex items-center gap-2">
-          <h1 className="text-base font-bold text-slate-900">{title}</h1>
-          {count > 0 && <span className="text-sm text-slate-400 font-medium">{count}</span>}
+          <h1 className="text-lg font-bold text-pink-900">{title}</h1>
+          {count > 0 && <span className="text-sm text-pink-400 font-medium">{count}</span>}
         </div>
-        <div className="flex items-center gap-1 text-slate-400">
-          <button className="p-1.5 rounded-md hover:bg-slate-100"><Search className="w-4 h-4" /></button>
-          <button className="p-1.5 rounded-md hover:bg-slate-100"><Plus className="w-4 h-4" /></button>
+        <div className="flex items-center gap-1 text-pink-400">
+          <button className="p-1.5 rounded-full hover:bg-white/60"><Plus className="w-4 h-4" /></button>
         </div>
       </div>
 
-      <div className="px-4 py-2 border-b border-slate-100">
+      <div className="px-4 pb-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-400" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search conversations…"
-            className="pl-9 h-9 bg-slate-50 border-slate-200"
+            className="pl-9 h-9 bg-white/60 border-white/70 rounded-full placeholder:text-pink-300 focus-visible:ring-pink-300"
           />
         </div>
       </div>
@@ -66,7 +65,7 @@ export default function ThreadList({
             ))}
           </div>
         ) : threads.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-slate-400 p-8 text-center">
+          <div className="flex flex-col items-center justify-center h-full text-pink-400 p-8 text-center">
             <Inbox className="w-10 h-10 mb-2" />
             <p className="text-sm">No conversations here.</p>
           </div>

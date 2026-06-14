@@ -50,8 +50,8 @@ export default function ContactNotes({ threadId }) {
   };
 
   return (
-    <div className="px-4 py-4 border-b border-slate-100">
-      <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+    <div className="px-4 py-4 border-b border-white/50">
+      <h4 className="text-[11px] font-semibold text-pink-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
         <StickyNote className="w-3.5 h-3.5" /> Internal Notes
       </h4>
 

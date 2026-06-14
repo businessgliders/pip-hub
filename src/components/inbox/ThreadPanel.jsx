@@ -29,7 +29,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
   });
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
+    <div className="flex flex-col h-full">
       <ThreadHeader
         thread={thread} staff={staff}
         onStatusChange={onStatusChange} onAssign={onAssign}
@@ -51,7 +51,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
 
 export function EmptyThreadState() {
   return (
-    <div className="hidden md:flex flex-col items-center justify-center h-full bg-slate-50 text-slate-400">
+    <div className="hidden md:flex flex-col items-center justify-center h-full text-pink-400">
       <MessagesSquare className="w-12 h-12 mb-3" />
       <p className="text-sm">Select a conversation to get started.</p>
     </div>
