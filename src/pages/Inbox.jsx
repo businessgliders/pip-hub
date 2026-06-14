@@ -88,7 +88,7 @@ export default function Inbox() {
 
   // Reset the sub-filter whenever the main view changes.
   // Team inboxes have no "All" status tab, so default to the first status.
-  useEffect(() => { setSubFilter(SOURCE_META[view] ? (view === "events" ? EVENTS_STATUS_ORDER : STATUS_ORDER)[0] : "all"); setInquiryType("all"); }, [view]);
+  useEffect(() => { setSubFilter(SOURCE_META[view] ? (view === "events" ? EVENTS_STATUS_ORDER : STATUS_ORDER)[0] : "all"); setInquiryType("all"); setSelected(null); }, [view]);
 
   // Distinct inquiry types within the current Support view (for the icon filter).
   const inquiryTypes = useMemo(() => {
