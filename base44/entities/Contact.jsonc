@@ -1,0 +1,50 @@
+{
+  "name": "Contact",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Full name of the contact"
+    },
+    "email": {
+      "type": "string",
+      "description": "Primary email \u2014 unique key used to match/upsert contacts on intake"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Admin tags e.g. VIP, Blocked"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform admin notes about the contact"
+    },
+    "last_activity_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of most recent thread activity for this contact"
+    }
+  },
+  "required": [
+    "email"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

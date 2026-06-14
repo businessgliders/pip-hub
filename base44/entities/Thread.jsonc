@@ -1,0 +1,106 @@
+{
+  "name": "Thread",
+  "type": "object",
+  "properties": {
+    "contact_id": {
+      "type": "string",
+      "description": "ID of the Contact this thread belongs to"
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "Denormalized contact email for quick lookup/matching"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Denormalized contact name for list rendering"
+    },
+    "source_app": {
+      "type": "string",
+      "enum": [
+        "support",
+        "events",
+        "partner"
+      ],
+      "description": "Which spoke app this thread originated from"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Subject / type of the submission"
+    },
+    "snippet": {
+      "type": "string",
+      "description": "Short preview of the last message or submission note"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "waiting",
+        "resolved",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Workflow status"
+    },
+    "assignee_email": {
+      "type": "string",
+      "description": "Email of the staff member assigned to this thread"
+    },
+    "form_data": {
+      "type": "object",
+      "description": "All raw fields from the spoke form submission",
+      "additionalProperties": true
+    },
+    "gmail_thread_id": {
+      "type": "string",
+      "description": "Gmail thread ID for the email conversation"
+    },
+    "last_activity_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of most recent activity \u2014 used for sorting"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether staff has read this thread"
+    },
+    "status_history": {
+      "type": "array",
+      "description": "Audit log of status changes",
+      "items": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "changed_by": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "source_app",
+    "contact_email"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

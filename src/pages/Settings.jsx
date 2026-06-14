@@ -1,9 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { LayoutGrid, ChevronRight } from "lucide-react";
+import { LayoutGrid, ChevronRight, Inbox } from "lucide-react";
 
 const settingsCards = [
+  {
+    key: "inbox",
+    title: "Unified Inbox",
+    description: "CRM-style inbox for all inbound submissions from pip-support / pip-events / pip-partner. Threaded conversations linked to client contacts.",
+    icon: Inbox,
+    path: "/inbox",
+    accent: "from-blue-100 to-indigo-100 border-blue-200",
+    iconBg: "bg-blue-500/10 text-blue-600",
+  },
   {
     key: "master-kanban",
     title: "Master Kanban",

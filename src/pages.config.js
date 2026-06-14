@@ -12,6 +12,8 @@ import EndOfDayCalendar from './pages/EndOfDayCalendar';
 import MasterKanbanDemo from './pages/MasterKanbanDemo';
 import Settings from './pages/Settings';
 import SettingsMasterKanban from './pages/SettingsMasterKanban';
+import Inbox from './pages/Inbox';
+import Contacts from './pages/Contacts';
 
 export const PAGES = {
     "AppHub": AppHub,
@@ -20,6 +22,8 @@ export const PAGES = {
     "settings/master-kanban-demo": MasterKanbanDemo,
     "settings": Settings,
     "settings/master-kanban": SettingsMasterKanban,
+    "inbox": Inbox,
+    "contacts": Contacts,
 }
 
 export const pagesConfig = {

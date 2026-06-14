@@ -1,0 +1,38 @@
+{
+  "name": "InternalNote",
+  "type": "object",
+  "properties": {
+    "thread_id": {
+      "type": "string",
+      "description": "ID of the Thread this note belongs to"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Email of the staff member who wrote the note"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Display name of the author"
+    },
+    "body": {
+      "type": "string",
+      "description": "The note content"
+    }
+  },
+  "required": [
+    "thread_id",
+    "body"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
