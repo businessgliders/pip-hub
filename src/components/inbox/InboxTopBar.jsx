@@ -54,7 +54,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2.5 shrink-0">
         <img src={LOGO_URL} alt="PiP Inbox" className="w-8 h-8 object-contain" />
-        <span className="hidden sm:block font-extrabold text-lg tracking-tight" style={{ fontStyle: "italic", color: accent }}>
+        <span className="hidden lg:block font-extrabold text-lg tracking-tight" style={{ fontStyle: "italic", color: accent }}>
           {LOGO_TITLES[view] || "PiP Inbox"}
         </span>
       </Link>
