@@ -39,6 +39,8 @@
         "waiting",
         "resolved",
         "closed",
+        "accepted",
+        "declined",
         "New",
         "In Conversations",
         "Waiting for Payment",
@@ -50,7 +52,7 @@
         "Closed"
       ],
       "default": "open",
-      "description": "Workflow status. Support/Influencer use the generic set; Events use the EventLead pipeline stages."
+      "description": "Workflow status. Support uses the generic set; Influencer uses open/accepted/declined; Events use the EventLead pipeline stages."
     },
     "assignee_email": {
       "type": "string",

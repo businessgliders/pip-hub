@@ -5,6 +5,7 @@ import Avatar from "./Avatar";
 import SourceBadge from "./SourceBadge";
 import StatusPill from "./StatusPill";
 import ContactNotes from "./ContactNotes";
+import ActivityLog from "./ActivityLog";
 import AssigneePanel from "./AssigneePanel";
 import { Mail, Phone, X } from "lucide-react";
 import { relativeTime, displayName, viewTextColor } from "./inboxConfig";
@@ -82,6 +83,9 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
           ))}
         </div>
       </div>
+
+      {/* Activity — status change audit trail */}
+      <ActivityLog thread={thread} accent={accent} />
 
       {/* Internal notes (below all threads) */}
       <ContactNotes threadId={thread.id} accent={accent} />

@@ -16,6 +16,14 @@ export const STATUS_META = {
 
 export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed"];
 
+// Influencer inbox uses a simple Open / Accepted / Declined pipeline.
+export const INFLUENCER_STATUS_META = {
+  open: { label: "Open", chip: "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-200" },
+  accepted: { label: "Accepted", chip: "bg-sky-100/80 text-sky-700 dark:bg-sky-400/20 dark:text-sky-200" },
+  declined: { label: "Declined", chip: "bg-rose-100/80 text-rose-700 dark:bg-rose-400/20 dark:text-rose-200" },
+};
+export const INFLUENCER_STATUS_ORDER = ["open", "accepted", "declined"];
+
 // Events inbox uses the original EventLead pipeline stages instead of the generic statuses.
 export const EVENTS_STATUS_META = {
   "New": { label: "New", chip: "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-200" },
@@ -34,11 +42,13 @@ export const EVENTS_STATUS_ORDER = [
 ];
 
 // Combined lookup so any status value (generic or events) can be rendered.
-export const ALL_STATUS_META = { ...STATUS_META, ...EVENTS_STATUS_META };
+export const ALL_STATUS_META = { ...STATUS_META, ...EVENTS_STATUS_META, ...INFLUENCER_STATUS_META };
 
 // Which status set a given source/view uses.
 export function statusOrderFor(view) {
-  return view === "events" ? EVENTS_STATUS_ORDER : STATUS_ORDER;
+  if (view === "events") return EVENTS_STATUS_ORDER;
+  if (view === "influencer") return INFLUENCER_STATUS_ORDER;
+  return STATUS_ORDER;
 }
 
 // Per-tab brand theme. Brown = Support, Pink = Events, Dark Purple = Influencer.
@@ -84,11 +94,10 @@ export const SOURCE_PREFIX = {
   influencer: "INF",
 };
 
-// Formats a thread's ticket number as e.g. "SUP-1001". Returns "" if no number.
+// Formats a thread's ticket number as e.g. "#1001" (no source prefix). "" if none.
 export function ticketLabel(thread) {
   if (!thread || thread.ticket_number == null) return "";
-  const prefix = SOURCE_PREFIX[thread.source_app] || "TKT";
-  return `${prefix}-${thread.ticket_number}`;
+  return `#${thread.ticket_number}`;
 }
 
 export const TABS = [

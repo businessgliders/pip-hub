@@ -4,11 +4,12 @@ import StatusTrack from "./StatusTrack";
 import StatusChangeDialog from "./StatusChangeDialog";
 import ThreadContactActions from "./ThreadContactActions";
 import { displayName, ticketLabel } from "./inboxConfig";
-import { ArrowLeft, CheckCircle2, RotateCcw } from "lucide-react";
+import { ArrowLeft, CheckCircle2, RotateCcw, ThumbsUp, ThumbsDown } from "lucide-react";
 
 export default function ThreadHeader({ thread, currentUser, onStatusChange, onBack }) {
   const isResolved = thread.status === "resolved" || thread.status === "closed";
   const isEvents = thread.source_app === "events";
+  const isInfluencer = thread.source_app === "influencer";
   const inquiryType = thread.source_app === "support" ? thread.form_data?.inquiry_type : null;
   const [pending, setPending] = useState(null); // target status awaiting name/reason
 
@@ -52,8 +53,30 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
         {/* Quick contact actions: Gmail search + Zoom call (matches spoke detail panel) */}
         <ThreadContactActions thread={thread} view={thread.source_app} />
 
-        {/* Resolve / Reopen — text button on desktop, icon on mobile (Events use pipeline stages) */}
-        {!isEvents && (
+        {/* Influencer — Approve / Decline buttons (move to Accepted / Declined) */}
+        {isInfluencer && (
+          <>
+            <button
+              onClick={() => requestChange("accepted")}
+              title="Approve"
+              className="flex items-center gap-1.5 px-2 lg:px-3 py-2 rounded-full text-white bg-emerald-600/90 hover:bg-emerald-600 transition-colors shadow-sm text-xs font-semibold whitespace-nowrap"
+            >
+              <ThumbsUp className="w-4 h-4" />
+              <span className="hidden lg:inline">Approve</span>
+            </button>
+            <button
+              onClick={() => requestChange("declined")}
+              title="Decline"
+              className="flex items-center gap-1.5 px-2 lg:px-3 py-2 rounded-full text-white bg-rose-600/90 hover:bg-rose-600 transition-colors shadow-sm text-xs font-semibold whitespace-nowrap"
+            >
+              <ThumbsDown className="w-4 h-4" />
+              <span className="hidden lg:inline">Decline</span>
+            </button>
+          </>
+        )}
+
+        {/* Resolve / Reopen — text button on desktop, icon on mobile (Events & Influencer use their own pipelines) */}
+        {!isEvents && !isInfluencer && (
           <button
             onClick={() => requestChange(isResolved ? "open" : "resolved")}
             title={isResolved ? "Reopen" : "Mark as resolved"}

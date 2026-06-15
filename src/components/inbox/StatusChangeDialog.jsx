@@ -17,7 +17,7 @@ export default function StatusChangeDialog({ open, target, fromStatus, defaultNa
   const fromMeta = ALL_STATUS_META[fromStatus];
 
   const handleConfirm = () => {
-    if (!name.trim()) return;
+    if (!name.trim() || !reason.trim()) return;
     onConfirm({ name: name.trim(), reason: reason.trim() });
   };
 
@@ -48,7 +48,7 @@ export default function StatusChangeDialog({ open, target, fromStatus, defaultNa
             <Input id="sc-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoFocus />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="sc-reason">Reason for the change</Label>
+            <Label htmlFor="sc-reason">Reason for the change <span className="text-rose-500">*</span></Label>
             <textarea
               id="sc-reason"
               value={reason}
@@ -62,7 +62,7 @@ export default function StatusChangeDialog({ open, target, fromStatus, defaultNa
 
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>Cancel</Button>
-          <Button onClick={handleConfirm} disabled={!name.trim()}>Confirm change</Button>
+          <Button onClick={handleConfirm} disabled={!name.trim() || !reason.trim()}>Confirm change</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
