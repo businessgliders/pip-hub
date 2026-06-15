@@ -1,4 +1,5 @@
 import React from "react";
+import EventSubmissionDetails from "./EventSubmissionDetails";
 
 // Internal / system fields that should never be shown to staff in the submission modal.
 const INTERNAL = new Set([
@@ -49,7 +50,12 @@ function isEmpty(v) {
   return false;
 }
 
-export default function SubmissionDetails({ formData }) {
+export default function SubmissionDetails({ formData, sourceApp }) {
+  // Events get a dedicated structured layout with classes/add-ons/consent pills.
+  if (sourceApp === "events") {
+    return <EventSubmissionDetails formData={formData} />;
+  }
+
   const entries = Object.entries(formData || {}).filter(([k, v]) => {
     if (INTERNAL.has(k)) return false;
     if (typeof v === "object" && !Array.isArray(v)) return false; // skip nested objects

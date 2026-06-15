@@ -14,7 +14,7 @@ export default function SubmissionPreviewModal({ thread, open, onClose }) {
           </p>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto">
-          <SubmissionDetails formData={thread.form_data} />
+          <SubmissionDetails formData={thread.form_data} sourceApp={thread.source_app} />
         </div>
       </DialogContent>
     </Dialog>
