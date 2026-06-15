@@ -289,7 +289,7 @@ export default function Inbox() {
       />
 
       {/* 3 floating glass panels */}
-      <div ref={centerRef} className="flex-1 flex gap-3 md:gap-4 p-3 md:p-4 overflow-hidden">
+      <div ref={centerRef} className="flex-1 flex gap-0 p-3 md:p-4 overflow-hidden">
         {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
           className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
@@ -349,9 +349,9 @@ export default function Inbox() {
           <DetailToggleHandle open={showContact} onToggle={() => setShowContact((s) => !s)} />
         )}
 
-        {/* Right: contact panel — open by default, toggled via the hover line */}
-        {selectedThread && showContact && mobilePanelOpen && (
-          <div className="fixed inset-0 z-40 p-4 lg:static lg:z-auto lg:p-0 lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
+        {/* Right: contact panel — desktop-only sidebar (never overlays mobile/tablet) */}
+        {selectedThread && showContact && (
+          <div className="hidden lg:block lg:w-[300px] lg:shrink-0 lg:ml-4 h-full overflow-hidden">
             <div className="h-full rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <ContactPanel
                 thread={selectedThread}
