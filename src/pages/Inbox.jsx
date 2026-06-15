@@ -28,7 +28,11 @@ const SOURCE_TABS = [
 export default function Inbox() {
   const qc = useQueryClient();
   const { dark } = useTheme();
-  const [view, setView] = useState("support");
+  const VALID_VIEWS = ["support", "events", "influencer"];
+  const [view, setView] = useState(() => {
+    const h = window.location.hash.replace("#", "").toLowerCase();
+    return VALID_VIEWS.includes(h) ? h : "support";
+  });
   const [subFilter, setSubFilter] = useState("all");
   const [inquiryType, setInquiryType] = useState("all");
   const [search, setSearch] = useState("");
@@ -49,6 +53,24 @@ export default function Inbox() {
   useEffect(() => {
     base44.auth.me().then(setCurrentUser).catch(() => {});
   }, []);
+
+  // Keep the URL hash in sync with the active inbox so each is directly linkable
+  // (/inbox#support, /inbox#events, /inbox#influencer).
+  useEffect(() => {
+    if (window.location.hash.replace("#", "") !== view) {
+      window.history.replaceState(null, "", `#${view}`);
+    }
+  }, [view]);
+
+  // React to hash changes (shared links, back/forward navigation).
+  useEffect(() => {
+    const onHash = () => {
+      const h = window.location.hash.replace("#", "").toLowerCase();
+      if (VALID_VIEWS.includes(h)) setView(h);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: threads, isLoading } = useQuery({
     queryKey: ["threads"],
