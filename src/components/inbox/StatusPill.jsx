@@ -6,6 +6,8 @@ import { ChevronDown } from "lucide-react";
 export default function StatusPill({ status, onChange, readOnly = false, source }) {
   const meta = ALL_STATUS_META[status] || STATUS_META.open;
   const order = statusOrderFor(source);
+  // The first status that isn't the current one — auto-highlighted when the menu opens.
+  const firstAvailable = order.find((s) => s !== status);
 
   if (readOnly) {
     return (
@@ -25,7 +27,12 @@ export default function StatusPill({ status, onChange, readOnly = false, source 
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
         {order.map((s) => (
-          <DropdownMenuItem key={s} onClick={() => onChange?.(s)} className="text-sm">
+          <DropdownMenuItem
+            key={s}
+            onClick={() => onChange?.(s)}
+            className="text-sm"
+            autoFocus={s === firstAvailable}
+          >
             <span className={`w-2 h-2 rounded-full mr-2 ${ALL_STATUS_META[s].chip.split(" ")[0]}`} />
             {ALL_STATUS_META[s].label}
           </DropdownMenuItem>
