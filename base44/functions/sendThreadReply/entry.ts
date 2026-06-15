@@ -11,10 +11,12 @@ const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
 // Per-inbox shared From address. NOTE: each address must be configured as a
 // verified "send-as" alias on the connected Gmail account, otherwise Gmail
 // rewrites the From to the authenticated mailbox.
+// From Name matches what the spoke apps (pip-support, pip-events, pip-partner)
+// actually send — all three use "Pilates in Pink ™".
 const FROM_BY_SOURCE = {
-  support: { name: 'Pilates in Pink Support', email: 'support@pilatesinpinkstudio.com' },
-  events: { name: 'Pilates in Pink Events', email: 'events@pilatesinpinkstudio.com' },
-  influencer: { name: 'Pilates in Pink Partnerships', email: 'partner@pilatesinpinkstudio.com' },
+  support: { name: 'Pilates in Pink ™', email: 'support@pilatesinpinkstudio.com' },
+  events: { name: 'Pilates in Pink ™', email: 'events@pilatesinpinkstudio.com' },
+  influencer: { name: 'Pilates in Pink ™', email: 'partner@pilatesinpinkstudio.com' },
 };
 
 function stripHtml(html) {
