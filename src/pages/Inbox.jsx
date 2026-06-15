@@ -337,6 +337,7 @@ export default function Inbox() {
               key={selectedThread.id}
               thread={selectedThread} staff={staff} currentUser={currentUser}
               onStatusChange={handleStatus} onAssign={handleAssign}
+              onSelectThread={(t) => handleSelect(t)}
               onBack={() => setMobilePanelOpen(false)}
             />
           ) : (

@@ -24,6 +24,9 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
     initialData: [],
   });
 
+  // Exclude the thread currently being viewed — only show other related threads.
+  const relatedThreads = allThreads.filter((t) => t.id !== thread.id);
+
   if (!contact) {
     return <div className="h-full p-4 animate-pulse" />;
   }
@@ -54,23 +57,25 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
         </div>
       </div>
 
-      {/* All threads */}
-      <div className="px-4 py-4 border-b border-white/50 dark:border-white/15">
-        <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 opacity-60 dark:text-white/60">
-          All Threads ({allThreads.length})
-        </h4>
-        <div className="space-y-1.5">
-          {allThreads.map((t) => (
-            <ThreadHistoryItem
-              key={t.id}
-              thread={t}
-              active={t.id === thread.id}
-              accent={accent}
-              onSelect={onSelectThread}
-            />
-          ))}
+      {/* Related threads — other conversations with this contact (excludes current) */}
+      {relatedThreads.length > 0 && (
+        <div className="px-4 py-4 border-b border-white/50 dark:border-white/15">
+          <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 opacity-60 dark:text-white/60">
+            Related Threads ({relatedThreads.length})
+          </h4>
+          <div className="space-y-1.5">
+            {relatedThreads.map((t) => (
+              <ThreadHistoryItem
+                key={t.id}
+                thread={t}
+                active={false}
+                accent={accent}
+                onSelect={onSelectThread}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Escalate / assignment (moved up to where Activity used to be) */}
       <AssigneePanel thread={thread} staff={staff} onAssign={onAssign} accent={accent} />

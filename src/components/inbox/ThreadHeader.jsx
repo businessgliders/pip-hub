@@ -4,9 +4,9 @@ import StatusTrack from "./StatusTrack";
 import StatusChangeDialog from "./StatusChangeDialog";
 import ThreadContactActions from "./ThreadContactActions";
 import { displayName, ticketLabel } from "./inboxConfig";
-import { ArrowLeft, CheckCircle2, RotateCcw, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ArrowLeft, CheckCircle2, RotateCcw, ThumbsUp, ThumbsDown, PanelRight } from "lucide-react";
 
-export default function ThreadHeader({ thread, currentUser, onStatusChange, onBack }) {
+export default function ThreadHeader({ thread, currentUser, onStatusChange, onBack, onShowDetails }) {
   const isResolved = thread.status === "resolved" || thread.status === "closed";
   const isEvents = thread.source_app === "events";
   const isInfluencer = thread.source_app === "influencer";
@@ -54,6 +54,18 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
 
         {/* Quick contact actions: Gmail search + Zoom call (matches spoke detail panel) */}
         <ThreadContactActions thread={thread} view={thread.source_app} />
+
+        {/* Details tab — mobile/tablet only (desktop has the side panel) */}
+        {onShowDetails && (
+          <button
+            onClick={onShowDetails}
+            title="Show details"
+            className="lg:hidden flex items-center gap-1.5 px-2 py-2 rounded-full text-pink-800 dark:text-white/80 bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/15 transition-colors shadow-sm text-xs font-semibold"
+          >
+            <PanelRight className="w-4 h-4" />
+            <span className="hidden md:inline">Details</span>
+          </button>
+        )}
 
         {/* Influencer — Approve / Decline buttons (move to Accepted / Declined) */}
         {isInfluencer && (

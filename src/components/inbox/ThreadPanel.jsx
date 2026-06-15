@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import ThreadHeader from "./ThreadHeader";
 import EmailThreadTab from "./EmailThreadTab";
 import EmailComposer from "./email/EmailComposer";
-import { MessagesSquare } from "lucide-react";
+import ContactPanel from "./ContactPanel";
+import { MessagesSquare, X } from "lucide-react";
 
-export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onBack }) {
+export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onSelectThread, onBack }) {
   const qc = useQueryClient();
+  // Mobile/tablet only: slide-in detail panel that overlays the email view.
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const { data: messages, isLoading: loadingMsgs } = useQuery({
     queryKey: ["thread-messages", thread.id],
@@ -28,6 +31,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
         thread={thread} staff={staff} currentUser={currentUser}
         onStatusChange={onStatusChange} onAssign={onAssign}
         onBack={onBack}
+        onShowDetails={() => setDetailOpen(true)}
       />
 
       <div className="flex-1 overflow-hidden flex flex-col">
@@ -41,6 +45,27 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
             currentUser={currentUser}
             onSent={handleSent}
           />
+        </div>
+      </div>
+
+      {/* Mobile/tablet slide-in detail panel (replaces email view) */}
+      <div className={`lg:hidden absolute inset-0 z-30 transition-transform duration-300 ease-out ${detailOpen ? "translate-x-0" : "translate-x-full pointer-events-none"}`}>
+        <div className="h-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/50 dark:border-white/15">
+            <span className="font-bold text-pink-900 dark:text-white">Details</span>
+            <button onClick={() => setDetailOpen(false)} className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
+              <X className="w-5 h-5 text-pink-700 dark:text-white/80" />
+            </button>
+          </div>
+          <div className="h-[calc(100%-3.25rem)] overflow-hidden">
+            <ContactPanel
+              thread={thread}
+              staff={staff}
+              onAssign={onAssign}
+              onSelectThread={(t) => { setDetailOpen(false); onSelectThread?.(t); }}
+              onClose={() => setDetailOpen(false)}
+            />
+          </div>
         </div>
       </div>
     </div>
