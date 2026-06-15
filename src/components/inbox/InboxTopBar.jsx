@@ -4,10 +4,10 @@ import { base44 } from "@/api/base44Client";
 import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LifeBuoy, CalendarHeart, Handshake, Sparkles, Bug, Moon, Sun, Users, LogOut } from "lucide-react";
+import { LifeBuoy, CalendarHeart, Handshake, Moon, Sun, Users, LogOut } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
-import TermsChatPanel from "./TermsChatPanel";
-import BugReportDialog from "./BugReportDialog";
+import BugReportChat from "./BugReportChat";
+import TermsAssistantChat from "./TermsAssistantChat";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/6deb854f5_logo.png";
 
@@ -52,8 +52,6 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
 export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread }) {
   const { dark, toggle } = useTheme();
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
-  const [termsOpen, setTermsOpen] = useState(false);
-  const [bugOpen, setBugOpen] = useState(false);
   return (
     <>
     <header className="shrink-0 px-4 py-3 flex items-center gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
@@ -84,20 +82,6 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
 
       {/* Right icons */}
       <div className="flex items-center gap-1">
-        <button
-          onClick={() => setTermsOpen(true)}
-          title="Terms Assistant"
-          className="p-2 rounded-full text-pink-900/50 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
-        >
-          <Sparkles className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => setBugOpen(true)}
-          title="Report a bug"
-          className="p-2 rounded-full text-pink-900/50 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
-        >
-          <Bug className="w-5 h-5" />
-        </button>
         <NotificationCenter currentUser={currentUser} onOpenThread={onOpenThread} />
         <button
           onClick={toggle}
@@ -134,8 +118,8 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       </div>
     </header>
 
-    <TermsChatPanel open={termsOpen} onOpenChange={setTermsOpen} />
-    <BugReportDialog open={bugOpen} onOpenChange={setBugOpen} currentUser={currentUser} />
+    <TermsAssistantChat accent={accent} />
+    <BugReportChat currentUser={currentUser} accent={accent} />
     </>
   );
 }

@@ -29,12 +29,36 @@ Deno.serve(async (req) => {
     const isStaff = user && (user.role === 'admin' || String(user.email || '').toLowerCase().endsWith(`@${STAFF_DOMAIN}`));
     if (!isStaff) return Response.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { bug_report_id } = await req.json();
-    if (!bug_report_id) return Response.json({ error: 'bug_report_id required' }, { status: 400 });
-
+    const body = await req.json();
     const db = base44.asServiceRole.entities;
-    const report = await db.BugReport.get(bug_report_id);
-    if (!report) return Response.json({ error: 'Bug report not found' }, { status: 404 });
+
+    // Two modes:
+    //  (a) Legacy: { bug_report_id } — escalate an already-created report.
+    //  (b) Live chat: full payload (description, urgency, …) — create then escalate.
+    let report;
+    let bug_report_id = body.bug_report_id;
+    if (bug_report_id) {
+      report = await db.BugReport.get(bug_report_id);
+      if (!report) return Response.json({ error: 'Bug report not found' }, { status: 404 });
+    } else {
+      if (!body.description || !String(body.description).trim()) {
+        return Response.json({ error: 'description required' }, { status: 400 });
+      }
+      report = await db.BugReport.create({
+        title: body.title || String(body.description).slice(0, 80),
+        description: body.description,
+        urgency: body.urgency || 'Soon',
+        platform: body.platform || 'Support Portal',
+        client_name: body.client_name || '',
+        booking_info: body.booking_info || '',
+        image_urls: Array.isArray(body.image_urls) ? body.image_urls : [],
+        reported_by_email: user.email,
+        reported_by_name: body.rep_name || user.full_name || user.email,
+        status: 'New',
+        email_status: 'pending',
+      });
+      bug_report_id = report.id;
+    }
 
     // Assign sequential bug number if missing.
     let bugNumber = report.bug_number;
