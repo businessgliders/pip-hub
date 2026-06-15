@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Mail, FileText } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Mail, FileText, Sparkles } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import EmailPreviewModal from "./EmailPreviewModal";
 import SubmissionPreviewModal from "./SubmissionPreviewModal";
 import { SOURCE_META } from "./inboxConfig";
@@ -32,8 +33,22 @@ function isAssignmentNotice(m) {
 export default function EmailThreadTab({ messages, loading, thread }) {
   const [preview, setPreview] = useState(null);
   const [submissionOpen, setSubmissionOpen] = useState(false);
+  const [summary, setSummary] = useState(thread?.submission_summary || "");
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   const hasSubmission = thread?.form_data && Object.keys(thread.form_data).length > 0;
+
+  // Load (or generate) the AI summary of the submission for the bubble preview.
+  useEffect(() => {
+    if (!thread?.id || !hasSubmission) return;
+    if (thread.submission_summary) { setSummary(thread.submission_summary); return; }
+    setSummaryLoading(true);
+    base44.functions
+      .invoke("aiEmailAssist", { mode: "summarize", thread_id: thread.id })
+      .then((res) => setSummary(res?.data?.summary || ""))
+      .catch(() => {})
+      .finally(() => setSummaryLoading(false));
+  }, [thread?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Show reassignment notices only once: keep the most recent assignment notice
   // and drop the earlier duplicates from the thread view.
@@ -78,7 +93,10 @@ export default function EmailThreadTab({ messages, loading, thread }) {
               {thread.subject && (
                 <div className="text-xs font-semibold text-pink-700 dark:text-white/90 mb-0.5 truncate">{thread.subject}</div>
               )}
-              <div className="text-sm leading-snug text-pink-900/70 dark:text-white/75">{submissionPreview(thread.form_data)}</div>
+              <div className="flex items-start gap-1.5 text-sm leading-snug text-pink-900/70 dark:text-white/75">
+                <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0 text-pink-400 dark:text-white/50" />
+                <span>{summaryLoading ? "Summarizing…" : (summary || submissionPreview(thread.form_data))}</span>
+              </div>
               <div className="text-[11px] text-pink-500 dark:text-white/60 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 Tap to view full form
               </div>
@@ -112,10 +130,7 @@ export default function EmailThreadTab({ messages, loading, thread }) {
                   <span>·</span>
                   <span>{m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
                 </div>
-                {m.subject && (
-                  <div className={`text-xs font-semibold mb-0.5 truncate ${outbound ? "text-pink-900" : "text-pink-700 dark:text-white/90"}`}>{m.subject}</div>
-                )}
-                <div className="text-sm leading-snug whitespace-pre-wrap">{toPreview(m)}</div>
+                <div className={`text-sm font-semibold leading-snug truncate ${outbound ? "text-pink-900" : "text-pink-700 dark:text-white/90"}`}>{m.subject || "(no subject)"}</div>
                 <div className={`text-[11px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? "text-pink-700" : "text-pink-500 dark:text-white/60"}`}>
                   Tap to view full email
                 </div>

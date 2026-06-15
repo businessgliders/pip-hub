@@ -113,6 +113,22 @@ Deno.serve(async (req) => {
       return Response.json({ suggestions, cached: false, generated_at: generatedAt });
     }
 
+    if (mode === 'summarize') {
+      if (thread.submission_summary && !force_refresh) {
+        return Response.json({ summary: thread.submission_summary, cached: true });
+      }
+      const fd = formatFormData(thread.form_data);
+      if (!fd) return Response.json({ summary: '' });
+      const prompt = `${STYLE_GUIDE}\n\nA client submitted the following ${thread.source_app} inquiry form:\n\n${fd}\n\n=== TASK ===\nWrite a single concise sentence (max 22 words) summarizing what this person is asking for / wants. Plain text, no labels, no quotes. Return JSON: { "summary": "..." }`;
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: { type: 'object', properties: { summary: { type: 'string' } }, required: ['summary'] },
+      });
+      const summary = (result?.summary || '').trim();
+      await base44.asServiceRole.entities.Thread.update(thread_id, { submission_summary: summary });
+      return Response.json({ summary, cached: false });
+    }
+
     if (mode === 'compose') {
       if (!description) return Response.json({ error: 'description required for compose' }, { status: 400 });
       const prompt = `${STYLE_GUIDE}\n\n${context}\n\n=== TASK ===\nThe staff member wants to convey this in their reply: "${description}"\n\nWrite the full email body in HTML (<p> tags only, no sign-off block). Return JSON: { "body_html": "..." }`;

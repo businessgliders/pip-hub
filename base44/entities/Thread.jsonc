@@ -31,6 +31,10 @@
       "type": "string",
       "description": "Short preview of the last message or submission note"
     },
+    "submission_summary": {
+      "type": "string",
+      "description": "AI-generated one-sentence summary of the original form submission"
+    },
     "status": {
       "type": "string",
       "enum": [
