@@ -43,8 +43,11 @@ export default function Inbox() {
   const [showContact, setShowContact] = useState(true);
   const [listWidth, setListWidth] = useState(360);
   const [currentUser, setCurrentUser] = useState(null);
-  // On mobile/tablet the thread panel is full-screen; only open it on an explicit tap.
-  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+  // On mobile/tablet the thread panel is full-screen. Default to showing the
+  // conversation panel on load (empty state) rather than the thread list.
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(
+    () => typeof window !== "undefined" && !window.matchMedia("(min-width: 768px)").matches
+  );
   const centerRef = useRef(null);
 
   const handleListResize = (clientX) => {
@@ -197,8 +200,11 @@ export default function Inbox() {
     if (!selected && filtered.length > 0) {
       const params = new URLSearchParams(window.location.search);
       if (!params.get("thread")) {
-        // Auto-select and open the first conversation on all screen sizes.
-        handleSelect(filtered[0], { open: true });
+        // Auto-select the first thread, but only auto-OPEN the panel on desktop.
+        // On mobile/tablet we show the conversation panel (empty state) without
+        // forcing the first item open.
+        const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+        handleSelect(filtered[0], { open: isDesktop });
       }
     }
   }, [filtered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -274,6 +280,7 @@ export default function Inbox() {
 
       <InboxTopBar
         view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={openCounts}
+        hideChatWidgets={mobilePanelOpen}
         onOpenThread={(n) => {
           if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
           const t = threads.find((th) => th.id === n.thread_id);

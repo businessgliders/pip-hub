@@ -49,7 +49,7 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
   );
 }
 
-export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread }) {
+export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false }) {
   const { dark, toggle } = useTheme();
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
@@ -118,8 +118,12 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       </div>
     </header>
 
-    <TermsAssistantChat accent={accent} />
-    <BugReportChat currentUser={currentUser} accent={accent} />
+    {!hideChatWidgets && (
+      <>
+        <TermsAssistantChat accent={accent} />
+        <BugReportChat currentUser={currentUser} accent={accent} />
+      </>
+    )}
     </>
   );
 }
