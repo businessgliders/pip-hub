@@ -3,11 +3,9 @@ import Avatar from "./Avatar";
 import StatusTrack from "./StatusTrack";
 import StatusChangeDialog from "./StatusChangeDialog";
 import { displayName, ticketLabel } from "./inboxConfig";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, UserPlus, CheckCircle2, RotateCcw } from "lucide-react";
+import { ArrowLeft, CheckCircle2, RotateCcw } from "lucide-react";
 
-export default function ThreadHeader({ thread, staff, currentUser, onStatusChange, onAssign, onBack }) {
-  const assignee = staff.find((s) => s.email === thread.assignee_email);
+export default function ThreadHeader({ thread, currentUser, onStatusChange, onBack }) {
   const isResolved = thread.status === "resolved" || thread.status === "closed";
   const isEvents = thread.source_app === "events";
   const inquiryType = thread.source_app === "support" ? thread.form_data?.inquiry_type : null;
@@ -60,35 +58,6 @@ export default function ThreadHeader({ thread, staff, currentUser, onStatusChang
             {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
             <span className="hidden lg:inline">{isResolved ? "Reopen" : "Mark as resolved"}</span>
           </button>
-        )}
-
-        {/* Assign — always shows an "assign" icon */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              title={assignee ? `Assigned to ${assignee.full_name}` : "Assign"}
-              className="p-1.5 rounded-full hover:bg-white/60 dark:hover:bg-white/10 transition-colors text-pink-700 dark:text-pink-200"
-            >
-              <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white/60 dark:bg-white/10">
-                <UserPlus className="w-4 h-4" />
-              </span>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-            {staff.map((s) => (
-              <DropdownMenuItem key={s.id} onClick={() => onAssign(s.email)} className="text-sm gap-2">
-                <Avatar name={s.full_name} email={s.email} photoUrl={s.photo_url} size="sm" />
-                {s.full_name}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Current assignee — shown in place of the old detail toggle */}
-        {assignee && (
-          <span title={`Assigned to ${assignee.full_name}`} className="shrink-0">
-            <Avatar name={assignee.full_name} email={assignee.email} photoUrl={assignee.photo_url} size="sm" />
-          </span>
         )}
       </div>
 

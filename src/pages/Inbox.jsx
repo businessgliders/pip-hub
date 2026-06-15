@@ -338,6 +338,8 @@ export default function Inbox() {
             <div className="h-full rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <ContactPanel
                 thread={selectedThread}
+                staff={staff}
+                onAssign={handleAssign}
                 onSelectThread={(t) => handleSelect(t)}
                 onClose={() => setShowContact(false)}
               />

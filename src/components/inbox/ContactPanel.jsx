@@ -5,10 +5,11 @@ import Avatar from "./Avatar";
 import SourceBadge from "./SourceBadge";
 import StatusPill from "./StatusPill";
 import ContactNotes from "./ContactNotes";
+import AssigneePanel from "./AssigneePanel";
 import { Mail, Phone, X } from "lucide-react";
 import { relativeTime, displayName, viewTextColor } from "./inboxConfig";
 
-export default function ContactPanel({ thread, onSelectThread, onClose }) {
+export default function ContactPanel({ thread, staff = [], onAssign, onSelectThread, onClose }) {
   const accent = viewTextColor(thread.source_app);
 
   const { data: contact } = useQuery({
@@ -84,6 +85,9 @@ export default function ContactPanel({ thread, onSelectThread, onClose }) {
 
       {/* Internal notes (below all threads) */}
       <ContactNotes threadId={thread.id} accent={accent} />
+
+      {/* Assignment (below internal notes) */}
+      <AssigneePanel thread={thread} staff={staff} onAssign={onAssign} accent={accent} />
     </div>
   );
 }
