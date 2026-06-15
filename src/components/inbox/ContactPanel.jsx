@@ -2,13 +2,12 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import Avatar from "./Avatar";
-import SourceBadge from "./SourceBadge";
-import StatusPill from "./StatusPill";
+import ThreadHistoryItem from "./ThreadHistoryItem";
 import ContactNotes from "./ContactNotes";
 import ActivityLog from "./ActivityLog";
 import AssigneePanel from "./AssigneePanel";
 import { Mail, Phone, X } from "lucide-react";
-import { relativeTime, displayName, viewTextColor } from "./inboxConfig";
+import { displayName, viewTextColor } from "./inboxConfig";
 
 export default function ContactPanel({ thread, staff = [], onAssign, onSelectThread, onClose }) {
   const accent = viewTextColor(thread.source_app);
@@ -62,36 +61,25 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
         </h4>
         <div className="space-y-1.5">
           {allThreads.map((t) => (
-            <button
+            <ThreadHistoryItem
               key={t.id}
-              onClick={() => onSelectThread(t)}
-              className={`w-full text-left rounded-2xl border p-2.5 transition-colors ${
-                t.id === thread.id
-                  ? "border-pink-200 bg-white/70 dark:border-white/25 dark:bg-white/15"
-                  : "border-white/60 bg-white/40 hover:bg-white/60 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <SourceBadge source={t.source_app} />
-                <span className="text-[11px] opacity-50 dark:text-white/50">{relativeTime(t.last_activity_at || t.created_date)}</span>
-              </div>
-              <p className="text-xs font-medium truncate dark:text-white/85" style={{ color: accent }}>{t.subject}</p>
-              <div className="mt-1.5">
-                <StatusPill status={t.status} readOnly />
-              </div>
-            </button>
+              thread={t}
+              active={t.id === thread.id}
+              accent={accent}
+              onSelect={onSelectThread}
+            />
           ))}
         </div>
       </div>
 
-      {/* Activity — status change audit trail */}
-      <ActivityLog thread={thread} accent={accent} />
+      {/* Escalate / assignment (moved up to where Activity used to be) */}
+      <AssigneePanel thread={thread} staff={staff} onAssign={onAssign} accent={accent} />
 
-      {/* Internal notes (below all threads) */}
+      {/* Internal notes */}
       <ContactNotes threadId={thread.id} accent={accent} />
 
-      {/* Assignment (below internal notes) */}
-      <AssigneePanel thread={thread} staff={staff} onAssign={onAssign} accent={accent} />
+      {/* Activity — status change audit trail (now the last section) */}
+      <ActivityLog thread={thread} accent={accent} />
     </div>
   );
 }

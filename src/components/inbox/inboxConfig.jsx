@@ -146,3 +146,39 @@ export function relativeTime(iso) {
   if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
+
+// Long-form relative time, e.g. "3 days ago", "2 weeks ago", "1 month ago".
+export function relativeTimeLong(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return "just now";
+  const mins = Math.floor(diff / 60);
+  if (mins < 60) return `${mins} minute${mins === 1 ? "" : "s"} ago`;
+  const hrs = Math.floor(diff / 3600);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.floor(diff / 86400);
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months === 1 ? "" : "s"} ago`;
+  const years = Math.floor(days / 365);
+  return `${years} year${years === 1 ? "" : "s"} ago`;
+}
+
+// Returns true if a status represents a closed/ended state across any inbox.
+export function isClosedStatus(status) {
+  return ["closed", "Closed", "declined", "Cancelled", "No Response"].includes(status);
+}
+
+// Best-effort "closed date" for a thread: the timestamp of the last status_history
+// entry whose status is a closed/ended state.
+export function closedAt(thread) {
+  if (!thread || !isClosedStatus(thread.status)) return null;
+  const hist = thread.status_history || [];
+  for (let i = hist.length - 1; i >= 0; i--) {
+    if (isClosedStatus(hist[i].status)) return hist[i].timestamp;
+  }
+  return thread.last_activity_at || null;
+}

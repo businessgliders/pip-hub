@@ -8,7 +8,7 @@ export default function ActivityLog({ thread, accent }) {
   const history = [...(thread?.status_history || [])].reverse();
 
   return (
-    <div className="px-4 py-4 border-b border-white/50 dark:border-white/15">
+    <div className="px-4 py-4 border-t border-white/50 dark:border-white/15">
       <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 opacity-60 dark:text-white/60">
         Activity
       </h4>
