@@ -94,24 +94,25 @@ Deno.serve(async (req) => {
       const gmailThreadId = msg.threadId || '';
 
       // --- Match to a thread ---
+      // We only attach inbound mail when we can confidently tie it to a thread:
+      //   1) exact Gmail thread id (a genuine reply within the same conversation)
+      //   2) an explicit [Ticket #N] or [Request #N] tag in the subject.
+      // The old "match by sender email" fallback was removed — it caused brand-new
+      // submissions to absorb unrelated mail from the same person (e.g. an old
+      // events email getting mapped onto a fresh support ticket).
       let thread = null;
       // 1) by gmail_thread_id
       if (gmailThreadId) {
         const byGtid = await db.Thread.filter({ gmail_thread_id: gmailThreadId }, '-last_activity_at', 1);
         if (byGtid.length) thread = byGtid[0];
       }
-      // 2) by [Ticket #N] tag in subject
+      // 2) by [Ticket #N] / [Request #N] tag in subject
       if (!thread) {
-        const tag = subject.match(/\[Ticket\s*#(\d+)\]/i);
+        const tag = subject.match(/\[(?:Ticket|Request)\s*#(\d+)\]/i);
         if (tag) {
           const byTicket = await db.Thread.filter({ ticket_number: Number(tag[1]) }, '-last_activity_at', 1);
           if (byTicket.length) thread = byTicket[0];
         }
-      }
-      // 3) by sender email (most recent open thread)
-      if (!thread && from.email) {
-        const byEmail = await db.Thread.filter({ contact_email: from.email }, '-last_activity_at', 1);
-        if (byEmail.length) thread = byEmail[0];
       }
 
       if (!thread) { results.push({ messageId, skipped: 'no_matching_thread', from: from.email }); continue; }
