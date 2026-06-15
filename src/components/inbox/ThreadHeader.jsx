@@ -10,6 +10,7 @@ export default function ThreadHeader({ thread, staff, currentUser, onStatusChang
   const assignee = staff.find((s) => s.email === thread.assignee_email);
   const isResolved = thread.status === "resolved" || thread.status === "closed";
   const isEvents = thread.source_app === "events";
+  const inquiryType = thread.source_app === "support" ? thread.form_data?.inquiry_type : null;
   const [pending, setPending] = useState(null); // target status awaiting name/reason
 
   const requestChange = (status) => {
@@ -34,6 +35,11 @@ export default function ThreadHeader({ thread, staff, currentUser, onStatusChang
           {ticketLabel(thread) && (
             <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-pink-900/10 text-pink-800 dark:bg-white/15 dark:text-white/80">
               {ticketLabel(thread)}
+            </span>
+          )}
+          {inquiryType && (
+            <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-sky-500/15 text-sky-700 dark:bg-sky-400/20 dark:text-sky-200">
+              {inquiryType}
             </span>
           )}
         </div>
