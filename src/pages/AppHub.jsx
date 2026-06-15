@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X, Settings as SettingsIcon } from 'lucide-react';
+import { Star, Plus, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X, Settings as SettingsIcon, Inbox } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -612,6 +612,14 @@ export default function AppHub() {
             className="w-8 h-8 rounded-lg shadow flex-shrink-0"
           />
           <MobileDateWeather />
+          {/* Search toggle */}
+          <button
+            onClick={() => setShowMobileSearch(s => !s)}
+            className={`w-9 h-9 flex items-center justify-center rounded-xl border shadow-sm transition-colors ${showMobileSearch ? 'bg-[#f1889b]/10 border-[#f1889b]/40' : 'bg-white/70 border-gray-200'}`}
+            title="Search"
+          >
+            <Search className={`w-4 h-4 ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-600'}`} />
+          </button>
           {/* Edit mode toggle */}
           <button
             onClick={() => setIsEditMode(e => !e)}
@@ -966,14 +974,14 @@ export default function AppHub() {
             />
             <span className="text-[10px] font-medium">Home</span>
           </button>
-          {/* Search */}
-          <button
-            onClick={() => setShowMobileSearch(s => !s)}
-            className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl ${showMobileSearch ? 'text-[#f1889b]' : 'text-gray-500'}`}
+          {/* Inbox */}
+          <Link
+            to="/inbox"
+            className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500"
           >
-            <Search className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Search</span>
-          </button>
+            <Inbox className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Inbox</span>
+          </Link>
           {/* Add Apps */}
           <button
             onClick={() => setShowBrowseApps(true)}
