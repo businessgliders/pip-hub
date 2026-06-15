@@ -714,21 +714,21 @@ export default function AppHub() {
                 <Grid3X3 className="w-4 h-4" />
               </button>
             </div>
-            <Button onClick={() => setShowBrowseApps(true)} variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50 text-gray-700" title="Add Apps">
+            <Button onClick={() => setShowBrowseApps(true)} variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900" title="Add Apps">
               <Plus className="w-4 h-4" />
             </Button>
             <Button
               onClick={() => setIsEditMode(e => !e)}
               variant={isEditMode ? 'default' : 'outline'}
               size="icon"
-              className={`rounded-xl ${isEditMode ? 'bg-[#f1889b] hover:bg-[#f1889b]/90 text-white border-[#f1889b]' : 'border-gray-300 bg-white hover:bg-gray-50 text-gray-700'}`}
+              className={`rounded-xl ${isEditMode ? 'bg-[#f1889b] hover:bg-[#f1889b]/90 text-white border-[#f1889b]' : 'border-gray-300 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900'}`}
               title={isEditMode ? 'Done editing' : 'Edit'}
             >
               {isEditMode ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
             </Button>
             {user?.email === 'gurpreen@pilatesinpinkstudio.com' && (
               <Link to="/settings">
-                <Button variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50 text-gray-700" title="Settings">
+                <Button variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900" title="Settings">
                   <SettingsIcon className="w-4 h-4" />
                 </Button>
               </Link>
