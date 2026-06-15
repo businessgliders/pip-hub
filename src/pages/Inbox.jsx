@@ -45,10 +45,8 @@ export default function Inbox() {
   const [listWidth, setListWidth] = useState(360);
   const [currentUser, setCurrentUser] = useState(null);
   // On mobile/tablet the thread panel is full-screen. Default to showing the
-  // conversation panel on load (empty state) rather than the thread list.
-  const [mobilePanelOpen, setMobilePanelOpen] = useState(
-    () => typeof window !== "undefined" && !window.matchMedia("(min-width: 768px)").matches
-  );
+  // conversation LIST on load (panel closed) so users pick a thread first.
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
   const centerRef = useRef(null);
 
   const handleListResize = (clientX) => {
