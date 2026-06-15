@@ -1,13 +1,16 @@
 import React from "react";
-import { Archive } from "lucide-react";
+import { Archive, PartyPopper } from "lucide-react";
 
 // Vertical "side panel" rail of status tabs shown on the left of the thread list.
 // The count itself acts as the icon/glyph for each status tab.
 export default function InboxStatusRail({ tabs, active, onChange, counts = {}, accent = "#f1889b", archivedActive = false, onArchived }) {
   if (!tabs || tabs.length === 0) return null;
+  // "Hosted" is pinned to the bottom (above Archived) as an icon-only tab, no count.
+  const hostedTab = tabs.find((t) => t.key === "Hosted");
+  const mainTabs = tabs.filter((t) => t.key !== "Hosted");
   return (
     <div className="flex flex-col items-center gap-1 py-3 px-1.5 border-r border-white/40 dark:border-white/10 shrink-0 overflow-y-auto">
-      {tabs.map((t) => {
+      {mainTabs.map((t) => {
         const isActive = !archivedActive && active === t.key;
         const c = counts[t.key] || 0;
         return (
@@ -28,13 +31,29 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, a
         );
       })}
 
+      {/* Hosted — icon only, pinned above Archived (Events inbox) */}
+      {hostedTab && (
+        <button
+          onClick={() => onChange(hostedTab.key)}
+          title="Hosted"
+          style={!archivedActive && active === hostedTab.key ? { background: accent, color: "#fff" } : undefined}
+          className={`${onArchived ? "mt-auto" : "mt-auto"} w-14 flex items-center justify-center py-2.5 rounded-2xl transition-all ${
+            !archivedActive && active === hostedTab.key
+              ? "shadow-md"
+              : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
+          }`}
+        >
+          <PartyPopper className="w-5 h-5" />
+        </button>
+      )}
+
       {/* Archived — icon only, pinned to the bottom */}
       {onArchived && (
         <button
           onClick={onArchived}
           title="Archived"
           style={archivedActive ? { background: accent, color: "#fff" } : undefined}
-          className={`mt-auto w-14 flex items-center justify-center py-2.5 rounded-2xl transition-all ${
+          className={`${hostedTab ? "" : "mt-auto"} w-14 flex items-center justify-center py-2.5 rounded-2xl transition-all ${
             archivedActive
               ? "shadow-md"
               : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
