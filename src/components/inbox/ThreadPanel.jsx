@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import ThreadHeader from "./ThreadHeader";
 import EmailThreadTab from "./EmailThreadTab";
 import EmailComposer from "./email/EmailComposer";
-import { MessagesSquare, PanelRight } from "lucide-react";
+import { MessagesSquare, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
   const qc = useQueryClient();
@@ -30,17 +30,13 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
         onBack={onBack}
       />
 
-      {/* Detail panel toggle — pinned to the right edge, vertically centered (desktop) */}
+      {/* Detail panel toggle — compact arrow on the right edge, vertically centered (desktop) */}
       <button
         onClick={onToggleContact}
         title={contactOpen ? "Hide details" : "Show details"}
-        className={`hidden md:flex absolute top-1/2 -translate-y-1/2 right-0 z-10 items-center justify-center w-7 h-14 rounded-l-lg shadow-sm transition-colors ${
-          contactOpen
-            ? "bg-white/80 dark:bg-white/15 text-pink-700 dark:text-pink-200"
-            : "bg-white/50 dark:bg-white/10 hover:bg-white/70 dark:hover:bg-white/15 text-pink-700/70 dark:text-white/60"
-        }`}
+        className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-0.5 z-10 items-center justify-center w-5 h-10 rounded-md text-pink-700/60 dark:text-white/50 hover:bg-white/60 dark:hover:bg-white/10 hover:text-pink-700 dark:hover:text-pink-200 transition-colors"
       >
-        <PanelRight className="w-4 h-4" />
+        {contactOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
 
       <div className="flex-1 overflow-hidden flex flex-col">
