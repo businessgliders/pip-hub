@@ -33,8 +33,8 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
         <Avatar name={thread.contact_name} email={thread.contact_email} size="md" />
       </div>
       <div className="flex-1 min-w-0 order-1 md:order-none">
-        <div className="flex items-center gap-2">
-          <h2 className="font-bold text-pink-900 dark:text-white truncate">{displayName(thread.contact_name, thread.contact_email)}</h2>
+        <h2 className="font-bold text-pink-900 dark:text-white truncate">{displayName(thread.contact_name, thread.contact_email)}</h2>
+        <div className="flex items-center gap-1.5 mt-0.5">
           {ticketLabel(thread) && (
             <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-pink-900/10 text-pink-800 dark:bg-white/15 dark:text-white/80">
               {ticketLabel(thread)}
@@ -46,7 +46,6 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
             </span>
           )}
         </div>
-        <p className="text-xs text-pink-900/50 dark:text-white/60 truncate">{thread.subject}</p>
       </div>
 
       <div className="flex w-full md:w-auto order-2 md:order-none flex-wrap md:flex-nowrap items-center justify-end gap-1.5 md:gap-2 min-w-0">
