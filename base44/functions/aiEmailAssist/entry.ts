@@ -119,7 +119,11 @@ Deno.serve(async (req) => {
       }
       const fd = formatFormData(thread.form_data);
       if (!fd) return Response.json({ summary: '' });
-      const prompt = `${STYLE_GUIDE}\n\nA client submitted the following ${thread.source_app} inquiry form:\n\n${fd}\n\n=== TASK ===\nWrite a single concise sentence (max 22 words) summarizing what this person is asking for / wants. Plain text, no labels, no quotes. Return JSON: { "summary": "..." }`;
+      const isCancellation = String(thread.form_data?.inquiry_type || thread.subject || '').toLowerCase().includes('cancel');
+      const cancelHint = isCancellation
+        ? `\n\nThis is a CANCELLATION request. In your sentence, mention the reason for cancelling, the discount/special offer presented (if any), and whether the client accepted it or chose to continue with the cancellation.`
+        : '';
+      const prompt = `${STYLE_GUIDE}\n\nA client submitted the following ${thread.source_app} inquiry form:\n\n${fd}${cancelHint}\n\n=== TASK ===\nWrite a single concise sentence (max ${isCancellation ? 32 : 22} words) summarizing what this person is asking for / wants. Plain text, no labels, no quotes. Return JSON: { "summary": "..." }`;
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
         response_json_schema: { type: 'object', properties: { summary: { type: 'string' } }, required: ['summary'] },

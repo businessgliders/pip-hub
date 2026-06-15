@@ -37,6 +37,7 @@ export default function EmailThreadTab({ messages, loading, thread }) {
   const [summaryLoading, setSummaryLoading] = useState(false);
 
   const hasSubmission = thread?.form_data && Object.keys(thread.form_data).length > 0;
+  const isCancellation = String(thread?.form_data?.inquiry_type || thread?.subject || "").toLowerCase().includes("cancel");
 
   // Load (or generate) the AI summary of the submission for the bubble preview.
   useEffect(() => {
@@ -97,6 +98,22 @@ export default function EmailThreadTab({ messages, loading, thread }) {
                 <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0 text-pink-400 dark:text-white/50" />
                 <span>{summaryLoading ? "Summarizing…" : (summary || submissionPreview(thread.form_data))}</span>
               </div>
+              {isCancellation && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {thread.form_data?.discount_offered && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">
+                      🎁 Offer: {String(thread.form_data.discount_offered)}
+                    </span>
+                  )}
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                    thread.form_data?.discount_accepted
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200"
+                      : "bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-200"
+                  }`}>
+                    {thread.form_data?.discount_accepted ? "Stayed (accepted offer)" : "Continued with cancellation"}
+                  </span>
+                </div>
+              )}
               <div className="text-[11px] text-pink-500 dark:text-white/60 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 Tap to view full form
               </div>
