@@ -4,9 +4,9 @@ import StatusTrack from "./StatusTrack";
 import StatusChangeDialog from "./StatusChangeDialog";
 import { displayName, ticketLabel } from "./inboxConfig";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, UserPlus, PanelRight, CheckCircle2, RotateCcw } from "lucide-react";
+import { ArrowLeft, UserPlus, CheckCircle2, RotateCcw } from "lucide-react";
 
-export default function ThreadHeader({ thread, staff, currentUser, onStatusChange, onAssign, onBack, onToggleContact, contactOpen }) {
+export default function ThreadHeader({ thread, staff, currentUser, onStatusChange, onAssign, onBack }) {
   const assignee = staff.find((s) => s.email === thread.assignee_email);
   const isResolved = thread.status === "resolved" || thread.status === "closed";
   const isEvents = thread.source_app === "events";
@@ -50,20 +50,28 @@ export default function ThreadHeader({ thread, staff, currentUser, onStatusChang
         {/* Status — visual thread (desktop) / dropdown (mobile), now before assign */}
         <StatusTrack status={thread.status} source={thread.source_app} onSelect={requestChange} />
 
-        {/* Assign — icon only (shows assignee photo/initials when assigned) */}
+        {/* Resolve / Reopen — text button on desktop, icon on mobile (Events use pipeline stages) */}
+        {!isEvents && (
+          <button
+            onClick={() => requestChange(isResolved ? "open" : "resolved")}
+            title={isResolved ? "Reopen" : "Mark as resolved"}
+            className="flex items-center gap-1.5 px-2 lg:px-3 py-2 rounded-full text-white bg-pink-950/90 hover:bg-pink-950 transition-colors shadow-sm text-xs font-semibold whitespace-nowrap"
+          >
+            {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+            <span className="hidden lg:inline">{isResolved ? "Reopen" : "Mark as resolved"}</span>
+          </button>
+        )}
+
+        {/* Assign — always shows an "assign" icon */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               title={assignee ? `Assigned to ${assignee.full_name}` : "Assign"}
-              className="p-1 rounded-full hover:bg-white/60 dark:hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-full hover:bg-white/60 dark:hover:bg-white/10 transition-colors text-pink-700 dark:text-pink-200"
             >
-              {assignee ? (
-                <Avatar name={assignee.full_name} email={assignee.email} photoUrl={assignee.photo_url} size="sm" />
-              ) : (
-                <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white/60 dark:bg-white/10 text-pink-700 dark:text-pink-200">
-                  <UserPlus className="w-4 h-4" />
-                </span>
-              )}
+              <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white/60 dark:bg-white/10">
+                <UserPlus className="w-4 h-4" />
+              </span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
@@ -76,27 +84,12 @@ export default function ThreadHeader({ thread, staff, currentUser, onStatusChang
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Resolve / Reopen — icon only (Events use pipeline stages, no resolve toggle) */}
-        {!isEvents && (
-          <button
-            onClick={() => requestChange(isResolved ? "open" : "resolved")}
-            title={isResolved ? "Reopen" : "Resolve"}
-            className="p-2 rounded-full text-white bg-pink-950/90 hover:bg-pink-950 transition-colors shadow-sm"
-          >
-            {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
-          </button>
+        {/* Current assignee — shown in place of the old detail toggle */}
+        {assignee && (
+          <span title={`Assigned to ${assignee.full_name}`} className="shrink-0">
+            <Avatar name={assignee.full_name} email={assignee.email} photoUrl={assignee.photo_url} size="sm" />
+          </span>
         )}
-
-        {/* Toggle details — icon only */}
-        <button
-          onClick={onToggleContact}
-          title={contactOpen ? "Hide details" : "Show details"}
-          className={`p-1.5 rounded-full transition-colors ${
-            contactOpen ? "bg-white/70 dark:bg-white/15 text-pink-700 dark:text-pink-200" : "hover:bg-white/60 dark:hover:bg-white/10 text-pink-700/70 dark:text-white/60"
-          }`}
-        >
-          <PanelRight className="w-5 h-5" />
-        </button>
       </div>
 
       <StatusChangeDialog
