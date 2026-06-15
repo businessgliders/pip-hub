@@ -183,6 +183,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       type="date"
                       value={data.shift_date}
                       onChange={(e) => update('shift_date', e.target.value)}
+                      className="text-gray-900"
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
@@ -191,12 +192,13 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       type="time"
                       value={data.shift_time}
                       onChange={(e) => update('shift_time', e.target.value)}
+                      className="text-gray-900"
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
                   <Field label="Location" required hint="Defaults to Brampton / HQ.">
                     <Select value={data.location} onValueChange={(value) => update('location', value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-gray-900">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="z-[70]">
@@ -224,7 +226,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       value={data.conversion_notes}
                       onChange={(e) => update('conversion_notes', e.target.value)}
                       placeholder="e.g. Price hesitation, schedule conflict, NA"
-                      className="min-h-[80px]"
+                      className="min-h-[80px] text-gray-900"
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
@@ -249,7 +251,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       value={data.content_planned}
                       onChange={(e) => update('content_planned', e.target.value)}
                       placeholder="e.g. 5 reels for next week, 3 stories drafted"
-                      className="min-h-[100px]"
+                      className="min-h-[100px] text-gray-900"
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
@@ -281,7 +283,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                         value={data.low_inventory_items}
                         onChange={(e) => update('low_inventory_items', e.target.value)}
                         placeholder="List low-stock items here"
-                        className="min-h-[140px]"
+                        className="min-h-[140px] text-gray-900"
                         style={{ fontSize: '16px' }}
                       />
                     </Field>
@@ -310,7 +312,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       value={data.general_notes}
                       onChange={(e) => update('general_notes', e.target.value)}
                       placeholder="Anything else worth noting"
-                      className="min-h-[90px]"
+                      className="min-h-[90px] text-gray-900"
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
@@ -324,6 +326,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       value={data.admin_name}
                       onChange={(e) => update('admin_name', e.target.value)}
                       placeholder="Admin name"
+                      className="text-gray-900"
                       style={{ fontSize: '16px' }}
                     />
                   </Field>
@@ -332,7 +335,7 @@ export default function EndShiftModal({ onClose, defaultSignature = '', onViewRe
                       value={data.signature}
                       onChange={(e) => update('signature', e.target.value)}
                       placeholder="Your full name"
-                      className="font-[cursive] text-lg italic"
+                      className="font-[cursive] text-lg italic text-gray-900"
                       style={{ fontSize: '18px' }}
                     />
                   </Field>
@@ -430,7 +433,7 @@ function StatField({ icon: Icon, label, value, onChange, fullWidth, required }) 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="0"
-        className="bg-white text-lg font-semibold border-gray-200 h-10"
+        className="bg-white text-lg font-semibold text-gray-900 border-gray-200 h-10"
         style={{ fontSize: '16px' }}
       />
     </div>
