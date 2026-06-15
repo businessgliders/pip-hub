@@ -247,6 +247,10 @@ export default function Inbox() {
   const handleAssign = (email) => {
     if (!selectedThread) return;
     updateThread.mutate({ id: selectedThread.id, data: { assignee_email: email } });
+    // Notify the assignee (email + in-app notification). Non-blocking.
+    if (email && email !== currentUser?.email) {
+      base44.functions.invoke("sendAssignmentEmail", { thread_id: selectedThread.id, assigned_to: email }).catch(() => {});
+    }
   };
 
   const handleArchive = async (toArchive) => {
@@ -269,7 +273,14 @@ export default function Inbox() {
         style={{ background: viewBackdrop(view, dark) }}
       />
 
-      <InboxTopBar view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={openCounts} />
+      <InboxTopBar
+        view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={openCounts}
+        onOpenThread={(n) => {
+          if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
+          const t = threads.find((th) => th.id === n.thread_id);
+          if (t) handleSelect(t);
+        }}
+      />
 
       {/* 3 floating glass panels */}
       <div ref={centerRef} className="flex-1 flex gap-3 md:gap-4 p-3 md:p-4 overflow-hidden">
