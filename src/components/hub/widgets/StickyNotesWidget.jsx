@@ -2,22 +2,35 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Textarea } from '@/components/ui/textarea';
 
+const LS_KEY = 'pip-sticky-note';
+
 export default function StickyNotesWidget({ widget }) {
   const [note, setNote] = useState('');
 
+  // Load note: prefer the widget's saved data; if empty (e.g. just re-added),
+  // fall back to the locally retained text so it isn't lost on delete/re-add.
   useEffect(() => {
+    let saved = '';
     if (widget?.data) {
       try {
-        const parsed = JSON.parse(widget.data);
-        setNote(parsed.text || '');
-      } catch (e) {
-        setNote(widget.data);
+        saved = JSON.parse(widget.data).text || '';
+      } catch {
+        saved = widget.data;
       }
     }
-  }, [widget?.data]);
+    if (!saved) {
+      try { saved = localStorage.getItem(LS_KEY) || ''; } catch { /* ignore */ }
+    }
+    setNote(saved);
+    // If the widget had no data but we recovered text locally, persist it back.
+    if (!getWidgetText(widget) && saved && widget?.id) {
+      base44.entities.UserWidget.update(widget.id, { data: JSON.stringify({ text: saved }) }).catch(() => {});
+    }
+  }, [widget?.data, widget?.id]);
 
   const handleSave = async (newText) => {
     setNote(newText);
+    try { localStorage.setItem(LS_KEY, newText); } catch { /* ignore */ }
     if (widget?.id) {
       await base44.entities.UserWidget.update(widget.id, {
         data: JSON.stringify({ text: newText })
@@ -38,4 +51,9 @@ export default function StickyNotesWidget({ widget }) {
       />
     </div>
   );
+}
+
+function getWidgetText(widget) {
+  if (!widget?.data) return '';
+  try { return JSON.parse(widget.data).text || ''; } catch { return widget.data; }
 }
