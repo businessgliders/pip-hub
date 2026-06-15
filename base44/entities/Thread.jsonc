@@ -84,6 +84,11 @@
       "format": "date-time",
       "description": "Timestamp of most recent activity \u2014 used for sorting"
     },
+    "last_reminder_sent": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time an assignee reminder email was sent for this thread"
+    },
     "is_read": {
       "type": "boolean",
       "default": false,

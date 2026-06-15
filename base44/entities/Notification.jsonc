@@ -1,0 +1,96 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "recipient_email": {
+      "type": "string",
+      "description": "Email of the staff member this notification is for"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "assignment",
+        "reminder",
+        "bug",
+        "reply",
+        "status",
+        "other"
+      ],
+      "default": "other",
+      "description": "Category of the notification"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short notification headline"
+    },
+    "body": {
+      "type": "string",
+      "description": "Optional longer text"
+    },
+    "thread_id": {
+      "type": "string",
+      "description": "Related Thread id (for deep-linking into the inbox)"
+    },
+    "source_app": {
+      "type": "string",
+      "enum": [
+        "support",
+        "events",
+        "influencer"
+      ],
+      "description": "Which inbox the related thread belongs to"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the recipient has read this notification"
+    }
+  },
+  "required": [
+    "recipient_email",
+    "title"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.recipient_email": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.recipient_email": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.recipient_email": "{{user.email}}"
+        }
+      ]
+    }
+  }
+}

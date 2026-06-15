@@ -1,0 +1,113 @@
+{
+  "name": "BugReport",
+  "type": "object",
+  "properties": {
+    "bug_number": {
+      "type": "number",
+      "description": "Sequential bug report number starting at 100 (displayed as B100, B101, ...)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short one-sentence title summarizing the issue"
+    },
+    "description": {
+      "type": "string",
+      "description": "What went wrong - free text description of the bug"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "New",
+        "In Progress",
+        "Resolved",
+        "Closed"
+      ],
+      "default": "New",
+      "description": "Current status of the bug report"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "Website",
+        "Support Portal",
+        "Mobile",
+        "Email",
+        "Other"
+      ],
+      "default": "Support Portal"
+    },
+    "urgency": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Soon",
+        "High",
+        "Critical"
+      ],
+      "default": "Soon"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client name involved (if applicable)"
+    },
+    "booking_info": {
+      "type": "string",
+      "description": "Booking date/time or other contextual info"
+    },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "URLs of uploaded screenshots/attachments"
+    },
+    "reported_by_email": {
+      "type": "string"
+    },
+    "reported_by_name": {
+      "type": "string"
+    },
+    "escalated_to": {
+      "type": "string",
+      "description": "Email this report was escalated to"
+    },
+    "email_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "email_error": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "description"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
