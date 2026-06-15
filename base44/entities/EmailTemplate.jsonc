@@ -9,9 +9,32 @@
       "type": "string",
       "enum": [
         "General",
+        "Support",
+        "Events",
+        "Influencer",
+        "Auto-Reply",
         "Other"
       ],
       "default": "General"
+    },
+    "source_app": {
+      "type": "string",
+      "enum": [
+        "support",
+        "events",
+        "influencer"
+      ],
+      "description": "Which inbox this template belongs to (for auto-reply templates)"
+    },
+    "template_kind": {
+      "type": "string",
+      "enum": [
+        "welcome",
+        "owner",
+        "manual"
+      ],
+      "default": "manual",
+      "description": "welcome = auto-reply to submitter, owner = notification to owner/front desk"
     },
     "subject": {
       "type": "string"
@@ -43,11 +66,7 @@
         "role": "admin"
       }
     },
-    "read": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
+    "read": {},
     "update": {
       "user_condition": {
         "role": "admin"
