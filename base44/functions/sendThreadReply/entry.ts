@@ -8,6 +8,15 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
  */
 const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
 
+// Per-inbox shared From address. NOTE: each address must be configured as a
+// verified "send-as" alias on the connected Gmail account, otherwise Gmail
+// rewrites the From to the authenticated mailbox.
+const FROM_BY_SOURCE = {
+  support: { name: 'Pilates in Pink Support', email: 'support@pilatesinpinkstudio.com' },
+  events: { name: 'Pilates in Pink Events', email: 'events@pilatesinpinkstudio.com' },
+  influencer: { name: 'Pilates in Pink Partnerships', email: 'partner@pilatesinpinkstudio.com' },
+};
+
 function stripHtml(html) {
   return (html || '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
@@ -148,9 +157,12 @@ Deno.serve(async (req) => {
     const rootId = thread.gmail_root_message_id || lastRfcId || '';
     const references = [rootId, lastRfcId].filter((v, i, a) => v && a.indexOf(v) === i).join(' ');
 
+    const sender = FROM_BY_SOURCE[thread.source_app] || { name: user.full_name || user.email, email: user.email };
+    const fromHeader = `${sender.name} <${sender.email}>`;
+
     const mime = buildMime({
       to: thread.contact_email,
-      from: user.email,
+      from: fromHeader,
       subject,
       htmlBody: body_html,
       textBody: stripHtml(body_html),
@@ -196,8 +208,8 @@ Deno.serve(async (req) => {
       in_reply_to: lastRfcId,
       references,
       direction: 'outbound',
-      from_email: user.email,
-      from_name: user.full_name || user.email,
+      from_email: sender.email,
+      from_name: sender.name,
       to_email: thread.contact_email,
       subject,
       body_html,
