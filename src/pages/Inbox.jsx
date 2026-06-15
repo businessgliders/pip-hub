@@ -7,6 +7,8 @@ import ThreadPanel, { EmptyThreadState } from "@/components/inbox/ThreadPanel";
 import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxStatusRail from "@/components/inbox/InboxStatusRail";
 import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
+import ArchiveButton from "@/components/inbox/ArchiveButton";
+import DetailToggleHandle from "@/components/inbox/DetailToggleHandle";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
@@ -34,6 +36,7 @@ export default function Inbox() {
     return VALID_VIEWS.includes(h) ? h : "support";
   });
   const [subFilter, setSubFilter] = useState("all");
+  const [showArchived, setShowArchived] = useState(false);
   const [inquiryType, setInquiryType] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
@@ -110,7 +113,7 @@ export default function Inbox() {
 
   // Reset the sub-filter whenever the main view changes.
   // Team inboxes have no "All" status tab, so default to the first status.
-  useEffect(() => { setSubFilter(SOURCE_META[view] ? (view === "events" ? EVENTS_STATUS_ORDER : STATUS_ORDER)[0] : "all"); setInquiryType("all"); setSelected(null); }, [view]);
+  useEffect(() => { setSubFilter(SOURCE_META[view] ? (view === "events" ? EVENTS_STATUS_ORDER : STATUS_ORDER)[0] : "all"); setInquiryType("all"); setSelected(null); setShowArchived(false); }, [view]);
 
   // Distinct inquiry types within the current Support view (for the icon filter).
   const inquiryTypes = useMemo(() => {
@@ -157,8 +160,18 @@ export default function Inbox() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return threads.filter((t) => {
+      // Archived view shows only archived threads (within the current source); all
+      // other views hide archived threads.
+      if (showArchived) {
+        if (!t.archived) return false;
+        if (SOURCE_META[view] && t.source_app !== view) return false;
+      } else if (t.archived) {
+        return false;
+      }
       // Main view filter
-      if (SOURCE_META[view]) {
+      if (showArchived) {
+        // In archived view, skip status/source sub-filtering — just search.
+      } else if (SOURCE_META[view]) {
         // Team inbox: filter by source, then by status sub-tab
         if (t.source_app !== view) return false;
         if (subFilter !== "all" && t.status !== subFilter) return false;
@@ -177,7 +190,7 @@ export default function Inbox() {
         (t.subject || "").toLowerCase().includes(q)
       );
     });
-  }, [threads, view, subFilter, search, inquiryType]);
+  }, [threads, view, subFilter, search, inquiryType, showArchived]);
 
   // Auto-select the first available conversation when nothing is selected.
   useEffect(() => {
@@ -236,6 +249,18 @@ export default function Inbox() {
     updateThread.mutate({ id: selectedThread.id, data: { assignee_email: email } });
   };
 
+  const handleArchive = async (toArchive) => {
+    for (const t of toArchive) {
+      await base44.entities.Thread.update(t.id, { archived: true });
+    }
+    setSelected(null);
+    qc.invalidateQueries({ queryKey: ["threads"] });
+  };
+
+  // Whether the current Closed list should show the Archive action.
+  const isClosedView = isSourceView && !showArchived &&
+    (view === "events" ? subFilter === "Closed" : subFilter === "closed");
+
   return (
     <div className="h-screen flex flex-col overflow-hidden relative">
       {/* Vibrant pink gradient backdrop */}
@@ -256,18 +281,29 @@ export default function Inbox() {
           {/* Vertical status rail (side panels) */}
           {activeTabs && (
             <InboxStatusRail
-              tabs={activeTabs} active={subFilter} onChange={setSubFilter}
+              tabs={activeTabs}
+              active={subFilter}
+              onChange={(k) => { setShowArchived(false); setSubFilter(k); }}
               counts={tabCounts} accent={accent}
+              archivedActive={showArchived}
+              onArchived={isSourceView ? () => setShowArchived((s) => !s) : undefined}
             />
           )}
           <div className="flex-1 overflow-hidden">
             <ThreadList
-              threads={filtered} title={title} count={filtered.length}
+              threads={filtered}
+              title={showArchived ? "Archived" : title}
+              count={filtered.length}
               search={search} setSearch={setSearch}
               selectedId={selectedThread?.id} onSelect={handleSelect} loading={isLoading}
-              filterSlot={view === "support" && inquiryTypes.length > 0 ? (
-                <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
-              ) : null}
+              filterSlot={
+                <>
+                  {isClosedView && <ArchiveButton threads={filtered} onArchive={handleArchive} />}
+                  {view === "support" && !showArchived && inquiryTypes.length > 0 ? (
+                    <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
+                  ) : null}
+                </>
+              }
             />
           </div>
         </div>
@@ -285,15 +321,18 @@ export default function Inbox() {
               thread={selectedThread} staff={staff} currentUser={currentUser}
               onStatusChange={handleStatus} onAssign={handleAssign}
               onBack={() => setMobilePanelOpen(false)}
-              onToggleContact={() => setShowContact((s) => !s)}
-              contactOpen={showContact}
             />
           ) : (
             <EmptyThreadState />
           )}
         </div>
 
-        {/* Right: contact panel — open by default, toggled via header */}
+        {/* Transparent hover line to collapse/expand the detail panel (desktop) */}
+        {selectedThread && (
+          <DetailToggleHandle open={showContact} onToggle={() => setShowContact((s) => !s)} />
+        )}
+
+        {/* Right: contact panel — open by default, toggled via the hover line */}
         {selectedThread && showContact && mobilePanelOpen && (
           <div className="fixed inset-0 z-40 p-4 lg:static lg:z-auto lg:p-0 lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
             <div className="h-full rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">

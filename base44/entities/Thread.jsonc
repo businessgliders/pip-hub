@@ -87,6 +87,11 @@
       "default": false,
       "description": "Whether staff has read this thread"
     },
+    "archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this thread has been archived off the active inbox views"
+    },
     "ai_suggestions": {
       "type": "array",
       "description": "Cached AI reply suggestions",
