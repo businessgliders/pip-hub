@@ -1,15 +1,39 @@
 import React from "react";
+import { Mail, Video } from "lucide-react";
 import { VIEW_THEME } from "./inboxConfig";
 
-const GMAIL_ICON = "https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg";
-const ZOOM_ICON = "https://media.base44.com/images/public/690aaf0c732696417648d224/adb1bdaaa_image.png";
+// Finds the first phone-like value in the submission data, regardless of the
+// exact field name used by each spoke form (phone, Phone, phone_number, etc.).
+function findPhone(formData = {}) {
+  for (const [k, v] of Object.entries(formData)) {
+    if (!v || typeof v === "object") continue;
+    if (/phone|mobile|cell|tel/i.test(k)) {
+      const raw = String(v);
+      if (/\d/.test(raw)) return raw;
+    }
+  }
+  return "";
+}
+
+// Normalizes a phone string into a Zoom-dialable format: digits only, with a
+// leading "+" preserved. Defaults to North American "+1" when no country code.
+function normalizePhone(raw = "") {
+  let digits = String(raw).replace(/[^\d+]/g, "");
+  const hasPlus = digits.startsWith("+");
+  digits = digits.replace(/\+/g, "");
+  if (!digits) return "";
+  if (hasPlus) return `+${digits}`;
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  return `+${digits}`;
+}
 
 // Quick-action icons (Gmail search + Zoom phone call) shown beside the resolve
 // button in the Mail panel header — mirrors the spoke app's request detail panel.
 export default function ThreadContactActions({ thread, view }) {
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   const email = thread?.contact_email;
-  const phone = thread?.form_data?.phone || thread?.form_data?.Phone;
+  const phone = normalizePhone(findPhone(thread?.form_data));
 
   if (!email && !phone) return null;
 
@@ -26,17 +50,17 @@ export default function ThreadContactActions({ thread, view }) {
           style={btnStyle}
           className="p-1.5 rounded-full hover:brightness-95 transition-all flex items-center justify-center"
         >
-          <img src={GMAIL_ICON} alt="Gmail" className="w-4 h-4" />
+          <Mail className="w-4 h-4" style={{ color: accent }} />
         </a>
       )}
       {phone && (
         <a
-          href={`zoomphonecall://${phone.replace(/[^\d+]/g, "")}`}
+          href={`zoomphonecall://${phone}`}
           title="Call on Zoom"
           style={btnStyle}
           className="p-1.5 rounded-full hover:brightness-95 transition-all flex items-center justify-center"
         >
-          <img src={ZOOM_ICON} alt="Zoom" className="w-4 h-4" />
+          <Video className="w-4 h-4" style={{ color: accent }} />
         </a>
       )}
     </div>
