@@ -209,11 +209,16 @@ export default function Inbox() {
     }
   }, [filtered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const title = VIEW_TITLES[view] || SOURCE_META[view]?.label || "Inbox";
+  const baseTitle = VIEW_TITLES[view] || SOURCE_META[view]?.label || "Inbox";
+  // In a team inbox, reflect the selected status sub-tab in the title.
+  const title = (isSourceView && subFilter !== "all" && ALL_STATUS_META[subFilter])
+    ? `${baseTitle} · ${ALL_STATUS_META[subFilter].label}`
+    : baseTitle;
 
   // Counts for the sub-filter tabs (based on current main view, ignoring sub-tab)
   const tabCounts = useMemo(() => {
     const base = threads.filter((t) => {
+      if (t.archived) return false;
       if (SOURCE_META[view]) return t.source_app === view;
       return t.status !== "closed";
     });
