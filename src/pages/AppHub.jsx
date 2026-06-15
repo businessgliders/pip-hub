@@ -977,6 +977,8 @@ export default function AppHub() {
           {/* Inbox */}
           <Link
             to="/inbox"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500"
           >
             <Inbox className="w-5 h-5" />
