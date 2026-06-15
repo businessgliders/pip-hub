@@ -28,13 +28,13 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
     <button
       onClick={onClick}
       style={active ? { color: accent } : undefined}
-      className={`relative flex flex-1 lg:flex-initial items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+      className={`relative flex flex-1 lg:flex-initial items-center justify-center gap-1 md:gap-1.5 px-1.5 md:px-3 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${
         active
           ? "bg-white/80 dark:bg-white/15 shadow-sm"
           : "text-pink-900/60 dark:text-white/55 hover:text-pink-700 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10"
       }`}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
       {label}
       {count > 0 && (
         <span
@@ -54,10 +54,10 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
     <>
-    <header className="shrink-0 px-3 md:px-4 py-3 flex items-center gap-2 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
+    <header className="shrink-0 px-2 md:px-4 py-2 md:py-3 flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
       {/* Logo */}
       <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 lg:w-56">
-        <img src={LOGO_URL} alt="PiP Inbox" className="w-8 h-8 object-contain" />
+        <img src={LOGO_URL} alt="PiP Inbox" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
         <span className="hidden lg:block font-extrabold text-lg tracking-tight whitespace-nowrap" style={{ fontStyle: "italic", color: accent }}>
           {LOGO_TITLES[view] || "PiP Inbox"}
         </span>

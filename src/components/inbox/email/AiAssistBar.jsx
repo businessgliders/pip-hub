@@ -3,12 +3,12 @@ import { base44 } from '@/api/base44Client';
 import { Sparkles, Lightbulb, RefreshCw, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function AiAssistBar({ threadId, onApply, showDescribe, showSuggest }) {
+export default function AiAssistBar({ threadId, onApply, showDescribe, showSuggest, suggestState }) {
   if (!showDescribe && !showSuggest) return null;
   return (
     <div className="space-y-3 mt-3">
       {showDescribe && <DescribePanel threadId={threadId} onApply={onApply} />}
-      {showSuggest && <SuggestPanel threadId={threadId} onApply={onApply} />}
+      {showSuggest && <SuggestPanel threadId={threadId} onApply={onApply} cache={suggestState} />}
     </div>
   );
 }
@@ -56,9 +56,13 @@ function DescribePanel({ threadId, onApply }) {
   );
 }
 
-function SuggestPanel({ threadId, onApply }) {
-  const [suggestions, setSuggestions] = useState([]);
-  const [meta, setMeta] = useState({ cached: false, generated_at: null });
+function SuggestPanel({ threadId, onApply, cache }) {
+  // When a `cache` is supplied by the parent (EmailComposer), use it so the
+  // generated replies persist while the panel is toggled off and back on.
+  const localSuggestions = useState([]);
+  const localMeta = useState({ cached: false, generated_at: null });
+  const [suggestions, setSuggestions] = cache?.suggestions ? cache.suggestions : localSuggestions;
+  const [meta, setMeta] = cache?.meta ? cache.meta : localMeta;
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -103,7 +107,8 @@ function SuggestPanel({ threadId, onApply }) {
     }
   };
 
-  useEffect(() => { load(false); }, [threadId]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Only fetch if we don't already have suggestions cached for this thread.
+  useEffect(() => { if (suggestions.length === 0) load(false); }, [threadId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="rounded-xl p-3 bg-violet-50 dark:bg-violet-500/10 border border-violet-200/70 dark:border-violet-400/20">
@@ -140,7 +145,7 @@ function SuggestPanel({ threadId, onApply }) {
               type="button"
               onClick={() => scrollBy(-1)}
               aria-label="Scroll left"
-              className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 items-center justify-center rounded-full shadow-md transition-all hover:scale-110 bg-white dark:bg-neutral-800 border border-violet-200/70 dark:border-white/15 text-violet-700 dark:text-violet-300"
+              className="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 items-center justify-center rounded-full shadow-md transition-all hover:scale-110 bg-white dark:bg-neutral-800 border border-violet-200/70 dark:border-white/15 text-violet-700 dark:text-violet-300"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -150,7 +155,7 @@ function SuggestPanel({ threadId, onApply }) {
               type="button"
               onClick={() => scrollBy(1)}
               aria-label="Scroll right"
-              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 items-center justify-center rounded-full shadow-md transition-all hover:scale-110 bg-white dark:bg-neutral-800 border border-violet-200/70 dark:border-white/15 text-violet-700 dark:text-violet-300"
+              className="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 items-center justify-center rounded-full shadow-md transition-all hover:scale-110 bg-white dark:bg-neutral-800 border border-violet-200/70 dark:border-white/15 text-violet-700 dark:text-violet-300"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

@@ -25,6 +25,9 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
   const [polishing, setPolishing] = useState(false);
   const [showDescribe, setShowDescribe] = useState(false);
   const [showSuggest, setShowSuggest] = useState(false);
+  // Lifted AI suggestion cache so generated replies survive toggling the panel.
+  const suggestionsState = useState([]);
+  const suggestMetaState = useState({ cached: false, generated_at: null });
   const [empty, setEmpty] = useState(true);
   const [attachments, setAttachments] = useState([]);
   const [uploadingCount, setUploadingCount] = useState(0);
@@ -286,7 +289,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
   const handleTemplate = ({ body_html }) => setEditorHtml(body_html);
 
   return (
-    <div className="rounded-2xl p-3 flex-shrink-0 bg-white/70 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 shadow-sm">
+    <div className="rounded-2xl p-3 flex-shrink-0 max-h-[60vh] overflow-y-auto bg-white/70 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 shadow-sm">
       {/* Recipient */}
       <div className="flex items-center justify-between mb-2">
         <p className="text-xs text-pink-700/70 dark:text-white/60">
@@ -316,6 +319,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
         threadId={thread.id}
         showDescribe={showDescribe}
         showSuggest={showSuggest}
+        suggestState={{ suggestions: suggestionsState, meta: suggestMetaState }}
         onApply={(html) => setEditorHtml(html)}
       />
 
