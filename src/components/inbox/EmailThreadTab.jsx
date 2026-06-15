@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Mail, FileText, Sparkles } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import EmailPreviewModal from "./EmailPreviewModal";
@@ -35,6 +35,7 @@ export default function EmailThreadTab({ messages, loading, thread }) {
   const [submissionOpen, setSubmissionOpen] = useState(false);
   const [summary, setSummary] = useState(thread?.submission_summary || "");
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const bottomRef = useRef(null);
 
   const hasSubmission = thread?.form_data && Object.keys(thread.form_data).length > 0;
   const isCancellation = String(thread?.form_data?.inquiry_type || thread?.subject || "").toLowerCase().includes("cancel");
@@ -62,6 +63,13 @@ export default function EmailThreadTab({ messages, loading, thread }) {
     );
     return list.filter((m) => !isAssignmentNotice(m) || m.id === newest.id);
   }, [messages]);
+
+  // Scroll to the most recent message whenever the thread or messages change.
+  useEffect(() => {
+    if (loading) return;
+    const id = setTimeout(() => bottomRef.current?.scrollIntoView({ block: "end" }), 50);
+    return () => clearTimeout(id);
+  }, [thread?.id, displayMessages.length, loading]);
 
   if (loading) {
     return (
@@ -155,6 +163,7 @@ export default function EmailThreadTab({ messages, loading, thread }) {
             </div>
           );
         })}
+        <div ref={bottomRef} />
       </div>
 
       <EmailPreviewModal message={preview} open={!!preview} onClose={() => setPreview(null)} />
