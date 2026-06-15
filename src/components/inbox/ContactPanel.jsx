@@ -6,7 +6,8 @@ import ThreadHistoryItem from "./ThreadHistoryItem";
 import ContactNotes from "./ContactNotes";
 import ActivityLog from "./ActivityLog";
 import AssigneePanel from "./AssigneePanel";
-import { Mail, Phone, X } from "lucide-react";
+import ThreadContactActions from "./ThreadContactActions";
+import { Mail, Phone } from "lucide-react";
 import { displayName, viewTextColor } from "./inboxConfig";
 
 export default function ContactPanel({ thread, staff = [], onAssign, onSelectThread, onClose }) {
@@ -33,12 +34,6 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ color: accent }}>
-      <div className="lg:hidden flex justify-end p-2">
-        <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/60 dark:hover:bg-white/10">
-          <X className="w-5 h-5 dark:text-white/80" style={{ color: accent }} />
-        </button>
-      </div>
-
       {/* Contact details */}
       <div className="flex flex-col items-center text-center px-4 pt-6 pb-6 border-b border-white/50 dark:border-white/15">
         <div className="p-1 rounded-full bg-gradient-to-br from-pink-300/60 to-rose-300/60">
@@ -54,6 +49,10 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
               <Phone className="w-3.5 h-3.5" /> {contact.phone}
             </span>
           )}
+        </div>
+        {/* Quick contact actions: Gmail search + Zoom call */}
+        <div className="mt-3">
+          <ThreadContactActions thread={thread} view={thread.source_app} />
         </div>
       </div>
 

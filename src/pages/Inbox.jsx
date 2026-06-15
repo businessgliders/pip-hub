@@ -353,7 +353,7 @@ export default function Inbox() {
         {/* Right: contact panel — desktop-only sidebar (never overlays mobile/tablet) */}
         {selectedThread && showContact && (
           <div className="hidden lg:block lg:w-[300px] lg:shrink-0 lg:ml-4 h-full overflow-hidden">
-            <div className="h-full rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
+            <div className="h-full rounded-3xl bg-white/25 dark:bg-white/[0.06] backdrop-blur-2xl border border-white/40 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <ContactPanel
                 thread={selectedThread}
                 staff={staff}

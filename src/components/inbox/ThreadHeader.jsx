@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Avatar from "./Avatar";
 import StatusTrack from "./StatusTrack";
 import StatusChangeDialog from "./StatusChangeDialog";
-import ThreadContactActions from "./ThreadContactActions";
 import { displayName, ticketLabel } from "./inboxConfig";
 import { ArrowLeft, CheckCircle2, RotateCcw, ThumbsUp, ThumbsDown, PanelRight } from "lucide-react";
 
@@ -52,21 +51,6 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
         {/* Status — visual thread (desktop) / dropdown (mobile), now before assign */}
         <StatusTrack status={thread.status} source={thread.source_app} onSelect={requestChange} />
 
-        {/* Quick contact actions: Gmail search + Zoom call (matches spoke detail panel) */}
-        <ThreadContactActions thread={thread} view={thread.source_app} />
-
-        {/* Details tab — mobile/tablet only (desktop has the side panel) */}
-        {onShowDetails && (
-          <button
-            onClick={onShowDetails}
-            title="Show details"
-            className="lg:hidden flex items-center gap-1.5 px-2 py-2 rounded-full text-pink-800 dark:text-white/80 bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/15 transition-colors shadow-sm text-xs font-semibold"
-          >
-            <PanelRight className="w-4 h-4" />
-            <span className="hidden md:inline">Details</span>
-          </button>
-        )}
-
         {/* Influencer — Approve / Decline buttons (move to Accepted / Declined) */}
         {isInfluencer && (
           <>
@@ -98,6 +82,17 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
           >
             {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
             <span className="hidden lg:inline">{isResolved ? "Reopen" : "Mark as resolved"}</span>
+          </button>
+        )}
+
+        {/* Details — icon-only, mobile/tablet only, last button (desktop has the side panel) */}
+        {onShowDetails && (
+          <button
+            onClick={onShowDetails}
+            title="Show details"
+            className="lg:hidden p-2 rounded-full text-pink-800 dark:text-white/80 bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/15 transition-colors shadow-sm"
+          >
+            <PanelRight className="w-4 h-4" />
           </button>
         )}
       </div>

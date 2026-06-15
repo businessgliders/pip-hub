@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { StickyNote, Send, Trash2, Check, X, Pencil } from "lucide-react";
 import { relativeTime } from "./inboxConfig";
 
@@ -50,66 +49,69 @@ export default function ContactNotes({ threadId, accent }) {
   };
 
   return (
-    <div className="px-4 py-4 border-b border-white/50 dark:border-white/15" style={accent ? { color: accent } : undefined}>
+    <div className="px-4 py-3 border-b border-white/50 dark:border-white/15" style={accent ? { color: accent } : undefined}>
       <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center gap-1.5 opacity-60 dark:text-white/60">
         <StickyNote className="w-3.5 h-3.5" /> Internal Notes
       </h4>
 
-      <div className="mb-3">
-        <Textarea
+      {/* Inline single-line composer */}
+      <div className="relative mb-2.5">
+        <Input
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="Add a private note (admins only)…"
-          className="resize-none h-16 text-sm bg-amber-50/50 border-amber-200 dark:bg-amber-300/10 dark:border-amber-300/30 dark:text-white dark:placeholder:text-white/40"
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
+          placeholder="Add a private note…"
+          className="h-9 pr-9 text-sm rounded-full bg-amber-50/50 border-amber-200 dark:bg-amber-300/10 dark:border-amber-300/30 dark:text-white dark:placeholder:text-white/40"
         />
-        <div className="flex justify-end mt-1.5">
-          <Button size="sm" onClick={submit} disabled={addMutation.isPending || !body.trim()} className="gap-1.5 h-7 text-xs">
-            <Send className="w-3 h-3" /> Post
-          </Button>
-        </div>
+        <button
+          onClick={submit}
+          disabled={addMutation.isPending || !body.trim()}
+          title="Post note"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-pink-900/90 text-white hover:bg-pink-900 disabled:opacity-40 transition-colors"
+        >
+          <Send className="w-3.5 h-3.5" />
+        </button>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {isLoading ? (
-          <div className="h-14 bg-amber-50 rounded-lg animate-pulse" />
+          <div className="h-9 bg-amber-50/60 rounded-lg animate-pulse" />
         ) : notes.length === 0 ? (
           <p className="text-xs text-slate-400 dark:text-white/50">No notes yet.</p>
         ) : (
           notes.map((n) => (
-            <div key={n.id} className="rounded-2xl border border-white/60 bg-white/40 dark:border-white/10 dark:bg-white/5 px-3 py-2 group">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-semibold truncate dark:text-white/85" style={accent ? { color: accent } : undefined}>{n.author_name || n.author_email}</span>
-                <span className="text-[10px] opacity-50 dark:text-white/50">{relativeTime(n.created_date)}</span>
-              </div>
+            <div key={n.id} className="rounded-xl border border-white/60 bg-white/40 dark:border-white/10 dark:bg-white/5 px-2.5 py-1.5 group">
               {editingId === n.id ? (
-                <div>
-                  <Textarea
+                <div className="relative">
+                  <Input
                     value={editBody}
                     onChange={(e) => setEditBody(e.target.value)}
-                    className="resize-none h-16 text-sm bg-white border-amber-200"
+                    onKeyDown={(e) => { if (e.key === "Enter" && editBody.trim()) { e.preventDefault(); updateMutation.mutate({ id: n.id, text: editBody.trim() }); } }}
+                    className="h-8 pr-14 text-sm rounded-lg bg-white border-amber-200"
                   />
-                  <div className="flex justify-end gap-1 mt-1.5">
-                    <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => setEditingId(null)}>
-                      <X className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" className="h-6 px-2 text-xs gap-1" disabled={!editBody.trim()} onClick={() => updateMutation.mutate({ id: n.id, text: editBody.trim() })}>
-                      <Check className="w-3 h-3" /> Save
-                    </Button>
+                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
+                    <button onClick={() => setEditingId(null)} className="p-1 rounded-md hover:bg-black/5">
+                      <X className="w-3.5 h-3.5 text-slate-500" />
+                    </button>
+                    <button disabled={!editBody.trim()} onClick={() => updateMutation.mutate({ id: n.id, text: editBody.trim() })} className="p-1 rounded-md hover:bg-black/5 disabled:opacity-40">
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    </button>
                   </div>
                 </div>
               ) : (
-                <>
-                  <p className="text-sm dark:text-white/85 whitespace-pre-wrap" style={accent ? { color: accent } : undefined}>{n.body}</p>
-                  <div className="flex justify-end gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => { setEditingId(n.id); setEditBody(n.body); }} className="text-[11px] text-slate-500 dark:text-white/60 hover:text-slate-700 dark:hover:text-white flex items-center gap-1">
-                      <Pencil className="w-3 h-3" /> Edit
+                <div className="flex items-start gap-2">
+                  <p className="flex-1 text-[13px] leading-snug dark:text-white/85 whitespace-pre-wrap" style={accent ? { color: accent } : undefined}>{n.body}</p>
+                  <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => { setEditingId(n.id); setEditBody(n.body); }} title="Edit" className="text-slate-400 dark:text-white/50 hover:text-slate-700 dark:hover:text-white">
+                      <Pencil className="w-3 h-3" />
                     </button>
-                    <button onClick={() => deleteMutation.mutate(n.id)} className="text-[11px] text-rose-500 hover:text-rose-700 flex items-center gap-1">
-                      <Trash2 className="w-3 h-3" /> Delete
+                    <button onClick={() => deleteMutation.mutate(n.id)} title="Delete" className="text-rose-400 hover:text-rose-600">
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
-                </>
+                </div>
               )}
+              <span className="block text-[10px] opacity-45 dark:text-white/40 mt-0.5">{n.author_name || n.author_email} · {relativeTime(n.created_date)}</span>
             </div>
           ))
         )}

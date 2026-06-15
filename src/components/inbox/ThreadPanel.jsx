@@ -50,7 +50,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
 
       {/* Mobile/tablet slide-in detail panel (replaces email view) */}
       <div className={`lg:hidden absolute inset-0 z-30 transition-transform duration-300 ease-out ${detailOpen ? "translate-x-0" : "translate-x-full pointer-events-none"}`}>
-        <div className="h-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl">
+        <div className="h-full bg-white/40 dark:bg-zinc-900/40 backdrop-blur-2xl">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/50 dark:border-white/15">
             <span className="font-bold text-pink-900 dark:text-white">Details</span>
             <button onClick={() => setDetailOpen(false)} className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
