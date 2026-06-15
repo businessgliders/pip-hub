@@ -30,7 +30,7 @@ export const EVENTS_STATUS_META = {
 };
 
 export const EVENTS_STATUS_ORDER = [
-  "New", "In Conversations", "Waiting for Payment", "Pending", "Confirmed", "Hosted", "No Response", "Cancelled", "Closed",
+  "New", "In Conversations", "Waiting for Payment", "Pending", "Confirmed", "No Response", "Cancelled", "Closed", "Hosted",
 ];
 
 // Combined lookup so any status value (generic or events) can be rendered.
