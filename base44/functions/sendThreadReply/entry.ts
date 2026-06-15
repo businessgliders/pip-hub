@@ -42,6 +42,13 @@ function chunkBase64(b64, size = 76) {
   return b64.replace(new RegExp(`(.{1,${size}})`, 'g'), '$1\r\n').trim();
 }
 
+// RFC 2047 encode a header value when it contains non-ASCII chars (e.g. em dash, emoji).
+function encodeHeader(str) {
+  const s = str || '';
+  if (/^[\x00-\x7F]*$/.test(s)) return s;
+  return `=?UTF-8?B?${btoa(unescape(encodeURIComponent(s)))}?=`;
+}
+
 function base64url(str) {
   return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
@@ -64,7 +71,7 @@ function buildMime({ to, from, subject, htmlBody, textBody, inReplyTo, reference
   const lines = [
     `From: ${from}`,
     `To: ${to}`,
-    `Subject: ${subject}`,
+    `Subject: ${encodeHeader(subject)}`,
     'MIME-Version: 1.0',
   ];
   if (hasAttachments) {
@@ -158,7 +165,7 @@ Deno.serve(async (req) => {
     const references = [rootId, lastRfcId].filter((v, i, a) => v && a.indexOf(v) === i).join(' ');
 
     const sender = FROM_BY_SOURCE[thread.source_app] || { name: user.full_name || user.email, email: user.email };
-    const fromHeader = `${sender.name} <${sender.email}>`;
+    const fromHeader = `${encodeHeader(sender.name)} <${sender.email}>`;
 
     const mime = buildMime({
       to: thread.contact_email,
