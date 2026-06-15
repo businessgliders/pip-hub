@@ -197,9 +197,8 @@ export default function Inbox() {
     if (!selected && filtered.length > 0) {
       const params = new URLSearchParams(window.location.search);
       if (!params.get("thread")) {
-        // Auto-select the first thread, but only auto-OPEN the panel on desktop.
-        const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
-        handleSelect(filtered[0], { open: isDesktop });
+        // Auto-select and open the first conversation on all screen sizes.
+        handleSelect(filtered[0], { open: true });
       }
     }
   }, [filtered, selected]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -28,7 +28,7 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
     <button
       onClick={onClick}
       style={active ? { color: accent } : undefined}
-      className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+      className={`relative flex flex-1 lg:flex-initial items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
         active
           ? "bg-white/80 dark:bg-white/15 shadow-sm"
           : "text-pink-900/60 dark:text-white/55 hover:text-pink-700 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10"
@@ -54,17 +54,17 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
     <>
-    <header className="shrink-0 px-4 py-3 flex items-center gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
+    <header className="shrink-0 px-3 md:px-4 py-3 flex items-center gap-2 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
       {/* Logo */}
-      <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 w-56">
+      <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 lg:w-56">
         <img src={LOGO_URL} alt="PiP Inbox" className="w-8 h-8 object-contain" />
         <span className="hidden lg:block font-extrabold text-lg tracking-tight whitespace-nowrap" style={{ fontStyle: "italic", color: accent }}>
           {LOGO_TITLES[view] || "PiP Inbox"}
         </span>
       </Link>
 
-      {/* Tabs: 3 team inboxes */}
-      <nav className="flex items-center gap-1 ml-2">
+      {/* Tabs: 3 team inboxes — fill width & center on mobile/tablet */}
+      <nav className="flex flex-1 lg:flex-initial items-center justify-center gap-1 lg:ml-2">
         {TEAM_TABS.map((t) => (
           <TabButton
             key={t.key}
@@ -78,7 +78,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         ))}
       </nav>
 
-      <div className="flex-1" />
+      <div className="hidden lg:block flex-1" />
 
       {/* Right icons */}
       <div className="flex items-center gap-1">
