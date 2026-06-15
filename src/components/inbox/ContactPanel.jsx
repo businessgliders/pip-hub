@@ -1,6 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { useTheme } from "@/lib/ThemeContext";
 import Avatar from "./Avatar";
 import ThreadHistoryItem from "./ThreadHistoryItem";
 import ContactNotes from "./ContactNotes";
@@ -12,7 +13,10 @@ import { Mail, Phone } from "lucide-react";
 import { displayName, viewTextColor } from "./inboxConfig";
 
 export default function ContactPanel({ thread, staff = [], onAssign, onSelectThread, onClose }) {
-  const accent = viewTextColor(thread.source_app);
+  const { dark } = useTheme();
+  // In dark mode the brand brown accent is unreadable — fall back to the
+  // dark:text-* classes by not forcing an inline color.
+  const accent = dark ? undefined : viewTextColor(thread.source_app);
 
   const { data: contact } = useQuery({
     queryKey: ["contact", thread.contact_id],
