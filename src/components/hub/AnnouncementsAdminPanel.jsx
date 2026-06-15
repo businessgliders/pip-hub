@@ -346,32 +346,32 @@ Return ONLY the final prompt as plain text — no preamble, no quotes.`,
                           value={editDraft.title}
                           onChange={(e) => setEditDraft({ ...editDraft, title: e.target.value })}
                           placeholder="Title"
-                          className="h-8 text-sm"
+                          className="h-8 text-sm text-gray-900"
                         />
                         <Input
                           value={editDraft.subtitle}
                           onChange={(e) => setEditDraft({ ...editDraft, subtitle: e.target.value })}
                           placeholder="Subtitle"
-                          className="h-8 text-sm"
+                          className="h-8 text-sm text-gray-900"
                         />
                         <Input
                           value={editDraft.link_url}
                           onChange={(e) => setEditDraft({ ...editDraft, link_url: e.target.value })}
                           placeholder="Link URL"
-                          className="h-8 text-sm"
+                          className="h-8 text-sm text-gray-900"
                         />
                         <Input
                           type="url"
                           value={editDraft.image_url}
                           onChange={(e) => setEditDraft({ ...editDraft, image_url: e.target.value })}
                           placeholder="Image URL (overrides AI image)"
-                          className="h-8 text-sm"
+                          className="h-8 text-sm text-gray-900"
                         />
                         <Textarea
                           value={editDraft.ai_prompt}
                           onChange={(e) => setEditDraft({ ...editDraft, ai_prompt: e.target.value })}
                           placeholder="AI prompt (used for regeneration)"
-                          className="text-sm h-16"
+                          className="text-sm h-16 text-gray-900"
                         />
                         <div className="flex items-center gap-2">
                           <Label className="text-gray-700 text-xs">Open in new tab</Label>

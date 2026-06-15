@@ -714,27 +714,27 @@ export default function AppHub() {
                 <Grid3X3 className="w-4 h-4" />
               </button>
             </div>
-            <Button onClick={() => setShowBrowseApps(true)} variant="outline" size="icon" className="rounded-xl border-gray-300" title="Add Apps">
+            <Button onClick={() => setShowBrowseApps(true)} variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50 text-gray-700" title="Add Apps">
               <Plus className="w-4 h-4" />
             </Button>
             <Button
               onClick={() => setIsEditMode(e => !e)}
               variant={isEditMode ? 'default' : 'outline'}
               size="icon"
-              className={`rounded-xl ${isEditMode ? 'bg-[#f1889b] hover:bg-[#f1889b]/90 text-white border-[#f1889b]' : 'border-gray-300'}`}
+              className={`rounded-xl ${isEditMode ? 'bg-[#f1889b] hover:bg-[#f1889b]/90 text-white border-[#f1889b]' : 'border-gray-300 bg-white hover:bg-gray-50 text-gray-700'}`}
               title={isEditMode ? 'Done editing' : 'Edit'}
             >
               {isEditMode ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
             </Button>
             {user?.email === 'gurpreen@pilatesinpinkstudio.com' && (
               <Link to="/settings">
-                <Button variant="outline" size="icon" className="rounded-xl border-gray-300" title="Settings">
+                <Button variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50 text-gray-700" title="Settings">
                   <SettingsIcon className="w-4 h-4" />
                 </Button>
               </Link>
             )}
             <div className="relative group">
-              <Button variant="outline" size="icon" className="rounded-xl border-gray-300">
+              <Button variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white">
                   {getInitials(user.full_name)}
                 </div>
