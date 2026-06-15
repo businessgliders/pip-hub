@@ -66,6 +66,17 @@ export function viewBackdrop(view, isDark) {
   return isDark ? t.dark : t.light;
 }
 
+// Dark text accent per inbox (dark brown / dark pink / dark blue-purple).
+// Used in the details panel so copy matches the active inbox brand color.
+export const VIEW_TEXT = {
+  support: "#5c3a23",
+  events: "#8a2d44",
+  influencer: "#3d1f6e",
+};
+export function viewTextColor(view) {
+  return VIEW_TEXT[view] || VIEW_TEXT.events;
+}
+
 // Per-inbox ticket/request number prefix.
 export const SOURCE_PREFIX = {
   support: "SUP",
