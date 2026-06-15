@@ -8,7 +8,7 @@ export default function DetailToggleHandle({ open, onToggle }) {
     <button
       onClick={onToggle}
       title={open ? "Hide details" : "Show details"}
-      className="hidden lg:flex group relative w-1 shrink-0 items-center justify-center cursor-pointer"
+      className="hidden lg:flex group relative w-1.5 shrink-0 items-center justify-center cursor-pointer"
     >
       <span className="absolute inset-y-2 left-1/2 -translate-x-1/2 w-px bg-transparent group-hover:bg-white/40 transition-colors" />
       <span className="relative z-10 flex items-center justify-center w-5 h-10 rounded-full bg-white/0 text-transparent group-hover:bg-white/70 dark:group-hover:bg-white/15 group-hover:text-pink-700 dark:group-hover:text-pink-200 shadow-sm transition-all">
