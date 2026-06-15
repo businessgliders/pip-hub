@@ -1,6 +1,15 @@
 import React from "react";
-import { Mail, Video } from "lucide-react";
+import { Video } from "lucide-react";
 import { VIEW_THEME } from "./inboxConfig";
+
+// Gmail "M" envelope logo rendered in a single brown tone (monochrome).
+function GmailLogo({ className, color = "#6b4423" }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill={color} aria-hidden="true">
+      <path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H4l8 6 8-6h.5A1.5 1.5 0 0 1 22 5.5v13a1.5 1.5 0 0 1-1.5 1.5H18V9.4l-6 4.5-6-4.5V20H3.5A1.5 1.5 0 0 1 2 18.5v-13Z" />
+    </svg>
+  );
+}
 
 // Finds the first phone-like value in the submission data, regardless of the
 // exact field name used by each spoke form (phone, Phone, phone_number, etc.).
@@ -47,10 +56,10 @@ export default function ThreadContactActions({ thread, view }) {
           target="_blank"
           rel="noopener noreferrer"
           title="Search all in Gmail"
-          style={btnStyle}
+          style={{ backgroundColor: "#6b442322" }}
           className="p-1.5 rounded-full hover:brightness-95 transition-all flex items-center justify-center"
         >
-          <Mail className="w-4 h-4" style={{ color: accent }} />
+          <GmailLogo className="w-4 h-4" color="#6b4423" />
         </a>
       )}
       {phone && (

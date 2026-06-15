@@ -210,9 +210,10 @@ export default function Inbox() {
   }, [filtered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const baseTitle = VIEW_TITLES[view] || SOURCE_META[view]?.label || "Inbox";
-  // In a team inbox, reflect the selected status sub-tab in the title.
+  // In a team inbox, show ONLY the selected status label (e.g. "Open", "Closed")
+  // instead of the inbox name. Falls back to the inbox name when on "all".
   const title = (isSourceView && subFilter !== "all" && ALL_STATUS_META[subFilter])
-    ? `${baseTitle} · ${ALL_STATUS_META[subFilter].label}`
+    ? ALL_STATUS_META[subFilter].label
     : baseTitle;
 
   // Counts for the sub-filter tabs (based on current main view, ignoring sub-tab)
@@ -319,6 +320,7 @@ export default function Inbox() {
           <div className="flex-1 overflow-hidden">
             <ThreadList
               threads={filtered}
+              grouped={showArchived}
               title={showArchived ? "Archived" : title}
               count={filtered.length}
               search={search} setSearch={setSearch}

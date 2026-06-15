@@ -5,9 +5,23 @@ import { Input } from "@/components/ui/input";
 
 const PAGE_SIZE = 50;
 
+// Groups threads into { label, items } buckets by Year-Month of last activity.
+function groupByMonth(threads) {
+  const buckets = new Map();
+  for (const t of threads) {
+    const d = new Date(t.last_activity_at || t.created_date || 0);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const label = d.toLocaleDateString(undefined, { year: "numeric", month: "long" });
+    if (!buckets.has(key)) buckets.set(key, { key, label, items: [] });
+    buckets.get(key).items.push(t);
+  }
+  // Sort buckets newest first.
+  return Array.from(buckets.values()).sort((a, b) => (a.key < b.key ? 1 : -1));
+}
+
 export default function ThreadList({
   threads, title, count, search, setSearch,
-  selectedId, onSelect, loading, filterSlot,
+  selectedId, onSelect, loading, filterSlot, grouped = false,
 }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const scrollRef = useRef(null);
@@ -72,9 +86,22 @@ export default function ThreadList({
           </div>
         ) : (
           <>
-            {shown.map((t) => (
-              <ThreadRow key={t.id} thread={t} active={t.id === selectedId} onClick={() => onSelect(t)} />
-            ))}
+            {grouped ? (
+              groupByMonth(shown).map((g) => (
+                <div key={g.key}>
+                  <div className="sticky top-0 z-10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-pink-700/70 dark:text-white/60 bg-white/40 dark:bg-white/5 backdrop-blur-md border-b border-white/40 dark:border-white/10">
+                    {g.label}
+                  </div>
+                  {g.items.map((t) => (
+                    <ThreadRow key={t.id} thread={t} active={t.id === selectedId} onClick={() => onSelect(t)} />
+                  ))}
+                </div>
+              ))
+            ) : (
+              shown.map((t) => (
+                <ThreadRow key={t.id} thread={t} active={t.id === selectedId} onClick={() => onSelect(t)} />
+              ))
+            )}
             {visible < threads.length && (
               <div className="py-4 text-center text-xs text-slate-400">Loading more…</div>
             )}

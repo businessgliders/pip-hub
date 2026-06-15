@@ -7,6 +7,7 @@ import ContactNotes from "./ContactNotes";
 import ActivityLog from "./ActivityLog";
 import AssigneePanel from "./AssigneePanel";
 import ThreadContactActions from "./ThreadContactActions";
+import ThreadDeleteButton from "./ThreadDeleteButton";
 import { Mail, Phone } from "lucide-react";
 import { displayName, viewTextColor } from "./inboxConfig";
 
@@ -84,6 +85,9 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
 
       {/* Activity — status change audit trail (now the last section) */}
       <ActivityLog thread={thread} accent={accent} />
+
+      {/* Delete — only for tickets escalated/assigned to Gurpreen */}
+      <ThreadDeleteButton thread={thread} onDeleted={onClose} />
     </div>
   );
 }
