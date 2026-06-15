@@ -22,11 +22,30 @@ function submissionPreview(formData) {
   return text.length > 220 ? text.slice(0, 220) + "…" : text;
 }
 
+// Identify imported "Ticket assigned to ... " system notices (from the old
+// system, captured via Gmail) so we can collapse repeated reassignment emails.
+function isAssignmentNotice(m) {
+  const text = `${m.snippet || ""} ${m.body_text || m.body_html || ""}`.toLowerCase();
+  return /\bassigned to\b/.test(text);
+}
+
 export default function EmailThreadTab({ messages, loading, thread }) {
   const [preview, setPreview] = useState(null);
   const [submissionOpen, setSubmissionOpen] = useState(false);
 
   const hasSubmission = thread?.form_data && Object.keys(thread.form_data).length > 0;
+
+  // Show reassignment notices only once: keep the most recent assignment notice
+  // and drop the earlier duplicates from the thread view.
+  const displayMessages = React.useMemo(() => {
+    const list = messages || [];
+    const notices = list.filter(isAssignmentNotice);
+    if (notices.length <= 1) return list;
+    const newest = notices.reduce((a, b) =>
+      new Date(a.sent_at || 0) >= new Date(b.sent_at || 0) ? a : b
+    );
+    return list.filter((m) => !isAssignmentNotice(m) || m.id === newest.id);
+  }, [messages]);
 
   if (loading) {
     return (
