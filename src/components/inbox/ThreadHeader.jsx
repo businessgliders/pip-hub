@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Avatar from "./Avatar";
 import StatusTrack from "./StatusTrack";
 import StatusChangeDialog from "./StatusChangeDialog";
+import ThreadContactActions from "./ThreadContactActions";
 import { displayName, ticketLabel } from "./inboxConfig";
 import { ArrowLeft, CheckCircle2, RotateCcw } from "lucide-react";
 
@@ -47,6 +48,9 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
       <div className="flex items-center gap-2 min-w-0">
         {/* Status — visual thread (desktop) / dropdown (mobile), now before assign */}
         <StatusTrack status={thread.status} source={thread.source_app} onSelect={requestChange} />
+
+        {/* Quick contact actions: Gmail search + Zoom call (matches spoke detail panel) */}
+        <ThreadContactActions thread={thread} view={thread.source_app} />
 
         {/* Resolve / Reopen — text button on desktop, icon on mobile (Events use pipeline stages) */}
         {!isEvents && (
