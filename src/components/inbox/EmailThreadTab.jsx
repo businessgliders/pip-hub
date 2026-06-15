@@ -57,7 +57,7 @@ export default function EmailThreadTab({ messages, loading, thread }) {
     );
   }
 
-  const noEmails = !messages || messages.length === 0;
+  const noEmails = displayMessages.length === 0;
 
   return (
     <>
@@ -93,7 +93,7 @@ export default function EmailThreadTab({ messages, loading, thread }) {
           </div>
         )}
 
-        {(messages || []).map((m) => {
+        {displayMessages.map((m) => {
           const outbound = m.direction === "outbound";
           return (
             <div key={m.id} className={`flex ${outbound ? "justify-end" : "justify-start"}`}>
