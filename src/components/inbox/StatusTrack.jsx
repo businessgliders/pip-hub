@@ -12,8 +12,8 @@ export default function StatusTrack({ status, source, onSelect }) {
     ? [status, ...baseOrder]
     : baseOrder;
 
-  // Events has too many pipeline stages for the horizontal track — always use the dropdown.
-  if (source === "events") {
+  // All sources use dropdown for consistency in the thread header
+  if (["events", "support", "influencer"].includes(source)) {
     return <StatusPill status={status} source={source} onChange={onSelect} />;
   }
 
