@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { StickyNote, Send, Trash2, Check, X, Pencil } from "lucide-react";
 import { relativeTime } from "./inboxConfig";
 
-export default function ContactNotes({ threadId }) {
+export default function ContactNotes({ threadId, accent }) {
   const qc = useQueryClient();
   const [body, setBody] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
@@ -50,8 +50,8 @@ export default function ContactNotes({ threadId }) {
   };
 
   return (
-    <div className="px-4 py-4 border-b border-white/50 dark:border-white/15">
-      <h4 className="text-[11px] font-semibold text-pink-400 dark:text-pink-300/80 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+    <div className="px-4 py-4 border-b border-white/50 dark:border-white/15" style={accent ? { color: accent } : undefined}>
+      <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 flex items-center gap-1.5 opacity-60 dark:text-white/60">
         <StickyNote className="w-3.5 h-3.5" /> Internal Notes
       </h4>
 
@@ -76,10 +76,10 @@ export default function ContactNotes({ threadId }) {
           <p className="text-xs text-slate-400 dark:text-white/50">No notes yet.</p>
         ) : (
           notes.map((n) => (
-            <div key={n.id} className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-300/25 dark:bg-amber-300/10 px-3 py-2 group">
+            <div key={n.id} className="rounded-2xl border border-white/60 bg-white/40 dark:border-white/10 dark:bg-white/5 px-3 py-2 group">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-200 truncate">{n.author_name || n.author_email}</span>
-                <span className="text-[10px] text-amber-600 dark:text-amber-300/80">{relativeTime(n.created_date)}</span>
+                <span className="text-[11px] font-semibold truncate dark:text-white/85" style={accent ? { color: accent } : undefined}>{n.author_name || n.author_email}</span>
+                <span className="text-[10px] opacity-50 dark:text-white/50">{relativeTime(n.created_date)}</span>
               </div>
               {editingId === n.id ? (
                 <div>
@@ -99,7 +99,7 @@ export default function ContactNotes({ threadId }) {
                 </div>
               ) : (
                 <>
-                  <p className="text-sm text-slate-700 dark:text-white/85 whitespace-pre-wrap">{n.body}</p>
+                  <p className="text-sm dark:text-white/85 whitespace-pre-wrap" style={accent ? { color: accent } : undefined}>{n.body}</p>
                   <div className="flex justify-end gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => { setEditingId(n.id); setEditBody(n.body); }} className="text-[11px] text-slate-500 dark:text-white/60 hover:text-slate-700 dark:hover:text-white flex items-center gap-1">
                       <Pencil className="w-3 h-3" /> Edit

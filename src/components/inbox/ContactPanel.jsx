@@ -8,11 +8,6 @@ import ContactNotes from "./ContactNotes";
 import { Mail, Phone, X } from "lucide-react";
 import { relativeTime, displayName, viewTextColor } from "./inboxConfig";
 
-const HIDDEN_FIELDS = new Set(["source_app"]);
-function prettyKey(key) {
-  return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 export default function ContactPanel({ thread, onSelectThread, onClose }) {
   const accent = viewTextColor(thread.source_app);
 
@@ -31,10 +26,6 @@ export default function ContactPanel({ thread, onSelectThread, onClose }) {
   if (!contact) {
     return <div className="h-full p-4 animate-pulse" />;
   }
-
-  const submissionEntries = Object.entries(thread.form_data || {}).filter(
-    ([k, v]) => !HIDDEN_FIELDS.has(k) && v !== null && v !== undefined && v !== ""
-  );
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ color: accent }}>
@@ -61,23 +52,6 @@ export default function ContactPanel({ thread, onSelectThread, onClose }) {
           )}
         </div>
       </div>
-
-      {/* Submission details (under contact details) */}
-      {submissionEntries.length > 0 && (
-        <div className="px-4 py-4 border-b border-white/50 dark:border-white/15">
-          <h4 className="text-[11px] font-semibold uppercase tracking-wide mb-2 opacity-60 dark:text-white/60">Submission Details</h4>
-          <div className="rounded-xl border border-white/60 bg-white/40 divide-y divide-white/50 dark:border-white/10 dark:bg-white/5 dark:divide-white/10">
-            {submissionEntries.map(([k, v]) => (
-              <div key={k} className="px-3 py-2 flex flex-col sm:flex-row sm:gap-3">
-                <span className="text-xs font-medium opacity-60 sm:w-32 shrink-0 dark:text-white/60">{prettyKey(k)}</span>
-                <span className="text-sm break-words dark:text-white/85" style={{ color: accent }}>
-                  {Array.isArray(v) ? v.join(", ") : String(v)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* All threads */}
       <div className="px-4 py-4 border-b border-white/50 dark:border-white/15">
@@ -109,7 +83,7 @@ export default function ContactPanel({ thread, onSelectThread, onClose }) {
       </div>
 
       {/* Internal notes (below all threads) */}
-      <ContactNotes threadId={thread.id} />
+      <ContactNotes threadId={thread.id} accent={accent} />
     </div>
   );
 }
