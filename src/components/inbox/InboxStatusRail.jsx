@@ -37,13 +37,14 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, a
           onClick={() => onChange(hostedTab.key)}
           title="Hosted"
           style={!archivedActive && active === hostedTab.key ? { background: accent, color: "#fff" } : undefined}
-          className={`${onArchived ? "mt-auto" : "mt-auto"} w-14 flex items-center justify-center py-2.5 rounded-2xl transition-all ${
+          className={`mt-auto w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
             !archivedActive && active === hostedTab.key
               ? "shadow-md"
               : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
           }`}
         >
           <PartyPopper className="w-5 h-5" />
+          <span>Hosted</span>
         </button>
       )}
 

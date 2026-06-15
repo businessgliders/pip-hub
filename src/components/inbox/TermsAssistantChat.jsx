@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
-import { Sparkles, X, Send, Loader2, BookOpen } from "lucide-react";
+import { BookText, X, Send, Loader2, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -46,15 +46,15 @@ export default function TermsAssistantChat({ accent = "#7c3aed" }) {
 
   return (
     <>
-      {/* Floating button — sits above the bug button */}
+      {/* Floating button — sits to the left of the bug button */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
           title="Terms Assistant"
-          className="fixed bottom-[88px] right-5 z-50 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-transform"
+          className="fixed bottom-5 right-[84px] z-50 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-transform"
           style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
         >
-          <Sparkles className="w-6 h-6" />
+          <BookText className="w-6 h-6" />
         </button>
       )}
 
@@ -63,7 +63,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed" }) {
         <div className="fixed bottom-5 right-5 z-50 w-[min(92vw,380px)] h-[min(80vh,560px)] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900">
           {/* Header */}
           <div className="px-4 py-3 flex items-center gap-2.5 text-white" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}>
-            <Sparkles className="w-5 h-5" />
+            <BookText className="w-5 h-5" />
             <div className="flex-1">
               <p className="text-sm font-semibold leading-tight">Terms Assistant</p>
               <p className="text-[11px] opacity-80 leading-tight">Answers from the live Terms page</p>
