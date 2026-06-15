@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
@@ -40,13 +40,21 @@ const AuthenticatedApp = () => {
     }
   }
 
+  // On the inbox subdomain, land directly on the Inbox page.
+  const onInboxDomain = typeof window !== 'undefined' &&
+    window.location.hostname.startsWith('inbox.');
+
   // Render the main app
   return (
     <Routes>
       <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
+        onInboxDomain ? (
+          <Navigate to="/inbox" replace />
+        ) : (
+          <LayoutWrapper currentPageName={mainPageKey}>
+            <MainPage />
+          </LayoutWrapper>
+        )
       } />
       {Object.entries(Pages)
         .filter(([path]) => path !== mainPageKey)
