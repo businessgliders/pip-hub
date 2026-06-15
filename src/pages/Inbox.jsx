@@ -311,10 +311,10 @@ export default function Inbox() {
             <InboxStatusRail
               tabs={activeTabs}
               active={subFilter}
-              onChange={(k) => { setShowArchived(false); setSubFilter(k); }}
+              onChange={(k) => { setShowArchived(false); setSubFilter(k); setSelected(null); }}
               counts={tabCounts} accent={accent}
               archivedActive={showArchived}
-              onArchived={isSourceView ? () => setShowArchived((s) => !s) : undefined}
+              onArchived={isSourceView ? () => { setShowArchived((s) => !s); setSelected(null); } : undefined}
             />
           )}
           <div className="flex-1 overflow-hidden">
