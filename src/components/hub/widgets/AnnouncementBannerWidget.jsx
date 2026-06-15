@@ -134,7 +134,14 @@ export default function AnnouncementBannerWidget() {
             </div>
 
             <h2 className="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight drop-shadow-sm leading-tight">
-              <span className="inline-flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-3 flex-wrap">
+                {/(inbox)/i.test(current.title) && (
+                  <img
+                    src="https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png"
+                    alt=""
+                    className="w-9 h-9 lg:w-12 lg:h-12 rounded-xl bg-white/90 p-1 shadow-lg flex-shrink-0"
+                  />
+                )}
                 {current.title}
                 {current.link_url && <ExternalLink className="w-4 h-4 opacity-80 flex-shrink-0" />}
               </span>
