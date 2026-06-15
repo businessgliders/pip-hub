@@ -4,17 +4,15 @@ import { relativeTime, displayName } from "./inboxConfig";
 
 export default function ThreadRow({ thread, active, onClick }) {
   const unread = !thread.is_read;
-  // Cancellation tickets get a subtle amber urgency cue.
+  // Cancellation tickets get a small "Cancel" label (no row highlight).
   const isCancellation = String(thread.form_data?.inquiry_type || thread.subject || "").toLowerCase().includes("cancel");
-  const cancelTint = isCancellation && !active ? "bg-amber-50/60 dark:bg-amber-500/5" : "";
-  const cancelBorder = isCancellation && !active ? "border-amber-400/70" : "border-transparent";
   return (
     <button
       onClick={onClick}
       className={`w-full text-left mx-2 my-1 px-3 py-3 flex gap-3 rounded-2xl transition-all ${
         active
           ? "bg-white/80 dark:bg-white/15 shadow-sm ring-1 ring-pink-200/70 dark:ring-white/20 border-l-[3px] border-pink-500"
-          : `hover:bg-white/50 dark:hover:bg-white/10 border-l-[3px] ${cancelBorder} ${cancelTint}`
+          : "hover:bg-white/50 dark:hover:bg-white/10 border-l-[3px] border-transparent"
       }`}
       style={{ width: "calc(100% - 1rem)" }}
     >
@@ -35,7 +33,9 @@ export default function ThreadRow({ thread, active, onClick }) {
               Cancel
             </span>
           )}
-          <span className={`truncate text-xs ${unread ? "text-pink-700 dark:text-white/80 font-medium" : "text-pink-900/50 dark:text-white/55"}`}>{thread.subject}</span>
+          {!isCancellation && (
+            <span className={`truncate text-xs ${unread ? "text-pink-700 dark:text-white/80 font-medium" : "text-pink-900/50 dark:text-white/55"}`}>{thread.subject}</span>
+          )}
         </div>
         <p className="truncate text-xs text-pink-900/40 dark:text-white/45 mt-1">{thread.snippet || "—"}</p>
       </div>
