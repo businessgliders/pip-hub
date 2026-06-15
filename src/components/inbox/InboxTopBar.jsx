@@ -4,14 +4,14 @@ import { base44 } from "@/api/base44Client";
 import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LifeBuoy, CalendarHeart, Sparkles, HelpCircle, Settings, Moon, Sun, Users, LogOut } from "lucide-react";
+import { LifeBuoy, CalendarHeart, Handshake, HelpCircle, Settings, Moon, Sun, Users, LogOut } from "lucide-react";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/6deb854f5_logo.png";
 
 const TEAM_TABS = [
   { key: "support", icon: LifeBuoy },
   { key: "events", icon: CalendarHeart },
-  { key: "influencer", icon: Sparkles },
+  { key: "influencer", icon: Handshake },
 ];
 
 const LOGO_TITLES = {
