@@ -259,10 +259,15 @@ export default function Inbox() {
   };
 
   const handleArchive = async (toArchive) => {
+    setSelected(null);
     for (const t of toArchive) {
       await base44.entities.Thread.update(t.id, { archived: true });
+      // Optimistically drop the archived thread from the cached list so the
+      // Closed count in the rail ticks down in real-time as each one completes.
+      qc.setQueryData(["threads"], (prev) =>
+        (prev || []).map((x) => (x.id === t.id ? { ...x, archived: true } : x))
+      );
     }
-    setSelected(null);
     qc.invalidateQueries({ queryKey: ["threads"] });
   };
 
