@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import ThreadHeader from "./ThreadHeader";
@@ -7,10 +7,18 @@ import EmailComposer from "./email/EmailComposer";
 import ContactPanel from "./ContactPanel";
 import { MessagesSquare, X } from "lucide-react";
 
-export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onSelectThread, onBack }) {
+export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onSelectThread, onBack, shakeKey }) {
   const qc = useQueryClient();
   // Mobile/tablet only: slide-in detail panel that overlays the email view.
   const [detailOpen, setDetailOpen] = useState(false);
+  // Brief shake when opened via a notification click.
+  const [shaking, setShaking] = useState(false);
+  useEffect(() => {
+    if (!shakeKey) return;
+    setShaking(true);
+    const t = setTimeout(() => setShaking(false), 550);
+    return () => clearTimeout(t);
+  }, [shakeKey]);
 
   const { data: messages, isLoading: loadingMsgs } = useQuery({
     queryKey: ["thread-messages", thread.id],
@@ -26,7 +34,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
   };
 
   return (
-    <div className="relative flex flex-col h-full">
+    <div className={`relative flex flex-col h-full ${shaking ? "animate-shake" : ""}`}>
       <ThreadHeader
         thread={thread} staff={staff} currentUser={currentUser}
         onStatusChange={onStatusChange} onAssign={onAssign}

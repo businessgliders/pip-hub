@@ -40,6 +40,7 @@ export default function Inbox() {
   const [inquiryType, setInquiryType] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
+  const [shakeKey, setShakeKey] = useState(0);
   const [showContact, setShowContact] = useState(true);
   const [listWidth, setListWidth] = useState(360);
   const [currentUser, setCurrentUser] = useState(null);
@@ -234,9 +235,10 @@ export default function Inbox() {
   const selectedThread = threads.find((t) => t.id === selected?.id) || selected;
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
 
-  const handleSelect = (t, { open = true } = {}) => {
+  const handleSelect = (t, { open = true, shake = false } = {}) => {
     setSelected(t);
     if (open) setMobilePanelOpen(true);
+    if (shake) setShakeKey((k) => k + 1);
     if (!t.is_read) updateThread.mutate({ id: t.id, data: { is_read: true } });
   };
 
@@ -295,7 +297,7 @@ export default function Inbox() {
         onOpenThread={(n) => {
           if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
           const t = threads.find((th) => th.id === n.thread_id);
-          if (t) handleSelect(t);
+          if (t) handleSelect(t, { shake: true });
         }}
       />
 
@@ -347,6 +349,7 @@ export default function Inbox() {
           {selectedThread ? (
             <ThreadPanel
               key={selectedThread.id}
+              shakeKey={shakeKey}
               thread={selectedThread} staff={staff} currentUser={currentUser}
               onStatusChange={handleStatus} onAssign={handleAssign}
               onSelectThread={(t) => handleSelect(t)}
