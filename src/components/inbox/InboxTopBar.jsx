@@ -63,7 +63,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
     <>
-    <header className="safe-top shrink-0 px-2 md:px-4 py-2 md:py-3 flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
+    <header className="safe-top shrink-0 px-2 md:px-4 pt-3.5 pb-2.5 md:pt-4 md:pb-3.5 flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
       {/* Back to home */}
       <Link
         to="/"
@@ -76,7 +76,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       {/* Logo */}
       <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 lg:w-48">
         <img src={LOGO_URL} alt="PiP Inbox" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
-        <span className="hidden lg:block font-extrabold text-lg tracking-tight whitespace-nowrap" style={{ fontStyle: "italic", color: accent }}>
+        <span className="block font-extrabold text-base md:text-lg tracking-tight whitespace-nowrap" style={{ fontStyle: "italic", color: accent }}>
           {LOGO_TITLES[view] || "PiP Inbox"}
         </span>
       </Link>
