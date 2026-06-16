@@ -85,6 +85,11 @@ Deno.serve(async (req) => {
       if (labelIds.includes('SENT')) { results.push({ messageId, skipped: 'sent_copy' }); continue; }
 
       const from = parseEmail(getHeader(headers, 'From'));
+      // Safety net: if a message is from one of our own outbound aliases, it's an
+      // outbound reply (not a customer message) and must be recorded as such even
+      // if it lacks the SENT label.
+      const OUR_ALIASES = ['support@pilatesinpinkstudio.com', 'events@pilatesinpinkstudio.com', 'partner@pilatesinpinkstudio.com'];
+      const direction = OUR_ALIASES.includes(from.email) ? 'outbound' : 'inbound';
       const subject = getHeader(headers, 'Subject');
       const rfcMessageId = getHeader(headers, 'Message-ID');
       const inReplyTo = getHeader(headers, 'In-Reply-To');
@@ -125,24 +130,25 @@ Deno.serve(async (req) => {
         rfc_message_id: rfcMessageId,
         in_reply_to: inReplyTo,
         references,
-        direction: 'inbound',
+        direction,
         from_email: from.email,
         from_name: from.name,
-        to_email: thread.contact_email,
+        to_email: direction === 'outbound' ? thread.contact_email : thread.contact_email,
         subject,
         body_html: html,
         body_text: text,
         snippet,
         sent_at: nowIso,
-        send_status: 'received',
+        send_status: direction === 'outbound' ? 'sent' : 'received',
       });
 
       await db.Thread.update(thread.id, {
         last_activity_at: nowIso,
         snippet,
-        is_read: false,
+        // Our own outbound replies shouldn't mark the thread unread or re-open it.
+        ...(direction === 'inbound' ? { is_read: false } : {}),
         gmail_thread_id: thread.gmail_thread_id || gmailThreadId,
-        ...(thread.status === 'resolved' || thread.status === 'closed' ? { status: 'open' } : {}),
+        ...(direction === 'inbound' && (thread.status === 'resolved' || thread.status === 'closed') ? { status: 'open' } : {}),
       });
 
       processed++;
