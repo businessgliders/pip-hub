@@ -16,7 +16,7 @@ const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
 const FROM_BY_SOURCE = {
   support: { name: 'Pilates in Pink ™', email: 'support@pilatesinpinkstudio.com' },
   events: { name: 'Pilates in Pink ™', email: 'events@pilatesinpinkstudio.com' },
-  influencer: { name: 'Pilates in Pink ™', email: 'partner@pilatesinpinkstudio.com' },
+  influencer: { name: 'Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com' },
 };
 
 function stripHtml(html) {

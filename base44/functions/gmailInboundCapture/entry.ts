@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
       // Safety net: if a message is from one of our own outbound aliases, it's an
       // outbound reply (not a customer message) and must be recorded as such even
       // if it lacks the SENT label.
-      const OUR_ALIASES = ['support@pilatesinpinkstudio.com', 'events@pilatesinpinkstudio.com', 'partner@pilatesinpinkstudio.com'];
+      const OUR_ALIASES = ['support@pilatesinpinkstudio.com', 'events@pilatesinpinkstudio.com', 'influencer@pilatesinpinkstudio.com'];
       const direction = OUR_ALIASES.includes(from.email) ? 'outbound' : 'inbound';
       const subject = getHeader(headers, 'Subject');
       const rfcMessageId = getHeader(headers, 'Message-ID');
