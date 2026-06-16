@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Bug, Plus, Search, Loader2, AlertTriangle, Clock, CheckCircle2, X } from "lucide-react";
+import { LifeBuoy, Plus, Search, Loader2, AlertTriangle, Clock, CheckCircle2, X } from "lucide-react";
 
 const URGENCY_TONE = {
   Critical: "bg-red-100 text-red-700 dark:bg-red-500/25 dark:text-red-200",
@@ -156,7 +156,7 @@ export default function BugsPanel({ accent = "#b67651", onNewBug }) {
         <div className="shrink-0 px-3 py-3 border-b border-white/40 dark:border-white/10">
           <div className="flex items-center justify-between mb-2">
             <h2 className="flex items-center gap-2 font-bold text-amber-900 dark:text-white">
-              <Bug className="w-5 h-5" style={{ color: accent }} /> Bugs
+              <LifeBuoy className="w-5 h-5" style={{ color: accent }} /> Bugs
               <span className="text-sm font-semibold text-amber-900/50 dark:text-white/50">{filtered.length}</span>
             </h2>
             <button
@@ -185,7 +185,7 @@ export default function BugsPanel({ accent = "#b67651", onNewBug }) {
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center px-6 py-12 text-amber-900/50 dark:text-white/50">
-              <Bug className="w-10 h-10 mb-3 opacity-40" />
+              <LifeBuoy className="w-10 h-10 mb-3 opacity-40" />
               <p className="text-sm font-medium">No bugs reported</p>
               <p className="text-xs mt-1">Tap + to report a new issue.</p>
             </div>
@@ -203,7 +203,7 @@ export default function BugsPanel({ accent = "#b67651", onNewBug }) {
           <BugDetail bug={selectedBug} onClose={() => setSelected(null)} />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-amber-900/40 dark:text-white/40">
-            <Bug className="w-12 h-12 mb-3 opacity-40" />
+            <LifeBuoy className="w-12 h-12 mb-3 opacity-40" />
             <p className="text-sm">Select a bug to view details</p>
           </div>
         )}

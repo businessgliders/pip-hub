@@ -1,5 +1,5 @@
 import React from "react";
-import { Archive, PartyPopper, BookText, TestTube } from "lucide-react";
+import { Archive, PartyPopper, BookText, LifeBuoy } from "lucide-react";
 
 // Vertical "side panel" rail of status tabs shown on the left of the thread list.
 // The count itself acts as the icon/glyph for each status tab.
@@ -72,7 +72,7 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, a
               bugsActive ? "shadow-md" : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
             }`}
           >
-            <TestTube className="w-5 h-5" />
+            <LifeBuoy className="w-5 h-5" />
             <span>Bugs</span>
           </button>
         )}
