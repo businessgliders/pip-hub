@@ -437,7 +437,16 @@ export default function Inbox() {
       </div>
 
       {/* Mobile/tablet bottom tab bar — hidden when a conversation is open */}
-      {!mobilePanelOpen && <InboxMobileTabBar view={view} setView={setView} />}
+      {!mobilePanelOpen && (
+        <InboxMobileTabBar
+          currentUser={currentUser}
+          onOpenThread={(n) => {
+            if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
+            const t = threads.find((th) => th.id === n.thread_id);
+            if (t) handleSelect(t, { shake: true });
+          }}
+        />
+      )}
 
       {/* Live-chat widgets — triggered from the status rail / Bugs panel (+).
           Floating buttons are hidden; the rail controls open/close. */}

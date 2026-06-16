@@ -1,16 +1,14 @@
 import React from 'react';
-import { Moon, Sun, LogOut } from 'lucide-react';
+import { LayoutGrid, LogOut } from 'lucide-react';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
-import { useTheme } from '@/lib/ThemeContext';
 
 const getInitials = (name) => {
   if (!name) return '';
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 };
 
-export default function MobileMoreSheet({ user, onClose, onSwitchUser, onLogout }) {
+export default function MobileMoreSheet({ user, onClose, onCustomize, onSwitchUser, onLogout }) {
   useBodyScrollLock(true);
-  const { dark, toggle } = useTheme();
 
   return (
     <div
@@ -28,13 +26,13 @@ export default function MobileMoreSheet({ user, onClose, onSwitchUser, onLogout 
         </div>
         <div className="px-4 pb-2">
           <button
-            onClick={toggle}
+            onClick={() => { onClose(); onCustomize(); }}
             className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/80 active:bg-gray-200/80 transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#f1889b]/20 to-[#f7b1bd]/20 flex items-center justify-center">
-              {dark ? <Sun className="w-4.5 h-4.5 text-[#f1889b]" /> : <Moon className="w-4.5 h-4.5 text-[#f1889b]" />}
+              <LayoutGrid className="w-4.5 h-4.5 text-[#f1889b]" />
             </div>
-            <span className="text-base font-medium text-gray-800">{dark ? 'Light Mode' : 'Dark Mode'}</span>
+            <span className="text-base font-medium text-gray-800">Customize</span>
           </button>
           <button
             onClick={() => { onClose(); onSwitchUser(); }}

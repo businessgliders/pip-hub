@@ -1008,6 +1008,7 @@ export default function AppHub() {
         <MobileMoreSheet
           user={user}
           onClose={() => setShowMoreSheet(false)}
+          onCustomize={() => setShowCustomizePanel(true)}
           onSwitchUser={() => setShowUserSelection(true)}
           onLogout={handleLogout}
         />
