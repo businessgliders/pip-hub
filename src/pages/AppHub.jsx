@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Plus, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X, Settings as SettingsIcon, Inbox } from 'lucide-react';
+import { Star, Plus, Search, Sparkles, LayoutGrid, List, Grid3X3, LogOut, Pencil, Check, X, Inbox } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -628,15 +628,6 @@ export default function AppHub() {
           >
             {isEditMode ? <Check className="w-4 h-4 text-[#f1889b]" /> : <Pencil className="w-4 h-4 text-gray-600" />}
           </button>
-          {user?.email === 'gurpreen@pilatesinpinkstudio.com' && (
-            <Link
-              to="/settings"
-              className="w-9 h-9 flex items-center justify-center rounded-xl border shadow-sm bg-white/70 border-gray-200"
-              title="Settings"
-            >
-              <SettingsIcon className="w-4 h-4 text-gray-600" />
-            </Link>
-          )}
         </div>
         {/* Mobile search - shown when search tab active or query present */}
         {(showMobileSearch || searchQuery) && (
@@ -734,13 +725,6 @@ export default function AppHub() {
             >
               {isEditMode ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
             </Button>
-            {user?.email === 'gurpreen@pilatesinpinkstudio.com' && (
-              <Link to="/settings">
-                <Button variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900" title="Settings">
-                  <SettingsIcon className="w-4 h-4" />
-                </Button>
-              </Link>
-            )}
             <div className="relative group">
               <Button variant="outline" size="icon" className="rounded-xl border-gray-300 bg-white hover:bg-gray-50">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-semibold text-white">

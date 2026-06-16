@@ -9,9 +9,6 @@
 import AppHub from './pages/AppHub';
 import SplitView from './pages/SplitView';
 import EndOfDayCalendar from './pages/EndOfDayCalendar';
-import MasterKanbanDemo from './pages/MasterKanbanDemo';
-import Settings from './pages/Settings';
-import SettingsMasterKanban from './pages/SettingsMasterKanban';
 import Inbox from './pages/Inbox';
 import Contacts from './pages/Contacts';
 
@@ -19,9 +16,6 @@ export const PAGES = {
     "AppHub": AppHub,
     "splitview": SplitView,
     "end-of-day": EndOfDayCalendar,
-    "settings/master-kanban-demo": MasterKanbanDemo,
-    "settings": Settings,
-    "settings/master-kanban": SettingsMasterKanban,
     "inbox": Inbox,
     "contacts": Contacts,
 }
