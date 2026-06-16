@@ -151,6 +151,32 @@ Deno.serve(async (req) => {
         ...(direction === 'inbound' && (thread.status === 'resolved' || thread.status === 'closed') ? { status: 'open' } : {}),
       });
 
+      // Notify staff of inbound replies so they appear in the notification bell.
+      // Notify the assignee if one is set, otherwise fan out to all admin staff.
+      if (direction === 'inbound') {
+        try {
+          const tag = thread.ticket_number ? `#${thread.ticket_number} ` : '';
+          const notif = {
+            type: 'reply',
+            title: `New reply from ${thread.contact_name || from.email}`,
+            body: `${tag}${snippet}`.slice(0, 160),
+            thread_id: thread.id,
+            source_app: thread.source_app,
+            is_read: false,
+          };
+          let recipients = [];
+          if (thread.assignee_email) {
+            recipients = [thread.assignee_email];
+          } else {
+            const admins = await db.User.filter({ role: 'admin' });
+            recipients = admins.map((u) => u.email).filter(Boolean);
+          }
+          await Promise.all(
+            recipients.map((rEmail) => db.Notification.create({ ...notif, recipient_email: rEmail }))
+          );
+        } catch (_) { /* non-fatal */ }
+      }
+
       processed++;
       results.push({ messageId, thread_id: thread.id });
     }

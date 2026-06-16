@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Bell, UserPlus, Clock, Bug, CheckCheck } from "lucide-react";
+import { Bell, UserPlus, Clock, Bug, CheckCheck, Trash2 } from "lucide-react";
 import { relativeTime } from "./inboxConfig";
 
 const TYPE_ICON = {
@@ -50,6 +50,13 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications", email] }),
   });
 
+  const clearAll = useMutation({
+    mutationFn: async () => {
+      await Promise.all(notifications.map((n) => base44.entities.Notification.delete(n.id)));
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications", email] }),
+  });
+
   const handleClick = (n) => {
     if (!n.is_read) markRead.mutate(n.id);
     if (n.thread_id && onOpenThread) {
@@ -73,11 +80,18 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between px-3 py-2 border-b">
           <span className="text-sm font-semibold">Notifications</span>
-          {unread.length > 0 && (
-            <button onClick={() => markAll.mutate()} className="text-xs text-pink-600 hover:underline flex items-center gap-1">
-              <CheckCheck className="w-3.5 h-3.5" /> Mark all read
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {unread.length > 0 && (
+              <button onClick={() => markAll.mutate()} className="text-xs text-pink-600 hover:underline flex items-center gap-1">
+                <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+              </button>
+            )}
+            {notifications.length > 0 && (
+              <button onClick={() => clearAll.mutate()} className="text-xs text-muted-foreground hover:text-red-600 hover:underline flex items-center gap-1">
+                <Trash2 className="w-3.5 h-3.5" /> Clear all
+              </button>
+            )}
+          </div>
         </div>
         <div className="max-h-96 overflow-y-auto">
           {notifications.length === 0 ? (

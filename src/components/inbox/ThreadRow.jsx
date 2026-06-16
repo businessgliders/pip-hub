@@ -28,6 +28,11 @@ export default function ThreadRow({ thread, active, onClick }) {
           <span className="text-[11px] text-pink-400 dark:text-white/50 shrink-0">{relativeTime(thread.last_activity_at || thread.created_date)}</span>
         </div>
         <div className="flex items-center gap-1.5 mt-0.5">
+          {thread.ticket_number != null && (
+            <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wide bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300">
+              #{thread.ticket_number}
+            </span>
+          )}
           {isCancellation && (
             <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
               Cancel
