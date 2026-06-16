@@ -12,9 +12,10 @@ export const STATUS_META = {
   waiting: { label: "Waiting", chip: "bg-pink-100/80 text-pink-700 dark:bg-pink-400/20 dark:text-pink-200" },
   resolved: { label: "Resolved", chip: "bg-violet-100/80 text-violet-700 dark:bg-violet-400/25 dark:text-violet-200" },
   closed: { label: "Closed", chip: "bg-slate-100/80 text-slate-500 dark:bg-white/15 dark:text-white/70" },
+  bug: { label: "Bugs", chip: "bg-orange-100/80 text-orange-700 dark:bg-orange-400/20 dark:text-orange-200" },
 };
 
-export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed"];
+export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed", "bug"];
 
 // Influencer inbox uses a simple Open / Accepted / Declined pipeline.
 export const INFLUENCER_STATUS_META = {

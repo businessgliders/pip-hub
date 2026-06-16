@@ -150,10 +150,35 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
         rep_name: currentUser?.full_name,
       });
       if (res?.data?.success) {
+        // Also surface the bug as a thread in the Support inbox (status: "bug").
+        const reporterEmail = currentUser?.email || "bug-reporter@pilatesinpinkstudio.com";
+        const reporterName = currentUser?.full_name || "Bug Reporter";
+        const num = res.data.bug_number;
+        await base44.entities.Thread.create({
+          source_app: "support",
+          contact_email: reporterEmail,
+          contact_name: reporterName,
+          status: "bug",
+          ticket_type: "bug",
+          subject: `Bug #${num}: ${data.description.slice(0, 60)}`,
+          snippet: data.description.slice(0, 120),
+          last_activity_at: new Date().toISOString(),
+          form_data: {
+            inquiry_type: "Bug Report",
+            description: data.description,
+            client_name: data.client_name,
+            booking_info: data.booking_info,
+            platform: data.platform,
+            urgency: data.urgency,
+            image_urls: data.image_urls,
+            bug_number: num,
+            reported_by: reporterName,
+          },
+        }).catch(() => {});
         pushAssistant(
           res.data.email_sent
-            ? `✅ Sent! Escalated as Bug #${res.data.bug_number}. Thanks — we're on it.`
-            : `✅ Recorded as Bug #${res.data.bug_number}, but the escalation email couldn't be sent.`
+            ? `✅ Sent! Escalated as Bug #${num}. Thanks — we're on it.`
+            : `✅ Recorded as Bug #${num}, but the escalation email couldn't be sent.`
         );
         setStep("done");
       } else {

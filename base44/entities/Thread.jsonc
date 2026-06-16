@@ -43,6 +43,7 @@
         "waiting",
         "resolved",
         "closed",
+        "bug",
         "accepted",
         "declined",
         "New",
@@ -57,6 +58,15 @@
       ],
       "default": "open",
       "description": "Workflow status. Support uses the generic set; Influencer uses open/accepted/declined; Events use the EventLead pipeline stages."
+    },
+    "ticket_type": {
+      "type": "string",
+      "enum": [
+        "inquiry",
+        "bug"
+      ],
+      "default": "inquiry",
+      "description": "Type of ticket. 'bug' threads are created by the live-chat Bug Reporter."
     },
     "assignee_email": {
       "type": "string",
