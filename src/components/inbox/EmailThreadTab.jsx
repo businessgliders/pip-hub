@@ -7,9 +7,9 @@ import { SOURCE_META } from "./inboxConfig";
 
 // Subtle, per-inbox outbound bubble styling (muted, brand-matched).
 const OUTBOUND_BUBBLE = {
-  support:    { bubble: "bg-amber-50/80 dark:bg-amber-400/10 border border-amber-200/60 dark:border-amber-300/15", text: "text-amber-950 dark:text-amber-50", meta: "text-amber-700/70", name: "text-amber-800/80", body: "text-amber-900", hint: "text-amber-700/70" },
-  events:     { bubble: "bg-rose-50/80 dark:bg-rose-400/10 border border-rose-200/60 dark:border-rose-300/15", text: "text-rose-950 dark:text-rose-50", meta: "text-rose-700/70", name: "text-rose-800/80", body: "text-rose-900", hint: "text-rose-700/70" },
-  influencer: { bubble: "bg-violet-50/80 dark:bg-violet-400/10 border border-violet-200/60 dark:border-violet-300/15", text: "text-violet-950 dark:text-violet-50", meta: "text-violet-700/70", name: "text-violet-800/80", body: "text-violet-900", hint: "text-violet-700/70" },
+  support:    { bubble: "bg-amber-200/80 dark:bg-amber-400/20 border border-amber-300/60 dark:border-amber-300/25", text: "text-amber-950 dark:text-amber-50", meta: "text-amber-800/80", name: "text-amber-900/90", body: "text-amber-950", hint: "text-amber-800/80" },
+  events:     { bubble: "bg-rose-200/80 dark:bg-rose-400/20 border border-rose-300/60 dark:border-rose-300/25", text: "text-rose-950 dark:text-rose-50", meta: "text-rose-800/80", name: "text-rose-900/90", body: "text-rose-950", hint: "text-rose-800/80" },
+  influencer: { bubble: "bg-violet-200/80 dark:bg-violet-400/20 border border-violet-300/60 dark:border-violet-300/25", text: "text-violet-950 dark:text-violet-50", meta: "text-violet-800/80", name: "text-violet-900/90", body: "text-violet-950", hint: "text-violet-800/80" },
 };
 
 // Strip HTML to a short plain-text preview for the bubble
