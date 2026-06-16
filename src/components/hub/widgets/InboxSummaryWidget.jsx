@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Inbox, MessageSquareReply } from 'lucide-react';
@@ -72,19 +73,19 @@ export default function InboxSummaryWidget({ widget }) {
         className="pointer-events-none absolute -bottom-4 -right-3 w-24 h-24 opacity-[0.06] select-none"
       />
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/60 flex-shrink-0 relative z-10">
-        <div className="flex items-center gap-2">
-          <Inbox className="w-4 h-4 text-[#f1889b]" />
-          <h3 className="font-semibold text-gray-800 text-sm tracking-tight">PiP Inbox</h3>
+        <div className="flex items-center gap-2 min-w-0">
+          <Link to="/inbox" title="Open inbox" className="shrink-0 hover:opacity-70 transition-opacity">
+            <Inbox className="w-4 h-4 text-[#f1889b]" />
+          </Link>
+          <h3 className="font-semibold text-gray-800 text-sm tracking-tight truncate">PiP Inbox</h3>
+          <span className="text-[11px] font-semibold text-gray-500 whitespace-nowrap">{totalOpen} open</span>
         </div>
-        <div className="flex items-center gap-2">
-          {replyCounts.total > 0 && (
-            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold">
-              <MessageSquareReply className="w-3 h-3" />
-              {replyCounts.total}
-            </span>
-          )}
-          <span className="text-[11px] font-semibold text-gray-500">{totalOpen} open</span>
-        </div>
+        {replyCounts.total > 0 && (
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold shrink-0">
+            <MessageSquareReply className="w-3 h-3" />
+            {replyCounts.total}
+          </span>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 min-h-0 relative z-10">
