@@ -11,6 +11,7 @@ import ArchiveButton from "@/components/inbox/ArchiveButton";
 import DetailToggleHandle from "@/components/inbox/DetailToggleHandle";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
 import InboxTutorial, { hasSeenInboxTutorial } from "@/components/inbox/InboxTutorial";
+import InboxMobileTabBar from "@/components/inbox/InboxMobileTabBar";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
@@ -316,7 +317,7 @@ export default function Inbox() {
       />
 
       {/* 3 floating glass panels */}
-      <div ref={centerRef} className="flex-1 flex gap-0 p-3 md:p-4 overflow-hidden">
+      <div ref={centerRef} className={`flex-1 flex gap-0 p-3 md:p-4 overflow-hidden ${mobilePanelOpen ? "" : "pb-20 lg:pb-4"}`}>
         {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
           className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
@@ -394,6 +395,9 @@ export default function Inbox() {
           </div>
         )}
       </div>
+
+      {/* Mobile/tablet bottom tab bar — hidden when a conversation is open */}
+      {!mobilePanelOpen && <InboxMobileTabBar view={view} setView={setView} />}
     </div>
   );
 }
