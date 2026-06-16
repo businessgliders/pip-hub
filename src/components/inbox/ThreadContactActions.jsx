@@ -52,7 +52,7 @@ export default function ThreadContactActions({ thread, view }) {
     <div className="flex items-center gap-1.5">
       {email && (
         <a
-          href={`https://mail.google.com/mail/u/0/#search/${encodeURIComponent(email)}`}
+          href={`https://mail.google.com/mail/u/0/#search/${encodeURIComponent(`'${email}'`)}`}
           target="_blank"
           rel="noopener noreferrer"
           title="Search all in Gmail"

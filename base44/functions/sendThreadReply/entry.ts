@@ -159,10 +159,20 @@ Deno.serve(async (req) => {
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
     const authHeader = { Authorization: `Bearer ${accessToken}` };
 
+    // Keep the EXACT subject of the original thread for every reply — no "Re:"
+    // prefix and no re-adding the ticket tag. Gmail threads by both subject and
+    // References/threadId, so reusing the original subject (already carrying the
+    // [Ticket #N] tag from the welcome email) guarantees the reply lands in the
+    // same conversation on both our side and the submitter's side. We derive the
+    // canonical subject from the first stored message when available, falling
+    // back to the thread subject + ticket tag.
+    const firstMsg = (await db.EmailMessage.filter({ ticket_id: thread_id }, 'sent_at', 1))[0];
     const ticketTag = thread.ticket_number ? `[Ticket #${thread.ticket_number}] ` : '';
     const baseSubject = thread.subject || 'Your inquiry';
-    const hasReplies = !!thread.gmail_thread_id;
-    const subject = `${hasReplies ? 'Re: ' : ''}${ticketTag}${baseSubject}`.replace(/\s+/g, ' ').trim();
+    const subject = (firstMsg?.subject || `${ticketTag}${baseSubject}`)
+      .replace(/^\s*(re|fwd?)\s*:\s*/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
 
     const priorMsgs = await db.EmailMessage.filter({ ticket_id: thread_id }, '-sent_at', 1);
     const lastRfcId = priorMsgs[0]?.rfc_message_id || thread.gmail_root_message_id || '';
