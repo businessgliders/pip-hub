@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 // click "Open in new tab" as a fallback).
 
 const STORAGE_KEY = 'splitview_right_url';
-const DEFAULT_URL = 'https://pricing.pilatesinpinkstudio.com';
+const DEFAULT_URL = '/inbox';
 
 export default function SplitView() {
   // Disable split view on phones only (< 600px). Tablets in portrait
