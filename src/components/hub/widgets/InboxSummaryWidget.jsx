@@ -62,7 +62,7 @@ export default function InboxSummaryWidget({ widget }) {
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/60 flex-shrink-0 relative z-10">
         <div className="flex items-center gap-2">
           <Inbox className="w-4 h-4 text-[#f1889b]" />
-          <h3 className="font-semibold text-gray-800 text-sm tracking-tight">Inboxes</h3>
+          <h3 className="font-semibold text-gray-800 text-sm tracking-tight">PiP Inbox</h3>
         </div>
         <div className="flex items-center gap-2">
           {replyCounts.total > 0 && (

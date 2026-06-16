@@ -28,19 +28,28 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
     <button
       onClick={onClick}
       style={active ? { color: accent } : undefined}
-      className={`relative flex flex-1 lg:flex-initial items-center justify-center gap-1 md:gap-1.5 px-1.5 md:px-3 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-medium transition-all ${
+      title={`${label}${count > 0 ? ` — ${count} open` : ""}`}
+      className={`relative flex items-center justify-center gap-1.5 px-2 md:px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
         active
           ? "bg-white/80 dark:bg-white/15 shadow-sm"
           : "text-pink-900/60 dark:text-white/55 hover:text-pink-700 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10"
       }`}
     >
-      <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
-      {label}
+      <Icon className="w-4 h-4 shrink-0" />
+      {/* Label + count hidden on mobile (icon-only), shown from tablet up */}
+      <span className="hidden md:inline">{label}</span>
       {count > 0 && (
         <span
-          className="inline-flex items-center justify-center text-xs md:text-sm font-bold leading-none"
+          className="hidden md:inline-flex items-center justify-center text-sm font-bold leading-none"
           style={{ color: accent || "inherit" }}
-          title={`${count} open`}
+        >
+          {count}
+        </span>
+      )}
+      {/* Mobile: tiny count dot so info isn't lost */}
+      {count > 0 && (
+        <span
+          className="md:hidden absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center"
         >
           {count}
         </span>
@@ -72,7 +81,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         </span>
       </Link>
 
-      {/* Tabs: 3 team inboxes — fill width on mobile, centered on desktop */}
+      {/* Tabs: 3 team inboxes — compact on tablet/mobile, centered on desktop */}
       <nav className="flex flex-1 items-center justify-center gap-1 lg:gap-2">
         {TEAM_TABS.map((t) => (
           <TabButton
@@ -125,7 +134,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       </div>
     </header>
 
-    {!hideChatWidgets && (
+    {!hideChatWidgets && view === "support" && (
       <>
         <TermsAssistantChat accent={accent} />
         <BugReportChat currentUser={currentUser} accent={accent} />
