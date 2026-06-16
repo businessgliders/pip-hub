@@ -85,6 +85,15 @@ export default function Inbox() {
     initialData: [],
   });
 
+  // Real-time: refresh the thread list whenever any Thread is created/updated/deleted
+  // (new submissions land instantly across all inboxes/statuses — no page refresh).
+  useEffect(() => {
+    const unsubscribe = base44.entities.Thread.subscribe(() => {
+      qc.invalidateQueries({ queryKey: ["threads"] });
+    });
+    return unsubscribe;
+  }, [qc]);
+
   // Deep-link support: /inbox?thread=<id> (e.g. from Contacts page)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

@@ -28,6 +28,14 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
     refetchOnWindowFocus: true,
   });
 
+  // Real-time: new inbound/outbound emails appear instantly (no refresh needed).
+  useEffect(() => {
+    const unsubscribe = base44.entities.EmailMessage.subscribe(() => {
+      qc.invalidateQueries({ queryKey: ["thread-messages", thread.id] });
+    });
+    return unsubscribe;
+  }, [qc, thread.id]);
+
   const handleSent = () => {
     qc.invalidateQueries({ queryKey: ["thread-messages", thread.id] });
     qc.invalidateQueries({ queryKey: ["threads"] });

@@ -33,11 +33,14 @@ function stripHtml(html) {
     .trim();
 }
 
-function toQuotedPrintable(str) {
-  const encoded = unescape(encodeURIComponent(str)).replace(/([^\x20-\x7E\n])/g, (m) =>
-    '=' + m.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')
-  );
-  return encoded.replace(/(.{1,75})(?=.)/g, '$1=\r\n');
+// Base64-encode a UTF-8 string for safe email transport. Quoted-printable can
+// corrupt multi-byte UTF-8 (emoji, ™, em dashes) when soft line breaks land
+// mid-sequence — base64 avoids this entirely.
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str || '');
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/(.{1,76})/g, '$1\r\n').trim();
 }
 
 function chunkBase64(b64, size = 76) {
@@ -93,15 +96,15 @@ function buildMime({ to, from, subject, htmlBody, textBody, inReplyTo, reference
 
   lines.push(`--${altBoundary}`);
   lines.push('Content-Type: text/plain; charset=UTF-8');
-  lines.push('Content-Transfer-Encoding: quoted-printable');
+  lines.push('Content-Transfer-Encoding: base64');
   lines.push('');
-  lines.push(toQuotedPrintable(textBody));
+  lines.push(utf8ToBase64(textBody));
 
   lines.push(`--${altBoundary}`);
   lines.push('Content-Type: text/html; charset=UTF-8');
-  lines.push('Content-Transfer-Encoding: quoted-printable');
+  lines.push('Content-Transfer-Encoding: base64');
   lines.push('');
-  lines.push(toQuotedPrintable(htmlBody));
+  lines.push(utf8ToBase64(htmlBody));
 
   lines.push(`--${altBoundary}--`);
 

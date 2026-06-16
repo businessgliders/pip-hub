@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -26,6 +26,15 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
     enabled: !!email,
     refetchInterval: 60000,
   });
+
+  // Real-time: new notifications appear instantly in the bell (no refresh needed).
+  useEffect(() => {
+    if (!email) return;
+    const unsubscribe = base44.entities.Notification.subscribe(() => {
+      qc.invalidateQueries({ queryKey: ["notifications", email] });
+    });
+    return unsubscribe;
+  }, [qc, email]);
 
   const unread = notifications.filter((n) => !n.is_read);
 

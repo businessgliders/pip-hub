@@ -32,11 +32,14 @@ function base64url(str) {
   return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function toQuotedPrintable(str) {
-  const encoded = unescape(encodeURIComponent(str)).replace(/([^\x20-\x7E\n])/g, (m) =>
-    '=' + m.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')
-  );
-  return encoded.replace(/(.{1,75})(?=.)/g, '$1=\r\n');
+// Base64-encode a UTF-8 string for safe email transport. Quoted-printable can
+// corrupt multi-byte UTF-8 (emoji, ™, em dashes) when soft line breaks land
+// mid-sequence — base64 avoids this entirely.
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str || '');
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/(.{1,76})/g, '$1\r\n').trim();
 }
 
 function buildMime({ to, from, subject, htmlBody, textBody }) {
@@ -44,10 +47,10 @@ function buildMime({ to, from, subject, htmlBody, textBody }) {
   return [
     `From: ${from}`, `To: ${to}`, `Subject: ${encodeHeader(subject)}`,
     'MIME-Version: 1.0', `Content-Type: multipart/alternative; boundary="${b}"`, '',
-    `--${b}`, 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: quoted-printable', '',
-    toQuotedPrintable(textBody),
-    `--${b}`, 'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: quoted-printable', '',
-    toQuotedPrintable(htmlBody),
+    `--${b}`, 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
+    utf8ToBase64(textBody),
+    `--${b}`, 'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
+    utf8ToBase64(htmlBody),
     `--${b}--`,
   ].join('\r\n');
 }
