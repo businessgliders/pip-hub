@@ -10,6 +10,7 @@ import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
 import ArchiveButton from "@/components/inbox/ArchiveButton";
 import DetailToggleHandle from "@/components/inbox/DetailToggleHandle";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
+import InboxTutorial, { hasSeenInboxTutorial } from "@/components/inbox/InboxTutorial";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
@@ -47,6 +48,7 @@ export default function Inbox() {
   // On mobile/tablet the thread panel is full-screen. Default to showing the
   // conversation LIST on load (panel closed) so users pick a thread first.
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(() => !hasSeenInboxTutorial());
   const centerRef = useRef(null);
 
   const handleListResize = (clientX) => {
@@ -283,6 +285,8 @@ export default function Inbox() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden relative">
+      {showTutorial && <InboxTutorial onClose={() => setShowTutorial(false)} />}
+
       {/* Vibrant pink gradient backdrop */}
       <div
         className="absolute inset-0 -z-10 transition-[background] duration-700"
