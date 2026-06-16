@@ -3,7 +3,7 @@ import { Archive, PartyPopper, BookText, LifeBuoy } from "lucide-react";
 
 // Vertical "side panel" rail of status tabs shown on the left of the thread list.
 // The count itself acts as the icon/glyph for each status tab.
-export default function InboxStatusRail({ tabs, active, onChange, counts = {}, accent = "#f1889b", archivedActive = false, onArchived, onTerms, onReportBug }) {
+export default function InboxStatusRail({ tabs, active, onChange, counts = {}, accent = "#f1889b", archivedActive = false, onArchived, onTerms, onReportBug, bugActive = false, bugCount = 0 }) {
   if (!tabs || tabs.length === 0) return null;
   // "Hosted" is pinned to the bottom (above Archived) as an icon-only tab, no count.
   const hostedTab = tabs.find((t) => t.key === "Hosted");
@@ -73,15 +73,27 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, a
           </button>
         )}
 
-        {/* Report a bug — opens the live-chat Bug Reporter (creates a bug thread) */}
+        {/* Report Bug — opens the Bugs thread list AND the live-chat Bug Reporter together */}
         {onReportBug && (
           <button
             onClick={onReportBug}
-            title="Report a bug"
-            className="w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
+            title="Report Bug"
+            style={bugActive ? { background: accent, color: "#fff" } : undefined}
+            className={`w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
+              bugActive
+                ? "shadow-md"
+                : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
+            }`}
           >
-            <LifeBuoy className="w-5 h-5" />
-            <span>Report</span>
+            <span className="relative">
+              <LifeBuoy className="w-5 h-5" />
+              {bugCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
+                  {bugCount}
+                </span>
+              )}
+            </span>
+            <span className="text-center leading-tight">Report Bug</span>
           </button>
         )}
 

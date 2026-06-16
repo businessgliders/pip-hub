@@ -15,7 +15,7 @@ export const STATUS_META = {
   bug: { label: "Bugs", chip: "bg-orange-100/80 text-orange-700 dark:bg-orange-400/20 dark:text-orange-200" },
 };
 
-export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed", "bug"];
+export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "closed"];
 
 // Influencer inbox uses a simple Open / Accepted / Declined pipeline.
 export const INFLUENCER_STATUS_META = {

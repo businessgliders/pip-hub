@@ -359,7 +359,16 @@ export default function Inbox() {
               archivedActive={showArchived}
               onArchived={isSourceView ? () => { setShowArchived((s) => !s); setSelected(null); } : undefined}
               onTerms={() => setTermsOpen(true)}
-              onReportBug={() => setBugChatOpen(true)}
+              onReportBug={() => {
+                // Open the Bugs thread list (Support → bug status) and the live chat together.
+                setShowArchived(false);
+                setView("support");
+                setSubFilter("bug");
+                setSelected(null);
+                setBugChatOpen(true);
+              }}
+              bugActive={!showArchived && view === "support" && subFilter === "bug"}
+              bugCount={threads.filter((t) => t.source_app === "support" && t.status === "bug" && !t.archived).length}
             />
           )}
           <div className="flex-1 overflow-hidden">
