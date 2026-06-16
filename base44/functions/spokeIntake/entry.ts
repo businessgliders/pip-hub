@@ -230,6 +230,10 @@ Deno.serve(async (req) => {
       .toString()
       .slice(0, 140);
 
+    // Each inbox uses its own "open" starting stage: Events uses the EventLead
+    // pipeline ("New"); support/influencer use the generic "open".
+    const initialStatus = source_app === 'events' ? 'New' : 'open';
+
     const thread = await db.Thread.create({
       contact_id: contact.id,
       contact_email: normalizedEmail,
@@ -238,11 +242,11 @@ Deno.serve(async (req) => {
       subject: subject || `New ${source_app} submission`,
       snippet,
       ticket_number: nextTicketNumber,
-      status: 'open',
+      status: initialStatus,
       form_data: { name, email: normalizedEmail, phone, subject, ...rest },
       last_activity_at: nowIso,
       is_read: false,
-      status_history: [{ status: 'open', changed_by: 'system', timestamp: nowIso }],
+      status_history: [{ status: initialStatus, changed_by: 'system', timestamp: nowIso }],
     });
 
     // 5. Send the auto-acknowledgement email to the submitter (best-effort —
