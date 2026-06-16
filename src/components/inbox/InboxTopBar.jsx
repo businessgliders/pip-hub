@@ -29,13 +29,13 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
       onClick={onClick}
       style={active ? { color: accent } : undefined}
       title={`${label}${count > 0 ? ` — ${count} open` : ""}`}
-      className={`relative flex items-center justify-center gap-1.5 px-2 md:px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+      className={`relative flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-full text-[15px] font-medium transition-all ${
         active
           ? "bg-white/80 dark:bg-white/15 shadow-sm"
           : "text-pink-900/60 dark:text-white/55 hover:text-pink-700 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10"
       }`}
     >
-      <Icon className="w-4 h-4 shrink-0" />
+      <Icon className="w-5 h-5 shrink-0" />
       {/* Label + count hidden on mobile (icon-only), shown from tablet up */}
       <span className="hidden md:inline">{label}</span>
       {count > 0 && (
@@ -82,7 +82,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       </Link>
 
       {/* Tabs: 3 team inboxes — compact on tablet/mobile, centered on desktop */}
-      <nav className="flex flex-1 items-center justify-center gap-1 lg:gap-2">
+      <nav className="flex flex-1 items-center justify-center gap-2 md:gap-3 lg:gap-4">
         {TEAM_TABS.map((t) => (
           <TabButton
             key={t.key}
