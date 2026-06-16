@@ -51,8 +51,15 @@ export default function InboxSummaryWidget({ widget }) {
   }, [inbound, threads]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/60 flex-shrink-0">
+    <div className="flex flex-col h-full relative overflow-hidden">
+      {/* Subtle inbox logo watermark */}
+      <img
+        src="https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-4 -right-3 w-24 h-24 opacity-[0.06] select-none"
+      />
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/60 flex-shrink-0 relative z-10">
         <div className="flex items-center gap-2">
           <Inbox className="w-4 h-4 text-[#f1889b]" />
           <h3 className="font-semibold text-gray-800 text-sm tracking-tight">Inboxes</h3>
@@ -68,8 +75,8 @@ export default function InboxSummaryWidget({ widget }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2 min-h-0">
-        <div className="grid grid-cols-1 gap-1.5">
+      <div className="flex-1 overflow-y-auto p-2 min-h-0 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
           {INBOXES.map((ib) => (
             <a
               key={ib.key}

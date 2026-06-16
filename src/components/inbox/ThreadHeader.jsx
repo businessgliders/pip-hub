@@ -9,7 +9,9 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
   const isResolved = thread.status === "resolved" || thread.status === "closed";
   const isEvents = thread.source_app === "events";
   const isInfluencer = thread.source_app === "influencer";
-  const inquiryType = thread.source_app === "support" ? thread.form_data?.inquiry_type : null;
+  const inquiryType = thread.source_app === "support"
+    ? thread.form_data?.inquiry_type
+    : (thread.source_app === "events" ? (thread.form_data?.event_type || thread.form_data?.inquiry_type) : null);
   const [pending, setPending] = useState(null); // target status awaiting name/reason
 
   const requestChange = (status) => {

@@ -128,13 +128,15 @@ export default function Inbox() {
   // Team inboxes have no "All" status tab, so default to the first status.
   useEffect(() => { setSubFilter(SOURCE_META[view] ? statusOrderFor(view)[0] : "all"); setInquiryType("all"); setSelected(null); setShowArchived(false); }, [view]);
 
-  // Distinct inquiry types within the current Support view (for the icon filter).
+  // Distinct inquiry/event types within the current view (for the icon filter).
+  // Support filters on inquiry_type; Events filters on event_type.
   const inquiryTypes = useMemo(() => {
-    if (view !== "support") return [];
+    if (view !== "support" && view !== "events") return [];
+    const field = view === "events" ? "event_type" : "inquiry_type";
     const set = new Set();
     threads.forEach((t) => {
-      if (t.source_app !== "support") return;
-      const it = t.form_data?.inquiry_type;
+      if (t.source_app !== view) return;
+      const it = t.form_data?.[field] || (view === "events" ? t.form_data?.inquiry_type : null);
       if (it) set.add(String(it));
     });
     return Array.from(set).sort();
@@ -188,8 +190,9 @@ export default function Inbox() {
         // Team inbox: filter by source, then by status sub-tab
         if (t.source_app !== view) return false;
         if (subFilter !== "all" && t.status !== subFilter) return false;
-        // Support-only inquiry type filter
+        // Inquiry/event type filter (Support → inquiry_type, Events → event_type)
         if (view === "support" && inquiryType !== "all" && String(t.form_data?.inquiry_type || "") !== inquiryType) return false;
+        if (view === "events" && inquiryType !== "all" && String(t.form_data?.event_type || t.form_data?.inquiry_type || "") !== inquiryType) return false;
       } else {
         // "All" view: hide closed
         if (t.status === "closed") return false;
@@ -341,7 +344,7 @@ export default function Inbox() {
               filterSlot={
                 <>
                   {isClosedView && <ArchiveButton threads={filtered} onArchive={handleArchive} />}
-                  {view === "support" && !showArchived && inquiryTypes.length > 0 ? (
+                  {(view === "support" || view === "events") && !showArchived && inquiryTypes.length > 0 ? (
                     <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
                   ) : null}
                 </>
