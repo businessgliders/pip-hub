@@ -167,6 +167,41 @@ export function relativeTimeLong(iso) {
   return `${years} year${years === 1 ? "" : "s"} ago`;
 }
 
+// Event-date urgency: parse a thread's event date and compute days remaining
+// with a color band for the Events inbox list preview.
+export function eventDateInfo(thread) {
+  const raw = thread?.form_data?.event_date || thread?.form_data?.event_date_iso || thread?.form_data?.date;
+  if (!raw) return null;
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return null;
+  // Normalize both to midnight so partial days don't skew the count.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(d);
+  target.setHours(0, 0, 0, 0);
+  const days = Math.round((target.getTime() - today.getTime()) / 86400000);
+
+  let label, tone;
+  if (days < 0) {
+    label = `${Math.abs(days)}d ago`;
+    tone = "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-white/55";
+  } else if (days === 0) {
+    label = "Today";
+    tone = "bg-red-100 text-red-700 dark:bg-red-500/25 dark:text-red-200";
+  } else if (days <= 7) {
+    label = `${days}d left`;
+    tone = "bg-red-100 text-red-700 dark:bg-red-500/25 dark:text-red-200";
+  } else if (days <= 21) {
+    label = `${days}d left`;
+    tone = "bg-amber-100 text-amber-700 dark:bg-amber-500/25 dark:text-amber-200";
+  } else {
+    label = `${days}d left`;
+    tone = "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/25 dark:text-emerald-200";
+  }
+  const dateText = d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return { days, label, tone, dateText };
+}
+
 // Returns true if a status represents a closed/ended state across any inbox.
 export function isClosedStatus(status) {
   return ["closed", "Closed", "declined", "Cancelled", "No Response"].includes(status);

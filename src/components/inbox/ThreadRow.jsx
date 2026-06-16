@@ -1,9 +1,12 @@
 import React from "react";
+import { CalendarHeart } from "lucide-react";
 import Avatar from "./Avatar";
-import { relativeTime, displayName } from "./inboxConfig";
+import { relativeTime, displayName, eventDateInfo } from "./inboxConfig";
 
 export default function ThreadRow({ thread, active, onClick }) {
   const unread = !thread.is_read;
+  // Events inbox: replace the preview line with the event date + days-left countdown.
+  const ev = thread.source_app === "events" ? eventDateInfo(thread) : null;
   // Cancellation tickets get a small "Cancel" label (no row highlight).
   const isCancellation = String(thread.form_data?.inquiry_type || thread.subject || "").toLowerCase().includes("cancel");
   return (
@@ -42,7 +45,21 @@ export default function ThreadRow({ thread, active, onClick }) {
             <span className={`truncate text-xs ${unread ? "text-pink-700 dark:text-white/80 font-medium" : "text-pink-900/50 dark:text-white/55"}`}>{thread.subject}</span>
           )}
         </div>
-        <p className="truncate text-xs text-pink-900/40 dark:text-white/45 mt-1">{thread.snippet || "—"}</p>
+        {ev ? (
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-pink-900/70 dark:text-white/70">
+              <CalendarHeart className="w-3.5 h-3.5 shrink-0" />
+              {ev.dateText}
+            </span>
+            <span className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold ${ev.tone}`}>
+              {ev.label}
+            </span>
+          </div>
+        ) : thread.source_app === "events" ? (
+          <p className="truncate text-xs text-pink-900/40 dark:text-white/45 mt-1">No event date</p>
+        ) : (
+          <p className="truncate text-xs text-pink-900/40 dark:text-white/45 mt-1">{thread.snippet || "—"}</p>
+        )}
       </div>
     </button>
   );

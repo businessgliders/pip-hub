@@ -12,6 +12,9 @@ import DetailToggleHandle from "@/components/inbox/DetailToggleHandle";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
 import InboxTutorial, { hasSeenInboxTutorial } from "@/components/inbox/InboxTutorial";
 import InboxMobileTabBar from "@/components/inbox/InboxMobileTabBar";
+import BugsPanel from "@/components/inbox/BugsPanel";
+import TermsAssistantChat from "@/components/inbox/TermsAssistantChat";
+import BugReportChat from "@/components/inbox/BugReportChat";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
@@ -50,6 +53,10 @@ export default function Inbox() {
   // conversation LIST on load (panel closed) so users pick a thread first.
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenInboxTutorial());
+  // Bugs view + floating chat widgets are now triggered from the status rail.
+  const [showBugs, setShowBugs] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [bugChatOpen, setBugChatOpen] = useState(false);
   const centerRef = useRef(null);
 
   const handleListResize = (clientX) => {
@@ -134,7 +141,7 @@ export default function Inbox() {
 
   // Reset the sub-filter whenever the main view changes.
   // Team inboxes have no "All" status tab, so default to the first status.
-  useEffect(() => { setSubFilter(SOURCE_META[view] ? statusOrderFor(view)[0] : "all"); setInquiryType("all"); setSelected(null); setShowArchived(false); }, [view]);
+  useEffect(() => { setSubFilter(SOURCE_META[view] ? statusOrderFor(view)[0] : "all"); setInquiryType("all"); setSelected(null); setShowArchived(false); setShowBugs(false); }, [view]);
 
   // Distinct inquiry/event types within the current view (for the icon filter).
   // Support filters on inquiry_type; Events filters on event_type.
@@ -328,43 +335,51 @@ export default function Inbox() {
         {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
           className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
-          style={{ width: selectedThread ? listWidth : undefined, flex: selectedThread ? undefined : "1 1 100%" }}
+          style={{ width: (selectedThread && !showBugs) ? listWidth : undefined, flex: (selectedThread && !showBugs) ? undefined : "1 1 100%" }}
         >
           {/* Vertical status rail (side panels) */}
           {activeTabs && (
             <InboxStatusRail
               tabs={activeTabs}
               active={subFilter}
-              onChange={(k) => { setShowArchived(false); setSubFilter(k); setSelected(null); }}
+              onChange={(k) => { setShowArchived(false); setShowBugs(false); setSubFilter(k); setSelected(null); }}
               counts={tabCounts} accent={accent}
               archivedActive={showArchived}
-              onArchived={isSourceView ? () => { setShowArchived((s) => !s); setSelected(null); } : undefined}
+              onArchived={isSourceView ? () => { setShowBugs(false); setShowArchived((s) => !s); setSelected(null); } : undefined}
+              onTerms={() => setTermsOpen(true)}
+              onBugs={() => { setShowBugs((s) => !s); setShowArchived(false); setSelected(null); }}
+              bugsActive={showBugs}
             />
           )}
           <div className="flex-1 overflow-hidden">
-            <ThreadList
-              threads={filtered}
-              grouped={showArchived}
-              title={showArchived ? "Archived" : title}
-              count={filtered.length}
-              search={search} setSearch={setSearch}
-              selectedId={selectedThread?.id} onSelect={handleSelect} loading={isLoading}
-              filterSlot={
-                <>
-                  {isClosedView && <ArchiveButton threads={filtered} onArchive={handleArchive} />}
-                  {(view === "support" || view === "events") && !showArchived && inquiryTypes.length > 0 ? (
-                    <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
-                  ) : null}
-                </>
-              }
-            />
+            {showBugs ? (
+              <BugsPanel accent={accent} onNewBug={() => setBugChatOpen(true)} />
+            ) : (
+              <ThreadList
+                threads={filtered}
+                grouped={showArchived}
+                title={showArchived ? "Archived" : title}
+                count={filtered.length}
+                search={search} setSearch={setSearch}
+                selectedId={selectedThread?.id} onSelect={handleSelect} loading={isLoading}
+                filterSlot={
+                  <>
+                    {isClosedView && <ArchiveButton threads={filtered} onArchive={handleArchive} />}
+                    {(view === "support" || view === "events") && !showArchived && inquiryTypes.length > 0 ? (
+                      <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
+                    ) : null}
+                  </>
+                }
+              />
+            )}
           </div>
         </div>
 
         {/* Resize grabber — desktop split view only (component is hidden on mobile) */}
-        {selectedThread && <ResizeHandle onDrag={handleListResize} />}
+        {selectedThread && !showBugs && <ResizeHandle onDrag={handleListResize} />}
 
         {/* Center: thread panel — full-screen on mobile only when opened */}
+        {!showBugs && (
         <div
           className={`${mobilePanelOpen ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20`}
         >
@@ -381,14 +396,15 @@ export default function Inbox() {
             <EmptyThreadState />
           )}
         </div>
+        )}
 
         {/* Transparent hover line to collapse/expand the detail panel (desktop) */}
-        {selectedThread && (
+        {selectedThread && !showBugs && (
           <DetailToggleHandle open={showContact} onToggle={() => setShowContact((s) => !s)} />
         )}
 
         {/* Right: contact panel — desktop-only sidebar (never overlays mobile/tablet) */}
-        {selectedThread && showContact && (
+        {selectedThread && showContact && !showBugs && (
           <div className="hidden lg:block lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
             <div className="h-full rounded-3xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-3xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <ContactPanel
@@ -405,6 +421,11 @@ export default function Inbox() {
 
       {/* Mobile/tablet bottom tab bar — hidden when a conversation is open */}
       {!mobilePanelOpen && <InboxMobileTabBar view={view} setView={setView} />}
+
+      {/* Live-chat widgets — triggered from the status rail / Bugs panel (+).
+          Floating buttons are hidden; the rail controls open/close. */}
+      <TermsAssistantChat accent={accent} open={termsOpen} onOpenChange={setTermsOpen} hideFloatingButton />
+      <BugReportChat currentUser={currentUser} accent={accent} open={bugChatOpen} onOpenChange={setBugChatOpen} hideFloatingButton />
     </div>
   );
 }

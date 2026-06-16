@@ -11,6 +11,18 @@ const INBOXES = [
 ];
 
 export default function InboxSummaryWidget({ widget }) {
+  // 2-column layout ONLY on true mobile devices; always 1-column otherwise
+  // (including desktop small-mode), matching the desktop look.
+  const [isMobile, setIsMobile] = React.useState(
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  );
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   const { data: threads = [] } = useQuery({
     queryKey: ['inbox-summary-threads'],
     queryFn: () => base44.entities.Thread.list('-last_activity_at', 1000),
@@ -76,7 +88,7 @@ export default function InboxSummaryWidget({ widget }) {
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 min-h-0 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
+        <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-1'} gap-1.5`}>
           {INBOXES.map((ib) => (
             <a
               key={ib.key}

@@ -26,8 +26,11 @@ const EMPTY = {
  * Floating live-chat style bug reporter (bottom-right). Walks the user through
  * a guided set of questions and emails the report via the sendBugReport function.
  */
-export default function BugReportChat({ currentUser, accent = "#b67651" }) {
-  const [open, setOpen] = useState(false);
+export default function BugReportChat({ currentUser, accent = "#b67651", open: controlledOpen, onOpenChange, hideFloatingButton = false }) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = (v) => { if (isControlled) onOpenChange?.(v); else setInternalOpen(v); };
   const [step, setStep] = useState("describe");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -165,7 +168,7 @@ export default function BugReportChat({ currentUser, accent = "#b67651" }) {
   return (
     <>
       {/* Floating button */}
-      {!open && (
+      {!open && !hideFloatingButton && (
         <button
           onClick={() => setOpen(true)}
           title="Report a bug"

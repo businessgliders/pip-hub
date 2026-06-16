@@ -6,8 +6,6 @@ import { useTheme } from "@/lib/ThemeContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LifeBuoy, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
-import BugReportChat from "./BugReportChat";
-import TermsAssistantChat from "./TermsAssistantChat";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png";
 
@@ -63,7 +61,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
     <>
-    <header className="safe-top shrink-0 px-2 md:px-4 pt-3.5 pb-2.5 md:pt-4 md:pb-3.5 flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
+    <header className="safe-top shrink-0 px-2 md:px-4 py-4 flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
       {/* Back to home */}
       <Link
         to="/"
@@ -76,7 +74,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       {/* Logo */}
       <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 lg:w-48">
         <img src={LOGO_URL} alt="PiP Inbox" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
-        <span className="block font-extrabold text-base md:text-lg tracking-tight whitespace-nowrap" style={{ fontStyle: "italic", color: accent }}>
+        <span className="hidden md:block font-extrabold text-base md:text-lg tracking-tight whitespace-nowrap" style={{ fontStyle: "italic", color: accent }}>
           {LOGO_TITLES[view] || "PiP Inbox"}
         </span>
       </Link>
@@ -133,13 +131,6 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         </DropdownMenu>
       </div>
     </header>
-
-    {!hideChatWidgets && view === "support" && (
-      <>
-        <TermsAssistantChat accent={accent} />
-        <BugReportChat currentUser={currentUser} accent={accent} />
-      </>
-    )}
     </>
   );
 }

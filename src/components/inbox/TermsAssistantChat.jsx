@@ -16,8 +16,11 @@ const SUGGESTIONS = [
  * Floating live-chat style Terms Assistant (bottom-right, above the bug button).
  * Answers studio-policy questions based on the live Terms page.
  */
-export default function TermsAssistantChat({ accent = "#7c3aed" }) {
-  const [open, setOpen] = useState(false);
+export default function TermsAssistantChat({ accent = "#7c3aed", open: controlledOpen, onOpenChange, hideFloatingButton = false }) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = (v) => { if (isControlled) onOpenChange?.(v); else setInternalOpen(v); };
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,7 +50,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed" }) {
   return (
     <>
       {/* Floating button — sits to the left of the bug button */}
-      {!open && (
+      {!open && !hideFloatingButton && (
         <button
           onClick={() => setOpen(true)}
           title="Terms Assistant"
