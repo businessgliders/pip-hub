@@ -14,9 +14,9 @@ const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
 // From Name matches what the spoke apps (pip-support, pip-events, pip-partner)
 // actually send — all three use "Pilates in Pink ™".
 const FROM_BY_SOURCE = {
-  support: { name: 'Pilates in Pink ™', email: 'support@pilatesinpinkstudio.com' },
-  events: { name: 'Pilates in Pink ™', email: 'events@pilatesinpinkstudio.com' },
-  influencer: { name: 'Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com' },
+  support: { name: 'Support @ Pilates in Pink ™', email: 'support@pilatesinpinkstudio.com' },
+  events: { name: 'Events @ Pilates in Pink ™', email: 'events@pilatesinpinkstudio.com' },
+  influencer: { name: 'Influencer @ Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com' },
 };
 
 function stripHtml(html) {

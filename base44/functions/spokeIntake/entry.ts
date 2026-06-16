@@ -2,9 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 // Per-inbox From alias + subject threading tag (mirrors sendThreadReply).
 const FROM_BY_SOURCE = {
-  support: { name: 'Pilates in Pink ™', email: 'support@pilatesinpinkstudio.com', tag: 'Ticket' },
-  events: { name: 'Pilates in Pink ™', email: 'events@pilatesinpinkstudio.com', tag: 'Request' },
-  influencer: { name: 'Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com', tag: 'Request' },
+  support: { name: 'Support @ Pilates in Pink ™', email: 'support@pilatesinpinkstudio.com', tag: 'Ticket' },
+  events: { name: 'Events @ Pilates in Pink ™', email: 'events@pilatesinpinkstudio.com', tag: 'Request' },
+  influencer: { name: 'Influencer @ Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com', tag: 'Request' },
 };
 
 function stripHtml(html) {
