@@ -86,3 +86,36 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ---- Native iOS-style web-app behavior ---- */
+/* Lock the document so the whole page never rubber-band scrolls;
+   only designated inner containers scroll. */
+html.app-locked,
+html.app-locked body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  /* Avoid the rubber-band/bounce on iOS Safari at the document level */
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Use the dynamic viewport height so layout doesn't jump as the iOS
+   address bar shows/hides. Falls back to 100vh on older browsers. */
+.app-screen {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Smooth momentum scrolling + contained overscroll for inner panels. */
+.ios-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Top safe-area inset for the fixed header on notched devices. */
+.safe-top {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}

@@ -66,7 +66,7 @@ export default function ThreadList({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto" ref={scrollRef} onScroll={handleScroll}>
+      <div className="flex-1 overflow-y-auto ios-scroll" ref={scrollRef} onScroll={handleScroll}>
         {loading ? (
           <div className="p-4 space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (

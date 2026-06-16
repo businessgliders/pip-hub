@@ -62,6 +62,13 @@ export default function Inbox() {
     base44.auth.me().then(setCurrentUser).catch(() => {});
   }, []);
 
+  // Lock the document scroll while the Inbox is mounted so the whole app feels
+  // like a native screen (only inner panels scroll). Restored on unmount.
+  useEffect(() => {
+    document.documentElement.classList.add("app-locked");
+    return () => document.documentElement.classList.remove("app-locked");
+  }, []);
+
   // Keep the URL hash in sync with the active inbox so each is directly linkable
   // (/inbox#support, /inbox#events, /inbox#influencer).
   useEffect(() => {
@@ -297,7 +304,7 @@ export default function Inbox() {
     (view === "events" ? subFilter === "Closed" : subFilter === "closed");
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden relative">
+    <div className="app-screen flex flex-col overflow-hidden relative">
       {showTutorial && <InboxTutorial onClose={() => setShowTutorial(false)} />}
 
       {/* Vibrant pink gradient backdrop */}
