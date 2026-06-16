@@ -5,6 +5,13 @@ import EmailPreviewModal from "./EmailPreviewModal";
 import SubmissionPreviewModal from "./SubmissionPreviewModal";
 import { SOURCE_META } from "./inboxConfig";
 
+// Subtle, per-inbox outbound bubble styling (muted, brand-matched).
+const OUTBOUND_BUBBLE = {
+  support:    { bubble: "bg-amber-50/80 dark:bg-amber-400/10 border border-amber-200/60 dark:border-amber-300/15", text: "text-amber-950 dark:text-amber-50", meta: "text-amber-700/70", name: "text-amber-800/80", body: "text-amber-900", hint: "text-amber-700/70" },
+  events:     { bubble: "bg-rose-50/80 dark:bg-rose-400/10 border border-rose-200/60 dark:border-rose-300/15", text: "text-rose-950 dark:text-rose-50", meta: "text-rose-700/70", name: "text-rose-800/80", body: "text-rose-900", hint: "text-rose-700/70" },
+  influencer: { bubble: "bg-violet-50/80 dark:bg-violet-400/10 border border-violet-200/60 dark:border-violet-300/15", text: "text-violet-950 dark:text-violet-50", meta: "text-violet-700/70", name: "text-violet-800/80", body: "text-violet-900", hint: "text-violet-700/70" },
+};
+
 // Strip HTML to a short plain-text preview for the bubble
 function toPreview(m) {
   const raw = m.body_text || m.body_html || "";
@@ -140,29 +147,30 @@ export default function EmailThreadTab({ messages, loading, thread }) {
           const outbound = m.direction === "outbound";
           // Inbound replies: show a 1-2 line preview of the body instead of the subject.
           const bodyPreview = toPreview(m);
+          const ob = OUTBOUND_BUBBLE[thread?.source_app] || OUTBOUND_BUBBLE.events;
           return (
             <div key={m.id} className={`flex ${outbound ? "justify-end" : "justify-start"}`}>
               <button
                 onClick={() => setPreview(m)}
-                className={`group max-w-[70%] text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md ${
+                className={`group max-w-[70%] text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${
                   outbound
-                    ? "bg-gradient-to-br from-pink-300/90 to-rose-300/90 text-pink-950 rounded-br-sm border border-white/40"
+                    ? `${ob.bubble} ${ob.text} rounded-br-sm`
                     : "bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white rounded-bl-sm"
                 }`}
               >
-                <div className={`flex items-center gap-1.5 text-[10px] mb-0.5 ${outbound ? "text-pink-700/70" : "text-pink-400 dark:text-white/55"}`}>
-                  <span className={`font-medium truncate ${outbound ? "text-pink-800/80" : "text-pink-500 dark:text-white/80"}`}>
+                <div className={`flex items-center gap-1.5 text-[10px] mb-0.5 ${outbound ? `${ob.meta} dark:text-white/55` : "text-pink-400 dark:text-white/55"}`}>
+                  <span className={`font-medium truncate ${outbound ? `${ob.name} dark:text-white/80` : "text-pink-500 dark:text-white/80"}`}>
                     {m.from_name || m.from_email}
                   </span>
                   <span>·</span>
                   <span>{m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
                 </div>
                 {outbound ? (
-                  <div className="text-[13px] font-semibold leading-snug truncate text-pink-900">{m.subject || "(no subject)"}</div>
+                  <div className={`text-[13px] font-semibold leading-snug truncate ${ob.body} dark:text-white/90`}>{m.subject || "(no subject)"}</div>
                 ) : (
                   <div className="text-[13px] leading-snug text-pink-800/80 dark:text-white/80 line-clamp-2">{bodyPreview || m.subject || "(no content)"}</div>
                 )}
-                <div className={`text-[10px] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? "text-pink-700" : "text-pink-500 dark:text-white/60"}`}>
+                <div className={`text-[10px] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? `${ob.hint} dark:text-white/60` : "text-pink-500 dark:text-white/60"}`}>
                   Tap to view full email
                 </div>
               </button>
