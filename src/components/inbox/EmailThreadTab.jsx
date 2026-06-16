@@ -3,6 +3,7 @@ import { Mail, FileText, Sparkles } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import EmailPreviewModal from "./EmailPreviewModal";
 import SubmissionPreviewModal from "./SubmissionPreviewModal";
+import MessageReadToggle from "./MessageReadToggle";
 import { SOURCE_META } from "./inboxConfig";
 
 // Subtle, per-inbox outbound bubble styling (muted, brand-matched).
@@ -37,7 +38,7 @@ function isAssignmentNotice(m) {
   return /\bassigned to\b/.test(text);
 }
 
-export default function EmailThreadTab({ messages, loading, thread }) {
+export default function EmailThreadTab({ messages, loading, thread, currentUser }) {
   const [preview, setPreview] = useState(null);
   const [submissionOpen, setSubmissionOpen] = useState(false);
   const [summary, setSummary] = useState(thread?.submission_summary || "");
@@ -150,9 +151,12 @@ export default function EmailThreadTab({ messages, loading, thread }) {
           const ob = OUTBOUND_BUBBLE[thread?.source_app] || OUTBOUND_BUBBLE.events;
           return (
             <div key={m.id} className={`flex ${outbound ? "justify-end" : "justify-start"}`}>
-              <button
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => setPreview(m)}
-                className={`group max-w-[70%] text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setPreview(m); }}
+                className={`group max-w-[70%] cursor-pointer text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${
                   outbound
                     ? `${ob.bubble} ${ob.text} rounded-br-sm`
                     : "bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white rounded-bl-sm"
@@ -170,10 +174,17 @@ export default function EmailThreadTab({ messages, loading, thread }) {
                 ) : (
                   <div className="text-[13px] leading-snug text-pink-800/80 dark:text-white/80 line-clamp-2">{bodyPreview || m.subject || "(no content)"}</div>
                 )}
-                <div className={`text-[10px] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? `${ob.hint} dark:text-white/60` : "text-pink-500 dark:text-white/60"}`}>
-                  Tap to view full email
+                <div className={`flex items-center justify-between gap-2 mt-0.5 ${outbound ? "" : "min-h-[18px]"}`}>
+                  <span className={`text-[10px] opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? `${ob.hint} dark:text-white/60` : "text-pink-500 dark:text-white/60"}`}>
+                    Tap to view full email
+                  </span>
+                  {!outbound && (
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <MessageReadToggle message={m} thread={thread} currentUser={currentUser} />
+                    </div>
+                  )}
                 </div>
-              </button>
+              </div>
             </div>
           );
         })}
