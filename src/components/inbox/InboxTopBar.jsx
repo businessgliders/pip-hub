@@ -38,7 +38,7 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
       {label}
       {count > 0 && (
         <span
-          className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-bold leading-none rounded-full bg-current/10"
+          className="inline-flex items-center justify-center text-xs md:text-sm font-bold leading-none"
           style={{ color: accent || "inherit" }}
           title={`${count} open`}
         >
@@ -63,8 +63,8 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         </span>
       </Link>
 
-      {/* Tabs: 3 team inboxes — fill width & center on mobile/tablet */}
-      <nav className="flex flex-1 lg:flex-initial items-center justify-center gap-1 lg:ml-2">
+      {/* Tabs: 3 team inboxes — fill width on mobile, centered on desktop */}
+      <nav className="flex flex-1 items-center justify-center gap-1 lg:gap-2">
         {TEAM_TABS.map((t) => (
           <TabButton
             key={t.key}
@@ -78,10 +78,8 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         ))}
       </nav>
 
-      <div className="hidden lg:block flex-1" />
-
       {/* Right icons */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center justify-end gap-1 lg:w-56">
         <NotificationCenter currentUser={currentUser} onOpenThread={onOpenThread} />
         <button
           onClick={toggle}
