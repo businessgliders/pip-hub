@@ -8,6 +8,7 @@ import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxStatusRail from "@/components/inbox/InboxStatusRail";
 import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
 import ArchiveButton from "@/components/inbox/ArchiveButton";
+import EventDateSortToggle from "@/components/inbox/EventDateSortToggle";
 import DetailToggleHandle from "@/components/inbox/DetailToggleHandle";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
 import InboxTutorial, { hasSeenInboxTutorial } from "@/components/inbox/InboxTutorial";
@@ -43,6 +44,8 @@ export default function Inbox() {
   const [subFilter, setSubFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [inquiryType, setInquiryType] = useState("all");
+  // Events inbox: sort by event date (most recent event first) — default on.
+  const [sortByEventDate, setSortByEventDate] = useState(true);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [shakeKey, setShakeKey] = useState(0);
@@ -223,19 +226,30 @@ export default function Inbox() {
     });
   }, [threads, view, subFilter, search, inquiryType, showArchived]);
 
+  // Events inbox: optionally sort by event date (most recent event date first).
+  const sortedFiltered = useMemo(() => {
+    if (view !== "events" || !sortByEventDate || showArchived) return filtered;
+    const eventTime = (t) => {
+      const raw = t?.form_data?.event_date || t?.form_data?.event_date_iso || t?.form_data?.date;
+      const d = raw ? new Date(raw) : null;
+      return d && !isNaN(d.getTime()) ? d.getTime() : -Infinity;
+    };
+    return [...filtered].sort((a, b) => eventTime(b) - eventTime(a));
+  }, [filtered, view, sortByEventDate, showArchived]);
+
   // Auto-select the first available conversation when nothing is selected.
   useEffect(() => {
-    if (!selected && filtered.length > 0) {
+    if (!selected && sortedFiltered.length > 0) {
       const params = new URLSearchParams(window.location.search);
       if (!params.get("thread")) {
         // Auto-select the first thread, but only auto-OPEN the panel on desktop.
         // On mobile/tablet we show the conversation panel (empty state) without
         // forcing the first item open.
         const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
-        handleSelect(filtered[0], { open: isDesktop });
+        handleSelect(sortedFiltered[0], { open: isDesktop });
       }
     }
-  }, [filtered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sortedFiltered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const baseTitle = VIEW_TITLES[view] || SOURCE_META[view]?.label || "Inbox";
   // In a team inbox, show ONLY the selected status label (e.g. "Open", "Closed")
@@ -356,15 +370,18 @@ export default function Inbox() {
               <BugsPanel accent={accent} onNewBug={() => setBugChatOpen(true)} />
             ) : (
               <ThreadList
-                threads={filtered}
+                threads={sortedFiltered}
                 grouped={showArchived}
                 title={showArchived ? "Archived" : title}
-                count={filtered.length}
+                count={sortedFiltered.length}
                 search={search} setSearch={setSearch}
                 selectedId={selectedThread?.id} onSelect={handleSelect} loading={isLoading}
                 filterSlot={
                   <>
-                    {isClosedView && <ArchiveButton threads={filtered} onArchive={handleArchive} />}
+                    {isClosedView && <ArchiveButton threads={sortedFiltered} onArchive={handleArchive} />}
+                    {view === "events" && !showArchived && (
+                      <EventDateSortToggle active={sortByEventDate} onToggle={() => setSortByEventDate((s) => !s)} />
+                    )}
                     {(view === "support" || view === "events") && !showArchived && inquiryTypes.length > 0 ? (
                       <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
                     ) : null}

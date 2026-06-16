@@ -11,13 +11,13 @@ const INBOXES = [
 ];
 
 export default function InboxSummaryWidget({ widget }) {
-  // 2-column layout ONLY on true mobile devices; always 1-column otherwise
-  // (including desktop small-mode), matching the desktop look.
+  // 2-column layout ONLY on true phones; tablets & desktop always 1-column
+  // (matching the desktop small-mode look).
   const [isMobile, setIsMobile] = React.useState(
-    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 639px)').matches : false
   );
   React.useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
+    const mq = window.matchMedia('(max-width: 639px)');
     const onChange = (e) => setIsMobile(e.matches);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);

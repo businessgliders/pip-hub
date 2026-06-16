@@ -62,22 +62,25 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
   return (
     <>
     <header className="safe-top shrink-0 px-2 md:px-4 py-4 flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
-      {/* Back to home */}
-      <Link
-        to="/"
-        title="Back to home"
-        className="shrink-0 p-1.5 rounded-full text-pink-900/60 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
-      >
-        <ArrowLeft className="w-5 h-5" />
-      </Link>
+      {/* Left cluster: back + logo — fixed width to mirror the right cluster so the tabs stay centered */}
+      <div className="flex items-center gap-1.5 md:gap-2.5 shrink-0 w-[104px] md:w-[120px] lg:w-56">
+        {/* Back to home */}
+        <Link
+          to="/"
+          title="Back to home"
+          className="shrink-0 p-1.5 rounded-full text-pink-900/60 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
 
-      {/* Logo */}
-      <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 lg:w-48">
-        <img src={LOGO_URL} alt="PiP Inbox" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
-        <span className="hidden md:block font-extrabold text-base md:text-lg tracking-tight whitespace-nowrap" style={{ fontStyle: "italic", color: accent }}>
-          {LOGO_TITLES[view] || "PiP Inbox"}
-        </span>
-      </Link>
+        {/* Logo */}
+        <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 min-w-0">
+          <img src={LOGO_URL} alt="PiP Inbox" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
+          <span className="hidden md:block font-extrabold text-base md:text-lg tracking-tight whitespace-nowrap truncate" style={{ fontStyle: "italic", color: accent }}>
+            {LOGO_TITLES[view] || "PiP Inbox"}
+          </span>
+        </Link>
+      </div>
 
       {/* Tabs: 3 team inboxes — compact on tablet/mobile, centered on desktop */}
       <nav className="flex flex-1 items-center justify-center gap-2 md:gap-3 lg:gap-4">
@@ -95,7 +98,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       </nav>
 
       {/* Right icons */}
-      <div className="flex items-center justify-end gap-1 lg:w-56">
+      <div className="flex items-center justify-end gap-0.5 md:gap-1 shrink-0 w-[104px] md:w-[120px] lg:w-56">
         <NotificationCenter currentUser={currentUser} onOpenThread={onOpenThread} />
         <button
           onClick={toggle}

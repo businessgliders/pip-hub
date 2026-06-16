@@ -28,7 +28,7 @@ export const INFLUENCER_STATUS_ORDER = ["open", "accepted", "declined"];
 export const EVENTS_STATUS_META = {
   "New": { label: "New", chip: "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-200" },
   "In Conversations": { label: "In Convo", chip: "bg-amber-100/80 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200" },
-  "Waiting for Payment": { label: "Waiting for Payment", chip: "bg-orange-100/80 text-orange-700 dark:bg-orange-400/20 dark:text-orange-200" },
+  "Waiting for Payment": { label: "Payment", chip: "bg-orange-100/80 text-orange-700 dark:bg-orange-400/20 dark:text-orange-200" },
   "Pending": { label: "Pending", chip: "bg-yellow-100/80 text-yellow-700 dark:bg-yellow-400/20 dark:text-yellow-200" },
   "Confirmed": { label: "Confirmed", chip: "bg-sky-100/80 text-sky-700 dark:bg-sky-400/20 dark:text-sky-200" },
   "Hosted": { label: "Hosted", chip: "bg-violet-100/80 text-violet-700 dark:bg-violet-400/25 dark:text-violet-200" },
