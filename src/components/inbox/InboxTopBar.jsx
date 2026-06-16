@@ -61,7 +61,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
   return (
     <>
-    <header className="safe-top shrink-0 px-2 md:px-4 py-3 flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10" style={{ minHeight: "64px" }}>
+    <header className="safe-top shrink-0 px-2 md:px-4 pt-5 pb-3 flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10" style={{ minHeight: "72px" }}>
       {/* Left cluster: back + logo — fixed width to mirror the right cluster so the tabs stay centered */}
       <div className="flex items-center gap-1.5 md:gap-2.5 shrink-0 w-[104px] md:w-[120px] lg:w-56">
         {/* Back to home */}
@@ -103,7 +103,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         <button
           onClick={toggle}
           title={dark ? "Switch to light mode" : "Switch to dark mode"}
-          className="p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+          className="hidden md:block p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
         >
           {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>

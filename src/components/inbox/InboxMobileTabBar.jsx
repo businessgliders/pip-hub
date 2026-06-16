@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, LifeBuoy, CalendarHeart, Handshake } from "lucide-react";
+import { LifeBuoy, CalendarHeart, Handshake } from "lucide-react";
+
+const HOME_LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69841af9c747b033a60780f2/ad4ccf659_PiPHub.png";
 import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
 
 const TEAM_TABS = [
@@ -26,7 +28,7 @@ export default function InboxMobileTabBar({ view, setView }) {
           to="/"
           className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-gray-500 dark:text-white/55"
         >
-          <Home className="w-5 h-5" />
+          <img src={HOME_LOGO} alt="Home" className="w-5 h-5 rounded-md" />
           <span className="text-[10px] font-medium">Home</span>
         </Link>
 
