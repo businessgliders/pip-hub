@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
         direction,
         from_email: from.email,
         from_name: from.name,
-        to_email: direction === 'outbound' ? thread.contact_email : thread.contact_email,
+        to_email: thread.contact_email,
         subject,
         body_html: html,
         body_text: text,
