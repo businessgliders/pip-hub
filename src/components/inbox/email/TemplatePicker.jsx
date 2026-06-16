@@ -18,7 +18,21 @@ export default function TemplatePicker({ thread, currentUser, onSelect }) {
     queryFn: () => base44.entities.EmailTemplate.list('-created_date', 100),
   });
 
-  const active = templates.filter((t) => t.is_active !== false);
+  // Map source_app -> matching template category so we can show inbox-relevant
+  // templates (plus shared General ones) for the current thread.
+  const CATEGORY_BY_SOURCE = { support: 'Support', events: 'Events', influencer: 'Influencer' };
+  const inboxCategory = CATEGORY_BY_SOURCE[thread.source_app];
+
+  const active = templates
+    .filter((t) => t.is_active !== false)
+    .filter((t) => {
+      // Always keep general/shared templates available in every inbox.
+      if (t.category === 'General' || t.category === 'Other' || !t.category) return true;
+      // Otherwise only show templates that belong to the current inbox —
+      // by explicit source_app or by matching category.
+      if (t.source_app) return t.source_app === thread.source_app;
+      return t.category === inboxCategory;
+    });
 
   const fd = thread.form_data || {};
   const vars = {
