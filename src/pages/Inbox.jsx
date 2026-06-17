@@ -15,6 +15,8 @@ import InboxTutorial, { hasSeenInboxTutorial } from "@/components/inbox/InboxTut
 import InboxMobileTabBar from "@/components/inbox/InboxMobileTabBar";
 import TermsAssistantChat from "@/components/inbox/TermsAssistantChat";
 import BugReportChat from "@/components/inbox/BugReportChat";
+import BugRow from "@/components/inbox/bugs/BugRow";
+import BugDetailPanel from "@/components/inbox/bugs/BugDetailPanel";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
@@ -58,7 +60,14 @@ export default function Inbox() {
   // Terms + Bug-report chat widgets are triggered from the status rail.
   const [termsOpen, setTermsOpen] = useState(false);
   const [bugChatOpen, setBugChatOpen] = useState(false);
+  const [selectedBug, setSelectedBug] = useState(null);
   const centerRef = useRef(null);
+
+  // Bugs view is active when the Support inbox "bug" sub-filter is selected.
+  const bugMode = !showArchived && view === "support" && subFilter === "bug";
+
+  // Clear the selected bug whenever we leave the Bugs view.
+  useEffect(() => { if (!bugMode) setSelectedBug(null); }, [bugMode]);
 
   const handleListResize = (clientX) => {
     const left = centerRef.current?.getBoundingClientRect().left || 0;
@@ -106,6 +115,19 @@ export default function Inbox() {
   useEffect(() => {
     const unsubscribe = base44.entities.Thread.subscribe(() => {
       qc.invalidateQueries({ queryKey: ["threads"] });
+    });
+    return unsubscribe;
+  }, [qc]);
+
+  const { data: bugs } = useQuery({
+    queryKey: ["bug-reports"],
+    queryFn: () => base44.entities.BugReport.list("-bug_number", 500),
+    initialData: [],
+  });
+
+  useEffect(() => {
+    const unsubscribe = base44.entities.BugReport.subscribe(() => {
+      qc.invalidateQueries({ queryKey: ["bug-reports"] });
     });
     return unsubscribe;
   }, [qc]);
@@ -347,7 +369,7 @@ export default function Inbox() {
         {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
           className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
-          style={{ width: selectedThread ? listWidth : undefined, flex: selectedThread ? undefined : "1 1 100%" }}
+          style={{ width: (selectedThread || (bugMode && selectedBug)) ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
         >
           {/* Vertical status rail (side panels) */}
           {activeTabs && (
@@ -367,11 +389,31 @@ export default function Inbox() {
                 setSelected(null);
                 setBugChatOpen(true);
               }}
-              bugActive={!showArchived && view === "support" && subFilter === "bug"}
-              bugCount={threads.filter((t) => t.source_app === "support" && t.status === "bug" && !t.archived).length}
+              bugActive={bugMode}
+              bugCount={bugs.length}
             />
           )}
           <div className="flex-1 overflow-hidden">
+            {bugMode ? (
+              <div className="flex flex-col h-full">
+                <div className="px-4 pt-4 pb-2 shrink-0">
+                  <h2 className="text-lg font-bold text-pink-900 dark:text-white flex items-center gap-2">
+                    Bugs
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">{bugs.length}</span>
+                  </h2>
+                </div>
+                <div className="flex-1 overflow-y-auto ios-scroll pb-2">
+                  {bugs.length === 0 ? (
+                    <p className="text-center text-sm text-pink-400 dark:text-white/50 py-12">No bug reports.</p>
+                  ) : (
+                    bugs.map((b) => (
+                      <BugRow key={b.id} bug={b} active={selectedBug?.id === b.id}
+                        onClick={() => { setSelectedBug(b); setMobilePanelOpen(true); }} />
+                    ))
+                  )}
+                </div>
+              </div>
+            ) : (
             <ThreadList
               threads={sortedFiltered}
               grouped={showArchived}
@@ -391,17 +433,24 @@ export default function Inbox() {
                 </>
               }
             />
+            )}
           </div>
         </div>
 
         {/* Resize grabber — desktop split view only (component is hidden on mobile) */}
-        {selectedThread && <ResizeHandle onDrag={handleListResize} />}
+        {(selectedThread || (bugMode && selectedBug)) && <ResizeHandle onDrag={handleListResize} />}
 
         {/* Center: thread panel — full-screen on mobile only when opened */}
         <div
           className={`${mobilePanelOpen ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20`}
         >
-          {selectedThread ? (
+          {bugMode ? (
+            selectedBug ? (
+              <BugDetailPanel key={selectedBug.id} bug={selectedBug} onBack={() => setMobilePanelOpen(false)} />
+            ) : (
+              <EmptyThreadState accent={accent} onReportBug={() => setBugChatOpen(true)} />
+            )
+          ) : selectedThread ? (
             <ThreadPanel
               key={selectedThread.id}
               shakeKey={shakeKey}
