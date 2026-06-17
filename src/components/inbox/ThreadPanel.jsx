@@ -5,7 +5,7 @@ import ThreadHeader from "./ThreadHeader";
 import EmailThreadTab from "./EmailThreadTab";
 import EmailComposer from "./email/EmailComposer";
 import ContactPanel from "./ContactPanel";
-import { MessagesSquare, X } from "lucide-react";
+import { MessagesSquare, X, Plus } from "lucide-react";
 
 export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onSelectThread, onBack, shakeKey }) {
   const qc = useQueryClient();
@@ -88,11 +88,28 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
   );
 }
 
-export function EmptyThreadState() {
+export function EmptyThreadState({ onReportBug, accent = "#b67651" }) {
   return (
     <div className="hidden md:flex flex-col items-center justify-center h-full text-pink-400">
-      <MessagesSquare className="w-12 h-12 mb-3" />
-      <p className="text-sm">Select a conversation to get started.</p>
+      {onReportBug ? (
+        <>
+          <button
+            onClick={onReportBug}
+            title="Report a bug"
+            className="w-16 h-16 mb-4 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-transform"
+            style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
+          >
+            <Plus className="w-8 h-8" />
+          </button>
+          <p className="text-sm font-medium">No conversations here.</p>
+          <p className="text-xs opacity-70 mt-0.5">Tap + to report a bug.</p>
+        </>
+      ) : (
+        <>
+          <MessagesSquare className="w-12 h-12 mb-3" />
+          <p className="text-sm">Select a conversation to get started.</p>
+        </>
+      )}
     </div>
   );
 }

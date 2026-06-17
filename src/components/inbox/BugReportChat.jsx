@@ -54,6 +54,21 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, step]);
 
+  // While the chat bubble is open, lock the page so it can't be scrolled up
+  // behind the widget (especially when the mobile keyboard / text input opens).
+  useEffect(() => {
+    if (!open) return;
+    const docEl = document.documentElement;
+    const prevOverflow = document.body.style.overflow;
+    const wasLocked = docEl.classList.contains("app-locked");
+    docEl.classList.add("app-locked");
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      if (!wasLocked) docEl.classList.remove("app-locked");
+    };
+  }, [open]);
+
   const resetAll = () => {
     setStep("describe");
     setMessages([]);

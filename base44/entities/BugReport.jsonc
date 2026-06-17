@@ -27,14 +27,7 @@
     },
     "platform": {
       "type": "string",
-      "enum": [
-        "Website",
-        "Support Portal",
-        "Mobile",
-        "Email",
-        "Other"
-      ],
-      "default": "Support Portal"
+      "description": "Where the issue is happening (free text, e.g. 'Both \u2022 App')"
     },
     "urgency": {
       "type": "string",
@@ -83,6 +76,47 @@
     },
     "email_error": {
       "type": "string"
+    },
+    "ticket_number": {
+      "type": "string",
+      "description": "Related support ticket number (if linked)"
+    },
+    "ticket_id": {
+      "type": "string",
+      "description": "Related support ticket id (if linked)"
+    },
+    "rfc_message_id": {
+      "type": "string",
+      "description": "RFC Message-ID of the escalation email (for threading)"
+    },
+    "gmail_thread_id": {
+      "type": "string",
+      "description": "Gmail thread id of the escalation conversation"
+    },
+    "transcript": {
+      "type": "array",
+      "description": "Live-chat wizard transcript that produced this report",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "replies": {
+      "type": "array",
+      "description": "Email replies in the escalation thread",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "default": []
     }
   },
   "required": [

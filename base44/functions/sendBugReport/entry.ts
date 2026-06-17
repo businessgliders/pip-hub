@@ -10,6 +10,69 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
 const URGENCY_COLOR = { Critical: '#dc2626', High: '#ea580c', Soon: '#ca8a04', Low: '#16a34a' };
 
+function buildForwardMailto(report) {
+  const subject = `[Bug${report.bug_number ? ` #${report.bug_number}` : ''}] ${report.title || 'Issue reported'}${report.client_name ? ` - ${report.client_name}` : ''}`;
+  const lines = [
+    `Forwarding bug report from PiP Support Portal.`,
+    ``,
+    `Title: ${report.title || '—'}`,
+    `Urgency: ${report.urgency || '—'}`,
+    `Platform: ${report.platform || '—'}`,
+    `Reported by: ${report.reported_by_name || report.reported_by_email || '—'}`,
+    report.client_name ? `Client: ${report.client_name}` : null,
+    report.booking_info ? `Booking: ${report.booking_info}` : null,
+    ``,
+    `Description:`,
+    report.description || '—',
+    ``,
+    (report.image_urls || []).length ? `Attachments:\n${(report.image_urls || []).join('\n')}` : null,
+  ].filter(Boolean).join('\n');
+  return `mailto:support@gokenko.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines)}`;
+}
+
+function buildBugHtml(report) {
+  const urgencyColor = URGENCY_COLOR[report.urgency] || '#6b7280';
+  const imagesHtml = (report.image_urls || []).length
+    ? `<h3 style="margin:18px 0 8px;font-size:14px;color:#334155;">📎 Attachments</h3>
+       <div>${report.image_urls.map((u) => `
+         <div style="margin:8px 0;">
+           <img src="${escapeHtml(u)}" style="max-width:480px;border-radius:8px;border:1px solid #e2e8f0;" />
+           <div style="margin-top:4px;font-size:11px;color:#64748b;word-break:break-all;">${escapeHtml(u)}</div>
+         </div>
+       `).join('')}</div>`
+    : '';
+
+  return `
+  <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:0 auto;background:#ffffff;padding:24px;">
+    <div style="border-left:4px solid ${urgencyColor};padding-left:14px;margin-bottom:18px;">
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">Issue ${report.bug_number ? `B${report.bug_number} • ` : ''}${escapeHtml(report.urgency || 'Soon')}</div>
+      <h1 style="margin:4px 0 0;font-size:22px;color:#0f172a;">${escapeHtml(report.title || 'New issue reported')}</h1>
+    </div>
+
+    <table style="width:100%;font-size:13px;color:#0f172a;border-collapse:collapse;">
+      <tr><td style="padding:4px 0;color:#64748b;width:140px;">Platform</td><td>${escapeHtml(report.platform || '—')}</td></tr>
+      <tr><td style="padding:4px 0;color:#64748b;">Urgency</td><td><span style="display:inline-block;padding:2px 8px;border-radius:9999px;background:${urgencyColor}1a;color:${urgencyColor};font-weight:600;font-size:12px;">${escapeHtml(report.urgency || '—')}</span></td></tr>
+      <tr><td style="padding:4px 0;color:#64748b;">Reported by</td><td>${escapeHtml(report.reported_by_name || report.reported_by_email || '—')}</td></tr>
+      ${report.ticket_number ? `<tr><td style="padding:4px 0;color:#64748b;">Related Ticket</td><td><strong>#${escapeHtml(report.ticket_number)}</strong></td></tr>` : ''}
+      ${report.client_name ? `<tr><td style="padding:4px 0;color:#64748b;">Client</td><td>${escapeHtml(report.client_name)}</td></tr>` : ''}
+      ${report.booking_info ? `<tr><td style="padding:4px 0;color:#64748b;">Booking</td><td>${escapeHtml(report.booking_info)}</td></tr>` : ''}
+    </table>
+
+    <h3 style="margin:18px 0 8px;font-size:14px;color:#334155;">📝 Description</h3>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;color:#0f172a;white-space:pre-wrap;font-style:italic;">${escapeHtml(report.description || '—')}</div>
+
+    <div style="margin-top:14px;">
+      <a href="${buildForwardMailto(report)}" style="display:inline-block;padding:10px 18px;background:#0f172a;color:#ffffff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600;">Forward to Platform</a>
+    </div>
+
+    ${imagesHtml}
+
+    <div style="margin-top:24px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;">
+      Sent automatically from PiP Support Portal • Bug Report ID: ${escapeHtml(report.id || 'n/a')}
+    </div>
+  </div>`;
+}
+
 function encodeHeader(str) {
   const s = str || '';
   if (/^[\x00-\x7F]*$/.test(s)) return s;
@@ -74,22 +137,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'BUG_REPORT_ESCALATION_TO secret not set' }, { status: 400 });
     }
 
-    const color = URGENCY_COLOR[report.urgency] || '#6b7280';
     const subject = `[Bug #${bugNumber}] ${report.title || 'Issue reported'}${report.client_name ? ` - ${report.client_name}` : ''}`;
-    const imgs = (report.image_urls || []).map((u) => `<div><a href="${u}">${u}</a></div>`).join('');
-    const html = `
-      <div style="font-family:system-ui,Arial,sans-serif;color:#1f2937;line-height:1.6">
-        <h2 style="margin:0 0 8px">Bug #${bugNumber}: ${escapeHtml(report.title || 'Issue reported')}</h2>
-        <span style="display:inline-block;padding:2px 10px;border-radius:999px;background:${color};color:#fff;font-size:12px;font-weight:600">${escapeHtml(report.urgency || 'Soon')}</span>
-        <table style="margin:12px 0;border-collapse:collapse">
-          <tr><td style="padding:2px 12px 2px 0;color:#6b7280">Platform</td><td>${escapeHtml(report.platform || '—')}</td></tr>
-          <tr><td style="padding:2px 12px 2px 0;color:#6b7280">Reported by</td><td>${escapeHtml(report.reported_by_name || report.reported_by_email || '—')}</td></tr>
-          ${report.client_name ? `<tr><td style="padding:2px 12px 2px 0;color:#6b7280">Client</td><td>${escapeHtml(report.client_name)}</td></tr>` : ''}
-          ${report.booking_info ? `<tr><td style="padding:2px 12px 2px 0;color:#6b7280">Booking</td><td>${escapeHtml(report.booking_info)}</td></tr>` : ''}
-        </table>
-        <p><strong>Description:</strong><br/>${escapeHtml(report.description || '—').replace(/\n/g, '<br/>')}</p>
-        ${imgs ? `<p><strong>Attachments:</strong></p>${imgs}` : ''}
-      </div>`.trim();
+    const html = buildBugHtml({ ...report, bug_number: bugNumber }).trim();
 
     let emailSent = false;
     let emailError = '';

@@ -411,7 +411,16 @@ export default function Inbox() {
               onBack={() => setMobilePanelOpen(false)}
             />
           ) : (
-            <EmptyThreadState />
+            <EmptyThreadState
+              accent={accent}
+              onReportBug={() => {
+                setShowArchived(false);
+                setView("support");
+                setSubFilter("bug");
+                setSelected(null);
+                setBugChatOpen(true);
+              }}
+            />
           )}
         </div>
 
