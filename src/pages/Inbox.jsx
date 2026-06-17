@@ -17,6 +17,7 @@ import TermsAssistantChat from "@/components/inbox/TermsAssistantChat";
 import BugReportChat from "@/components/inbox/BugReportChat";
 import BugList from "@/components/inbox/bugs/BugList";
 import BugDetailPanel from "@/components/inbox/bugs/BugDetailPanel";
+import BugSidePanel from "@/components/inbox/bugs/BugSidePanel";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
@@ -384,7 +385,7 @@ export default function Inbox() {
         {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
           className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
-          style={{ width: (bugMode && selectedBug) ? 440 : selectedThread ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
+          style={{ width: (selectedThread || (bugMode && selectedBug)) ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
         >
           {/* Vertical status rail (side panels) */}
           {activeTabs && (
@@ -483,12 +484,26 @@ export default function Inbox() {
         </div>
 
         {/* Transparent hover line to collapse/expand the detail panel (desktop) */}
-        {selectedThread && (
+        {(selectedThread || (bugMode && liveBug)) && (
           <DetailToggleHandle open={showContact} onToggle={() => setShowContact((s) => !s)} />
         )}
 
+        {/* Right: bug detail panel — 3rd column for the Bugs view */}
+        {bugMode && liveBug && showContact && (
+          <div className="hidden lg:block lg:w-[320px] lg:shrink-0 h-full overflow-hidden">
+            <div className="h-full rounded-3xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-3xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
+              <BugSidePanel
+                key={liveBug.id}
+                bug={liveBug}
+                onUpdated={() => qc.invalidateQueries({ queryKey: ["bug-reports"] })}
+                onClose={() => setShowContact(false)}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Right: contact panel — desktop-only sidebar (never overlays mobile/tablet) */}
-        {selectedThread && showContact && (
+        {!bugMode && selectedThread && showContact && (
           <div className="hidden lg:block lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
             <div className="h-full rounded-3xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-3xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <ContactPanel

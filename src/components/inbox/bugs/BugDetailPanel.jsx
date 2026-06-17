@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { ArrowLeft, LifeBuoy } from "lucide-react";
 import BugEmailThread from "./BugEmailThread";
 import BugComposer from "./BugComposer";
-import BugReportDetails from "./BugReportDetails";
 import BugStatusDropdown from "./BugStatusDropdown";
+import BugReportModal from "./BugReportModal";
 import EmailPreviewModal from "../EmailPreviewModal";
 
 const URGENCY_TONE = {
@@ -15,6 +15,7 @@ const URGENCY_TONE = {
 
 export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) {
   const [preview, setPreview] = useState(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   return (
     <div className="relative flex flex-col h-full">
@@ -51,8 +52,7 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
 
       {/* Conversation */}
       <div className="flex-1 overflow-y-auto ios-scroll">
-        <BugReportDetails bug={bug} onUpdated={onReplied} />
-        <BugEmailThread bug={bug} onPreview={setPreview} />
+        <BugEmailThread bug={bug} onPreview={setPreview} onOpenReport={() => setReportOpen(true)} />
       </div>
 
       {/* Reply composer — sends into the escalation Gmail thread */}
@@ -60,6 +60,7 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
         <BugComposer bug={bug} currentUser={currentUser} onSent={onReplied} />
       </div>
 
+      <BugReportModal bug={bug} open={reportOpen} onClose={() => setReportOpen(false)} />
       <EmailPreviewModal message={preview} open={!!preview} onClose={() => setPreview(null)} />
     </div>
   );
