@@ -25,10 +25,11 @@ Deno.serve(async (req) => {
     const isStaff = user && (user.role === 'admin' || String(user.email || '').toLowerCase().endsWith(`@${STAFF_DOMAIN}`));
     if (!isStaff) return Response.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { bug_report_id, body_html, attachments } = await req.json();
+    const { bug_report_id, body_html, attachments, sender_name } = await req.json();
     if (!bug_report_id || !body_html || !String(body_html).trim()) {
       return Response.json({ error: 'bug_report_id and body_html required' }, { status: 400 });
     }
+    const senderName = (sender_name && String(sender_name).trim()) || user.full_name || 'Staff';
     const files = Array.isArray(attachments) ? attachments.filter((a) => a && a.url) : [];
 
     const db = base44.asServiceRole.entities;
@@ -107,7 +108,7 @@ Deno.serve(async (req) => {
     const reply = {
       direction: 'outbound',
       from_email: fromEmail,
-      from_name: user.full_name || 'Staff',
+      from_name: senderName,
       to_email: escalationTo,
       subject,
       body_html,

@@ -384,12 +384,12 @@ export default function Inbox() {
               onArchived={isSourceView ? () => { setShowArchived((s) => !s); setSelected(null); } : undefined}
               onTerms={() => setTermsOpen(true)}
               onReportBug={() => {
-                // Open the Bugs thread list (Support → bug status) and the live chat together.
+                // Open the Bugs thread list (Support → bug status). The live chat
+                // only opens via the + button inside the Bugs list.
                 setShowArchived(false);
                 setView("support");
                 setSubFilter("bug");
                 setSelected(null);
-                setBugChatOpen(true);
               }}
               bugActive={bugMode}
               bugCount={bugs.length}

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { MessageSquareText } from "lucide-react";
+import { MessageSquareText, Paperclip } from "lucide-react";
 
 // Strip HTML to a short plain-text preview for reply bubbles.
 function toPreview(m) {
@@ -13,6 +13,7 @@ function toPreview(m) {
 export default function BugEmailThread({ bug, onPreview, onOpenReport }) {
   const bottomRef = useRef(null);
   const replies = bug.replies || [];
+  const attachCount = (bug.image_urls || []).length;
 
   useEffect(() => {
     const id = setTimeout(() => bottomRef.current?.scrollIntoView({ block: "end" }), 50);
@@ -34,6 +35,12 @@ export default function BugEmailThread({ bug, onPreview, onOpenReport }) {
           </div>
           {bug.description && (
             <p className="text-[13px] leading-snug whitespace-pre-line">{bug.description}</p>
+          )}
+          {attachCount > 0 && (
+            <div className="flex items-center gap-1 mt-1.5 text-[11px] font-medium text-amber-700/80 dark:text-amber-100/70">
+              <Paperclip className="w-3 h-3" />
+              <span>{attachCount} attachment{attachCount === 1 ? "" : "s"}</span>
+            </div>
           )}
         </button>
       </div>

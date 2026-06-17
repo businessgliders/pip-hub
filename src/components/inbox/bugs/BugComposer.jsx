@@ -20,6 +20,13 @@ export default function BugComposer({ bug, currentUser, onSent }) {
   const [error, setError] = useState(null);
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
+  // Sender name shown in the SMS preview — pre-filled from the original reporter.
+  const [senderName, setSenderName] = useState(bug.reported_by_name || currentUser?.full_name || "");
+
+  // Reset the sender name when switching to a different bug.
+  React.useEffect(() => {
+    setSenderName(bug.reported_by_name || currentUser?.full_name || "");
+  }, [bug.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFiles = async (e) => {
     const list = Array.from(e.target.files || []);
@@ -55,10 +62,11 @@ export default function BugComposer({ bug, currentUser, onSent }) {
   const handleSend = async () => {
     const html = editorRef.current?.innerHTML || "";
     if (isEmpty(html)) return;
+    if (!senderName.trim()) { setError("Please enter a sender name"); return; }
     setSending(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke("sendBugReply", { bug_report_id: bug.id, body_html: html, attachments });
+      const res = await base44.functions.invoke("sendBugReply", { bug_report_id: bug.id, body_html: html, attachments, sender_name: senderName.trim() });
       if (res?.data?.success) {
         if (editorRef.current) editorRef.current.innerHTML = "";
         setEmpty(true);
@@ -79,6 +87,16 @@ export default function BugComposer({ bug, currentUser, onSent }) {
       <p className="text-xs text-orange-700/70 dark:text-white/60 mb-2">
         To: <span className="font-semibold text-orange-900 dark:text-white">{bug.escalated_to || "escalation"}</span>
       </p>
+
+      <div className="flex items-center gap-2 mb-2">
+        <label className="text-xs text-orange-700/70 dark:text-white/60 shrink-0">Sender name</label>
+        <input
+          value={senderName}
+          onChange={(e) => setSenderName(e.target.value)}
+          placeholder="Your name"
+          className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-orange-200/50 dark:border-white/15 text-orange-950 dark:text-white placeholder:text-orange-300 dark:placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-orange-400"
+        />
+      </div>
 
       <div className="flex items-center gap-1 pb-2 mb-2 border-b border-orange-100/60 dark:border-white/10">
         <button onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-orange-50 dark:hover:bg-white/10" title="Bold"><Bold className="w-3.5 h-3.5 text-orange-900/70 dark:text-white/70" /></button>

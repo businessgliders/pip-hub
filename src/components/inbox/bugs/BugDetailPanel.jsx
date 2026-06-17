@@ -3,6 +3,7 @@ import { ArrowLeft, LifeBuoy } from "lucide-react";
 import BugEmailThread from "./BugEmailThread";
 import BugComposer from "./BugComposer";
 import BugReportModal from "./BugReportModal";
+import BugStatusDropdown from "./BugStatusDropdown";
 import EmailPreviewModal from "../EmailPreviewModal";
 
 const URGENCY_TONE = {
@@ -43,7 +44,7 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
                 {bug.urgency}
               </span>
             )}
-            <span>{bug.status || "New"}</span>
+            <BugStatusDropdown bug={bug} onChanged={onReplied} />
             {bug.platform && <><span>·</span><span className="truncate">{bug.platform}</span></>}
           </div>
         </div>

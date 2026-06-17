@@ -24,6 +24,7 @@ export default function BugReportModal({ bug, open, onClose }) {
   const images = bug.image_urls || [];
   const imgUrls = images.filter(isImg);
   return (
+    <>
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0 bg-white dark:bg-zinc-800">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-white/10">
@@ -74,15 +75,16 @@ export default function BugReportModal({ bug, open, onClose }) {
           )}
         </div>
       </DialogContent>
-
-      {lightboxIndex !== null && (
-        <AttachmentLightbox
-          images={imgUrls}
-          index={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
-          onIndexChange={setLightboxIndex}
-        />
-      )}
     </Dialog>
+
+    {lightboxIndex !== null && (
+      <AttachmentLightbox
+        images={imgUrls}
+        index={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onIndexChange={setLightboxIndex}
+      />
+    )}
+    </>
   );
 }

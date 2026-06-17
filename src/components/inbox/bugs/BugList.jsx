@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Archive } from "lucide-react";
 import BugRow from "./BugRow";
 import BugFilters from "./BugFilters";
 
@@ -24,14 +24,19 @@ function groupByMonth(bugs) {
 export default function BugList({ bugs, selectedBug, onSelect, onReportBug }) {
   const [urgency, setUrgency] = useState("all");
   const [status, setStatus] = useState("all");
+  // By default hide Closed tickets; toggle shows ONLY Closed tickets.
+  const [showClosed, setShowClosed] = useState(false);
 
   const filtered = useMemo(() => {
     return bugs.filter((b) => {
+      const st = b.status || "New";
+      // Closed visibility: default hides Closed; toggle shows only Closed.
+      if (showClosed ? st !== "Closed" : st === "Closed") return false;
       if (urgency !== "all" && b.urgency !== urgency) return false;
-      if (status !== "all" && (b.status || "New") !== status) return false;
+      if (status !== "all" && st !== status) return false;
       return true;
     });
-  }, [bugs, urgency, status]);
+  }, [bugs, urgency, status, showClosed]);
 
   const groups = useMemo(() => groupByMonth(filtered), [filtered]);
 
@@ -46,6 +51,18 @@ export default function BugList({ bugs, selectedBug, onSelect, onReportBug }) {
           </span>
         </h2>
         <div className="flex items-center gap-1.5">
+          <BugFilters urgency={urgency} status={status} onUrgency={setUrgency} onStatus={setStatus} />
+          <button
+            onClick={() => setShowClosed((s) => !s)}
+            title={showClosed ? "Showing closed tickets" : "Show closed tickets"}
+            className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+              showClosed
+                ? "bg-orange-500 text-white"
+                : "text-orange-700/70 dark:text-white/60 hover:bg-orange-100/60 dark:hover:bg-white/10"
+            }`}
+          >
+            <Archive className="w-4 h-4" />
+          </button>
           <button
             onClick={onReportBug}
             title="Report a bug"
@@ -53,7 +70,6 @@ export default function BugList({ bugs, selectedBug, onSelect, onReportBug }) {
           >
             <Plus className="w-4 h-4" />
           </button>
-          <BugFilters urgency={urgency} status={status} onUrgency={setUrgency} onStatus={setStatus} />
         </div>
       </div>
 
