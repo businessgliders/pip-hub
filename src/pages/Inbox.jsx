@@ -68,11 +68,7 @@ export default function Inbox() {
   const bugMode = !showArchived && view === "support" && subFilter === "bug";
 
   // Clear the selected bug whenever we leave the Bugs view.
-  // Default the bug detail panel to max width (hide the 3rd column on entry).
-  useEffect(() => {
-    if (!bugMode) setSelectedBug(null);
-    else setShowContact(false);
-  }, [bugMode]);
+  useEffect(() => { if (!bugMode) setSelectedBug(null); }, [bugMode]);
 
   const handleListResize = (clientX) => {
     const left = centerRef.current?.getBoundingClientRect().left || 0;
@@ -389,7 +385,7 @@ export default function Inbox() {
         {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
           className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
-          style={{ width: (selectedThread || (bugMode && selectedBug)) ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
+          style={{ width: bugMode && selectedBug ? 440 : (selectedThread || (bugMode && selectedBug)) ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
         >
           {/* Vertical status rail (side panels) */}
           {activeTabs && (
