@@ -70,6 +70,33 @@ export default function Inbox() {
   // Clear the selected bug whenever we leave the Bugs view.
   useEffect(() => { if (!bugMode) setSelectedBug(null); }, [bugMode]);
 
+  // Pending bug number to auto-open once it appears in the live list (after a
+  // LiveChat submission creates it).
+  const [pendingBugNumber, setPendingBugNumber] = useState(null);
+
+  // Auto-select the first bug when entering the Bugs view with nothing selected
+  // so all three columns (list + email thread + detail) engage immediately.
+  useEffect(() => {
+    if (bugMode && !selectedBug && bugs.length > 0 && !pendingBugNumber) {
+      const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+      setSelectedBug(bugs[0]);
+      setShowContact(true);
+      if (isDesktop) setMobilePanelOpen(true);
+    }
+  }, [bugMode, selectedBug, bugs, pendingBugNumber]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Once the freshly-created bug shows up in the live list, select + open it.
+  useEffect(() => {
+    if (pendingBugNumber == null) return;
+    const found = bugs.find((b) => Math.round(b.bug_number) === Math.round(pendingBugNumber));
+    if (found) {
+      setSelectedBug(found);
+      setShowContact(true);
+      setMobilePanelOpen(true);
+      setPendingBugNumber(null);
+    }
+  }, [pendingBugNumber, bugs]);
+
   const handleListResize = (clientX) => {
     const left = centerRef.current?.getBoundingClientRect().left || 0;
     const w = clientX - left;
@@ -533,7 +560,17 @@ export default function Inbox() {
       {/* Live-chat widgets — triggered from the status rail / Bugs panel (+).
           Floating buttons are hidden; the rail controls open/close. */}
       <TermsAssistantChat accent={accent} open={termsOpen} onOpenChange={setTermsOpen} hideFloatingButton />
-      <BugReportChat currentUser={currentUser} accent={accent} open={bugChatOpen} onOpenChange={setBugChatOpen} hideFloatingButton />
+      <BugReportChat
+        currentUser={currentUser} accent={accent} open={bugChatOpen} onOpenChange={setBugChatOpen} hideFloatingButton
+        onSubmitted={(num) => {
+          // Route to the Support → Bugs view and highlight/open the new ticket.
+          setBugChatOpen(false);
+          setShowArchived(false);
+          setView("support");
+          setSubFilter("bug");
+          setPendingBugNumber(num);
+        }}
+      />
     </div>
   );
 }
