@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Paperclip } from "lucide-react";
+import AttachmentLightbox from "./AttachmentLightbox";
 
 function isImg(url) {
   return /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(url || "");
@@ -18,11 +19,13 @@ function Field({ label, value }) {
 
 // Full bug-report detail (top fields + attachments). No transcript.
 export default function BugReportModal({ bug, open, onClose }) {
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   if (!bug) return null;
   const images = bug.image_urls || [];
+  const imgUrls = images.filter(isImg);
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0 bg-white dark:bg-zinc-800">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-white/10">
           <DialogTitle className="text-base text-slate-900 dark:text-white flex items-center gap-2">
             {bug.title || "Bug report"}
@@ -56,9 +59,9 @@ export default function BugReportModal({ bug, open, onClose }) {
               <div className="flex flex-wrap gap-2">
                 {images.map((url, i) =>
                   isImg(url) ? (
-                    <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                      <img src={url} alt="" className="w-24 h-24 rounded-xl object-cover border border-orange-200/60 dark:border-white/15" />
-                    </a>
+                    <button key={i} type="button" onClick={() => setLightboxIndex(imgUrls.indexOf(url))}>
+                      <img src={url} alt="" className="w-24 h-24 rounded-xl object-cover border border-orange-200/60 dark:border-white/15 hover:opacity-90 transition-opacity" />
+                    </button>
                   ) : (
                     <a key={i} href={url} target="_blank" rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-orange-50 dark:bg-orange-500/15 text-orange-700 dark:text-orange-200 text-xs font-medium hover:bg-orange-100 transition-colors">
@@ -71,6 +74,15 @@ export default function BugReportModal({ bug, open, onClose }) {
           )}
         </div>
       </DialogContent>
+
+      {lightboxIndex !== null && (
+        <AttachmentLightbox
+          images={imgUrls}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onIndexChange={setLightboxIndex}
+        />
+      )}
     </Dialog>
   );
 }

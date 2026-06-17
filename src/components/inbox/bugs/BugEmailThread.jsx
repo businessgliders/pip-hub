@@ -21,13 +21,13 @@ export default function BugEmailThread({ bug, onPreview, onOpenReport }) {
 
   return (
     <div className="p-4 space-y-3">
-      {/* Original report — SMS-style inbound bubble. Click to open full detail. */}
-      <div className="flex justify-start">
+      {/* Original report — outbound-style bubble on the RIGHT. Click to open full detail. */}
+      <div className="flex justify-end">
         <button
           onClick={() => onOpenReport?.(bug)}
-          className="group max-w-[78%] text-left rounded-2xl rounded-bl-sm px-3.5 py-2.5 bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-orange-950 dark:text-white shadow-sm transition-shadow hover:shadow-md"
+          className="group max-w-[78%] text-left rounded-2xl rounded-br-sm px-3.5 py-2.5 bg-amber-200/80 dark:bg-amber-400/20 backdrop-blur-sm border border-amber-300/60 dark:border-amber-300/25 text-amber-950 dark:text-amber-50 shadow-sm transition-shadow hover:shadow-md"
         >
-          <div className="flex items-center gap-1.5 text-[11px] text-orange-500 dark:text-white/55 mb-1">
+          <div className="flex items-center gap-1.5 text-[11px] text-amber-700/70 dark:text-amber-100/60 mb-1">
             <MessageSquareText className="w-3.5 h-3.5" />
             <span className="font-medium truncate">{bug.reported_by_name || "Bug report"}</span>
             {bug.urgency && <><span>·</span><span>{bug.urgency}</span></>}
