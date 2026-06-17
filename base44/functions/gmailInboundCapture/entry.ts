@@ -120,6 +120,49 @@ Deno.serve(async (req) => {
         }
       }
 
+      // --- Bug escalation replies ---
+      // Bug escalation emails live in their own Gmail thread. Match inbound mail
+      // to a BugReport by gmail_thread_id, then by a [Bug #N] tag in the subject,
+      // and append it to the report's replies array.
+      if (!thread) {
+        let bug = null;
+        if (gmailThreadId) {
+          const byGtid = await db.BugReport.filter({ gmail_thread_id: gmailThreadId }, '-created_date', 1);
+          if (byGtid.length) bug = byGtid[0];
+        }
+        if (!bug) {
+          const bugTag = subject.match(/\[Bug\s*#(\d+)\]/i);
+          if (bugTag) {
+            const byNum = await db.BugReport.filter({ bug_number: Number(bugTag[1]) }, '-created_date', 1);
+            if (byNum.length) bug = byNum[0];
+          }
+        }
+        if (bug) {
+          const nowIso = new Date().toISOString();
+          const reply = {
+            direction,
+            from_email: from.email,
+            from_name: from.name,
+            subject,
+            body_html: html,
+            body_text: text,
+            snippet,
+            rfc_message_id: rfcMessageId,
+            gmail_message_id: messageId,
+            in_reply_to: inReplyTo,
+            references,
+            sent_at: nowIso,
+          };
+          await db.BugReport.update(bug.id, {
+            replies: [...(bug.replies || []), reply],
+            gmail_thread_id: bug.gmail_thread_id || gmailThreadId,
+          });
+          processed++;
+          results.push({ messageId, bug_id: bug.id });
+          continue;
+        }
+      }
+
       if (!thread) { results.push({ messageId, skipped: 'no_matching_thread', from: from.email }); continue; }
 
       const nowIso = new Date().toISOString();

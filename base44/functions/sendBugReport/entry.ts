@@ -139,16 +139,21 @@ Deno.serve(async (req) => {
 
     const subject = `[Bug #${bugNumber}] ${report.title || 'Issue reported'}${report.client_name ? ` - ${report.client_name}` : ''}`;
     const html = buildBugHtml({ ...report, bug_number: bugNumber }).trim();
+    const fromEmail = Deno.env.get('BUG_REPORT_FROM_EMAIL') || `support@${STAFF_DOMAIN}`;
+    // Generate our own RFC Message-ID so inbound replies can be threaded back.
+    const domain = (fromEmail.split('@')[1] || STAFF_DOMAIN);
+    const rfcMessageId = `<bug-${bugNumber}-${Date.now()}@${domain}>`;
 
     let emailSent = false;
     let emailError = '';
+    let gmailThreadId = '';
     try {
       const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
-      const fromEmail = Deno.env.get('BUG_REPORT_FROM_EMAIL') || `support@${STAFF_DOMAIN}`;
       const mime = [
         `From: ${encodeHeader('Pilates in Pink ™')} <${fromEmail}>`,
         `To: ${escalationTo}`,
         `Subject: ${encodeHeader(subject)}`,
+        `Message-ID: ${rfcMessageId}`,
         'MIME-Version: 1.0',
         'Content-Type: text/html; charset=UTF-8',
         '',
@@ -160,7 +165,12 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ raw: base64url(mime) }),
       });
       emailSent = res.ok;
-      if (!res.ok) emailError = (await res.text()).slice(0, 300);
+      if (res.ok) {
+        const sent = await res.json().catch(() => ({}));
+        gmailThreadId = sent.threadId || '';
+      } else {
+        emailError = (await res.text()).slice(0, 300);
+      }
     } catch (e) {
       emailError = e.message;
     }
@@ -170,6 +180,8 @@ Deno.serve(async (req) => {
       escalated_to: escalationTo,
       email_status: emailSent ? 'sent' : 'failed',
       email_error: emailError,
+      rfc_message_id: rfcMessageId,
+      gmail_thread_id: gmailThreadId,
     });
 
     return Response.json({ success: true, bug_number: bugNumber, email_sent: emailSent, email_error: emailError });

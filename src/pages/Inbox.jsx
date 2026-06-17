@@ -15,7 +15,7 @@ import InboxTutorial, { hasSeenInboxTutorial } from "@/components/inbox/InboxTut
 import InboxMobileTabBar from "@/components/inbox/InboxMobileTabBar";
 import TermsAssistantChat from "@/components/inbox/TermsAssistantChat";
 import BugReportChat from "@/components/inbox/BugReportChat";
-import BugRow from "@/components/inbox/bugs/BugRow";
+import BugList from "@/components/inbox/bugs/BugList";
 import BugDetailPanel from "@/components/inbox/bugs/BugDetailPanel";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
@@ -294,6 +294,8 @@ export default function Inbox() {
     return c;
   }, [threads, view, isSourceView, statusOrder]);
   const selectedThread = threads.find((t) => t.id === selected?.id) || selected;
+  // Keep the open bug in sync with the live query data (so new replies appear).
+  const liveBug = bugs.find((b) => b.id === selectedBug?.id) || selectedBug;
   const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
 
   const handleSelect = (t, { open = true, shake = false } = {}) => {
@@ -395,24 +397,12 @@ export default function Inbox() {
           )}
           <div className="flex-1 overflow-hidden">
             {bugMode ? (
-              <div className="flex flex-col h-full">
-                <div className="px-4 pt-4 pb-2 shrink-0">
-                  <h2 className="text-lg font-bold text-pink-900 dark:text-white flex items-center gap-2">
-                    Bugs
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">{bugs.length}</span>
-                  </h2>
-                </div>
-                <div className="flex-1 overflow-y-auto ios-scroll pb-2">
-                  {bugs.length === 0 ? (
-                    <p className="text-center text-sm text-pink-400 dark:text-white/50 py-12">No bug reports.</p>
-                  ) : (
-                    bugs.map((b) => (
-                      <BugRow key={b.id} bug={b} active={selectedBug?.id === b.id}
-                        onClick={() => { setSelectedBug(b); setMobilePanelOpen(true); }} />
-                    ))
-                  )}
-                </div>
-              </div>
+              <BugList
+                bugs={bugs}
+                selectedBug={selectedBug}
+                onSelect={(b) => { setSelectedBug(b); setMobilePanelOpen(true); }}
+                onReportBug={() => setBugChatOpen(true)}
+              />
             ) : (
             <ThreadList
               threads={sortedFiltered}
@@ -445,8 +435,14 @@ export default function Inbox() {
           className={`${mobilePanelOpen ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20`}
         >
           {bugMode ? (
-            selectedBug ? (
-              <BugDetailPanel key={selectedBug.id} bug={selectedBug} onBack={() => setMobilePanelOpen(false)} />
+            liveBug ? (
+              <BugDetailPanel
+                key={liveBug.id}
+                bug={liveBug}
+                currentUser={currentUser}
+                onReplied={() => qc.invalidateQueries({ queryKey: ["bug-reports"] })}
+                onBack={() => setMobilePanelOpen(false)}
+              />
             ) : (
               <EmptyThreadState accent={accent} onReportBug={() => setBugChatOpen(true)} />
             )
