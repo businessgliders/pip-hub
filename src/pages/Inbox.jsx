@@ -404,6 +404,8 @@ export default function Inbox() {
                 setView("support");
                 setSubFilter("bug");
                 setSelected(null);
+                // Auto-select the first bug so the detail panel isn't empty.
+                if (bugs.length) { setSelectedBug(bugs[0]); setMobilePanelOpen(false); }
               }}
               bugActive={bugMode}
               bugCount={bugs.length}
