@@ -26,7 +26,7 @@ const EMPTY = {
  * Floating live-chat style bug reporter (bottom-right). Walks the user through
  * a guided set of questions and emails the report via the sendBugReport function.
  */
-export default function BugReportChat({ currentUser, accent = "#b67651", open: controlledOpen, onOpenChange, hideFloatingButton = false, onSubmitted }) {
+export default function BugReportChat({ currentUser, accent = "#b67651", open: controlledOpen, onOpenChange, hideFloatingButton = false }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -196,9 +196,6 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
             : `✅ Recorded as Bug #${num}, but the escalation email couldn't be sent.`
         );
         setStep("done");
-        // Notify the parent (Inbox) so it can route to the Bugs view and
-        // highlight + open the newly created bug ticket.
-        onSubmitted?.(num);
       } else {
         throw new Error(res?.data?.error || "Failed to send");
       }
