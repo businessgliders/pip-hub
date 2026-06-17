@@ -25,10 +25,11 @@ Deno.serve(async (req) => {
     const isStaff = user && (user.role === 'admin' || String(user.email || '').toLowerCase().endsWith(`@${STAFF_DOMAIN}`));
     if (!isStaff) return Response.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { bug_report_id, body_html } = await req.json();
+    const { bug_report_id, body_html, attachments } = await req.json();
     if (!bug_report_id || !body_html || !String(body_html).trim()) {
       return Response.json({ error: 'bug_report_id and body_html required' }, { status: 400 });
     }
+    const files = Array.isArray(attachments) ? attachments.filter((a) => a && a.url) : [];
 
     const db = base44.asServiceRole.entities;
     const report = await db.BugReport.get(bug_report_id);
@@ -53,8 +54,39 @@ Deno.serve(async (req) => {
       headers.push(`In-Reply-To: ${root}`);
       headers.push(`References: ${root}`);
     }
-    headers.push('MIME-Version: 1.0', 'Content-Type: text/html; charset=UTF-8', '', body_html);
-    const mime = headers.join('\r\n');
+    headers.push('MIME-Version: 1.0');
+
+    let mime;
+    if (files.length > 0) {
+      // Fetch each attachment and base64-encode it into a multipart/mixed body.
+      const boundary = `b44_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const parts = [];
+      parts.push(`--${boundary}`);
+      parts.push('Content-Type: text/html; charset=UTF-8', '', body_html, '');
+
+      for (const f of files) {
+        try {
+          const resp = await fetch(f.url);
+          if (!resp.ok) continue;
+          const buf = new Uint8Array(await resp.arrayBuffer());
+          let binary = '';
+          for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i]);
+          const b64 = btoa(binary).replace(/(.{76})/g, '$1\r\n');
+          const ctype = f.type || resp.headers.get('content-type') || 'application/octet-stream';
+          const fname = f.name || (f.url.split('/').pop() || 'attachment');
+          parts.push(`--${boundary}`);
+          parts.push(`Content-Type: ${ctype}; name="${fname}"`);
+          parts.push('Content-Transfer-Encoding: base64');
+          parts.push(`Content-Disposition: attachment; filename="${fname}"`, '', b64, '');
+        } catch (_) { /* skip unreachable attachment */ }
+      }
+      parts.push(`--${boundary}--`);
+      headers.push(`Content-Type: multipart/mixed; boundary="${boundary}"`, '');
+      mime = headers.join('\r\n') + '\r\n' + parts.join('\r\n');
+    } else {
+      headers.push('Content-Type: text/html; charset=UTF-8', '', body_html);
+      mime = headers.join('\r\n');
+    }
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
     const sendBody = { raw: base64url(mime) };
@@ -82,6 +114,7 @@ Deno.serve(async (req) => {
       rfc_message_id: newMsgId,
       gmail_message_id: sent.id || '',
       sent_at: nowIso,
+      attachments: files.map((f) => ({ filename: f.name || '', url: f.url, content_type: f.type || '' })),
     };
 
     await db.BugReport.update(bug_report_id, {

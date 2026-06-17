@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ArrowLeft, LifeBuoy } from "lucide-react";
 import BugEmailThread from "./BugEmailThread";
 import BugComposer from "./BugComposer";
+import BugReportModal from "./BugReportModal";
 import EmailPreviewModal from "../EmailPreviewModal";
 
 const URGENCY_TONE = {
@@ -13,6 +14,7 @@ const URGENCY_TONE = {
 
 export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) {
   const [preview, setPreview] = useState(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   return (
     <div className="relative flex flex-col h-full">
@@ -61,7 +63,7 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
             </div>
           </div>
         )}
-        <BugEmailThread bug={bug} onPreview={setPreview} />
+        <BugEmailThread bug={bug} onPreview={setPreview} onOpenReport={() => setReportOpen(true)} />
       </div>
 
       {/* Reply composer — sends into the escalation Gmail thread */}
@@ -70,6 +72,7 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
       </div>
 
       <EmailPreviewModal message={preview} open={!!preview} onClose={() => setPreview(null)} />
+      <BugReportModal bug={bug} open={reportOpen} onClose={() => setReportOpen(false)} />
     </div>
   );
 }
