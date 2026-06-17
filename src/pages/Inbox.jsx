@@ -68,7 +68,11 @@ export default function Inbox() {
   const bugMode = !showArchived && view === "support" && subFilter === "bug";
 
   // Clear the selected bug whenever we leave the Bugs view.
-  useEffect(() => { if (!bugMode) setSelectedBug(null); }, [bugMode]);
+  // Default the bug detail panel to max width (hide the 3rd column on entry).
+  useEffect(() => {
+    if (!bugMode) setSelectedBug(null);
+    else setShowContact(false);
+  }, [bugMode]);
 
   const handleListResize = (clientX) => {
     const left = centerRef.current?.getBoundingClientRect().left || 0;
