@@ -11,6 +11,7 @@ import SplitView from './pages/SplitView';
 import EndOfDayCalendar from './pages/EndOfDayCalendar';
 import Inbox from './pages/Inbox';
 import Contacts from './pages/Contacts';
+import ReportBug from './pages/ReportBug';
 
 export const PAGES = {
     "AppHub": AppHub,
@@ -18,6 +19,7 @@ export const PAGES = {
     "end-of-day": EndOfDayCalendar,
     "inbox": Inbox,
     "contacts": Contacts,
+    "reportbug": ReportBug,
 }
 
 export const pagesConfig = {

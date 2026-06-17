@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight, Download } from "lucide-react";
 
 // Fullscreen lightbox for previewing image attachments.
@@ -20,9 +21,9 @@ export default function AttachmentLightbox({ images = [], index = 0, onClose, on
 
   if (!has) return null;
 
-  return (
+  return createPortal((
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
       onClick={onClose}
     >
       <button
@@ -75,5 +76,5 @@ export default function AttachmentLightbox({ images = [], index = 0, onClose, on
         </div>
       )}
     </div>
-  );
+  ), document.body);
 }

@@ -33,7 +33,7 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
           <div className="flex items-center gap-2">
             <span className="font-bold text-pink-900 dark:text-white truncate">{bug.title || "Bug report"}</span>
             {bug.bug_number != null && (
-              <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
+              <span className="shrink-0 text-[11px] font-bold text-orange-500 dark:text-orange-300">
                 B{Math.round(bug.bug_number)}
               </span>
             )}

@@ -44,11 +44,17 @@ const AuthenticatedApp = () => {
   const onInboxDomain = typeof window !== 'undefined' &&
     window.location.hostname.startsWith('inbox.');
 
+  // On the bugs subdomain, land directly on the Report Bug page.
+  const onBugsDomain = typeof window !== 'undefined' &&
+    window.location.hostname.startsWith('bugs.');
+
   // Render the main app
   return (
     <Routes>
       <Route path="/" element={
-        onInboxDomain ? (
+        onBugsDomain ? (
+          <Navigate to="/reportbug" replace />
+        ) : onInboxDomain ? (
           <Navigate to="/inbox" replace />
         ) : (
           <LayoutWrapper currentPageName={mainPageKey}>
