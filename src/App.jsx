@@ -53,7 +53,7 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/" element={
         onBugsDomain ? (
-          <Navigate to="/reportbug" replace />
+          <Navigate to="/inbox?bugchat=1" replace />
         ) : onInboxDomain ? (
           <Navigate to="/inbox" replace />
         ) : (

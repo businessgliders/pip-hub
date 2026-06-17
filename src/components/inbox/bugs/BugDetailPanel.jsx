@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ArrowLeft, LifeBuoy } from "lucide-react";
 import BugEmailThread from "./BugEmailThread";
 import BugComposer from "./BugComposer";
-import BugReportModal from "./BugReportModal";
+import BugReportDetails from "./BugReportDetails";
 import BugStatusDropdown from "./BugStatusDropdown";
 import EmailPreviewModal from "../EmailPreviewModal";
 
@@ -15,7 +15,6 @@ const URGENCY_TONE = {
 
 export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) {
   const [preview, setPreview] = useState(null);
-  const [reportOpen, setReportOpen] = useState(false);
 
   return (
     <div className="relative flex flex-col h-full">
@@ -52,19 +51,8 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
 
       {/* Conversation */}
       <div className="flex-1 overflow-y-auto ios-scroll">
-        {(bug.reported_by_name || bug.client_name || bug.booking_info || bug.ticket_number) && (
-          <div className="px-4 pt-3">
-            <div className="rounded-2xl bg-white/70 dark:bg-white/10 border border-white/60 dark:border-white/15 p-3">
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[12px]">
-                {bug.reported_by_name && <Field label="Reported by" value={bug.reported_by_name} />}
-                {bug.client_name && <Field label="Client" value={bug.client_name} />}
-                {bug.booking_info && <Field label="Booking" value={bug.booking_info} />}
-                {bug.ticket_number && <Field label="Ticket" value={`#${bug.ticket_number}`} />}
-              </div>
-            </div>
-          </div>
-        )}
-        <BugEmailThread bug={bug} onPreview={setPreview} onOpenReport={() => setReportOpen(true)} />
+        <BugReportDetails bug={bug} onUpdated={onReplied} />
+        <BugEmailThread bug={bug} onPreview={setPreview} />
       </div>
 
       {/* Reply composer — sends into the escalation Gmail thread */}
@@ -73,16 +61,6 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
       </div>
 
       <EmailPreviewModal message={preview} open={!!preview} onClose={() => setPreview(null)} />
-      <BugReportModal bug={bug} open={reportOpen} onClose={() => setReportOpen(false)} />
-    </div>
-  );
-}
-
-function Field({ label, value }) {
-  return (
-    <div className="min-w-0">
-      <span className="block text-[10px] uppercase tracking-wide text-pink-400 dark:text-white/40">{label}</span>
-      <span className="block truncate text-pink-900/80 dark:text-white/80 font-medium">{value}</span>
     </div>
   );
 }
