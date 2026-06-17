@@ -82,14 +82,17 @@ export default function Inbox() {
 
   // bugs.* domain (or ?bugchat=1) lands on the Support → Bugs panel with the
   // report-bug live chat already open (as if the + button was pressed).
+  // Deferred to the next tick so it runs AFTER the view-change reset effect,
+  // which would otherwise clobber the "bug" sub-filter back to the first status.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("bugchat") === "1") {
       setView("support");
-      setSubFilter("bug");
       setShowArchived(false);
       setSelected(null);
       setBugChatOpen(true);
+      const t = setTimeout(() => setSubFilter("bug"), 0);
+      return () => clearTimeout(t);
     }
   }, []);
 
