@@ -1,20 +1,28 @@
 import React, { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Trash2, Loader2 } from "lucide-react";
 
 const GURPREEN_EMAIL = "gurpreen@pilatesinpinkstudio.com";
+const HIDDEN_FOR_EMAIL = "info@pilatesinpinkstudio.com";
 
 // Shown in the detail panel ONLY when the ticket is escalated/assigned to
 // Gurpreen Sabharwal. Lets that owner delete the thread.
+// Hidden entirely for the info@pilatesinpinkstudio.com user.
 export default function ThreadDeleteButton({ thread, onDeleted }) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
 
+  const { data: currentUser } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => base44.auth.me(),
+  });
+
   const assignedToGurpreen =
     (thread.assignee_email || "").toLowerCase() === GURPREEN_EMAIL;
+  const isHiddenUser = (currentUser?.email || "").toLowerCase() === HIDDEN_FOR_EMAIL;
 
-  if (!assignedToGurpreen) return null;
+  if (!assignedToGurpreen || isHiddenUser) return null;
 
   const handleDelete = async () => {
     if (busy) return;
