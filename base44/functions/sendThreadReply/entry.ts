@@ -250,6 +250,25 @@ Deno.serve(async (req) => {
     if (!thread.gmail_root_message_id && rfcMessageId) {
       threadUpdate.gmail_root_message_id = rfcMessageId;
     }
+
+    // Influencer: auto-advance New -> Progress on the first manual outbound reply.
+    // The status-change reason is a 1-line AI summary of this reply.
+    if (thread.source_app === 'influencer' && thread.status === 'open') {
+      let summary = stripHtml(body_html).replace(/\s+/g, ' ').trim().slice(0, 140);
+      try {
+        const ai = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: `Summarize this outbound reply to an influencer applicant in ONE short sentence (max 15 words), describing what the staff member said/did:\n\n${stripHtml(body_html)}`,
+        });
+        if (typeof ai === 'string' && ai.trim()) summary = ai.trim();
+      } catch (_) { /* fall back to truncated body */ }
+
+      threadUpdate.status = 'influencer_progress';
+      threadUpdate.status_history = [
+        ...(thread.status_history || []),
+        { status: 'influencer_progress', changed_by: user.email, name: user.full_name || user.email, note: summary, timestamp: nowIso },
+      ];
+    }
+
     await db.Thread.update(thread_id, threadUpdate);
 
     return Response.json({ success: true, message_id: sent.id, rfc_message_id: rfcMessageId, thread_id: sent.threadId });
