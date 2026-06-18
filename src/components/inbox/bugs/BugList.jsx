@@ -41,9 +41,9 @@ export default function BugList({ bugs, statusFilter = "New", selectedBug, onSel
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="px-4 pt-4 pb-2 shrink-0 flex items-center justify-between gap-2">
-        <h2 className="text-lg font-bold text-pink-900 dark:text-white flex items-center gap-2">
-          {statusFilter === "In Progress" ? "Progress" : statusFilter}
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
+        <h2 className="text-lg font-bold text-[#7d2235] dark:text-white flex items-center gap-2">
+          PiP Bugs
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#7d2235]/10 text-[#7d2235] dark:bg-white/10 dark:text-white/80">
             {filtered.length}
           </span>
         </h2>
@@ -52,7 +52,7 @@ export default function BugList({ bugs, statusFilter = "New", selectedBug, onSel
           <button
             onClick={onReportBug}
             title="Report a bug"
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors shadow-sm"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#7d2235] text-white hover:bg-[#651c2b] transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
           </button>
