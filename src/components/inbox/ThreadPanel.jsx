@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import ThreadHeader from "./ThreadHeader";
@@ -11,14 +11,10 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
   const qc = useQueryClient();
   // Mobile/tablet only: slide-in detail panel that overlays the email view.
   const [detailOpen, setDetailOpen] = useState(false);
-  // Brief shake when opened via a notification click.
-  const [shaking, setShaking] = useState(false);
-  useEffect(() => {
-    if (!shakeKey) return;
-    setShaking(true);
-    const t = setTimeout(() => setShaking(false), 550);
-    return () => clearTimeout(t);
-  }, [shakeKey]);
+  // Brief shake when opened via a notification click. `shake` is controlled by
+  // the parent (Inbox) which lives above this panel's remount, so ordinary
+  // thread clicks no longer re-trigger the animation.
+  const shaking = !!shakeKey;
 
   const { data: messages, isLoading: loadingMsgs } = useQuery({
     queryKey: ["thread-messages", thread.id],

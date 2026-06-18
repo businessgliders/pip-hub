@@ -50,7 +50,8 @@ export default function Inbox() {
   const [sortByEventDate, setSortByEventDate] = useState(true);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
-  const [shakeKey, setShakeKey] = useState(0);
+  const [shaking, setShaking] = useState(false);
+  const shakeTimer = useRef(null);
   const [showContact, setShowContact] = useState(true);
   const [listWidth, setListWidth] = useState(360);
   const [currentUser, setCurrentUser] = useState(null);
@@ -323,7 +324,11 @@ export default function Inbox() {
   const handleSelect = (t, { open = true, shake = false } = {}) => {
     setSelected(t);
     if (open) setMobilePanelOpen(true);
-    if (shake) setShakeKey((k) => k + 1);
+    if (shake) {
+      setShaking(true);
+      clearTimeout(shakeTimer.current);
+      shakeTimer.current = setTimeout(() => setShaking(false), 550);
+    }
     if (!t.is_read) updateThread.mutate({ id: t.id, data: { is_read: true } });
   };
 
@@ -473,7 +478,7 @@ export default function Inbox() {
           ) : selectedThread ? (
             <ThreadPanel
               key={selectedThread.id}
-              shakeKey={shakeKey}
+              shakeKey={shaking}
               thread={selectedThread} staff={staff} currentUser={currentUser}
               onStatusChange={handleStatus} onAssign={handleAssign}
               onSelectThread={(t) => handleSelect(t)}
