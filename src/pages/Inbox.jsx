@@ -8,6 +8,7 @@ import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxStatusRail from "@/components/inbox/InboxStatusRail";
 import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
 import ArchiveButton from "@/components/inbox/ArchiveButton";
+import CloseAllButton from "@/components/inbox/CloseAllButton";
 import EventSortMenu from "@/components/inbox/EventSortMenu";
 import DetailToggleHandle from "@/components/inbox/DetailToggleHandle";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
@@ -441,10 +442,37 @@ export default function Inbox() {
   const isClosedView = isSourceView && !showArchived &&
     (view === "events" ? subFilter === "Closed" : subFilter === "closed");
 
+  // Events "Cancelled" list shows a "Close All" action (moves to Closed).
+  const isCancelledView = view === "events" && !showArchived && subFilter === "Cancelled";
+
+  const handleCloseAll = async (toClose, onProgress) => {
+    let done = 0;
+    for (const t of toClose) {
+      const entry = {
+        status: "Closed",
+        changed_by: currentUser?.email || "staff",
+        name: currentUser?.full_name || "",
+        note: "Bulk closed from Cancelled",
+        timestamp: new Date().toISOString(),
+      };
+      await base44.entities.Thread.update(t.id, {
+        status: "Closed",
+        status_history: [...(t.status_history || []), entry],
+      });
+      qc.setQueryData(["threads"], (prev) =>
+        (prev || []).map((x) => (x.id === t.id ? { ...x, status: "Closed" } : x))
+      );
+      done++;
+      onProgress?.(done);
+    }
+    setSelected(null);
+    qc.invalidateQueries({ queryKey: ["threads"] });
+  };
+
   // External "new submission" form URL — only shown on the Open/New status tab.
   const NEW_SUBMISSION_URLS = {
     support: "https://support.pilatesinpinkstudio.com/",
-    events: "https://event.pilatesinpinkstudio.com/",
+    events: "https://events.pilatesinpinkstudio.com/",
     influencer: "https://partner.pilatesinpinkstudio.com/Influencer",
   };
   const isOpenView = isSourceView && !showArchived &&
@@ -538,6 +566,7 @@ export default function Inbox() {
               filterSlot={
                 <>
                   {isClosedView && <ArchiveButton threads={sortedFiltered} onArchive={handleArchive} />}
+                  {isCancelledView && <CloseAllButton threads={sortedFiltered} onCloseAll={handleCloseAll} />}
                   {view === "events" && !showArchived && (
                     <EventSortMenu sortByEventDate={sortByEventDate} onChange={setSortByEventDate} />
                   )}
