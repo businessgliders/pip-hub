@@ -13,13 +13,16 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
       {mainTabs.map((t) => {
         const isActive = !archivedActive && active === t.key;
         const c = counts[t.key] || 0;
+        // On mobile, hide empty status tabs (count 0) unless it's the bug tab
+        // or the currently active tab. Always shown from tablet up.
+        const hideOnMobile = c === 0 && t.key !== "bug" && !isActive;
         return (
           <button
             key={t.key}
             onClick={() => onChange(t.key)}
             title={t.label}
             style={isActive ? { background: accent, color: "#fff" } : undefined}
-            className={`relative w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
+            className={`relative w-14 ${hideOnMobile ? "hidden md:flex" : "flex"} flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
               isActive
                 ? "shadow-md"
                 : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
