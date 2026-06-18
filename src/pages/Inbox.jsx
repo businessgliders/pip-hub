@@ -623,9 +623,7 @@ export default function Inbox() {
         </div>
 
         {/* Transparent hover line to collapse/expand the detail panel (desktop) */}
-        {(selectedThread || (bugMode && liveBug)) && (
-          <DetailToggleHandle open={showContact} onToggle={() => setShowContact((s) => !s)} />
-        )}
+        <DetailToggleHandle open={showContact} onToggle={() => setShowContact((s) => !s)} />
 
         {/* Right: bug detail panel — 3rd column for the Bugs view */}
         {bugMode && liveBug && showContact && (
