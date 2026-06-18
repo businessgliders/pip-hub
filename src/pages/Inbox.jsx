@@ -365,7 +365,8 @@ export default function Inbox() {
   const selectedThread = threads.find((t) => t.id === selected?.id) || selected;
   // Keep the open bug in sync with the live query data (so new replies appear).
   const liveBug = bugs.find((b) => b.id === selectedBug?.id) || selectedBug;
-  const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
+  // Bugs view gets its own dark-brown theme; otherwise use the active inbox theme.
+  const accent = ((bugMode ? VIEW_THEME.bugs : VIEW_THEME[view]) || VIEW_THEME.events).accent;
 
   const handleSelect = (t, { open = true, shake = false } = {}) => {
     setSelected(t);
@@ -443,7 +444,7 @@ export default function Inbox() {
       {/* Vibrant pink gradient backdrop */}
       <div
         className="absolute inset-0 -z-10 transition-[background] duration-700"
-        style={{ background: viewBackdrop(view, dark) }}
+        style={{ background: bugMode ? viewBackdrop("bugs", dark) : viewBackdrop(view, dark) }}
       />
 
       <InboxTopBar

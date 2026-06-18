@@ -86,6 +86,12 @@ export const VIEW_THEME = {
     light:  "radial-gradient(1100px 600px at 12% 0%, #d7c2f0 0%, transparent 50%), radial-gradient(900px 600px at 100% 100%, #7c3aed 0%, transparent 55%), linear-gradient(135deg, #e3d6f5 0%, #9f74e0 55%, #5b2ca8 100%)",
     dark:   "radial-gradient(1100px 600px at 12% 0%, #3d2168 0%, transparent 55%), radial-gradient(900px 600px at 100% 100%, #1e0f38 0%, transparent 55%), linear-gradient(135deg, #1a1030 0%, #110a20 100%)",
   },
+  // Bugs view — deep dark brown, distinct from the Support brown.
+  bugs: {
+    accent: "#8a5a2b",
+    light:  "radial-gradient(1100px 600px at 12% 0%, #b08855 0%, transparent 50%), radial-gradient(900px 600px at 100% 100%, #6b4423 0%, transparent 55%), linear-gradient(135deg, #c9a877 0%, #7a5230 55%, #4a3018 100%)",
+    dark:   "radial-gradient(1100px 600px at 12% 0%, #4a3115 0%, transparent 55%), radial-gradient(900px 600px at 100% 100%, #25180b 0%, transparent 55%), linear-gradient(135deg, #1f150c 0%, #130d07 100%)",
+  },
 };
 
 export function viewBackdrop(view, isDark) {
