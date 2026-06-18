@@ -46,7 +46,8 @@ export default function Inbox() {
   const [subFilter, setSubFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [inquiryType, setInquiryType] = useState("all");
-  // Events inbox: sort by event date (most recent event first) — default on.
+  // Events inbox: sort by event date (soonest first). Default ON for every
+  // status except "New" (which defaults to submission date, newest first).
   const [sortByEventDate, setSortByEventDate] = useState(true);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
@@ -207,6 +208,12 @@ export default function Inbox() {
   // Team inboxes have no "All" status tab, so default to the first status.
   useEffect(() => { setSubFilter(SOURCE_META[view] ? statusOrderFor(view)[0] : "all"); setInquiryType("all"); setSelected(null); setShowArchived(false); }, [view]);
 
+  // Events: default sort by event date for every status EXCEPT "New", which
+  // defaults to submission date (newest first).
+  useEffect(() => {
+    if (view === "events") setSortByEventDate(subFilter !== "New");
+  }, [view, subFilter]);
+
   // Distinct inquiry/event types within the current view (for the icon filter).
   // Support filters on inquiry_type; Events filters on event_type.
   const inquiryTypes = useMemo(() => {
@@ -287,15 +294,22 @@ export default function Inbox() {
     });
   }, [threads, view, subFilter, search, inquiryType, showArchived]);
 
-  // Events inbox: optionally sort by event date (most recent event date first).
+  // Events inbox: sort by event date (soonest first) when active, otherwise by
+  // submission date (newest first). Other views keep the default activity order.
   const sortedFiltered = useMemo(() => {
-    if (view !== "events" || !sortByEventDate || showArchived) return filtered;
-    const eventTime = (t) => {
-      const raw = t?.form_data?.event_date || t?.form_data?.event_date_iso || t?.form_data?.date;
-      const d = raw ? new Date(raw) : null;
-      return d && !isNaN(d.getTime()) ? d.getTime() : -Infinity;
-    };
-    return [...filtered].sort((a, b) => eventTime(b) - eventTime(a));
+    if (view !== "events" || showArchived) return filtered;
+    if (sortByEventDate) {
+      // Soonest upcoming event date first; threads without a date sink to bottom.
+      const eventTime = (t) => {
+        const raw = t?.form_data?.event_date || t?.form_data?.event_date_iso || t?.form_data?.date;
+        const d = raw ? new Date(raw) : null;
+        return d && !isNaN(d.getTime()) ? d.getTime() : Infinity;
+      };
+      return [...filtered].sort((a, b) => eventTime(a) - eventTime(b));
+    }
+    // Submission date — newest at the top.
+    const submitTime = (t) => new Date(t.created_date || t.last_activity_at || 0).getTime();
+    return [...filtered].sort((a, b) => submitTime(b) - submitTime(a));
   }, [filtered, view, sortByEventDate, showArchived]);
 
   // Auto-select the first available conversation when nothing is selected.
