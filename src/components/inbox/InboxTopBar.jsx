@@ -104,7 +104,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
       </nav>
 
       {/* Right icons */}
-      <div className="flex items-center justify-end gap-0.5 md:gap-1 shrink-0 pr-2 md:pr-0 w-[104px] md:w-[120px] lg:w-56">
+      <div className="flex items-center justify-end gap-0.5 md:gap-1 shrink-0 pr-4 md:pr-0 w-[104px] md:w-[120px] lg:w-56">
         <button
           onClick={toggle}
           title={dark ? "Switch to light mode" : "Switch to dark mode"}
