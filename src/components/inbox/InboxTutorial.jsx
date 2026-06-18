@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { X, ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 
 const TUTORIAL_KEY = "pip_inbox_tutorial_seen_v1";
 
@@ -63,6 +64,9 @@ export default function InboxTutorial({ onClose }) {
     } catch {
       // ignore storage errors
     }
+    // Persist on the user account so the tour never reappears for this user
+    // (even on a different browser/device). Non-blocking.
+    base44.auth.updateMe({ inbox_tutorial_seen: true }).catch(() => {});
     onClose?.();
   };
 

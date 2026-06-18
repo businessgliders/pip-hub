@@ -170,7 +170,12 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser 
                   <span>{m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
                 </div>
                 {outbound ? (
-                  <div className={`text-[13px] font-semibold leading-snug truncate ${ob.body} dark:text-white/90`}>{m.subject || "(no subject)"}</div>
+                  <>
+                    <div className={`text-[13px] font-semibold leading-snug truncate ${ob.body} dark:text-white/90`}>{m.subject || "(no subject)"}</div>
+                    {bodyPreview && (
+                      <div className={`text-[12px] leading-snug line-clamp-2 mt-0.5 ${ob.body} dark:text-white/75 opacity-80`}>{bodyPreview}</div>
+                    )}
+                  </>
                 ) : (
                   <div className="text-[13px] leading-snug text-pink-800/80 dark:text-white/80 line-clamp-2">{bodyPreview || m.subject || "(no content)"}</div>
                 )}

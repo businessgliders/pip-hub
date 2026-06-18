@@ -77,7 +77,12 @@ export default function Inbox() {
   };
 
   useEffect(() => {
-    base44.auth.me().then(setCurrentUser).catch(() => {});
+    base44.auth.me().then((u) => {
+      setCurrentUser(u);
+      // Respect the per-user "seen" flag stored on the account so the tour
+      // never reappears for this user across browsers/devices.
+      if (u?.inbox_tutorial_seen) setShowTutorial(false);
+    }).catch(() => {});
   }, []);
 
   // bugs.* domain (or ?bugchat=1) lands on the Support → Bugs panel with the
