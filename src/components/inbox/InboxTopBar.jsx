@@ -56,9 +56,10 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
   );
 }
 
-export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false }) {
+export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false, bugMode = false }) {
   const { dark, toggle } = useTheme();
-  const accent = (VIEW_THEME[view] || VIEW_THEME.events).accent;
+  const accent = ((bugMode ? VIEW_THEME.bugs : VIEW_THEME[view]) || VIEW_THEME.events).accent;
+  const logoTitle = bugMode ? "PiP Bugs" : (LOGO_TITLES[view] || "PiP Inbox");
   return (
     <>
     <header className="safe-top shrink-0 px-2 md:px-4 pt-7 pb-0.5 min-h-[62px] flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
@@ -77,7 +78,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 min-w-0">
           <img src={LOGO_URL} alt="PiP Inbox" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
           <span className="hidden lg:block font-extrabold text-base md:text-lg tracking-tight whitespace-nowrap truncate" style={{ fontStyle: "italic", color: accent }}>
-            {LOGO_TITLES[view] || "PiP Inbox"}
+            {logoTitle}
           </span>
         </Link>
 

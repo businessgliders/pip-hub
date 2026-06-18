@@ -449,7 +449,7 @@ export default function Inbox() {
 
       <InboxTopBar
         view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={openCounts}
-        hideChatWidgets={mobilePanelOpen}
+        hideChatWidgets={mobilePanelOpen} bugMode={bugMode}
         onOpenThread={(n) => {
           if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
           const t = threads.find((th) => th.id === n.thread_id);
