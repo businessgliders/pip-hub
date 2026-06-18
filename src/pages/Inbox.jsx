@@ -52,6 +52,7 @@ export default function Inbox() {
   const [selected, setSelected] = useState(null);
   const [shaking, setShaking] = useState(false);
   const shakeTimer = useRef(null);
+  const readTimer = useRef(null);
   const [showContact, setShowContact] = useState(true);
   const [listWidth, setListWidth] = useState(360);
   const [currentUser, setCurrentUser] = useState(null);
@@ -106,7 +107,10 @@ export default function Inbox() {
   // like a native screen (only inner panels scroll). Restored on unmount.
   useEffect(() => {
     document.documentElement.classList.add("app-locked");
-    return () => document.documentElement.classList.remove("app-locked");
+    return () => {
+      document.documentElement.classList.remove("app-locked");
+      clearTimeout(readTimer.current);
+    };
   }, []);
 
   // Keep the URL hash in sync with the active inbox so each is directly linkable
@@ -347,7 +351,14 @@ export default function Inbox() {
       clearTimeout(shakeTimer.current);
       shakeTimer.current = setTimeout(() => setShaking(false), 550);
     }
-    if (!t.is_read) updateThread.mutate({ id: t.id, data: { is_read: true } });
+    // Mark read only after the thread stays open for 5s. Cancel if the user
+    // switches away (or marks it unread) before the timer fires.
+    clearTimeout(readTimer.current);
+    if (!t.is_read) {
+      readTimer.current = setTimeout(() => {
+        updateThread.mutate({ id: t.id, data: { is_read: true } });
+      }, 5000);
+    }
   };
 
   const handleStatus = (status, meta = {}) => {

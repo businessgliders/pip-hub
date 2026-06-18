@@ -77,7 +77,7 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="start" className="w-80 p-0">
         <div className="flex items-center justify-between px-3 py-2 border-b">
           <span className="text-sm font-semibold">Notifications</span>
           <div className="flex items-center gap-3">
