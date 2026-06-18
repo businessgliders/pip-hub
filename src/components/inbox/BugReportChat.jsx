@@ -13,6 +13,12 @@ const URGENCY_OPTIONS = [
 
 const PLATFORM_OPTIONS = ["Website", "Support Portal", "Mobile", "Email", "Other"];
 
+// Capitalize the first letter of the trimmed text (Sentence case).
+const sentenceCase = (s = "") => {
+  const t = String(s).trim();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+};
+
 const EMPTY = {
   description: "",
   client_name: "",
@@ -20,6 +26,7 @@ const EMPTY = {
   platform: "",
   urgency: "Soon",
   image_urls: [],
+  submitter_name: "",
 };
 
 /**
@@ -36,9 +43,13 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
   const [input, setInput] = useState("");
   const [clientNameInput, setClientNameInput] = useState("");
   const [bookingInput, setBookingInput] = useState("");
+  const [submitterInput, setSubmitterInput] = useState("");
   const [data, setData] = useState(EMPTY);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  // AI-suggested platform options based on the bug description.
+  const [platformOptions, setPlatformOptions] = useState(PLATFORM_OPTIONS);
+  const [platformLoading, setPlatformLoading] = useState(false);
   const scrollRef = useRef(null);
 
   const pushAssistant = (content) => setMessages((p) => [...p, { role: "assistant", content }]);
@@ -75,7 +86,10 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
     setInput("");
     setClientNameInput("");
     setBookingInput("");
+    setSubmitterInput("");
     setData(EMPTY);
+    setPlatformOptions(PLATFORM_OPTIONS);
+    setPlatformLoading(false);
     setError(null);
   };
 
@@ -85,7 +99,7 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
   };
 
   const submitDescribe = () => {
-    const text = input.trim();
+    const text = sentenceCase(input);
     if (!text) return;
     pushUser(text);
     setData((d) => ({ ...d, description: text }));
@@ -95,7 +109,7 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
   };
 
   const submitClientName = (skip = false) => {
-    const name = clientNameInput.trim();
+    const name = sentenceCase(clientNameInput);
     pushUser(skip || !name ? "Skip" : name);
     setData((d) => ({ ...d, client_name: skip ? "" : name }));
     setClientNameInput("");
@@ -103,12 +117,33 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
     setTimeout(() => pushAssistant("Is there a specific booking date & time of concern? (or skip)"), 200);
   };
 
+  // Ask the AI for the most relevant "where is this happening" options given the
+  // bug description. Falls back to the static list on any error.
+  const fetchPlatformOptions = async (description) => {
+    setPlatformLoading(true);
+    try {
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `A staff member reported this bug: "${description}". Suggest 3-5 short options (1-3 words each) for WHERE this issue is happening — the specific screen, feature, or area of the system involved. Return concise, distinct labels in Sentence case.`,
+        response_json_schema: {
+          type: "object",
+          properties: { options: { type: "array", items: { type: "string" } } },
+        },
+      });
+      const opts = (res?.options || []).map(sentenceCase).filter(Boolean);
+      setPlatformOptions(opts.length ? [...opts, "Other"] : PLATFORM_OPTIONS);
+    } catch {
+      setPlatformOptions(PLATFORM_OPTIONS);
+    }
+    setPlatformLoading(false);
+  };
+
   const submitBookingInfo = (skip = false) => {
-    const info = bookingInput.trim();
+    const info = sentenceCase(bookingInput);
     pushUser(skip || !info ? "Skip" : info);
     setData((d) => ({ ...d, booking_info: skip ? "" : info }));
     setBookingInput("");
     setStep("platform");
+    fetchPlatformOptions(data.description);
     setTimeout(() => pushAssistant("Where is this happening?"), 200);
   };
 
@@ -147,6 +182,16 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
   };
 
   const finishImages = () => {
+    setStep("submitter");
+    setTimeout(() => pushAssistant("Last thing — who is submitting this bug? (your name)"), 200);
+  };
+
+  const submitSubmitter = () => {
+    const name = sentenceCase(submitterInput);
+    if (!name) return;
+    pushUser(name);
+    setData((d) => ({ ...d, submitter_name: name }));
+    setSubmitterInput("");
     setStep("review");
     setTimeout(() => pushAssistant("Here's the summary. Ready to send?"), 200);
   };
@@ -162,12 +207,12 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
         platform: data.platform,
         urgency: data.urgency,
         image_urls: data.image_urls,
-        rep_name: currentUser?.full_name,
+        rep_name: data.submitter_name || currentUser?.full_name,
       });
       if (res?.data?.success) {
         // Also surface the bug as a thread in the Support inbox (status: "bug").
         const reporterEmail = currentUser?.email || "bug-reporter@pilatesinpinkstudio.com";
-        const reporterName = currentUser?.full_name || "Bug Reporter";
+        const reporterName = data.submitter_name || currentUser?.full_name || "Bug Reporter";
         const num = res.data.bug_number;
         await base44.entities.Thread.create({
           source_app: "support",
@@ -279,11 +324,17 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
             )}
 
             {step === "platform" && (
-              <div className="flex flex-wrap gap-2">
-                {PLATFORM_OPTIONS.map((p) => (
-                  <QuickReply key={p} onClick={() => pickPlatform(p)} accent={accent}>{p}</QuickReply>
-                ))}
-              </div>
+              platformLoading ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground px-1 py-2">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Thinking of relevant options…
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {platformOptions.map((p) => (
+                    <QuickReply key={p} onClick={() => pickPlatform(p)} accent={accent}>{p}</QuickReply>
+                  ))}
+                </div>
+              )
             )}
 
             {step === "urgency" && (
@@ -315,10 +366,15 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
               </div>
             )}
 
+            {step === "submitter" && (
+              <ComposerRow value={submitterInput} onChange={setSubmitterInput} onSend={submitSubmitter} accent={accent} placeholder="Your name…" />
+            )}
+
             {step === "review" && (
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground space-y-0.5 max-h-24 overflow-y-auto">
                   <p><b>Issue:</b> {data.description}</p>
+                  {data.submitter_name && <p><b>Submitted by:</b> {data.submitter_name}</p>}
                   {data.client_name && <p><b>Client:</b> {data.client_name}</p>}
                   {data.booking_info && <p><b>Booking:</b> {data.booking_info}</p>}
                   <p><b>Where:</b> {data.platform || "—"}</p>
