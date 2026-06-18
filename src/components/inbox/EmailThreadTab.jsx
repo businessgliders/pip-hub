@@ -13,11 +13,42 @@ const OUTBOUND_BUBBLE = {
   influencer: { bubble: "bg-violet-200/80 dark:bg-violet-400/20 border border-violet-300/60 dark:border-violet-300/25", text: "text-violet-950 dark:text-violet-50", meta: "text-violet-800/80", name: "text-violet-900/90", body: "text-violet-950", hint: "text-violet-800/80" },
 };
 
-// Strip HTML to a short plain-text preview for the bubble
+// Remove quoted previous-thread content so we only preview the NEW reply text.
+function stripQuotedReply(text) {
+  if (!text) return "";
+  // Common reply/forward boundaries — cut everything from the first match on.
+  const markers = [
+    /\n?On .{0,200}? wrote:/i,                 // "On Mon, Jan 1, 2024 at ... wrote:"
+    /\n?-{2,}\s*Original Message\s*-{2,}/i,     // "----- Original Message -----"
+    /\n?_{5,}/,                                 // long underscore divider
+    /\n?From:\s.+?\nSent:/is,                   // Outlook header block
+    /\n?From:\s.+?\nTo:/is,                      // Gmail/other header block
+    /\nGet Outlook for/i,
+  ];
+  let cut = text.length;
+  for (const re of markers) {
+    const idx = text.search(re);
+    if (idx !== -1 && idx < cut) cut = idx;
+  }
+  let body = text.slice(0, cut);
+  // Drop trailing quoted lines (those starting with ">").
+  body = body
+    .split("\n")
+    .filter((line) => !line.trim().startsWith(">"))
+    .join("\n");
+  return body.trim();
+}
+
+// Strip HTML + quoted history to a short plain-text preview for the bubble.
 function toPreview(m) {
   const raw = m.body_text || m.body_html || "";
-  const text = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  return text.length > 280 ? text.slice(0, 280) + "…" : text;
+  // Convert block tags to newlines first so reply markers survive HTML stripping.
+  const plain = raw
+    .replace(/<\/(p|div|blockquote|br)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, " ");
+  const cleaned = stripQuotedReply(plain).replace(/\s+/g, " ").trim();
+  return cleaned.length > 280 ? cleaned.slice(0, 280) + "…" : cleaned;
 }
 
 // Build a short preview of the form submission for the bubble
