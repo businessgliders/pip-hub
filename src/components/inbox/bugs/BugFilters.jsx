@@ -1,13 +1,12 @@
 import React from "react";
 import { SlidersHorizontal, Check } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const URGENCIES = ["Critical", "High", "Soon", "Low"];
-const STATUSES = ["New", "In Progress", "Resolved", "Closed"];
 
-// Compact icon-based dropdown filter for bugs (by Urgency and Status).
-export default function BugFilters({ urgency, status, onUrgency, onStatus }) {
-  const active = urgency !== "all" || status !== "all";
+// Compact icon-based dropdown filter for bugs (by Urgency).
+export default function BugFilters({ urgency, onUrgency }) {
+  const active = urgency !== "all";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -27,12 +26,6 @@ export default function BugFilters({ urgency, status, onUrgency, onStatus }) {
         <Option label="All urgencies" selected={urgency === "all"} onClick={() => onUrgency("all")} />
         {URGENCIES.map((u) => (
           <Option key={u} label={u} selected={urgency === u} onClick={() => onUrgency(u)} />
-        ))}
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-muted-foreground">Status</DropdownMenuLabel>
-        <Option label="All statuses" selected={status === "all"} onClick={() => onStatus("all")} />
-        {STATUSES.map((s) => (
-          <Option key={s} label={s} selected={status === s} onClick={() => onStatus(s)} />
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

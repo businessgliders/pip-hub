@@ -64,6 +64,8 @@ export default function Inbox() {
   const [termsOpen, setTermsOpen] = useState(false);
   const [bugChatOpen, setBugChatOpen] = useState(false);
   const [selectedBug, setSelectedBug] = useState(null);
+  // Active bug-status filter for the rail when the Bugs view is open.
+  const [bugStatus, setBugStatus] = useState("New");
   const centerRef = useRef(null);
 
   // Bugs view is active when the Support inbox "bug" sub-filter is selected.
@@ -321,6 +323,15 @@ export default function Inbox() {
     return c;
   }, [threads, view, isSourceView, statusOrder]);
 
+  // Bug-ticket status tabs for the rail (shown when the Bugs view is open).
+  const BUG_STATUS_ORDER = ["New", "In Progress", "Resolved", "Closed"];
+  const bugStatusTabs = BUG_STATUS_ORDER.map((s) => ({ key: s, label: s }));
+  const bugStatusCounts = useMemo(() => {
+    const c = {};
+    BUG_STATUS_ORDER.forEach((s) => { c[s] = bugs.filter((b) => (b.status || "New") === s).length; });
+    return c;
+  }, [bugs]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Which status tabs currently have an unread (new) thread — drives the
   // notification dot superscript on the status rail counts.
   const unreadTabs = useMemo(() => {
@@ -440,7 +451,24 @@ export default function Inbox() {
           style={{ width: bugMode && selectedBug ? 440 : (selectedThread || (bugMode && selectedBug)) ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
         >
           {/* Vertical status rail (side panels) */}
-          {activeTabs && (
+          {bugMode ? (
+            <InboxStatusRail
+              tabs={bugStatusTabs}
+              active={bugStatus}
+              onChange={(k) => { setBugStatus(k); setSelectedBug(null); }}
+              counts={bugStatusCounts} accent={accent}
+              onTerms={() => setTermsOpen(true)}
+              onReportBug={() => {
+                setShowArchived(false);
+                setView("support");
+                setSubFilter("bug");
+                setSelected(null);
+                if (bugs.length) { setSelectedBug(bugs[0]); setMobilePanelOpen(false); }
+              }}
+              bugActive={bugMode}
+              bugCount={bugs.length}
+            />
+          ) : activeTabs && (
             <InboxStatusRail
               tabs={activeTabs}
               active={subFilter}
@@ -467,6 +495,7 @@ export default function Inbox() {
             {bugMode ? (
               <BugList
                 bugs={bugs}
+                statusFilter={bugStatus}
                 selectedBug={selectedBug}
                 onSelect={(b) => { setSelectedBug(b); setMobilePanelOpen(true); }}
                 onReportBug={() => setBugChatOpen(true)}

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Plus, Archive } from "lucide-react";
+import { Plus } from "lucide-react";
 import BugRow from "./BugRow";
 import BugFilters from "./BugFilters";
 import ReportNewBugRow from "./ReportNewBugRow";
@@ -22,22 +22,18 @@ function groupByMonth(bugs) {
   });
 }
 
-export default function BugList({ bugs, selectedBug, onSelect, onReportBug }) {
+export default function BugList({ bugs, statusFilter = "New", selectedBug, onSelect, onReportBug }) {
   const [urgency, setUrgency] = useState("all");
-  const [status, setStatus] = useState("all");
-  // By default hide Closed tickets; toggle shows ONLY Closed tickets.
-  const [showClosed, setShowClosed] = useState(false);
 
   const filtered = useMemo(() => {
     return bugs.filter((b) => {
       const st = b.status || "New";
-      // Closed visibility: default hides Closed; toggle shows only Closed.
-      if (showClosed ? st !== "Closed" : st === "Closed") return false;
+      // Status is driven by the rail selection.
+      if (st !== statusFilter) return false;
       if (urgency !== "all" && b.urgency !== urgency) return false;
-      if (status !== "all" && st !== status) return false;
       return true;
     });
-  }, [bugs, urgency, status, showClosed]);
+  }, [bugs, urgency, statusFilter]);
 
   const groups = useMemo(() => groupByMonth(filtered), [filtered]);
 
@@ -46,24 +42,13 @@ export default function BugList({ bugs, selectedBug, onSelect, onReportBug }) {
       {/* Header */}
       <div className="px-4 pt-4 pb-2 shrink-0 flex items-center justify-between gap-2">
         <h2 className="text-lg font-bold text-pink-900 dark:text-white flex items-center gap-2">
-          Bugs
+          {statusFilter}
           <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
             {filtered.length}
           </span>
         </h2>
         <div className="flex items-center gap-1.5">
-          <BugFilters urgency={urgency} status={status} onUrgency={setUrgency} onStatus={setStatus} />
-          <button
-            onClick={() => setShowClosed((s) => !s)}
-            title={showClosed ? "Showing closed tickets" : "Show closed tickets"}
-            className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
-              showClosed
-                ? "bg-orange-500 text-white"
-                : "text-orange-700/70 dark:text-white/60 hover:bg-orange-100/60 dark:hover:bg-white/10"
-            }`}
-          >
-            <Archive className="w-4 h-4" />
-          </button>
+          <BugFilters urgency={urgency} onUrgency={setUrgency} />
           <button
             onClick={onReportBug}
             title="Report a bug"
