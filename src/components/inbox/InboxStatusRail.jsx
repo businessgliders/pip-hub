@@ -64,8 +64,25 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
         </button>
       )}
 
-      {/* Bottom tools: Terms, Bugs, Archived — pinned together at the bottom */}
-      <div className={`${hostedTab ? "" : "mt-auto"} w-full flex flex-col items-center gap-1 pt-1 border-t border-white/40 dark:border-white/10`}>
+      {/* Archived — icon only, sits above the separator (above the bottom tools) */}
+      {onArchived && (
+        <button
+          onClick={onArchived}
+          title="Archived"
+          style={archivedActive ? { background: accent, color: "#fff" } : undefined}
+          className={`${hostedTab ? "" : "mt-auto"} w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
+            archivedActive
+              ? "shadow-md"
+              : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
+          }`}
+        >
+          <Archive className="w-5 h-5" />
+          <span>Archived</span>
+        </button>
+      )}
+
+      {/* Bottom tools: Terms, Bugs — pinned together at the bottom */}
+      <div className={`${hostedTab || onArchived ? "" : "mt-auto"} w-full flex flex-col items-center gap-1 pt-1 border-t border-white/40 dark:border-white/10`}>
         {/* Terms — opens the live-chat Terms assistant */}
         {onTerms && (
           <button
@@ -99,23 +116,6 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
               )}
             </span>
             <span className="text-center leading-tight">Report Bug</span>
-          </button>
-        )}
-
-        {/* Archived — icon only, pinned to the bottom */}
-        {onArchived && (
-          <button
-            onClick={onArchived}
-            title="Archived"
-            style={archivedActive ? { background: accent, color: "#fff" } : undefined}
-            className={`w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
-              archivedActive
-                ? "shadow-md"
-                : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
-            }`}
-          >
-            <Archive className="w-5 h-5" />
-            <span>Archived</span>
           </button>
         )}
       </div>
