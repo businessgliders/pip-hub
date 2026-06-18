@@ -61,7 +61,9 @@ export default function Inbox() {
   // On mobile/tablet the thread panel is full-screen. Default to showing the
   // conversation LIST on load (panel closed) so users pick a thread first.
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(() => !hasSeenInboxTutorial());
+  // Only show the tour once we've confirmed (from the user account) it hasn't
+  // been seen — prevents a flash on reload before the user flag loads.
+  const [showTutorial, setShowTutorial] = useState(false);
   // Terms + Bug-report chat widgets are triggered from the status rail.
   const [termsOpen, setTermsOpen] = useState(false);
   const [bugChatOpen, setBugChatOpen] = useState(false);
@@ -85,9 +87,10 @@ export default function Inbox() {
   useEffect(() => {
     base44.auth.me().then((u) => {
       setCurrentUser(u);
-      // Respect the per-user "seen" flag stored on the account so the tour
-      // never reappears for this user across browsers/devices.
-      if (u?.inbox_tutorial_seen) setShowTutorial(false);
+      // Show the tour only after confirming it hasn't been seen on the account
+      // OR locally — checked here so it never flashes on reload before the
+      // account flag loads.
+      if (!u?.inbox_tutorial_seen && !hasSeenInboxTutorial()) setShowTutorial(true);
     }).catch(() => {});
   }, []);
 
