@@ -9,13 +9,6 @@ const URGENCY_TONE = {
   Low: "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-white/60",
 };
 
-const STATUS_TONE = {
-  New: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/25 dark:text-emerald-200",
-  "In Progress": "bg-sky-100 text-sky-700 dark:bg-sky-500/25 dark:text-sky-200",
-  Resolved: "bg-violet-100 text-violet-700 dark:bg-violet-500/25 dark:text-violet-200",
-  Closed: "bg-slate-100 text-slate-500 dark:bg-white/15 dark:text-white/60",
-};
-
 export default function BugRow({ bug, active, onClick }) {
   return (
     <button
@@ -48,11 +41,6 @@ export default function BugRow({ bug, active, onClick }) {
           {bug.urgency && (
             <span className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold ${URGENCY_TONE[bug.urgency] || URGENCY_TONE.Low}`}>
               {bug.urgency}
-            </span>
-          )}
-          {bug.status && (
-            <span className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold ${STATUS_TONE[bug.status] || STATUS_TONE.New}`}>
-              {bug.status}
             </span>
           )}
         </div>
