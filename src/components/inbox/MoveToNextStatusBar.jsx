@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import StatusChangeDialog from "./StatusChangeDialog";
 import { ALL_STATUS_META, nextStatusFor } from "./inboxConfig";
 
@@ -11,6 +11,8 @@ export default function MoveToNextStatusBar({ thread, lastOutbound, currentUser,
   const [pending, setPending] = useState(null);
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
+  // Cache summaries per outbound message id so we don't re-summarize on each click.
+  const summaryCache = useRef({});
 
   const next = nextStatusFor(thread.status, thread.source_app);
   if (!next) return null;
@@ -19,6 +21,15 @@ export default function MoveToNextStatusBar({ thread, lastOutbound, currentUser,
 
   const handleClick = async () => {
     setPending(next);
+    const cacheKey = lastOutbound?.id;
+
+    // Reuse the cached summary instantly if we've already generated it.
+    if (cacheKey && summaryCache.current[cacheKey] !== undefined) {
+      setReason(summaryCache.current[cacheKey]);
+      setLoading(false);
+      return;
+    }
+
     setReason("");
     setLoading(true);
     try {
@@ -27,7 +38,9 @@ export default function MoveToNextStatusBar({ thread, lastOutbound, currentUser,
         message_id: lastOutbound?.id,
         thread_id: thread.id,
       });
-      setReason(res?.data?.summary || "");
+      const summary = res?.data?.summary || "";
+      if (cacheKey) summaryCache.current[cacheKey] = summary;
+      setReason(summary);
     } catch {
       setReason("");
     } finally {
@@ -57,7 +70,8 @@ export default function MoveToNextStatusBar({ thread, lastOutbound, currentUser,
         target={pending}
         fromStatus={thread.status}
         defaultName={currentUser?.full_name || ""}
-        defaultReason={loading ? "Summarizing reply…" : reason}
+        defaultReason={reason}
+        reasonLoading={loading}
         onConfirm={confirm}
         onCancel={() => setPending(null)}
       />
