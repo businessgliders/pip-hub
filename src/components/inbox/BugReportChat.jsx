@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus } from "lucide-react";
+import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { base44 } from "@/api/base44Client";
+import { findSimilarBug } from "./bugs/findSimilarBug";
 
 const URGENCY_OPTIONS = [
   { value: "Low", label: "🟢 Low — whenever you can" },
@@ -50,6 +51,12 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
   // AI-suggested platform options based on the bug description.
   const [platformOptions, setPlatformOptions] = useState(PLATFORM_OPTIONS);
   const [platformLoading, setPlatformLoading] = useState(false);
+  // Duplicate-detection: a similar existing bug + the "new instance" details.
+  const [matchedBug, setMatchedBug] = useState(null);
+  const [dupCustomerInput, setDupCustomerInput] = useState("");
+  const [dupWhenInput, setDupWhenInput] = useState("");
+  const [dupCustomer, setDupCustomer] = useState("");
+  const [dupWhen, setDupWhen] = useState("");
   const scrollRef = useRef(null);
 
   const pushAssistant = (content) => setMessages((p) => [...p, { role: "assistant", content }]);
@@ -90,6 +97,11 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
     setData(EMPTY);
     setPlatformOptions(PLATFORM_OPTIONS);
     setPlatformLoading(false);
+    setMatchedBug(null);
+    setDupCustomerInput("");
+    setDupWhenInput("");
+    setDupCustomer("");
+    setDupWhen("");
     setError(null);
   };
 
@@ -98,14 +110,114 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
     if (step === "done") setTimeout(resetAll, 300);
   };
 
-  const submitDescribe = () => {
+  const submitDescribe = async () => {
     const text = sentenceCase(input);
     if (!text) return;
     pushUser(text);
     setData((d) => ({ ...d, description: text }));
     setInput("");
+    // Search existing bugs for the same underlying issue before continuing.
+    setStep("searching");
+    pushAssistant("Let me check if we already have this one logged…");
+    const match = await findSimilarBug(text);
+    if (match) {
+      setMatchedBug(match);
+      setStep("dupConfirm");
+      setTimeout(() =>
+        pushAssistant(
+          `🔁 This looks like the same issue as Bug #${match.bug_number}${match.title ? ` — "${match.title}"` : ""}. ` +
+          `Is this a new customer experiencing the same bug?`
+        ), 250);
+    } else {
+      setStep("clientName");
+      setTimeout(() => pushAssistant("Got it. Which client is this about? (or skip if not client-specific)"), 250);
+    }
+  };
+
+  // User said this is NOT the same bug — fall through to the normal new-bug flow.
+  const dupReject = () => {
+    pushUser("No — it's a different issue");
+    setMatchedBug(null);
     setStep("clientName");
-    setTimeout(() => pushAssistant("Got it. Which client is this about? (or skip if not client-specific)"), 250);
+    setTimeout(() => pushAssistant("No problem — let's log it as new. Which client is this about? (or skip)"), 200);
+  };
+
+  // User confirmed it's the same bug, new customer.
+  const dupConfirm = () => {
+    pushUser("Yes — same bug, new customer");
+    setStep("dupCustomer");
+    setTimeout(() => pushAssistant("Which customer is experiencing it this time? (or skip)"), 200);
+  };
+
+  const submitDupCustomer = (skip = false) => {
+    const name = sentenceCase(dupCustomerInput);
+    pushUser(skip || !name ? "Skip" : name);
+    setDupCustomer(skip ? "" : name);
+    setDupCustomerInput("");
+    setStep("dupWhen");
+    setTimeout(() => pushAssistant("What date & time did it happen? (or skip)"), 200);
+  };
+
+  const submitDupWhen = (skip = false) => {
+    const when = sentenceCase(dupWhenInput);
+    pushUser(skip || !when ? "Skip" : when);
+    setDupWhen(skip ? "" : when);
+    setDupWhenInput("");
+    setStep("dupReview");
+    setTimeout(() => pushAssistant("Ready to add this new instance to the existing bug?"), 200);
+  };
+
+  // Post the new instance as a threaded reply on the existing bug (Gmail Re:
+  // thread via sendBugReply) AND as an outbound reply in its Thread panel.
+  const submitDupUpdate = async () => {
+    setStep("sending");
+    setError(null);
+    try {
+      const reporter = data.submitter_name || currentUser?.full_name || currentUser?.email || "Staff";
+      const lines = [
+        `<p><strong>New instance of this bug reported.</strong></p>`,
+        dupCustomer ? `<p><strong>Customer:</strong> ${dupCustomer}</p>` : "",
+        dupWhen ? `<p><strong>When:</strong> ${dupWhen}</p>` : "",
+        data.description ? `<p><strong>Details:</strong> ${data.description}</p>` : "",
+        `<p style="color:#94a3b8;font-size:12px;">Logged by ${reporter}</p>`,
+      ].filter(Boolean).join("");
+
+      const res = await base44.functions.invoke("sendBugReply", {
+        bug_report_id: matchedBug.id,
+        body_html: lines,
+        sender_name: reporter,
+      });
+      if (!res?.data?.success) throw new Error(res?.data?.error || "Failed to update bug");
+
+      // Also drop a reply into the matching bug's Thread panel (if one exists).
+      try {
+        const threads = await base44.entities.Thread.filter({ ticket_type: "bug" }, "-last_activity_at", 200);
+        const thread = threads.find((t) => t.form_data?.bug_number === matchedBug.bug_number);
+        if (thread) {
+          await base44.entities.EmailMessage.create({
+            ticket_id: thread.id,
+            direction: "outbound",
+            subject: `New instance — Bug #${matchedBug.bug_number}`,
+            body_html: lines,
+            from_name: reporter,
+            sent_by: reporter,
+            sent_at: new Date().toISOString(),
+            send_status: "sent",
+          });
+          await base44.entities.Thread.update(thread.id, {
+            last_activity_at: new Date().toISOString(),
+            snippet: `New instance${dupCustomer ? ` — ${dupCustomer}` : ""}`,
+            has_outbound_reply: true,
+          }).catch(() => {});
+        }
+      } catch { /* thread update is best-effort */ }
+
+      pushAssistant(`✅ Added to Bug #${matchedBug.bug_number}. Thanks — we've flagged the new instance.`);
+      setStep("done");
+    } catch (err) {
+      setError(err.message);
+      setStep("dupReview");
+    }
   };
 
   const submitClientName = (skip = false) => {
@@ -293,10 +405,10 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
                 </div>
               </div>
             ))}
-            {step === "sending" && (
+            {(step === "sending" || step === "searching") && (
               <div className="flex justify-start">
                 <div className="bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/10 rounded-2xl px-3.5 py-2 text-sm flex items-center gap-2 text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Sending…
+                  <Loader2 className="w-4 h-4 animate-spin" /> {step === "searching" ? "Checking existing bugs…" : "Sending…"}
                 </div>
               </div>
             )}
@@ -307,6 +419,40 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
           <div className="border-t border-black/10 dark:border-white/10 p-3 bg-white dark:bg-neutral-900">
             {step === "describe" && (
               <ComposerRow value={input} onChange={setInput} onSend={submitDescribe} accent={accent} placeholder="Describe the bug…" />
+            )}
+
+            {step === "dupConfirm" && (
+              <div className="flex flex-col gap-2">
+                <QuickReply onClick={dupConfirm} accent={accent} block>✅ Yes — same bug, new customer</QuickReply>
+                <QuickReply onClick={dupReject} accent={accent} block>🆕 No — it's a different issue</QuickReply>
+              </div>
+            )}
+
+            {step === "dupCustomer" && (
+              <div className="space-y-2">
+                <ComposerRow value={dupCustomerInput} onChange={setDupCustomerInput} onSend={() => submitDupCustomer(false)} accent={accent} placeholder="Customer name…" />
+                <button onClick={() => submitDupCustomer(true)} className="text-xs text-muted-foreground hover:underline">Skip</button>
+              </div>
+            )}
+
+            {step === "dupWhen" && (
+              <div className="space-y-2">
+                <ComposerRow value={dupWhenInput} onChange={setDupWhenInput} onSend={() => submitDupWhen(false)} accent={accent} placeholder="Date & time…" />
+                <button onClick={() => submitDupWhen(true)} className="text-xs text-muted-foreground hover:underline">Skip</button>
+              </div>
+            )}
+
+            {step === "dupReview" && (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground space-y-0.5 max-h-24 overflow-y-auto">
+                  <p><b>Existing:</b> Bug #{matchedBug?.bug_number}{matchedBug?.title ? ` — ${matchedBug.title}` : ""}</p>
+                  {dupCustomer && <p><b>New customer:</b> {dupCustomer}</p>}
+                  {dupWhen && <p><b>When:</b> {dupWhen}</p>}
+                </div>
+                <Button onClick={submitDupUpdate} className="w-full gap-2 text-white" style={{ background: accent }}>
+                  <RefreshCw className="w-4 h-4" /> Update existing bug
+                </Button>
+              </div>
             )}
 
             {step === "clientName" && (
