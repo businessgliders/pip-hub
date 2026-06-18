@@ -49,8 +49,6 @@ export default function InboxMoreSheet({ user, onClose }) {
         )}
         <div className="px-4 pb-2">
           <Row icon={dark ? Sun : Moon} label={dark ? "Light Mode" : "Dark Mode"} onClick={toggle} />
-          <Row icon={Users} label="Switch User" onClick={() => base44.auth.logout(window.location.href)} />
-          <Row icon={LogOut} label="Logout" onClick={() => base44.auth.logout()} danger />
         </div>
       </div>
     </div>
