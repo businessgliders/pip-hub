@@ -109,6 +109,11 @@
       "default": false,
       "description": "Whether staff has read this thread"
     },
+    "has_outbound_reply": {
+      "type": "boolean",
+      "default": false,
+      "description": "True once a manual (non-auto-reply) outbound reply has been sent on this thread"
+    },
     "archived": {
       "type": "boolean",
       "default": false,

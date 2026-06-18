@@ -1,5 +1,5 @@
 import React from "react";
-import { CalendarHeart } from "lucide-react";
+import { CalendarHeart, Reply } from "lucide-react";
 import Avatar from "./Avatar";
 import { relativeTime, displayName, eventDateInfo } from "./inboxConfig";
 
@@ -28,7 +28,12 @@ export default function ThreadRow({ thread, active, onClick }) {
           <span className={`truncate text-sm ${unread ? "font-bold text-pink-900 dark:text-white" : "font-medium text-pink-900/80 dark:text-white/85"}`}>
             {displayName(thread.contact_name, thread.contact_email)}
           </span>
-          <span className="text-[11px] text-pink-400 dark:text-white/50 shrink-0">{relativeTime(thread.last_activity_at || thread.created_date)}</span>
+          <span className="flex items-center gap-1 shrink-0">
+            {thread.has_outbound_reply && (
+              <Reply className="w-3 h-3 text-emerald-500 dark:text-emerald-400" title="Replied" />
+            )}
+            <span className="text-[11px] text-pink-400 dark:text-white/50">{relativeTime(thread.last_activity_at || thread.created_date)}</span>
+          </span>
         </div>
         <div className="flex items-center gap-1.5 mt-0.5">
           {thread.ticket_number != null && (

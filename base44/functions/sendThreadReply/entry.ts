@@ -246,6 +246,8 @@ Deno.serve(async (req) => {
       last_activity_at: nowIso,
       gmail_thread_id: sent.threadId || thread.gmail_thread_id || '',
       snippet: stripHtml(body_html).slice(0, 140),
+      // Any reply sent through this function is a manual (non-auto-reply) outbound reply.
+      has_outbound_reply: true,
     };
     if (!thread.gmail_root_message_id && rfcMessageId) {
       threadUpdate.gmail_root_message_id = rfcMessageId;
