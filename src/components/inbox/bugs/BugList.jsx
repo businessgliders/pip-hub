@@ -52,7 +52,7 @@ export default function BugList({ bugs, statusFilter = "New", selectedBug, onSel
           <button
             onClick={onReportBug}
             title="Report a bug"
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors shadow-sm"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#7d2235] text-white hover:bg-[#651c2b] transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
           </button>
