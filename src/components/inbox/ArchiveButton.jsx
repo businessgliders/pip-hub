@@ -33,9 +33,10 @@ export default function ArchiveButton({ threads, onArchive }) {
       onClick={handleClick}
       disabled={busy}
       title={`Archive ${eligible.length} (last month & earlier)`}
-      className="p-1.5 rounded-full bg-white/60 dark:bg-white/10 text-pink-700 dark:text-white/80 hover:bg-white/80 dark:hover:bg-white/20 transition-colors disabled:opacity-60"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold bg-white/60 dark:bg-white/10 text-pink-700 dark:text-white/80 hover:bg-white/80 dark:hover:bg-white/20 transition-colors disabled:opacity-60"
     >
-      {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <CopyCheck className="w-4 h-4" />}
+      {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CopyCheck className="w-3.5 h-3.5" />}
+      Archive All
     </button>
   );
 }

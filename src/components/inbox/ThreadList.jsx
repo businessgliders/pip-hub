@@ -21,7 +21,7 @@ function groupByMonth(threads) {
 
 export default function ThreadList({
   threads, title, count, search, setSearch,
-  selectedId, onSelect, loading, filterSlot, grouped = false,
+  selectedId, onSelect, loading, filterSlot, grouped = false, newUrl,
 }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const scrollRef = useRef(null);
@@ -50,7 +50,9 @@ export default function ThreadList({
         </div>
         <div className="flex items-center gap-1 text-pink-400 dark:text-white/60 shrink-0">
           {filterSlot}
-          <button className="p-1.5 rounded-full hover:bg-white/60 dark:hover:bg-white/10"><Plus className="w-4 h-4" /></button>
+          {newUrl && (
+            <a href={newUrl} target="_blank" rel="noopener noreferrer" title="New submission" className="p-1.5 rounded-full hover:bg-white/60 dark:hover:bg-white/10"><Plus className="w-4 h-4" /></a>
+          )}
         </div>
       </div>
 

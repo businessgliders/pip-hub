@@ -373,6 +373,16 @@ export default function Inbox() {
   const isClosedView = isSourceView && !showArchived &&
     (view === "events" ? subFilter === "Closed" : subFilter === "closed");
 
+  // External "new submission" form URL — only shown on the Open/New status tab.
+  const NEW_SUBMISSION_URLS = {
+    support: "https://support.pilatesinpinkstudio.com/",
+    events: "https://event.pilatesinpinkstudio.com/",
+    influencer: "https://partner.pilatesinpinkstudio.com/Influencer",
+  };
+  const isOpenView = isSourceView && !showArchived &&
+    (view === "events" ? subFilter === "New" : subFilter === "open");
+  const newUrl = isOpenView ? NEW_SUBMISSION_URLS[view] : undefined;
+
   return (
     <div className="app-screen flex flex-col overflow-hidden relative">
       {showTutorial && <InboxTutorial onClose={() => setShowTutorial(false)} />}
@@ -440,6 +450,7 @@ export default function Inbox() {
               count={sortedFiltered.length}
               search={search} setSearch={setSearch}
               selectedId={selectedThread?.id} onSelect={handleSelect} loading={isLoading}
+              newUrl={newUrl}
               filterSlot={
                 <>
                   {isClosedView && <ArchiveButton threads={sortedFiltered} onArchive={handleArchive} />}
