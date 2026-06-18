@@ -58,11 +58,11 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
           <>
             <button
               onClick={() => requestChange("accepted")}
-              title="Approve"
+              title="Accept"
               className="flex items-center gap-1.5 px-2 lg:px-3 py-2 rounded-full text-white bg-emerald-600/90 hover:bg-emerald-600 transition-colors shadow-sm text-xs font-semibold whitespace-nowrap"
             >
               <ThumbsUp className="w-4 h-4" />
-              <span className="hidden lg:inline">Approve</span>
+              <span className="hidden lg:inline">Accept</span>
             </button>
             <button
               onClick={() => requestChange("declined")}
