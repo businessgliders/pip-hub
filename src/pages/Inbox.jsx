@@ -74,18 +74,6 @@ export default function Inbox() {
   // Clear the selected bug whenever we leave the Bugs view.
   useEffect(() => { if (!bugMode) setSelectedBug(null); }, [bugMode]);
 
-  // Auto-select & open the first bug of the active status (like Support inbox).
-  useEffect(() => {
-    if (!bugMode) return;
-    const inStatus = bugs.filter((b) => (b.status || "New") === bugStatus);
-    if (!inStatus.length) { setSelectedBug(null); return; }
-    if (!selectedBug || (selectedBug.status || "New") !== bugStatus) {
-      const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
-      setSelectedBug(inStatus[0]);
-      if (isDesktop) setMobilePanelOpen(true);
-    }
-  }, [bugMode, bugStatus, bugs]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const handleListResize = (clientX) => {
     const left = centerRef.current?.getBoundingClientRect().left || 0;
     const w = clientX - left;
@@ -172,6 +160,18 @@ export default function Inbox() {
     });
     return unsubscribe;
   }, [qc]);
+
+  // Auto-select & open the first bug of the active status (like Support inbox).
+  useEffect(() => {
+    if (!bugMode) return;
+    const inStatus = bugs.filter((b) => (b.status || "New") === bugStatus);
+    if (!inStatus.length) { setSelectedBug(null); return; }
+    if (!selectedBug || (selectedBug.status || "New") !== bugStatus) {
+      const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+      setSelectedBug(inStatus[0]);
+      if (isDesktop) setMobilePanelOpen(true);
+    }
+  }, [bugMode, bugStatus, bugs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Deep-link support: /inbox?thread=<id> (e.g. from Contacts page)
   useEffect(() => {
