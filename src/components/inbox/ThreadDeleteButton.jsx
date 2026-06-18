@@ -18,11 +18,16 @@ export default function ThreadDeleteButton({ thread, onDeleted }) {
     queryFn: () => base44.auth.me(),
   });
 
+  const currentEmail = (currentUser?.email || "").toLowerCase();
+  // Gurpreen can delete any ticket. Otherwise only show when the ticket is
+  // assigned/escalated to Gurpreen.
+  const isGurpreen = currentEmail === GURPREEN_EMAIL;
   const assignedToGurpreen =
     (thread.assignee_email || "").toLowerCase() === GURPREEN_EMAIL;
-  const isHiddenUser = (currentUser?.email || "").toLowerCase() === HIDDEN_FOR_EMAIL;
+  const isHiddenUser = currentEmail === HIDDEN_FOR_EMAIL;
 
-  if (!assignedToGurpreen || isHiddenUser) return null;
+  if (isHiddenUser) return null;
+  if (!isGurpreen && !assignedToGurpreen) return null;
 
   const handleDelete = async () => {
     if (busy) return;
