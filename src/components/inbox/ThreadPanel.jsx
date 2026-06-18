@@ -48,7 +48,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
 
       <div className="flex-1 overflow-hidden flex flex-col">
         <div className="flex-1 overflow-y-auto ios-scroll">
-          <EmailThreadTab messages={messages} loading={loadingMsgs} thread={thread} currentUser={currentUser} />
+          <EmailThreadTab messages={messages} loading={loadingMsgs} thread={thread} currentUser={currentUser} onStatusChange={onStatusChange} />
         </div>
         <div className="border-t border-white/50 dark:border-white/10 p-3">
           <EmailComposer

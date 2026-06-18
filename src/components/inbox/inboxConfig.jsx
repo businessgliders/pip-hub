@@ -52,6 +52,22 @@ export function statusOrderFor(view) {
   return STATUS_ORDER;
 }
 
+// The next logical pipeline status after the given one (for "Move to Next" quick
+// actions). Returns null when there's no sensible next step. Skips closed/ended
+// states so we only ever suggest forward-moving statuses like Waiting/Resolved.
+export function nextStatusFor(status, source) {
+  const order = statusOrderFor(source);
+  // Influencer uses an approve/decline pipeline — no linear "next".
+  if (source === "influencer") return null;
+  const idx = order.indexOf(status);
+  if (idx === -1) return null;
+  const next = order[idx + 1];
+  if (!next) return null;
+  // Don't auto-suggest jumping straight to a closed/ended state.
+  if (isClosedStatus(next)) return null;
+  return next;
+}
+
 // Per-tab brand theme. Brown = Support, Pink = Events, Dark Purple = Influencer.
 // Darker, saturated backdrops so the frosted glass panels show depth on top.
 export const VIEW_THEME = {

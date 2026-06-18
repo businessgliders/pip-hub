@@ -5,13 +5,19 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ALL_STATUS_META } from "./inboxConfig";
 
-export default function StatusChangeDialog({ open, target, fromStatus, defaultName = "", onConfirm, onCancel }) {
+export default function StatusChangeDialog({ open, target, fromStatus, defaultName = "", defaultReason = "", onConfirm, onCancel }) {
   const [name, setName] = useState(defaultName);
-  const [reason, setReason] = useState("");
+  const [reason, setReason] = useState(defaultReason);
 
   useEffect(() => {
-    if (open) { setName(defaultName); setReason(""); }
+    if (open) { setName(defaultName); setReason(defaultReason); }
   }, [open, defaultName, target]);
+
+  // Keep the reason in sync when an async default (e.g. AI summary) arrives
+  // after the dialog has already opened.
+  useEffect(() => {
+    if (open) setReason(defaultReason);
+  }, [defaultReason]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toMeta = ALL_STATUS_META[target];
   const fromMeta = ALL_STATUS_META[fromStatus];

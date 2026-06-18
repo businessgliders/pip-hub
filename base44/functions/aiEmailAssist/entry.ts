@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { mode, thread_id, description, draft, force_refresh } = await req.json();
+    const { mode, thread_id, description, draft, force_refresh, message_id } = await req.json();
     if (!mode || !thread_id) return Response.json({ error: 'Missing mode or thread_id' }, { status: 400 });
 
     const thread = await base44.asServiceRole.entities.Thread.get(thread_id);
@@ -151,6 +151,27 @@ Deno.serve(async (req) => {
         response_json_schema: { type: 'object', properties: { body_html: { type: 'string' } }, required: ['body_html'] },
       });
       return Response.json({ body_html: result?.body_html || '' });
+    }
+
+    // Super-brief one-line summary of a specific outbound reply — used to
+    // pre-fill the "reason" field when moving a ticket to the next status.
+    if (mode === 'summarize_message') {
+      let msg = null;
+      if (message_id) {
+        try { msg = await base44.asServiceRole.entities.EmailMessage.get(message_id); } catch { msg = null; }
+      }
+      if (!msg) {
+        const msgs = await base44.asServiceRole.entities.EmailMessage.filter({ ticket_id: thread_id }, '-sent_at', 50);
+        msg = (msgs || []).find((m) => m.direction === 'outbound') || null;
+      }
+      const body = stripHtml(msg?.body_html || msg?.body_text || '').slice(0, 1500);
+      if (!body) return Response.json({ summary: '' });
+      const prompt = `A staff member just sent this reply to a client:\n\n"${body}"\n\n=== TASK ===\nWrite a SUPER brief note (max 12 words) describing what the staff did/said in this reply, suitable as a status-change reason (e.g. "Sent pricing and availability, awaiting client confirmation"). Plain text, no quotes, no labels. Return JSON: { "summary": "..." }`;
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: { type: 'object', properties: { summary: { type: 'string' } }, required: ['summary'] },
+      });
+      return Response.json({ summary: (result?.summary || '').trim() });
     }
 
     return Response.json({ error: 'unknown mode' }, { status: 400 });

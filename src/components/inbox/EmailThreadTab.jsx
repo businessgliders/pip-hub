@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import EmailPreviewModal from "./EmailPreviewModal";
 import SubmissionPreviewModal from "./SubmissionPreviewModal";
 import MessageReadToggle from "./MessageReadToggle";
+import MoveToNextStatusBar from "./MoveToNextStatusBar";
 import { SOURCE_META } from "./inboxConfig";
 
 // Subtle, per-inbox outbound bubble styling (muted, brand-matched).
@@ -81,7 +82,7 @@ function isAssignmentNotice(m) {
   return /\bassigned to\b/.test(text);
 }
 
-export default function EmailThreadTab({ messages, loading, thread, currentUser }) {
+export default function EmailThreadTab({ messages, loading, thread, currentUser, onStatusChange }) {
   const [preview, setPreview] = useState(null);
   const [submissionOpen, setSubmissionOpen] = useState(false);
   const [summary, setSummary] = useState(thread?.submission_summary || "");
@@ -133,6 +134,11 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser 
   }
 
   const noEmails = displayMessages.length === 0;
+
+  // The most recent outbound reply — the "Move to Next Status" suggestion is
+  // shown right under it (only when it's the very last message in the thread).
+  const lastOutbound = [...displayMessages].reverse().find((m) => m.direction === "outbound");
+  const lastMessageIsOutbound = displayMessages.length > 0 && displayMessages[displayMessages.length - 1]?.direction === "outbound";
 
   return (
     <>
@@ -236,6 +242,16 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser 
             </div>
           );
         })}
+
+        {/* Quick "Move to {Next Status}" action under the latest outbound reply */}
+        {lastMessageIsOutbound && onStatusChange && (
+          <MoveToNextStatusBar
+            thread={thread}
+            lastOutbound={lastOutbound}
+            currentUser={currentUser}
+            onStatusChange={onStatusChange}
+          />
+        )}
         <div ref={bottomRef} />
       </div>
 
