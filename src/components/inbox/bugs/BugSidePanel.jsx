@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Paperclip, Plus, Loader2, X } from "lucide-react";
 import AttachmentLightbox from "./AttachmentLightbox";
+import BugDeleteButton from "./BugDeleteButton";
 
 function isImg(url) {
   return /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(url || "");
@@ -96,6 +97,8 @@ export default function BugSidePanel({ bug, onUpdated, onClose }) {
           </div>
         </div>
       </div>
+
+      <BugDeleteButton bug={bug} onDeleted={onClose} />
 
       {lightboxIndex !== null && (
         <AttachmentLightbox
