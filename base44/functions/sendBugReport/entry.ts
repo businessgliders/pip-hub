@@ -150,7 +150,7 @@ Deno.serve(async (req) => {
     try {
       const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
       const mime = [
-        `From: ${encodeHeader('Pilates in Pink ™')} <${fromEmail}>`,
+        `From: ${encodeHeader('Report Bug @ Pilates in Pink ™')} <${fromEmail}>`,
         `To: ${escalationTo}`,
         `Subject: ${encodeHeader(subject)}`,
         `Message-ID: ${rfcMessageId}`,
