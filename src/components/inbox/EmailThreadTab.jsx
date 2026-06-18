@@ -39,6 +39,18 @@ function stripQuotedReply(text) {
   return body.trim();
 }
 
+// Decode common HTML entities so raw codes like &nbsp; don't show in previews.
+function decodeEntities(text) {
+  return (text || "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
+}
+
 // Strip HTML + quoted history to a short plain-text preview for the bubble.
 function toPreview(m) {
   const raw = m.body_text || m.body_html || "";
@@ -47,7 +59,7 @@ function toPreview(m) {
     .replace(/<\/(p|div|blockquote|br)>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<[^>]+>/g, " ");
-  const cleaned = stripQuotedReply(plain).replace(/\s+/g, " ").trim();
+  const cleaned = decodeEntities(stripQuotedReply(decodeEntities(plain))).replace(/\s+/g, " ").trim();
   return cleaned.length > 280 ? cleaned.slice(0, 280) + "…" : cleaned;
 }
 
