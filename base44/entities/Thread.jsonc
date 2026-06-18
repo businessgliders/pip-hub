@@ -46,6 +46,7 @@
         "bug",
         "accepted",
         "declined",
+        "influencer_progress",
         "New",
         "In Conversations",
         "Waiting for Payment",
@@ -57,7 +58,7 @@
         "Closed"
       ],
       "default": "open",
-      "description": "Workflow status. Support uses the generic set; Influencer uses open/accepted/declined; Events use the EventLead pipeline stages."
+      "description": "Workflow status. Support uses the generic set; Influencer uses open/influencer_progress/accepted/declined; Events use the EventLead pipeline stages."
     },
     "ticket_type": {
       "type": "string",

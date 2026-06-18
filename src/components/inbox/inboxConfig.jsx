@@ -20,10 +20,11 @@ export const STATUS_ORDER = ["open", "in_progress", "waiting", "resolved", "clos
 // Influencer inbox uses a simple Open / Accepted / Declined pipeline.
 export const INFLUENCER_STATUS_META = {
   open: { label: "New", chip: "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-200" },
+  influencer_progress: { label: "Progress", chip: "bg-amber-100/80 text-amber-700 dark:bg-amber-400/20 dark:text-amber-200" },
   accepted: { label: "Accepted", chip: "bg-sky-100/80 text-sky-700 dark:bg-sky-400/20 dark:text-sky-200" },
   declined: { label: "Declined", chip: "bg-rose-100/80 text-rose-700 dark:bg-rose-400/20 dark:text-rose-200" },
 };
-export const INFLUENCER_STATUS_ORDER = ["open", "accepted", "declined"];
+export const INFLUENCER_STATUS_ORDER = ["open", "influencer_progress", "accepted", "declined"];
 
 // Events inbox uses the original EventLead pipeline stages instead of the generic statuses.
 export const EVENTS_STATUS_META = {
