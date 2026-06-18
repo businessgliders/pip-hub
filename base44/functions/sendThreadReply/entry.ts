@@ -14,9 +14,9 @@ const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
 // From Name matches what the spoke apps (pip-support, pip-events, pip-partner)
 // actually send — all three use "Pilates in Pink ™".
 const FROM_BY_SOURCE = {
-  support: { name: 'Support @ Pilates in Pink ™', email: 'support@pilatesinpinkstudio.com' },
-  events: { name: 'Events @ Pilates in Pink ™', email: 'events@pilatesinpinkstudio.com' },
-  influencer: { name: 'Influencer @ Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com' },
+  support: { name: 'Support @ Pilates in Pink ™', email: 'support@pilatesinpinkstudio.com', tag: 'Ticket' },
+  events: { name: 'Events @ Pilates in Pink ™', email: 'events@pilatesinpinkstudio.com', tag: 'Request' },
+  influencer: { name: 'Influencer @ Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com', tag: 'Application' },
 };
 
 function stripHtml(html) {
@@ -167,7 +167,8 @@ Deno.serve(async (req) => {
     // canonical subject from the first stored message when available, falling
     // back to the thread subject + ticket tag.
     const firstMsg = (await db.EmailMessage.filter({ ticket_id: thread_id }, 'sent_at', 1))[0];
-    const ticketTag = thread.ticket_number ? `[Ticket #${thread.ticket_number}] ` : '';
+    const tagWord = (FROM_BY_SOURCE[thread.source_app] || {}).tag || 'Ticket';
+    const ticketTag = thread.ticket_number ? `[${tagWord} #${thread.ticket_number}] ` : '';
     const baseSubject = thread.subject || 'Your inquiry';
     const subject = (firstMsg?.subject || `${ticketTag}${baseSubject}`)
       .replace(/^\s*(re|fwd?)\s*:\s*/i, '')
