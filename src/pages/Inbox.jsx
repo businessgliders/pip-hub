@@ -8,7 +8,7 @@ import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxStatusRail from "@/components/inbox/InboxStatusRail";
 import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
 import ArchiveButton from "@/components/inbox/ArchiveButton";
-import EventDateSortToggle from "@/components/inbox/EventDateSortToggle";
+import EventSortMenu from "@/components/inbox/EventSortMenu";
 import DetailToggleHandle from "@/components/inbox/DetailToggleHandle";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
 import InboxTutorial, { hasSeenInboxTutorial } from "@/components/inbox/InboxTutorial";
@@ -539,7 +539,7 @@ export default function Inbox() {
                 <>
                   {isClosedView && <ArchiveButton threads={sortedFiltered} onArchive={handleArchive} />}
                   {view === "events" && !showArchived && (
-                    <EventDateSortToggle active={sortByEventDate} onToggle={() => setSortByEventDate((s) => !s)} />
+                    <EventSortMenu sortByEventDate={sortByEventDate} onChange={setSortByEventDate} />
                   )}
                   {(view === "support" || view === "events") && !showArchived && inquiryTypes.length > 0 ? (
                     <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
