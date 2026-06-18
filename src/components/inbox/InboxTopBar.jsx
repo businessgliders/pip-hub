@@ -38,8 +38,8 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
       <span className="hidden md:inline">{label}</span>
       {count > 0 && (
         <span
-          className="hidden md:inline-flex items-center justify-center text-sm font-bold leading-none"
-          style={{ color: accent || "inherit" }}
+          className="hidden md:inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold leading-none"
+          style={{ color: accent || "inherit", backgroundColor: accent ? `${accent}24` : "rgba(0,0,0,0.06)" }}
         >
           {count}
         </span>
