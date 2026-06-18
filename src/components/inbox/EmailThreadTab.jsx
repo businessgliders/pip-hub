@@ -155,6 +155,12 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                 <span className="font-medium text-pink-500 dark:text-white/80 truncate">{thread.contact_name || thread.contact_email}</span>
                 <span>·</span>
                 <span>{SOURCE_META[thread.source_app]?.label || "Form"} submission</span>
+                {thread.created_date && (
+                  <>
+                    <span>·</span>
+                    <span>{new Date(thread.created_date).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                  </>
+                )}
               </div>
               {thread.subject && (
                 <div className="text-xs font-semibold text-pink-700 dark:text-white/90 mb-0.5 truncate">{thread.subject}</div>
@@ -215,13 +221,18 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                   <span className={`font-medium truncate ${outbound ? `${ob.name} dark:text-white/80` : "text-pink-500 dark:text-white/80"}`}>
                     {m.from_name || m.from_email}
                   </span>
+                  {m.is_welcome && (
+                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold ${ob.name} dark:text-white/80 bg-white/40 dark:bg-white/10`}>
+                      <Sparkles className="w-2.5 h-2.5" /> Auto-reply
+                    </span>
+                  )}
                   <span>·</span>
                   <span>{m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
                 </div>
                 {outbound ? (
                   <>
                     <div className={`text-[13px] font-semibold leading-snug truncate ${ob.body} dark:text-white/90`}>{m.subject || "(no subject)"}</div>
-                    {bodyPreview && (
+                    {!m.is_welcome && bodyPreview && (
                       <div className={`text-[12px] leading-snug line-clamp-2 mt-0.5 ${ob.body} dark:text-white/75 opacity-80`}>{bodyPreview}</div>
                     )}
                   </>
