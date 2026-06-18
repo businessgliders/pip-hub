@@ -316,6 +316,24 @@ export default function Inbox() {
     }
     return c;
   }, [threads, view, isSourceView, statusOrder]);
+
+  // Which status tabs currently have an unread (new) thread — drives the
+  // notification dot superscript on the status rail counts.
+  const unreadTabs = useMemo(() => {
+    const base = threads.filter((t) => {
+      if (t.archived) return false;
+      if (SOURCE_META[view]) return t.source_app === view;
+      return t.status !== "closed";
+    });
+    const u = {};
+    if (isSourceView) {
+      statusOrder.forEach((s) => { u[s] = base.some((t) => t.status === s && !t.is_read); });
+    } else {
+      ["support", "events", "influencer"].forEach((s) => { u[s] = base.some((t) => t.source_app === s && !t.is_read); });
+    }
+    return u;
+  }, [threads, view, isSourceView, statusOrder]);
+
   const selectedThread = threads.find((t) => t.id === selected?.id) || selected;
   // Keep the open bug in sync with the live query data (so new replies appear).
   const liveBug = bugs.find((b) => b.id === selectedBug?.id) || selectedBug;
@@ -416,7 +434,7 @@ export default function Inbox() {
               tabs={activeTabs}
               active={subFilter}
               onChange={(k) => { setShowArchived(false); setSubFilter(k); setSelected(null); }}
-              counts={tabCounts} accent={accent}
+              counts={tabCounts} unread={unreadTabs} accent={accent}
               archivedActive={showArchived}
               onArchived={isSourceView ? () => { setShowArchived((s) => !s); setSelected(null); } : undefined}
               onTerms={() => setTermsOpen(true)}

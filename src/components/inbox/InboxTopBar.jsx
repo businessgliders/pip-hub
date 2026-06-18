@@ -76,10 +76,13 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         {/* Logo */}
         <Link to="/inbox" reloadDocument className="flex items-center gap-2.5 shrink-0 min-w-0">
           <img src={LOGO_URL} alt="PiP Inbox" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
-          <span className="hidden md:block font-extrabold text-base md:text-lg tracking-tight whitespace-nowrap truncate" style={{ fontStyle: "italic", color: accent }}>
+          <span className="hidden lg:block font-extrabold text-base md:text-lg tracking-tight whitespace-nowrap truncate" style={{ fontStyle: "italic", color: accent }}>
             {LOGO_TITLES[view] || "PiP Inbox"}
           </span>
         </Link>
+
+        {/* Notifications — placed next to the logo/title */}
+        <NotificationCenter currentUser={currentUser} onOpenThread={onOpenThread} />
       </div>
 
       {/* Tabs: 3 team inboxes — compact on tablet/mobile, centered on desktop */}
@@ -99,7 +102,6 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
 
       {/* Right icons */}
       <div className="flex items-center justify-end gap-0.5 md:gap-1 shrink-0 w-[104px] md:w-[120px] lg:w-56">
-        <NotificationCenter currentUser={currentUser} onOpenThread={onOpenThread} />
         <button
           onClick={toggle}
           title={dark ? "Switch to light mode" : "Switch to dark mode"}

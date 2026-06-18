@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mail, FileText, Sparkles } from "lucide-react";
+import { Mail, Sparkles } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import EmailPreviewModal from "./EmailPreviewModal";
 import SubmissionPreviewModal from "./SubmissionPreviewModal";
@@ -13,6 +13,14 @@ const OUTBOUND_BUBBLE = {
   events:     { bubble: "bg-rose-200/80 dark:bg-rose-400/20 border border-rose-300/60 dark:border-rose-300/25", text: "text-rose-950 dark:text-rose-50", meta: "text-rose-800/80", name: "text-rose-900/90", body: "text-rose-950", hint: "text-rose-800/80" },
   influencer: { bubble: "bg-violet-200/80 dark:bg-violet-400/20 border border-violet-300/60 dark:border-violet-300/25", text: "text-violet-950 dark:text-violet-50", meta: "text-violet-800/80", name: "text-violet-900/90", body: "text-violet-950", hint: "text-violet-800/80" },
 };
+
+// Some entity timestamps (e.g. created_date) are stored without a trailing "Z",
+// so JS parses them as local time instead of UTC, shifting the displayed clock.
+// Append "Z" when no timezone is present so they're correctly read as UTC.
+function asUTC(ts) {
+  if (!ts) return ts;
+  return /[zZ]|[+-]\d{2}:?\d{2}$/.test(ts) ? ts : `${ts}Z`;
+}
 
 // Remove quoted previous-thread content so we only preview the NEW reply text.
 function stripQuotedReply(text) {
@@ -151,14 +159,14 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
               className="group max-w-[70%] text-left rounded-2xl rounded-bl-sm px-3 py-2 bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-center gap-1.5 text-[11px] text-pink-400 dark:text-white/55 mb-1">
-                <FileText className="w-3.5 h-3.5" />
                 <span className="font-medium text-pink-500 dark:text-white/80 truncate">{thread.contact_name || thread.contact_email}</span>
-                <span>·</span>
-                <span>{SOURCE_META[thread.source_app]?.label || "Form"} submission</span>
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold text-pink-500 dark:text-white/80 bg-white/40 dark:bg-white/10">
+                  <Sparkles className="w-2.5 h-2.5" /> {SOURCE_META[thread.source_app]?.label || "Form"} submission
+                </span>
                 {thread.created_date && (
                   <>
                     <span>·</span>
-                    <span>{new Date(thread.created_date).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                    <span>{new Date(asUTC(thread.created_date)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                   </>
                 )}
               </div>
@@ -231,7 +239,12 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                 </div>
                 {outbound ? (
                   <>
-                    <div className={`text-[13px] font-semibold leading-snug truncate ${ob.body} dark:text-white/90`}>{m.subject || "(no subject)"}</div>
+                    {!m.is_welcome && (
+                      <div className={`text-[13px] font-semibold leading-snug truncate ${ob.body} dark:text-white/90`}>{m.subject || "(no subject)"}</div>
+                    )}
+                    {m.is_welcome && (
+                      <div className={`text-[12px] leading-snug ${ob.body} dark:text-white/75 opacity-80`}>Welcome / auto-reply email sent.</div>
+                    )}
                     {!m.is_welcome && bodyPreview && (
                       <div className={`text-[12px] leading-snug line-clamp-2 mt-0.5 ${ob.body} dark:text-white/75 opacity-80`}>{bodyPreview}</div>
                     )}

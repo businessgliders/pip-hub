@@ -3,7 +3,7 @@ import { Archive, PartyPopper, BookText, LifeBuoy } from "lucide-react";
 
 // Vertical "side panel" rail of status tabs shown on the left of the thread list.
 // The count itself acts as the icon/glyph for each status tab.
-export default function InboxStatusRail({ tabs, active, onChange, counts = {}, accent = "#f1889b", archivedActive = false, onArchived, onTerms, onReportBug, bugActive = false, bugCount = 0 }) {
+export default function InboxStatusRail({ tabs, active, onChange, counts = {}, unread = {}, accent = "#f1889b", archivedActive = false, onArchived, onTerms, onReportBug, bugActive = false, bugCount = 0 }) {
   if (!tabs || tabs.length === 0) return null;
   // "Hosted" is pinned to the bottom (above Archived) as an icon-only tab, no count.
   const hostedTab = tabs.find((t) => t.key === "Hosted");
@@ -35,7 +35,12 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, a
                 )}
               </span>
             ) : (
-              <span className="text-lg font-bold leading-none">{c}</span>
+              <span className="relative inline-block leading-none">
+                <span className="text-lg font-bold leading-none">{c}</span>
+                {unread[t.key] && !isActive && (
+                  <span className="absolute -top-1 -right-2 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white/80 dark:ring-zinc-900/80" />
+                )}
+              </span>
             )}
             <span className="text-center">{t.label}</span>
           </button>
