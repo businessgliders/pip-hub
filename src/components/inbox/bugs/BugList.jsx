@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import BugRow from "./BugRow";
 import BugFilters from "./BugFilters";
 import ReportNewBugRow from "./ReportNewBugRow";
@@ -24,16 +25,22 @@ function groupByMonth(bugs) {
 
 export default function BugList({ bugs, statusFilter = "New", selectedBug, onSelect, onReportBug }) {
   const [urgency, setUrgency] = useState("all");
+  const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
     return bugs.filter((b) => {
       const st = b.status || "New";
       // Status is driven by the rail selection.
       if (st !== statusFilter) return false;
       if (urgency !== "all" && b.urgency !== urgency) return false;
+      if (q) {
+        const hay = `${b.title || ""} ${b.description || ""} ${b.client_name || ""} ${b.bug_number != null ? "b" + Math.round(b.bug_number) : ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
       return true;
     });
-  }, [bugs, urgency, statusFilter]);
+  }, [bugs, urgency, statusFilter, search]);
 
   const groups = useMemo(() => groupByMonth(filtered), [filtered]);
 
@@ -56,6 +63,19 @@ export default function BugList({ bugs, statusFilter = "New", selectedBug, onSel
           >
             <Plus className="w-4 h-4" />
           </button>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="px-4 pb-3 shrink-0">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-400 dark:text-white/50" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search conversations…"
+            className="pl-9 h-9 bg-white/60 dark:bg-white/10 border-white/70 dark:border-white/15 rounded-full text-pink-900 dark:text-white placeholder:text-pink-300 dark:placeholder:text-white/40 focus-visible:ring-pink-300"
+          />
         </div>
       </div>
 
