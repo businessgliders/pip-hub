@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Sparkles, ImagePlus, Plus, Loader2, X } from "lucide-react";
+import { ArrowLeft, Sparkles, ImagePlus, Plus, Loader2, X, ChevronDown, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import FormFieldRow from "./FormFieldRow";
+import FormPreview from "./FormPreview";
 
 // Build / edit a form: name it, describe in natural language (or upload an image),
 // generate fields with AI, tweak the preview, then Save draft / Save & Send.
@@ -20,6 +21,9 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
   const [saving, setSaving] = useState(false);
   const fileRef = useRef(null);
   const progressTimer = useRef(null);
+  // Collapse the Form Name + Describe area once fields exist, to give the
+  // field editor more height. User can expand it again.
+  const [setupCollapsed, setSetupCollapsed] = useState(false);
 
   // Animate a fake progress bar while generating (the LLM call takes time).
   useEffect(() => {
@@ -62,6 +66,7 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
       if (!name.trim() && data.title) setName(data.title);
       setFields(data.fields || []);
       setProgress(100);
+      setSetupCollapsed(true);
     } catch (err) {
       setError(err.message || "Generation failed. Try again.");
     }
@@ -115,10 +120,36 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
         <span className="font-bold text-pink-900 dark:text-white">{existing ? "Edit form" : "New form"}</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto ios-scroll p-4 space-y-4">
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+        {/* Left column: editor */}
+        <div className="flex-1 min-w-0 overflow-y-auto ios-scroll p-4 space-y-4 lg:border-r lg:border-white/40 lg:dark:border-white/10">
+        {/* Name + describe — collapsible once fields exist */}
+        {fields.length > 0 && setupCollapsed ? (
+          <button
+            onClick={() => setSetupCollapsed(false)}
+            className="w-full flex items-center justify-between gap-2 rounded-xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 px-3 py-2 text-left hover:bg-white/70 dark:hover:bg-white/10 transition-colors"
+          >
+            <span className="min-w-0">
+              <span className="block text-[11px] font-semibold text-pink-900/50 dark:text-white/50">Form name</span>
+              <span className="block text-sm font-semibold text-pink-900 dark:text-white truncate">{name.trim() || "Untitled form"}</span>
+            </span>
+            <ChevronRight className="w-4 h-4 shrink-0 text-pink-900/50 dark:text-white/50" />
+          </button>
+        ) : (
+        <>
         {/* Name */}
         <div>
-          <label className="text-xs font-semibold text-pink-900/70 dark:text-white/70">Form name</label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-pink-900/70 dark:text-white/70">Form name</label>
+            {fields.length > 0 && (
+              <button
+                onClick={() => setSetupCollapsed(true)}
+                className="flex items-center gap-1 text-[11px] font-medium text-pink-900/50 dark:text-white/50 hover:text-pink-900 dark:hover:text-white"
+              >
+                <ChevronDown className="w-3.5 h-3.5" /> Collapse
+              </button>
+            )}
+          </div>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Spring Event RSVP" className="mt-1 bg-white/70 dark:bg-white/5" />
         </div>
 
@@ -178,8 +209,10 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
 
           {error && <p className="text-xs text-red-500">{error}</p>}
         </div>
+        </>
+        )}
 
-        {/* Preview / editor */}
+        {/* Field editor */}
         {fields.length > 0 && (
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
@@ -193,6 +226,13 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
             ))}
           </div>
         )}
+        </div>
+
+        {/* Right column: live preview */}
+        <div className="hidden lg:flex lg:w-[44%] xl:w-[42%] shrink-0 flex-col overflow-y-auto ios-scroll p-4 bg-black/[0.02] dark:bg-white/[0.02]">
+          <span className="text-xs font-semibold text-pink-900/70 dark:text-white/70 mb-2.5">Live preview</span>
+          <FormPreview name={name} fields={fields} accent={accent} />
+        </div>
       </div>
 
       {/* Footer actions */}
