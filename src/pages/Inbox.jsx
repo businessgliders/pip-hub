@@ -209,9 +209,11 @@ export default function Inbox() {
   // Events use the EventLead pipeline stages; Influencer uses open/accepted/declined; others use the generic set.
   const statusOrder = statusOrderFor(view);
   const STATUS_TABS = statusOrder.map((s) => ({ key: s, label: ALL_STATUS_META[s].label }));
-  // For special staff, prepend "Me" + "All" ahead of the status pipeline tabs.
+  // For special staff, show "Me" + "All" at the top. The status pipeline tabs
+  // only appear (expand) below "All" once "All" or a status is selected.
+  const allExpanded = subFilter === "all" || (isSpecialStaff && STATUS_TABS.some((t) => t.key === subFilter));
   const teamTabs = isSpecialStaff
-    ? [{ key: "me", label: "Me" }, { key: "all", label: "All" }, ...STATUS_TABS]
+    ? [{ key: "me", label: "Me" }, { key: "all", label: "All" }, ...(allExpanded ? STATUS_TABS : [])]
     : STATUS_TABS;
   const activeTabs = isSourceView ? teamTabs : SOURCE_TABS;
 
