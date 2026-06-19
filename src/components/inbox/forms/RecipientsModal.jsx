@@ -28,7 +28,16 @@ export default function RecipientsModal({ form, accent, open, onOpenChange, onSe
     if (!open || !alreadySent || !form?.id) return;
     setLoadingSent(true);
     base44.entities.FormRecipient.filter({ form_id: form.id }, "-sent_at", 500)
-      .then((recs) => setSentRecipients(recs || []))
+      .then((recs) => {
+        // De-dupe by email — keep the most recent row per recipient so each
+        // person shows once regardless of how many times they were re-sent.
+        const map = new Map();
+        (recs || []).forEach((r) => {
+          const key = (r.email || "").toLowerCase();
+          if (key && !map.has(key)) map.set(key, r);
+        });
+        setSentRecipients(Array.from(map.values()));
+      })
       .finally(() => setLoadingSent(false));
   }, [open, alreadySent, form?.id]);
 
