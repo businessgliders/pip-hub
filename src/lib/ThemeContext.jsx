@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { base44 } from "@/api/base44Client";
 
 const ThemeContext = createContext({ dark: false, toggle: () => {} });
+
+// These users default to dark theme (until they manually pick a theme).
+const DARK_DEFAULT_USERS = ["gurpreen@pilatesinpinkstudio.com", "sahil@pilatesinpinkstudio.com"];
 
 // Day = 9am–5pm in Toronto (EST/EDT). Outside that range -> night (dark mode).
 function isNightInToronto() {
@@ -43,6 +47,24 @@ export function ThemeProvider({ children }) {
     apply();
     const id = setInterval(apply, 60 * 1000);
     return () => clearInterval(id);
+  }, []);
+
+  // For specific users, default to dark theme unless they've manually chosen one.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if (localStorage.getItem("pip-theme")) return; // user override wins
+        const user = await base44.auth.me();
+        if (cancelled) return;
+        if (user?.email && DARK_DEFAULT_USERS.includes(user.email.toLowerCase())) {
+          setDark(true);
+        }
+      } catch {
+        // not logged in / ignore
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
