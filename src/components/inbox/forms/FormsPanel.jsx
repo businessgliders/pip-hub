@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Plus, FileText, Loader2, ChevronRight } from "lucide-react";
+import { Plus, FileText, Loader2, ChevronRight, Send, BarChart3 } from "lucide-react";
 import { SOURCE_META } from "@/components/inbox/inboxConfig";
 import FormBuilder from "./FormBuilder";
+import RecipientsModal from "./RecipientsModal";
+import SubmissionsPanel from "./SubmissionsPanel";
 
-// In-place Forms workspace for a single inbox. Lists that inbox's forms with a
-// + button to build a new one. Save & Send is wired in phase (b).
+// In-place Forms workspace for a single inbox: list forms, build/edit with AI,
+// send invites to recipients, and view submissions with CSV export.
 export default function FormsPanel({ sourceApp, accent }) {
   const qc = useQueryClient();
-  const [mode, setMode] = useState("list"); // list | build
+  const [mode, setMode] = useState("list"); // list | build | submissions
   const [editing, setEditing] = useState(null);
+  const [sendForm, setSendForm] = useState(null); // form being sent (modal)
+  const [viewForm, setViewForm] = useState(null); // form whose submissions are shown
 
   const { data: forms, isLoading } = useQuery({
     queryKey: ["forms", sourceApp],
@@ -22,10 +26,12 @@ export default function FormsPanel({ sourceApp, accent }) {
 
   const openNew = () => { setEditing(null); setMode("build"); };
   const openEdit = (f) => { setEditing(f); setMode("build"); };
-  const afterSave = () => {
+  const openSubmissions = (f) => { setViewForm(f); setMode("submissions"); };
+  const afterSave = (saved) => {
     qc.invalidateQueries({ queryKey: ["forms", sourceApp] });
     setMode("list");
     setEditing(null);
+    return saved;
   };
 
   if (mode === "build") {
@@ -36,9 +42,13 @@ export default function FormsPanel({ sourceApp, accent }) {
         existing={editing}
         onBack={() => { setMode("list"); setEditing(null); }}
         onSaved={afterSave}
-        onSaveAndSend={afterSave}
+        onSaveAndSend={async (saved) => { afterSave(saved); setSendForm(saved); }}
       />
     );
+  }
+
+  if (mode === "submissions" && viewForm) {
+    return <SubmissionsPanel form={viewForm} accent={accent} onBack={() => { setMode("list"); setViewForm(null); }} />;
   }
 
   return (
@@ -73,25 +83,55 @@ export default function FormsPanel({ sourceApp, accent }) {
           </div>
         ) : (
           forms.map((f) => (
-            <button
+            <div
               key={f.id}
-              onClick={() => openEdit(f)}
-              className="w-full text-left rounded-2xl bg-white/60 dark:bg-white/5 border border-white/60 dark:border-white/10 p-3 hover:bg-white/80 dark:hover:bg-white/10 transition-colors flex items-center gap-3"
+              className="w-full rounded-2xl bg-white/60 dark:bg-white/5 border border-white/60 dark:border-white/10 p-3 hover:bg-white/80 dark:hover:bg-white/10 transition-colors flex items-center gap-3"
             >
-              <div className="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${accent}1a`, color: accent }}>
-                <FileText className="w-4.5 h-4.5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-pink-900 dark:text-white truncate">{f.name}</div>
-                <div className="text-[11px] text-pink-900/50 dark:text-white/50">
-                  {(f.fields || []).length} field{(f.fields || []).length === 1 ? "" : "s"} · {f.status === "active" ? "Sent" : "Draft"}
+              <button onClick={() => openEdit(f)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+                <div className="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${accent}1a`, color: accent }}>
+                  <FileText className="w-4.5 h-4.5" />
                 </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-pink-900 dark:text-white truncate">{f.name}</div>
+                  <div className="text-[11px] text-pink-900/50 dark:text-white/50">
+                    {(f.fields || []).length} field{(f.fields || []).length === 1 ? "" : "s"} · {f.status === "active" ? "Sent" : "Draft"}
+                  </div>
+                </div>
+              </button>
+              <div className="flex items-center gap-1 shrink-0">
+                {f.status === "active" && (
+                  <button
+                    onClick={() => openSubmissions(f)}
+                    title="View submissions"
+                    className="p-2 rounded-lg text-pink-900/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/10"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                  </button>
+                )}
+                <button
+                  onClick={() => setSendForm(f)}
+                  disabled={!(f.fields || []).length}
+                  title="Send to recipients"
+                  className="p-2 rounded-lg text-white disabled:opacity-40"
+                  style={{ backgroundColor: accent }}
+                >
+                  <Send className="w-4 h-4" />
+                </button>
               </div>
-              <ChevronRight className="w-4 h-4 text-pink-900/30 dark:text-white/30 shrink-0" />
-            </button>
+            </div>
           ))
         )}
       </div>
+
+      {sendForm && (
+        <RecipientsModal
+          form={sendForm}
+          accent={accent}
+          open={!!sendForm}
+          onOpenChange={(o) => { if (!o) setSendForm(null); }}
+          onSent={() => qc.invalidateQueries({ queryKey: ["forms", sourceApp] })}
+        />
+      )}
     </div>
   );
 }
