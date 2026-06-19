@@ -28,7 +28,7 @@ export default function BugEmailThread({ bug, onPreview, onOpenReport }) {
       <div className="flex justify-end">
         <button
           onClick={() => onOpenReport?.()}
-          className="group max-w-[75%] text-left rounded-2xl rounded-br-sm px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm bg-amber-200/80 dark:bg-amber-400/20 border border-amber-300/60 dark:border-amber-300/25 text-amber-950 dark:text-amber-50"
+          className="group max-w-[75%] text-left rounded-2xl rounded-br-sm px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm bg-[#7d2235]/90 dark:bg-[#7d2235]/70 border border-[#7d2235]/60 dark:border-[#7d2235]/40 text-white"
         >
           <div className="flex items-center gap-1.5 text-[10px] mb-0.5 opacity-70">
             <span className="font-medium truncate">{bug.reported_by_name || "Reporter"}</span>
@@ -53,8 +53,8 @@ export default function BugEmailThread({ bug, onPreview, onOpenReport }) {
               onClick={() => onPreview?.(m)}
               className={`group max-w-[75%] text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${
                 outbound
-                  ? "bg-amber-200/80 dark:bg-amber-400/20 border border-amber-300/60 dark:border-amber-300/25 text-amber-950 dark:text-amber-50 rounded-br-sm"
-                  : "bg-white/85 dark:bg-white/10 border border-white/70 dark:border-white/15 text-orange-950 dark:text-white rounded-bl-sm"
+                  ? "bg-[#7d2235]/90 dark:bg-[#7d2235]/70 border border-[#7d2235]/60 dark:border-[#7d2235]/40 text-white rounded-br-sm"
+                  : "bg-white/85 dark:bg-white/10 border border-white/70 dark:border-white/15 text-[#7d2235] dark:text-white rounded-bl-sm"
               }`}
             >
               <div className="flex items-center gap-1.5 text-[10px] mb-0.5 opacity-70">

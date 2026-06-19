@@ -23,17 +23,17 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/50 dark:border-white/10 shrink-0">
         {onBack && (
           <button onClick={onBack} className="md:hidden p-1.5 -ml-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-orange-700 dark:text-white/80" />
+            <ArrowLeft className="w-5 h-5 text-[#7d2235] dark:text-white/80" />
           </button>
         )}
-        <div className="w-9 h-9 shrink-0 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center text-orange-600 dark:text-orange-300">
+        <div className="w-9 h-9 shrink-0 rounded-full bg-[#7d2235]/10 dark:bg-[#7d2235]/30 flex items-center justify-center text-[#7d2235] dark:text-rose-200">
           <LifeBuoy className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-bold text-pink-900 dark:text-white truncate">{bug.title || "Bug report"}</span>
             {bug.bug_number != null && (
-              <span className="shrink-0 text-[11px] font-bold text-orange-500 dark:text-orange-300">
+              <span className="shrink-0 text-[11px] font-bold text-[#7d2235] dark:text-rose-300">
                 B{Math.round(bug.bug_number)}
               </span>
             )}

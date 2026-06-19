@@ -84,26 +84,26 @@ export default function BugComposer({ bug, currentUser, onSent }) {
 
   return (
     <div className="rounded-2xl p-3 flex-shrink-0 bg-white/70 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 shadow-sm">
-      <p className="text-xs text-orange-700/70 dark:text-white/60 mb-2">
-        To: <span className="font-semibold text-orange-900 dark:text-white">{bug.escalated_to || "escalation"}</span>
+      <p className="text-xs text-[#7d2235]/70 dark:text-white/60 mb-2">
+        To: <span className="font-semibold text-[#7d2235] dark:text-white">{bug.escalated_to || "escalation"}</span>
       </p>
 
       <div className="flex items-center gap-2 mb-2">
-        <label className="text-xs text-orange-700/70 dark:text-white/60 shrink-0">Sender name</label>
+        <label className="text-xs text-[#7d2235]/70 dark:text-white/60 shrink-0">Sender name</label>
         <input
           value={senderName}
           onChange={(e) => setSenderName(e.target.value)}
           placeholder="Your name"
-          className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-orange-200/50 dark:border-white/15 text-orange-950 dark:text-white placeholder:text-orange-300 dark:placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-orange-400"
+          className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-[#7d2235]/20 dark:border-white/15 text-[#7d2235] dark:text-white placeholder:text-[#7d2235]/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[#7d2235]/50"
         />
       </div>
 
-      <div className="flex items-center gap-1 pb-2 mb-2 border-b border-orange-100/60 dark:border-white/10">
-        <button onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-orange-50 dark:hover:bg-white/10" title="Bold"><Bold className="w-3.5 h-3.5 text-orange-900/70 dark:text-white/70" /></button>
-        <button onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-orange-50 dark:hover:bg-white/10" title="Italic"><Italic className="w-3.5 h-3.5 text-orange-900/70 dark:text-white/70" /></button>
-        <button onClick={() => exec("insertUnorderedList")} className="p-1.5 rounded hover:bg-orange-50 dark:hover:bg-white/10" title="Bullet list"><List className="w-3.5 h-3.5 text-orange-900/70 dark:text-white/70" /></button>
-        <button onClick={handleLink} className="p-1.5 rounded hover:bg-orange-50 dark:hover:bg-white/10" title="Insert link"><LinkIcon className="w-3.5 h-3.5 text-orange-900/70 dark:text-white/70" /></button>
-        <button onClick={() => fileRef.current?.click()} className="p-1.5 rounded hover:bg-orange-50 dark:hover:bg-white/10" title="Attach files"><Paperclip className="w-3.5 h-3.5 text-orange-900/70 dark:text-white/70" /></button>
+      <div className="flex items-center gap-1 pb-2 mb-2 border-b border-[#7d2235]/15 dark:border-white/10">
+        <button onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-[#7d2235]/10 dark:hover:bg-white/10" title="Bold"><Bold className="w-3.5 h-3.5 text-[#7d2235]/70 dark:text-white/70" /></button>
+        <button onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-[#7d2235]/10 dark:hover:bg-white/10" title="Italic"><Italic className="w-3.5 h-3.5 text-[#7d2235]/70 dark:text-white/70" /></button>
+        <button onClick={() => exec("insertUnorderedList")} className="p-1.5 rounded hover:bg-[#7d2235]/10 dark:hover:bg-white/10" title="Bullet list"><List className="w-3.5 h-3.5 text-[#7d2235]/70 dark:text-white/70" /></button>
+        <button onClick={handleLink} className="p-1.5 rounded hover:bg-[#7d2235]/10 dark:hover:bg-white/10" title="Insert link"><LinkIcon className="w-3.5 h-3.5 text-[#7d2235]/70 dark:text-white/70" /></button>
+        <button onClick={() => fileRef.current?.click()} className="p-1.5 rounded hover:bg-[#7d2235]/10 dark:hover:bg-white/10" title="Attach files"><Paperclip className="w-3.5 h-3.5 text-[#7d2235]/70 dark:text-white/70" /></button>
         <input ref={fileRef} type="file" multiple onChange={handleFiles} className="hidden" />
       </div>
 
@@ -113,16 +113,16 @@ export default function BugComposer({ bug, currentUser, onSent }) {
           {attachments.map((a) => (
             <div key={a.url} className="relative group">
               {isImg(a.type, a.name) ? (
-                <img src={a.url} alt={a.name} className="w-14 h-14 rounded-lg object-cover border border-orange-200/60 dark:border-white/15" />
+                <img src={a.url} alt={a.name} className="w-14 h-14 rounded-lg object-cover border border-[#7d2235]/20 dark:border-white/15" />
               ) : (
-                <div className="w-14 h-14 rounded-lg flex flex-col items-center justify-center gap-1 bg-orange-50 dark:bg-orange-500/15 border border-orange-200/60 dark:border-white/15 text-orange-600 dark:text-orange-200 px-1">
+                <div className="w-14 h-14 rounded-lg flex flex-col items-center justify-center gap-1 bg-[#7d2235]/10 dark:bg-[#7d2235]/20 border border-[#7d2235]/20 dark:border-white/15 text-[#7d2235] dark:text-rose-200 px-1">
                   <Paperclip className="w-4 h-4" />
                   <span className="text-[8px] leading-tight truncate w-full text-center">{a.name}</span>
                 </div>
               )}
               <button
                 onClick={() => removeAttachment(a.url)}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-orange-600 text-white flex items-center justify-center shadow hover:bg-orange-700"
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#7d2235] text-white flex items-center justify-center shadow hover:bg-[#651c2b]"
                 title="Remove"
               >
                 <X className="w-3 h-3" />
@@ -130,8 +130,8 @@ export default function BugComposer({ bug, currentUser, onSent }) {
             </div>
           ))}
           {uploading && (
-            <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-orange-50 dark:bg-orange-500/15 border border-orange-200/60 dark:border-white/15">
-              <Loader className="w-4 h-4 animate-spin text-orange-500" />
+            <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-[#7d2235]/10 dark:bg-[#7d2235]/20 border border-[#7d2235]/20 dark:border-white/15">
+              <Loader className="w-4 h-4 animate-spin text-[#7d2235]" />
             </div>
           )}
         </div>
@@ -143,7 +143,7 @@ export default function BugComposer({ bug, currentUser, onSent }) {
         suppressContentEditableWarning
         onInput={() => setEmpty(isEmpty(editorRef.current?.innerHTML))}
         data-placeholder="Reply to this escalation…"
-        className="prose prose-sm max-w-none focus:outline-none px-3 py-2 rounded-lg empty:before:content-[attr(data-placeholder)] empty:before:text-orange-300 dark:empty:before:text-white/40 bg-white dark:bg-neutral-900 border border-orange-200/50 dark:border-white/15 text-orange-950 dark:text-white"
+        className="prose prose-sm max-w-none focus:outline-none px-3 py-2 rounded-lg empty:before:content-[attr(data-placeholder)] empty:before:text-[#7d2235]/40 dark:empty:before:text-white/40 bg-white dark:bg-neutral-900 border border-[#7d2235]/20 dark:border-white/15 text-[#7d2235] dark:text-white"
         style={{ minHeight: 70, maxHeight: 220, overflowY: "auto", fontSize: "14px" }}
       />
 
@@ -153,7 +153,7 @@ export default function BugComposer({ bug, currentUser, onSent }) {
         <button
           onClick={handleSend}
           disabled={sending || empty || uploading}
-          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md"
+          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 bg-gradient-to-r from-[#7d2235] to-[#9c2f45] hover:from-[#651c2b] hover:to-[#7d2235] shadow-md"
         >
           {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
           {sending ? "Sending…" : "Send Reply"}
