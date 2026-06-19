@@ -60,6 +60,15 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
   const { dark, toggle } = useTheme();
   const accent = ((bugMode ? VIEW_THEME.bugs : VIEW_THEME[view]) || VIEW_THEME.events).accent;
   const logoTitle = bugMode ? "PiP Bugs" : (LOGO_TITLES[view] || "PiP Inbox");
+  // Two-letter initials from the name (e.g. "Sahil Khanna" -> "SK").
+  const initials = (() => {
+    const name = (currentUser?.full_name || "").trim();
+    if (name) {
+      const parts = name.split(/\s+/);
+      return ((parts[0]?.[0] || "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+    }
+    return (currentUser?.email || "?").slice(0, 2).toUpperCase();
+  })();
   return (
     <>
     <header className="safe-top shrink-0 px-2 md:px-4 pt-7 pb-0.5 min-h-[62px] flex items-center gap-1.5 md:gap-4 bg-white/30 dark:bg-black/30 backdrop-blur-xl border-b border-white/40 dark:border-white/10">
@@ -119,7 +128,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
               className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm ml-1 hover:opacity-90 transition-opacity"
               style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
             >
-              {(currentUser?.full_name || currentUser?.email || "?").slice(0, 1).toUpperCase()}
+              {initials}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
