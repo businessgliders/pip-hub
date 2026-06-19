@@ -140,7 +140,7 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
                 </span>
               )}
             </span>
-            <span className="text-center leading-tight">Report Bug</span>
+            <span className="text-center leading-tight">Bugs</span>
           </button>
         )}
       </div>
