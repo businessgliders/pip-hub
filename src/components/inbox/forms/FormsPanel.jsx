@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Plus, FileText, Loader2, ChevronRight, Send, BarChart3 } from "lucide-react";
+import { Plus, FileText, Loader2, ChevronRight, Send, BarChart3, Copy, Lock } from "lucide-react";
 import { SOURCE_META } from "@/components/inbox/inboxConfig";
 import FormBuilder from "./FormBuilder";
 import RecipientsModal from "./RecipientsModal";
@@ -16,17 +16,48 @@ export default function FormsPanel({ sourceApp, accent }) {
   const [sendForm, setSendForm] = useState(null); // form being sent (modal)
   const [viewForm, setViewForm] = useState(null); // form whose submissions are shown
 
+  const [duplicatingId, setDuplicatingId] = useState(null);
+
   const { data: forms, isLoading } = useQuery({
     queryKey: ["forms", sourceApp],
     queryFn: () => base44.entities.FormDefinition.filter({ source_app: sourceApp }, "-created_date", 200),
     initialData: [],
   });
 
+  // Submission counts per form — used to lock forms that already have responses.
+  const { data: subCounts } = useQuery({
+    queryKey: ["form-sub-counts", sourceApp, forms.map((f) => f.id).join(",")],
+    enabled: forms.length > 0,
+    queryFn: async () => {
+      const subs = await base44.entities.FormSubmission.filter(
+        { form_id: { $in: forms.map((f) => f.id) } }, "-submitted_date", 1000
+      );
+      return subs.reduce((acc, s) => { acc[s.form_id] = (acc[s.form_id] || 0) + 1; return acc; }, {});
+    },
+    initialData: {},
+  });
+
   const inboxLabel = SOURCE_META[sourceApp]?.label || sourceApp;
 
   const openNew = () => { setEditing(null); setMode("build"); };
-  const openEdit = (f) => { setEditing(f); setMode("build"); };
+  const openEdit = (f) => { setEditing({ ...f, submissionCount: subCounts[f.id] || 0 }); setMode("build"); };
   const openSubmissions = (f) => { setViewForm(f); setMode("submissions"); };
+
+  const duplicateForm = async (f) => {
+    setDuplicatingId(f.id);
+    try {
+      await base44.entities.FormDefinition.create({
+        source_app: f.source_app,
+        name: `${f.name} (Copy)`,
+        description: f.description || "",
+        fields: f.fields || [],
+        status: "draft",
+      });
+      qc.invalidateQueries({ queryKey: ["forms", sourceApp] });
+    } finally {
+      setDuplicatingId(null);
+    }
+  };
   const afterSave = (saved) => {
     qc.invalidateQueries({ queryKey: ["forms", sourceApp] });
     setMode("list");
@@ -92,13 +123,25 @@ export default function FormsPanel({ sourceApp, accent }) {
                   <FileText className="w-4.5 h-4.5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-pink-900 dark:text-white truncate">{f.name}</div>
+                  <div className="font-semibold text-pink-900 dark:text-white truncate flex items-center gap-1.5">
+                    {f.name}
+                    {(subCounts[f.id] || 0) > 0 && <Lock className="w-3 h-3 shrink-0 text-pink-900/40 dark:text-white/40" />}
+                  </div>
                   <div className="text-[11px] text-pink-900/50 dark:text-white/50">
                     {(f.fields || []).length} field{(f.fields || []).length === 1 ? "" : "s"} · {f.status === "active" ? "Sent" : "Draft"}
+                    {(subCounts[f.id] || 0) > 0 && ` · ${subCounts[f.id]} response${subCounts[f.id] === 1 ? "" : "s"}`}
                   </div>
                 </div>
               </button>
               <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => duplicateForm(f)}
+                  disabled={duplicatingId === f.id}
+                  title="Duplicate form"
+                  className="rounded-lg text-pink-900/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/10 p-2"
+                >
+                  {duplicatingId === f.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+                </button>
                 {f.status === "active" && (
                   <button
                     onClick={() => openSubmissions(f)}

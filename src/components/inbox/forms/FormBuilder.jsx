@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Sparkles, ImagePlus, Plus, Loader2, X, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, Sparkles, ImagePlus, Plus, Loader2, X, ChevronDown, ChevronRight, Lock, Unlock } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +24,11 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
   // Collapse the Form Name + Describe area once fields exist, to give the
   // field editor more height. User can expand it again.
   const [setupCollapsed, setSetupCollapsed] = useState(false);
+  // Lock editing when the form already has submissions, to protect data
+  // integrity. The user can explicitly unlock to override.
+  const hasSubmissions = (existing?.submissionCount || 0) > 0;
+  const [unlocked, setUnlocked] = useState(false);
+  const locked = hasSubmissions && !unlocked;
 
   // Animate a fake progress bar while generating (the LLM call takes time).
   useEffect(() => {
@@ -124,6 +129,26 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
         {/* Left column: editor + footer actions */}
         <div className="flex-1 min-w-0 flex flex-col overflow-hidden lg:border-r lg:border-white/40 lg:dark:border-white/10">
         <div className="flex-1 min-w-0 overflow-y-auto ios-scroll p-4 space-y-4">
+        {/* Locked banner — form has submissions */}
+        {hasSubmissions && (
+          <div className="rounded-xl border px-3 py-2.5 flex items-center gap-2.5" style={{ borderColor: `${accent}40`, backgroundColor: `${accent}0f` }}>
+            {locked ? <Lock className="w-4 h-4 shrink-0" style={{ color: accent }} /> : <Unlock className="w-4 h-4 shrink-0" style={{ color: accent }} />}
+            <span className="flex-1 text-xs text-pink-900/80 dark:text-white/80">
+              {locked
+                ? `This form has ${existing.submissionCount} response${existing.submissionCount === 1 ? "" : "s"} and is locked to protect your data.`
+                : "Editing unlocked — changes may affect how existing responses line up."}
+            </span>
+            <button
+              onClick={() => setUnlocked((u) => !u)}
+              className="text-xs font-semibold shrink-0 px-2.5 py-1 rounded-lg text-white"
+              style={{ backgroundColor: accent }}
+            >
+              {locked ? "Unlock" : "Lock"}
+            </button>
+          </div>
+        )}
+
+        <fieldset disabled={locked} className={locked ? "opacity-60 pointer-events-none space-y-4" : "contents"}>
         {/* Name + describe — collapsible once fields exist */}
         {fields.length > 0 && setupCollapsed ? (
           <button
@@ -227,14 +252,15 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
             ))}
           </div>
         )}
+        </fieldset>
         </div>
 
         {/* Footer actions — under the left column only */}
         <div className="flex items-center gap-2 p-3 border-t border-white/40 dark:border-white/10 shrink-0">
-          <Button variant="outline" onClick={saveDraft} disabled={saving || !fields.length} className="flex-1 bg-white/60 dark:bg-white/5">
+          <Button variant="outline" onClick={saveDraft} disabled={saving || locked || !fields.length} className="flex-1 bg-white/60 dark:bg-white/5">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save draft"}
           </Button>
-          <Button onClick={saveAndSend} disabled={saving || !fields.length} className="flex-1 text-white" style={{ backgroundColor: accent }}>
+          <Button onClick={saveAndSend} disabled={saving || locked || !fields.length} className="flex-1 text-white" style={{ backgroundColor: accent }}>
             Save & Send
           </Button>
         </div>
