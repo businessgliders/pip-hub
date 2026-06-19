@@ -297,10 +297,12 @@ export default function Inbox() {
       } else if (SOURCE_META[view]) {
         // Team inbox: filter by source, then by status sub-tab
         if (t.source_app !== view) return false;
-        // "Me" = assigned to the current user (any status). "All" = every status.
+        // When searching, span ALL statuses within this inbox (ignore the status
+        // sub-tab) so a conversation is findable from any status. "Me" still
+        // scopes to the current user's assigned threads.
         if (subFilter === "me") {
           if ((t.assignee_email || "").toLowerCase() !== (myEmail || "").toLowerCase()) return false;
-        } else if (subFilter !== "all" && t.status !== subFilter) {
+        } else if (!q && subFilter !== "all" && t.status !== subFilter) {
           return false;
         }
         // Inquiry/event type filter (Support → inquiry_type, Events → event_type)

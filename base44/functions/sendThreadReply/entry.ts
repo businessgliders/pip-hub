@@ -19,6 +19,21 @@ const FROM_BY_SOURCE = {
   influencer: { name: 'Influencer @ Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com', tag: 'Application' },
 };
 
+// Build the default signature for the logged-in staff member.
+// info@ uses "Front Desk" as the first name; everyone else uses their first name.
+function firstNameForUser(user) {
+  const email = String(user?.email || '').toLowerCase();
+  if (email === 'info@pilatesinpinkstudio.com') return 'Front Desk';
+  const full = String(user?.full_name || '').trim();
+  if (full) return full.split(/\s+/)[0];
+  return String(user?.email || '').split('@')[0] || '';
+}
+
+function signatureHtml(user) {
+  const name = firstNameForUser(user);
+  return `<div><br></div><div>Best,</div><div>${name}</div><div>Pilates in Pink™</div>`;
+}
+
 function stripHtml(html) {
   return (html || '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
@@ -183,12 +198,15 @@ Deno.serve(async (req) => {
     const sender = FROM_BY_SOURCE[thread.source_app] || { name: user.full_name || user.email, email: user.email };
     const fromHeader = `${encodeHeader(sender.name)} <${sender.email}>`;
 
+    // Auto-append the logged-in user's signature to every outbound reply.
+    const finalHtml = `${body_html}${signatureHtml(user)}`;
+
     const mime = buildMime({
       to: thread.contact_email,
       from: fromHeader,
       subject,
-      htmlBody: body_html,
-      textBody: stripHtml(body_html),
+      htmlBody: finalHtml,
+      textBody: stripHtml(finalHtml),
       inReplyTo: lastRfcId,
       references,
       attachments: mimeAttachments,
@@ -235,7 +253,7 @@ Deno.serve(async (req) => {
       from_name: sender.name,
       to_email: thread.contact_email,
       subject,
-      body_html,
+      body_html: finalHtml,
       attachments: attachmentMeta,
       is_template: !!is_template,
       sent_by: user.email,

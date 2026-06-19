@@ -18,19 +18,6 @@ function isEditorEmpty(html) {
 
 const AUTOSAVE_INTERVAL_MS = 30 * 1000; // 30 seconds
 
-function firstNameFor(user) {
-  const email = (user?.email || '').toLowerCase();
-  if (email === 'info@pilatesinpinkstudio.com') return 'Front Desk';
-  const full = (user?.full_name || '').trim();
-  if (full) return full.split(/\s+/)[0];
-  return (user?.email || '').split('@')[0] || '';
-}
-
-function signatureHtml(user) {
-  const name = firstNameFor(user);
-  return `<div><br></div><div>Best,</div><div>${name}</div><div>Pilates in Pink™</div>`;
-}
-
 export default function EmailComposer({ thread, currentUser, onSent, onDirtyChange, saveDraftRef }) {
   const editorRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -70,16 +57,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
           '-updated_date',
           1
         );
-        if (cancelled) return;
-        if (!rows?.[0]) {
-          // No saved draft — pre-fill the signature for the logged-in user.
-          if (editorRef.current && isEditorEmpty(editorRef.current.innerHTML)) {
-            const html = signatureHtml(currentUser);
-            editorRef.current.innerHTML = html;
-            setEmpty(isEditorEmpty(html));
-          }
-          return;
-        }
+        if (cancelled || !rows?.[0]) return;
         const draft = rows[0];
         setDraftId(draft.id);
         if (draft.body_html && editorRef.current) {
@@ -299,7 +277,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
 
   const handleClear = () => {
     if (!isEditorEmpty(getEditorHtml()) && !window.confirm('Clear the draft?')) return;
-    setEditorHtml(signatureHtml(currentUser));
+    setEditorHtml('');
     setFromTemplate(false);
     setAttachments([]);
     clearDraftStorage();
