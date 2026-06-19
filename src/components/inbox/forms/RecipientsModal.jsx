@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Upload, Plus, Trash2, Loader2, Send, Users, RotateCw, Check } from "lucide-react";
+import { Upload, Plus, Trash2, Loader2, Send, Users, RotateCw, Check, Link2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { parseRecipientsCsv } from "./csvUtils";
+
+const PUBLIC_BASE = "https://events.pilatesinpinkstudio.com/form";
 
 // Collect recipients (manual rows + CSV upload) and send personalized invites
 // with unique form links via the sendFormInvites backend function.
@@ -22,6 +24,14 @@ export default function RecipientsModal({ form, accent, open, onOpenChange, onSe
   const [loadingSent, setLoadingSent] = useState(false);
   const [resendingId, setResendingId] = useState(null);
   const [resentIds, setResentIds] = useState([]);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const copyLink = (rec) => {
+    if (!rec.token) return;
+    navigator.clipboard.writeText(`${PUBLIC_BASE}?token=${rec.token}`);
+    setCopiedId(rec.id);
+    setTimeout(() => setCopiedId((id) => (id === rec.id ? null : id)), 1500);
+  };
 
   // Load previously-invited recipients for a sent form.
   useEffect(() => {
@@ -138,6 +148,14 @@ export default function RecipientsModal({ form, accent, open, onOpenChange, onSe
                           <div className="text-sm font-medium text-pink-900 dark:text-white truncate">{rec.name || rec.email}</div>
                           {rec.name && <div className="text-[11px] text-muted-foreground truncate">{rec.email}</div>}
                         </div>
+                        <button
+                          onClick={() => copyLink(rec)}
+                          disabled={!rec.token}
+                          title="Copy form link"
+                          className="p-1.5 rounded-lg text-muted-foreground hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-40"
+                        >
+                          {copiedId === rec.id ? <Check className="w-4 h-4 text-green-600" /> : <Link2 className="w-4 h-4" />}
+                        </button>
                         {resentIds.includes(rec.id) ? (
                           <span className="flex items-center gap-1 text-[11px] font-semibold text-green-600 pr-1.5">
                             <Check className="w-3.5 h-3.5" /> Sent
