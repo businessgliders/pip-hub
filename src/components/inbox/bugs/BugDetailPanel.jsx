@@ -9,7 +9,7 @@ import EmailPreviewModal from "../EmailPreviewModal";
 const URGENCY_TONE = {
   Critical: "bg-red-100 text-red-700 dark:bg-red-500/25 dark:text-red-200",
   High: "bg-orange-100 text-orange-700 dark:bg-orange-500/25 dark:text-orange-200",
-  Soon: "bg-amber-100 text-amber-700 dark:bg-amber-500/25 dark:text-amber-200",
+  Soon: "bg-[#7d2235]/10 text-[#7d2235] dark:bg-[#7d2235]/25 dark:text-rose-200",
   Low: "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-white/60",
 };
 
