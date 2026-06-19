@@ -61,7 +61,9 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
   const accent = ((bugMode ? VIEW_THEME.bugs : VIEW_THEME[view]) || VIEW_THEME.events).accent;
   const logoTitle = bugMode ? "PiP Bugs" : (LOGO_TITLES[view] || "PiP Inbox");
   // Two-letter initials from the name (e.g. "Sahil Khanna" -> "SK").
+  // The shared front-desk mailbox shows "FD" (Front Desk).
   const initials = (() => {
+    if ((currentUser?.email || "").toLowerCase() === "info@pilatesinpinkstudio.com") return "FD";
     const name = (currentUser?.full_name || "").trim();
     if (name) {
       const parts = name.split(/\s+/);
