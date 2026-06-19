@@ -4,7 +4,7 @@ import React from "react";
 // Mirrors the fields array in real-time as the editor changes.
 export default function FormPreview({ name, fields = [], accent }) {
   return (
-    <div className="relative rounded-2xl bg-white/80 dark:bg-zinc-900/70 border border-white/60 dark:border-white/10 shadow-sm p-5 space-y-4 opacity-80">
+    <div className="relative rounded-2xl bg-white/80 dark:bg-zinc-900/70 border border-white/60 dark:border-white/10 shadow-sm p-5 space-y-4 opacity-80 grayscale">
       {/* Diagonal PREVIEW watermark — keeps focus on the editor side */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden rounded-2xl">
         <span
