@@ -437,9 +437,17 @@ export default function Inbox() {
       note: `Escalated to ${assigneeName}`,
       timestamp: nowIso,
     };
+    const newHistory = [...(selectedThread.status_history || []), entry];
+    // Optimistically update the cache so the dropdown, "Assigned to" badge and
+    // Activity log all reflect the new assignee instantly (no reload needed).
+    qc.setQueryData(["threads"], (prev) =>
+      (prev || []).map((x) =>
+        x.id === selectedThread.id ? { ...x, assignee_email: email, status_history: newHistory } : x
+      )
+    );
     updateThread.mutate({
       id: selectedThread.id,
-      data: { assignee_email: email, status_history: [...(selectedThread.status_history || []), entry] },
+      data: { assignee_email: email, status_history: newHistory },
     });
 
     // Drop an internal "Escalation" email into the thread panel for visibility.
