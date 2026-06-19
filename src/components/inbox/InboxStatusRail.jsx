@@ -13,9 +13,12 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
       {mainTabs.map((t) => {
         const isActive = !archivedActive && active === t.key;
         const c = counts[t.key] || 0;
-        // On mobile, hide empty status tabs (count 0) unless it's the bug tab
-        // or the currently active tab. Always shown from tablet up.
-        const hideOnMobile = c === 0 && t.key !== "bug" && t.key !== "me" && t.key !== "all" && !isActive;
+        // The "Closed" status (support="closed", events="Closed") is always shown
+        // across all breakpoints, even when empty (just dimmed).
+        const isClosedTab = t.key === "closed" || t.key === "Closed";
+        // On mobile, hide empty status tabs (count 0) unless it's the bug tab,
+        // the closed tab, or the currently active tab. Always shown from tablet up.
+        const hideOnMobile = c === 0 && t.key !== "bug" && t.key !== "me" && t.key !== "all" && !isClosedTab && !isActive;
         // Block selecting an empty status tab — show a "No items" tooltip instead
         // of letting it load then jitter to the next non-empty status.
         const isStatusTab = t.key !== "bug" && t.key !== "me" && t.key !== "all";
