@@ -20,6 +20,9 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
         // of letting it load then jitter to the next non-empty status.
         const isStatusTab = t.key !== "bug" && t.key !== "me" && t.key !== "all";
         const isEmpty = isStatusTab && c === 0 && !isActive;
+        // Visually de-emphasize the "Closed" tab (Support/Influencer "closed",
+        // Events "Closed") across all three inboxes.
+        const isClosedTab = t.key === "closed" || t.key === "Closed";
         return (
           <button
             key={t.key}
@@ -27,7 +30,7 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
             disabled={isEmpty}
             title={isEmpty ? "No items" : t.label}
             style={isActive ? { background: accent, color: "#fff" } : undefined}
-            className={`relative w-14 ${hideOnMobile ? "hidden md:flex" : "flex"} flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
+            className={`relative w-14 ${hideOnMobile ? "hidden md:flex" : "flex"} ${isClosedTab && !isActive ? "opacity-50" : ""} flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
               isActive
                 ? "shadow-md"
                 : isEmpty
