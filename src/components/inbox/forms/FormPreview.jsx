@@ -56,12 +56,16 @@ function FieldPreview({ field, accent }) {
     return (
       <div>
         {labelEl}
-        <div className={`${inputClass} flex items-center justify-between`}>
-          <span className="text-pink-900/40 dark:text-white/30">
-            {options[0] || "Choose…"}
-          </span>
-          <span className="text-pink-900/40 dark:text-white/30">▾</span>
-        </div>
+        <select
+          defaultValue=""
+          className="w-full rounded-lg border border-pink-200/70 dark:border-white/15 bg-white/90 dark:bg-white/5 px-3 py-2 text-sm text-pink-900/80 dark:text-white/70 focus:outline-none focus:ring-2"
+          style={{ "--tw-ring-color": accent }}
+        >
+          <option value="" disabled>Choose…</option>
+          {options.map((o, i) => (
+            <option key={i} value={o}>{o}</option>
+          ))}
+        </select>
       </div>
     );
   }
