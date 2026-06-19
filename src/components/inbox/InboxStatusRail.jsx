@@ -1,5 +1,5 @@
 import React from "react";
-import { Archive, PartyPopper, BookText, LifeBuoy } from "lucide-react";
+import { Archive, PartyPopper, BookText, LifeBuoy, UserRound, Layers } from "lucide-react";
 
 // Vertical "side panel" rail of status tabs shown on the left of the thread list.
 // The count itself acts as the icon/glyph for each status tab.
@@ -15,7 +15,7 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
         const c = counts[t.key] || 0;
         // On mobile, hide empty status tabs (count 0) unless it's the bug tab
         // or the currently active tab. Always shown from tablet up.
-        const hideOnMobile = c === 0 && t.key !== "bug" && !isActive;
+        const hideOnMobile = c === 0 && t.key !== "bug" && t.key !== "me" && t.key !== "all" && !isActive;
         return (
           <button
             key={t.key}
@@ -33,6 +33,18 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
                 <LifeBuoy className="w-5 h-5" />
                 {c > 0 && (
                   <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
+                    {c}
+                  </span>
+                )}
+              </span>
+            ) : (t.key === "me" || t.key === "all") ? (
+              <span className="relative inline-flex items-center justify-center">
+                {t.key === "me" ? <UserRound className="w-5 h-5" /> : <Layers className="w-5 h-5" />}
+                {c > 0 && (
+                  <span
+                    className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 rounded-full text-white text-[9px] font-bold flex items-center justify-center"
+                    style={{ background: accent }}
+                  >
                     {c}
                   </span>
                 )}

@@ -204,14 +204,23 @@ export default function Inbox() {
 
   // Which sub-filter tabs to show in the conversation view.
   const isSourceView = !!SOURCE_META[view]; // team inbox
+  // Non-front-desk staff get a dedicated "Me" (assigned to me) tab + an "All" tab.
+  const isSpecialStaff = !!myEmail && myEmail.toLowerCase() !== "info@pilatesinpinkstudio.com";
   // Events use the EventLead pipeline stages; Influencer uses open/accepted/declined; others use the generic set.
   const statusOrder = statusOrderFor(view);
   const STATUS_TABS = statusOrder.map((s) => ({ key: s, label: ALL_STATUS_META[s].label }));
-  const activeTabs = isSourceView ? STATUS_TABS : SOURCE_TABS;
+  // For special staff, prepend "Me" + "All" ahead of the status pipeline tabs.
+  const teamTabs = isSpecialStaff
+    ? [{ key: "me", label: "Me" }, { key: "all", label: "All" }, ...STATUS_TABS]
+    : STATUS_TABS;
+  const activeTabs = isSourceView ? teamTabs : SOURCE_TABS;
 
   // Reset the sub-filter whenever the main view changes.
   // Team inboxes have no "All" status tab, so default to the first status.
-  useEffect(() => { setSubFilter(SOURCE_META[view] ? statusOrderFor(view)[0] : "all"); setInquiryType("all"); setSelected(null); setShowArchived(false); }, [view]);
+  useEffect(() => {
+    setSubFilter(SOURCE_META[view] ? (isSpecialStaff ? "me" : statusOrderFor(view)[0]) : "all");
+    setInquiryType("all"); setSelected(null); setShowArchived(false);
+  }, [view, isSpecialStaff]);
 
   // Events: default sort by event date for every status EXCEPT "New", which
   // defaults to submission date (newest first).
@@ -280,7 +289,12 @@ export default function Inbox() {
       } else if (SOURCE_META[view]) {
         // Team inbox: filter by source, then by status sub-tab
         if (t.source_app !== view) return false;
-        if (subFilter !== "all" && t.status !== subFilter) return false;
+        // "Me" = assigned to the current user (any status). "All" = every status.
+        if (subFilter === "me") {
+          if ((t.assignee_email || "").toLowerCase() !== (myEmail || "").toLowerCase()) return false;
+        } else if (subFilter !== "all" && t.status !== subFilter) {
+          return false;
+        }
         // Inquiry/event type filter (Support → inquiry_type, Events → event_type)
         if (view === "support" && inquiryType !== "all" && String(t.form_data?.inquiry_type || "") !== inquiryType) return false;
         if (view === "events" && inquiryType !== "all" && String(t.form_data?.event_type || t.form_data?.inquiry_type || "") !== inquiryType) return false;
@@ -297,7 +311,7 @@ export default function Inbox() {
         (t.subject || "").toLowerCase().includes(q)
       );
     });
-  }, [threads, view, subFilter, search, inquiryType, showArchived]);
+  }, [threads, view, subFilter, search, inquiryType, showArchived, myEmail]);
 
   // Events inbox: sort by event date (soonest first) when active, otherwise by
   // submission date (newest first). Other views keep the default activity order.
@@ -340,9 +354,11 @@ export default function Inbox() {
   const baseTitle = VIEW_TITLES[view] || SOURCE_META[view]?.label || "Inbox";
   // In a team inbox, show ONLY the selected status label (e.g. "Open", "Closed")
   // instead of the inbox name. Falls back to the inbox name when on "all".
-  const title = (isSourceView && subFilter !== "all" && ALL_STATUS_META[subFilter])
-    ? ALL_STATUS_META[subFilter].label
-    : baseTitle;
+  const title = subFilter === "me"
+    ? "Assigned to Me"
+    : (isSourceView && subFilter !== "all" && ALL_STATUS_META[subFilter])
+      ? ALL_STATUS_META[subFilter].label
+      : baseTitle;
 
   // Counts for the sub-filter tabs (based on current main view, ignoring sub-tab)
   const tabCounts = useMemo(() => {
@@ -354,17 +370,20 @@ export default function Inbox() {
     const c = { all: base.length };
     if (isSourceView) {
       statusOrder.forEach((s) => { c[s] = base.filter((t) => t.status === s).length; });
+      if (isSpecialStaff) {
+        c.me = base.filter((t) => (t.assignee_email || "").toLowerCase() === (myEmail || "").toLowerCase()).length;
+      }
     } else {
       ["support", "events", "influencer"].forEach((s) => { c[s] = base.filter((t) => t.source_app === s).length; });
     }
     return c;
-  }, [threads, view, isSourceView, statusOrder]);
+  }, [threads, view, isSourceView, statusOrder, isSpecialStaff, myEmail]);
 
   // When a team inbox status tab has 0 tickets, auto-advance to the next status
   // in the pipeline that actually has tickets (and its 1st ticket auto-selects).
   useEffect(() => {
     if (!isSourceView || showArchived || isLoading) return;
-    if (subFilter === "all") return;
+    if (subFilter === "all" || subFilter === "me") return;
     if ((tabCounts[subFilter] || 0) > 0) return;
     const idx = statusOrder.indexOf(subFilter);
     if (idx === -1) return;
