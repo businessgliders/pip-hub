@@ -36,17 +36,6 @@ export default function InboxMoreSheet({ user, onClose, onTerms }) {
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 rounded-full bg-gray-300" />
         </div>
-        {user && (
-          <div className="px-5 pb-2 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#f1889b] to-[#f7b1bd] flex items-center justify-center text-xs font-bold text-white">
-              {getInitials(user.full_name)}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{user.full_name || "Account"}</p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
-            </div>
-          </div>
-        )}
         <div className="px-4 pb-2">
           <Row icon={dark ? Sun : Moon} label={dark ? "Light Mode" : "Dark Mode"} onClick={toggle} />
           {onTerms && (
