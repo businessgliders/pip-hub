@@ -82,8 +82,10 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
             title={isResolved ? "Reopen" : "Mark as resolved"}
             className="flex items-center gap-1.5 px-2 lg:px-3 py-2 rounded-full text-white bg-pink-950/90 hover:bg-pink-950 transition-colors shadow-sm text-xs font-semibold whitespace-nowrap"
           >
-            {isResolved ? <RotateCcw className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
-            <span className="hidden lg:inline">{isResolved ? "Reopen" : "Mark as resolved"}</span>
+            {isResolved ? <RotateCcw className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
+            {/* Full label on wide screens, shortened on tighter desktop widths, icon-only on tablet/mobile */}
+            <span className="hidden xl:inline">{isResolved ? "Reopen" : "Mark as resolved"}</span>
+            <span className="hidden lg:inline xl:hidden">{isResolved ? "Reopen" : "Resolve"}</span>
           </button>
         )}
 
