@@ -9,7 +9,10 @@ const FROM_BY_SOURCE = {
   influencer: { name: 'Influencer @ Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com' },
 };
 
-const PUBLIC_BASE = 'https://apps.pilatesinpinkstudio.com/form';
+// Public form-fill page is hosted on the PUBLIC pip-events app (events.pilatesinpinkstudio.com),
+// so recipients are never bounced to a login page. The page there calls this
+// hub's getPublicForm / submitPublicForm functions to load & save responses.
+const PUBLIC_BASE = 'https://events.pilatesinpinkstudio.com/form';
 
 function token() {
   return crypto.randomUUID().replace(/-/g, '').slice(0, 24);

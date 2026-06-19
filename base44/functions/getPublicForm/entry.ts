@@ -1,19 +1,30 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// CORS — this is called cross-origin from the public pip-events app
+// (events.pilatesinpinkstudio.com) where the public form page is hosted.
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 // Public: fetch a form definition by a recipient token. No auth required —
 // the token itself is the access credential. Returns only what the filler needs.
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS });
+  }
   try {
     const base44 = createClientFromRequest(req);
     const { token } = await req.json();
-    if (!token) return Response.json({ error: 'Missing token' }, { status: 400 });
+    if (!token) return Response.json({ error: 'Missing token' }, { status: 400, headers: CORS });
 
     const recs = await base44.asServiceRole.entities.FormRecipient.filter({ token });
     const rec = recs?.[0];
-    if (!rec) return Response.json({ error: 'invalid_token' }, { status: 404 });
+    if (!rec) return Response.json({ error: 'invalid_token' }, { status: 404, headers: CORS });
 
     const form = await base44.asServiceRole.entities.FormDefinition.get(rec.form_id);
-    if (!form) return Response.json({ error: 'form_not_found' }, { status: 404 });
+    if (!form) return Response.json({ error: 'form_not_found' }, { status: 404, headers: CORS });
 
     return Response.json({
       ok: true,
@@ -25,8 +36,8 @@ Deno.serve(async (req) => {
         source_app: form.source_app,
         fields: form.fields || [],
       },
-    });
+    }, { headers: CORS });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500, headers: CORS });
   }
 });
