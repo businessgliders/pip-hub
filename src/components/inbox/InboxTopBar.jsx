@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LifeBuoy, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft, BookText } from "lucide-react";
+import { LifeBuoy, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft, HelpCircle } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png";
@@ -119,10 +119,10 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         {onTerms && (
           <button
             onClick={onTerms}
-            title="Terms Assistant"
+            title="Help"
             className="hidden md:block p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
           >
-            <BookText className="w-5 h-5" />
+            <HelpCircle className="w-5 h-5" />
           </button>
         )}
         <button

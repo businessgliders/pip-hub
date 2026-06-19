@@ -1,6 +1,6 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { Moon, Sun, Users, LogOut, BookText } from "lucide-react";
+import { Moon, Sun, Users, LogOut, HelpCircle } from "lucide-react";
 import { useTheme } from "@/lib/ThemeContext";
 import useBodyScrollLock from "@/hooks/useBodyScrollLock";
 
@@ -50,7 +50,7 @@ export default function InboxMoreSheet({ user, onClose, onTerms }) {
         <div className="px-4 pb-2">
           <Row icon={dark ? Sun : Moon} label={dark ? "Light Mode" : "Dark Mode"} onClick={toggle} />
           {onTerms && (
-            <Row icon={BookText} label="Terms Assistant" onClick={() => { onClose?.(); onTerms(); }} />
+            <Row icon={HelpCircle} label="Terms Assistant" onClick={() => { onClose?.(); onTerms(); }} />
           )}
         </div>
       </div>

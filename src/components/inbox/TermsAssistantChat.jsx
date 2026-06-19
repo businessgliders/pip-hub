@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
-import { BookText, X, Send, Loader2, BookOpen } from "lucide-react";
+import { HelpCircle, X, Send, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -57,7 +57,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
           className="fixed bottom-20 lg:bottom-5 right-[84px] z-50 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-transform"
           style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}
         >
-          <BookText className="w-6 h-6" />
+          <HelpCircle className="w-6 h-6" />
         </button>
       )}
 
@@ -66,7 +66,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
         <div className="fixed bottom-20 lg:bottom-5 right-5 z-50 w-[min(92vw,380px)] h-[min(70vh,560px)] lg:h-[min(80vh,560px)] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900">
           {/* Header */}
           <div className="px-4 py-3 flex items-center gap-2.5 text-white" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}>
-            <BookText className="w-5 h-5" />
+            <HelpCircle className="w-5 h-5" />
             <div className="flex-1">
               <p className="text-sm font-semibold leading-tight">Terms Assistant</p>
               <p className="text-[11px] opacity-80 leading-tight">Answers from the live Terms page</p>
@@ -81,7 +81,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
             {messages.length === 0 && (
               <div className="space-y-3">
                 <div className="flex flex-col items-center text-center py-5 text-muted-foreground">
-                  <BookOpen className="w-8 h-8 mb-2 opacity-50" />
+                  <HelpCircle className="w-8 h-8 mb-2 opacity-50" />
                   <p className="text-sm">Quick answers about Pilates in Pink policies.</p>
                 </div>
                 <div className="space-y-1.5">
