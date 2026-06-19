@@ -16,6 +16,14 @@ export default function AssigneePanel({ thread, staff = [], onAssign, accent }) 
   const picked = pending || (assignee ? { email: assignee.email, full_name: assignee.full_name } : null);
   const isNewPick = pending && pending.email !== thread.assignee_email;
 
+  // Format as "First L." (first name + last-name initial).
+  const shortName = (full = "") => {
+    const parts = String(full).trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return "";
+    if (parts.length === 1) return parts[0];
+    return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+  };
+
   const handleConfirm = async () => {
     if (!isNewPick) return;
     setConfirming(true);
@@ -62,6 +70,15 @@ export default function AssigneePanel({ thread, staff = [], onAssign, accent }) 
           {confirming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
         </button>
       </div>
+
+      {/* Currently assigned-to pill */}
+      {assignee && (
+        <div className="mt-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/60 dark:bg-white/10 border border-white/60 dark:border-white/15">
+          <span className="text-[10px] font-semibold uppercase tracking-wide opacity-60 dark:text-white/60">Assigned to</span>
+          <Avatar name={assignee.full_name} email={assignee.email} photoUrl={assignee.photo_url} size="sm" />
+          <span className="text-xs font-medium dark:text-white/85" style={{ color: accent }}>{shortName(assignee.full_name)}</span>
+        </div>
+      )}
 
       {/* Confirmation notice that the escalated person was notified. */}
       {confirmed && (

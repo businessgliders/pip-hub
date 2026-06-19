@@ -13,11 +13,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Manual display-name overrides for shared mailboxes.
+    const NAME_OVERRIDES = { 'info@pilatesinpinkstudio.com': 'Front Desk' };
+
     const allUsers = await base44.asServiceRole.entities.User.list();
     const staff = allUsers.map((u) => ({
       id: u.id,
       email: u.email,
-      full_name: u.full_name || u.email,
+      full_name: NAME_OVERRIDES[String(u.email || '').toLowerCase()] || u.full_name || u.email,
       photo_url: u.photo_url || u.avatar_url || null,
     }));
 
