@@ -317,9 +317,12 @@ export default function Inbox() {
     return [...filtered].sort((a, b) => submitTime(b) - submitTime(a));
   }, [filtered, view, sortByEventDate, showArchived]);
 
-  // Auto-select the first available conversation when nothing is selected.
+  // Auto-select the first available conversation when nothing is selected OR
+  // when the current selection has dropped out of the filtered list (e.g. after
+  // switching to a status that previously had 0 items in this tab).
   useEffect(() => {
-    if (!selected && sortedFiltered.length > 0) {
+    const stillVisible = selected && sortedFiltered.some((t) => t.id === selected.id);
+    if (!stillVisible && sortedFiltered.length > 0) {
       const params = new URLSearchParams(window.location.search);
       if (!params.get("thread")) {
         // Auto-select the first thread, but only auto-OPEN the panel on desktop.
@@ -328,6 +331,9 @@ export default function Inbox() {
         const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
         handleSelect(sortedFiltered[0], { open: isDesktop });
       }
+    } else if (selected && sortedFiltered.length === 0) {
+      // Empty status: clear the stale selection so the panel shows empty state.
+      setSelected(null);
     }
   }, [sortedFiltered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
