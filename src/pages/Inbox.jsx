@@ -612,7 +612,7 @@ export default function Inbox() {
         {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
           className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
-          style={{ width: bugMode && selectedBug ? 440 : (selectedThread || (bugMode && selectedBug)) ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
+          style={{ width: (selectedThread || (bugMode && selectedBug)) ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
         >
           {/* Vertical status rail (side panels) */}
           {bugMode ? (
