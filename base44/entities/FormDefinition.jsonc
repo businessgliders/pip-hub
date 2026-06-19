@@ -1,0 +1,100 @@
+{
+  "name": "FormDefinition",
+  "type": "object",
+  "properties": {
+    "source_app": {
+      "type": "string",
+      "enum": [
+        "support",
+        "events",
+        "influencer"
+      ],
+      "description": "Which inbox this form belongs to"
+    },
+    "name": {
+      "type": "string",
+      "description": "Form name / title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Natural-language description used to generate the form"
+    },
+    "fields": {
+      "type": "array",
+      "description": "Form fields",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "textarea",
+              "email",
+              "phone",
+              "number",
+              "date",
+              "time",
+              "select",
+              "checkbox"
+            ],
+            "default": "text"
+          },
+          "required": {
+            "type": "boolean",
+            "default": false
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Choices for select/checkbox fields"
+          }
+        }
+      },
+      "default": []
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active"
+      ],
+      "default": "draft",
+      "description": "draft = not yet sent; active = sent to recipients"
+    }
+  },
+  "required": [
+    "source_app",
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

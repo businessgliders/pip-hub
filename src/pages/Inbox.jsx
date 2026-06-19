@@ -20,6 +20,7 @@ import BugReportChat from "@/components/inbox/BugReportChat";
 import BugList from "@/components/inbox/bugs/BugList";
 import BugDetailPanel from "@/components/inbox/bugs/BugDetailPanel";
 import BugSidePanel from "@/components/inbox/bugs/BugSidePanel";
+import FormsPanel from "@/components/inbox/forms/FormsPanel";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
@@ -72,6 +73,8 @@ export default function Inbox() {
   const [selectedBug, setSelectedBug] = useState(null);
   // Active bug-status filter for the rail when the Bugs view is open.
   const [bugStatus, setBugStatus] = useState("New");
+  // Forms workspace replaces the thread list in-place when open.
+  const [formsOpen, setFormsOpen] = useState(false);
   const centerRef = useRef(null);
 
   // Bugs view is active when the Support inbox "bug" sub-filter is selected.
@@ -224,6 +227,7 @@ export default function Inbox() {
   useEffect(() => {
     setSubFilter(SOURCE_META[view] ? (isSpecialStaff ? "me" : statusOrderFor(view)[0]) : "all");
     setInquiryType("all"); setReplyFilter("all"); setSelected(null); setShowArchived(false);
+    setFormsOpen(false);
   }, [view, isSpecialStaff]);
 
   // Events: default sort by event date for every status EXCEPT "New", which
@@ -581,10 +585,12 @@ export default function Inbox() {
     (view === "events" ? subFilter === "New" : subFilter === "open");
   const newUrl = isOpenView ? NEW_SUBMISSION_URLS[view] : undefined;
 
-  // Forms button (status rail): open the current inbox's public submission form.
+  // Forms button (status rail): open the in-place Forms workspace for this inbox.
   const openForm = () => {
-    const url = NEW_SUBMISSION_URLS[view];
-    if (url) window.open(url, "_blank", "noopener");
+    if (!SOURCE_META[view]) return;
+    setShowArchived(false);
+    setSelected(null);
+    setFormsOpen(true);
   };
 
   return (
@@ -624,8 +630,8 @@ export default function Inbox() {
       <div ref={centerRef} className={`flex-1 flex gap-0 p-3 md:p-4 overflow-hidden ${mobilePanelOpen ? "" : "pb-20 lg:pb-4"}`}>
         {/* Thread list (resizable) — full-screen on mobile until a thread is opened */}
         <div
-          className={`${mobilePanelOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
-          style={{ width: (selectedThread || (bugMode && selectedBug)) ? listWidth : undefined, flex: (selectedThread || (bugMode && selectedBug)) ? undefined : "1 1 100%" }}
+          className={`${mobilePanelOpen && !formsOpen ? "hidden md:flex" : "flex"} h-full overflow-hidden flex-row rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 shrink-0`}
+          style={{ width: (!formsOpen && (selectedThread || (bugMode && selectedBug))) ? listWidth : undefined, flex: (!formsOpen && (selectedThread || (bugMode && selectedBug))) ? undefined : "1 1 100%" }}
         >
           {/* Vertical status rail (side panels) */}
           {bugMode ? (
@@ -648,11 +654,12 @@ export default function Inbox() {
             <InboxStatusRail
               tabs={activeTabs}
               active={subFilter}
-              onChange={(k) => { setShowArchived(false); setSubFilter(k); setSelected(null); }}
+              onChange={(k) => { setShowArchived(false); setFormsOpen(false); setSubFilter(k); setSelected(null); }}
               counts={tabCounts} unread={unreadTabs} accent={accent}
               archivedActive={showArchived}
-              onArchived={isSourceView ? () => { setShowArchived((s) => !s); setSelected(null); } : undefined}
+              onArchived={isSourceView ? () => { setShowArchived((s) => !s); setFormsOpen(false); setSelected(null); } : undefined}
               onForms={openForm}
+              formsActive={formsOpen}
               onReportBug={() => {
                 // Open the Bugs thread list (Support → bug status). The live chat
                 // only opens via the + button inside the Bugs list.
@@ -667,7 +674,9 @@ export default function Inbox() {
             />
           )}
           <div className="flex-1 overflow-hidden">
-            {bugMode ? (
+            {formsOpen ? (
+              <FormsPanel sourceApp={view} accent={accent} />
+            ) : bugMode ? (
               <BugList
                 bugs={bugs}
                 statusFilter={bugStatus}
@@ -703,11 +712,11 @@ export default function Inbox() {
         </div>
 
         {/* Resize grabber — desktop split view only (component is hidden on mobile) */}
-        {(selectedThread || (bugMode && selectedBug)) && <ResizeHandle onDrag={handleListResize} />}
+        {!formsOpen && (selectedThread || (bugMode && selectedBug)) && <ResizeHandle onDrag={handleListResize} />}
 
-        {/* Center: thread panel — full-screen on mobile only when opened */}
+        {/* Center: thread panel — full-screen on mobile only when opened. Hidden while Forms is open. */}
         <div
-          className={`${mobilePanelOpen ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20`}
+          className={`${formsOpen ? "hidden" : mobilePanelOpen ? "flex flex-col flex-1" : "hidden md:flex md:flex-col md:flex-1"} h-full overflow-hidden min-w-0 rounded-3xl bg-white/45 dark:bg-white/10 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20`}
         >
           {bugMode ? (
             liveBug ? (
@@ -748,7 +757,7 @@ export default function Inbox() {
         <DetailToggleHandle open={showContact} onToggle={() => setShowContact((s) => !s)} />
 
         {/* Right: bug detail panel — 3rd column for the Bugs view */}
-        {bugMode && liveBug && showContact && (
+        {!formsOpen && bugMode && liveBug && showContact && (
           <div className="hidden lg:block lg:w-[320px] lg:shrink-0 h-full overflow-hidden">
             <div className="h-full rounded-3xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-3xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <BugSidePanel
@@ -762,7 +771,7 @@ export default function Inbox() {
         )}
 
         {/* Right: contact panel — desktop-only sidebar (never overlays mobile/tablet) */}
-        {!bugMode && selectedThread && showContact && (
+        {!formsOpen && !bugMode && selectedThread && showContact && (
           <div className="hidden lg:block lg:w-[300px] lg:shrink-0 h-full overflow-hidden">
             <div className="h-full rounded-3xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-3xl border border-white/50 dark:border-white/15 shadow-2xl shadow-black/20 overflow-hidden">
               <ContactPanel

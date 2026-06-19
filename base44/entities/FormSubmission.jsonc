@@ -1,0 +1,57 @@
+{
+  "name": "FormSubmission",
+  "type": "object",
+  "properties": {
+    "form_id": {
+      "type": "string",
+      "description": "ID of the FormDefinition this submission belongs to"
+    },
+    "recipient_id": {
+      "type": "string",
+      "description": "ID of the FormRecipient who submitted (if known)"
+    },
+    "recipient_name": {
+      "type": "string",
+      "description": "Name of the submitter"
+    },
+    "recipient_email": {
+      "type": "string",
+      "description": "Email of the submitter"
+    },
+    "answers": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Map of field id/label -> answer value"
+    },
+    "submitted_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the form was submitted"
+    }
+  },
+  "required": [
+    "form_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "name": "FormRecipient",
+  "type": "object",
+  "properties": {
+    "form_id": {
+      "type": "string",
+      "description": "ID of the FormDefinition this recipient belongs to"
+    },
+    "name": {
+      "type": "string",
+      "description": "Recipient name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Recipient email"
+    },
+    "token": {
+      "type": "string",
+      "description": "Unique token for the recipient's public form link"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the invite email was sent"
+    },
+    "submitted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this recipient has submitted the form"
+    }
+  },
+  "required": [
+    "form_id",
+    "email",
+    "token"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
