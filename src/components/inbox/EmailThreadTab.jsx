@@ -239,14 +239,15 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                 </div>
                 {outbound ? (
                   <>
-                    {!m.is_welcome && (
+                    {/* Auto-reply keeps its subject line; regular outbounds hide it. */}
+                    {m.is_welcome && (
                       <div className={`text-[13px] font-semibold leading-snug truncate ${ob.body} dark:text-white/90`}>{m.subject || "(no subject)"}</div>
                     )}
                     {m.is_welcome && (
                       <div className={`text-[12px] leading-snug ${ob.body} dark:text-white/75 opacity-80`}>Welcome / auto-reply email sent.</div>
                     )}
-                    {!m.is_welcome && bodyPreview && (
-                      <div className={`text-[12px] leading-snug line-clamp-2 mt-0.5 ${ob.body} dark:text-white/75 opacity-80`}>{bodyPreview}</div>
+                    {!m.is_welcome && (
+                      <div className={`text-[12px] leading-snug line-clamp-2 ${ob.body} dark:text-white/75 opacity-80`}>{bodyPreview || "(no content)"}</div>
                     )}
                   </>
                 ) : (
