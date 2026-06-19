@@ -88,16 +88,6 @@ export default function BugComposer({ bug, currentUser, onSent }) {
         To: <span className="font-semibold text-[#7d2235] dark:text-white">{bug.escalated_to || "escalation"}</span>
       </p>
 
-      <div className="flex items-center gap-2 mb-2">
-        <label className="text-xs text-[#7d2235]/70 dark:text-white/60 shrink-0">Sender name</label>
-        <input
-          value={senderName}
-          onChange={(e) => setSenderName(e.target.value)}
-          placeholder="Your name"
-          className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-[#7d2235]/20 dark:border-white/15 text-[#7d2235] dark:text-white placeholder:text-[#7d2235]/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[#7d2235]/50"
-        />
-      </div>
-
       <div className="flex items-center gap-1 pb-2 mb-2 border-b border-[#7d2235]/15 dark:border-white/10">
         <button onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-[#7d2235]/10 dark:hover:bg-white/10" title="Bold"><Bold className="w-3.5 h-3.5 text-[#7d2235]/70 dark:text-white/70" /></button>
         <button onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-[#7d2235]/10 dark:hover:bg-white/10" title="Italic"><Italic className="w-3.5 h-3.5 text-[#7d2235]/70 dark:text-white/70" /></button>
@@ -149,11 +139,18 @@ export default function BugComposer({ bug, currentUser, onSent }) {
 
       {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
 
-      <div className="flex items-center justify-end mt-3">
+      <div className="flex items-center gap-2 mt-3">
+        <label className="text-xs text-[#7d2235]/70 dark:text-white/60 shrink-0">Sender name</label>
+        <input
+          value={senderName}
+          onChange={(e) => setSenderName(e.target.value)}
+          placeholder="Your name"
+          className="flex-1 min-w-0 text-xs px-2.5 py-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-[#7d2235]/20 dark:border-white/15 text-[#7d2235] dark:text-white placeholder:text-[#7d2235]/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-[#7d2235]/50"
+        />
         <button
           onClick={handleSend}
           disabled={sending || empty || uploading}
-          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 bg-gradient-to-r from-[#7d2235] to-[#9c2f45] hover:from-[#651c2b] hover:to-[#7d2235] shadow-md"
+          className="shrink-0 flex items-center gap-2 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 bg-gradient-to-r from-[#7d2235] to-[#9c2f45] hover:from-[#651c2b] hover:to-[#7d2235] shadow-md"
         >
           {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
           {sending ? "Sending…" : "Send Reply"}
