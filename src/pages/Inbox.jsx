@@ -337,6 +337,21 @@ export default function Inbox() {
     }
   }, [sortedFiltered, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // When a team inbox status tab has 0 tickets, auto-advance to the next status
+  // in the pipeline that actually has tickets (and its 1st ticket auto-selects).
+  useEffect(() => {
+    if (!isSourceView || showArchived || isLoading) return;
+    if (subFilter === "all") return;
+    if ((tabCounts[subFilter] || 0) > 0) return;
+    const idx = statusOrder.indexOf(subFilter);
+    if (idx === -1) return;
+    const nextWithItems = statusOrder.slice(idx + 1).find((s) => (tabCounts[s] || 0) > 0);
+    if (nextWithItems) {
+      setSubFilter(nextWithItems);
+      setSelected(null);
+    }
+  }, [tabCounts, subFilter, isSourceView, showArchived, isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const baseTitle = VIEW_TITLES[view] || SOURCE_META[view]?.label || "Inbox";
   // In a team inbox, show ONLY the selected status label (e.g. "Open", "Closed")
   // instead of the inbox name. Falls back to the inbox name when on "all".
