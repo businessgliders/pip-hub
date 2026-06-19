@@ -184,7 +184,8 @@ export default function Inbox() {
     const tid = params.get("thread");
     if (tid && threads.length && !selected) {
       const found = threads.find((t) => t.id === tid);
-      if (found) handleSelect(found);
+      // ?assigned=1 (from the assignment email) animates the thread row on open.
+      if (found) handleSelect(found, { shake: params.get("assigned") === "1" });
     }
   }, [threads]); // eslint-disable-line react-hooks/exhaustive-deps
 

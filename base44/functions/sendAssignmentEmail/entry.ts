@@ -7,6 +7,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
  * Payload: { thread_id, assigned_to }
  */
 const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
+const STORE_NAME = 'Pilates in Pink \u2122';
 
 function encodeHeader(str) {
   const s = str || '';
@@ -18,6 +19,68 @@ function base64url(str) {
 }
 function escapeHtml(s = '') {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+const SOURCE_LABEL = { support: 'Support', events: 'Events', influencer: 'Partner' };
+
+// Branded assignment email matching the app's pink design language, with a
+// deep link that opens the inbox directly on the assigned ticket (it animates
+// the thread row on arrival via ?thread=…&assigned=1).
+function buildAssignmentHtml({ thread, assignedBy, ticketTag, ticketUrl }) {
+  const pink = '#f1889b';
+  const pinkLight = '#fbe0e2';
+  const text = '#374151';
+  const muted = '#6b7280';
+  const inbox = SOURCE_LABEL[thread.source_app] || thread.source_app || '—';
+
+  const row = (label, value) => `
+    <tr>
+      <td style="padding:10px 14px;background:#fafafa;border-bottom:1px solid #f1f5f9;width:38%;font-size:13px;color:${muted};font-weight:500;vertical-align:top;">${escapeHtml(label)}</td>
+      <td style="padding:10px 14px;background:#ffffff;border-bottom:1px solid #f1f5f9;font-size:14px;color:${text};">${value}</td>
+    </tr>`;
+
+  return `<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#f7f7f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:${text};">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f7f8;padding:24px 12px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 4px 20px rgba(241,136,155,0.08);">
+
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg, ${pinkLight} 0%, #ffffff 100%);padding:28px 32px;">
+          <div style="font-size:13px;font-weight:600;color:${pink};letter-spacing:2px;text-transform:uppercase;">${escapeHtml(STORE_NAME)}</div>
+          <h1 style="margin:6px 0 4px 0;font-size:24px;font-weight:800;color:#1f2937;">📌 A ticket was assigned to you</h1>
+          <div style="font-size:14px;color:${muted};">${escapeHtml(assignedBy)} escalated this conversation to you.</div>
+        </td></tr>
+
+        <!-- Details -->
+        <tr><td style="padding:24px 32px 0 32px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:12px;overflow:hidden;border:1px solid #f1f5f9;">
+            ${row('Ticket', `<strong style="color:${pink};">${ticketTag || '—'}</strong>`)}
+            ${row('Subject', escapeHtml(thread.subject || '—'))}
+            ${row('Contact', escapeHtml(thread.contact_name || thread.contact_email || '—'))}
+            ${row('Inbox', escapeHtml(inbox))}
+          </table>
+          ${thread.snippet ? `<div style="margin-top:16px;padding:14px 16px;background:${pinkLight};border-radius:14px;font-size:14px;color:#1f2937;font-style:italic;">"${escapeHtml(thread.snippet)}"</div>` : ''}
+
+          <!-- CTA Button -->
+          <div style="text-align:center;margin:28px 0 8px 0;">
+            <a href="${escapeHtml(ticketUrl)}" style="display:inline-block;background:linear-gradient(135deg, ${pink} 0%, #f7b1bd 100%);color:#ffffff;text-decoration:none;padding:14px 30px;border-radius:999px;font-size:14px;font-weight:600;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(241,136,155,0.3);">
+              Open this ticket →
+            </a>
+          </div>
+          <div style="text-align:center;font-size:12px;color:#9ca3af;margin-bottom:8px;">Opens the PiP Inbox right on this conversation.</div>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:24px 32px 28px 32px;text-align:center;border-top:1px solid #f3f4f6;">
+          <div style="font-size:11px;color:${muted};letter-spacing:1px;text-transform:uppercase;">${escapeHtml(STORE_NAME)} · PiP Inbox</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Automated assignment notification</div>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
 }
 
 Deno.serve(async (req) => {
@@ -38,19 +101,18 @@ Deno.serve(async (req) => {
 
     const ticketTag = thread.ticket_number ? `#${thread.ticket_number} ` : '';
     const subject = `Assigned to you: ${ticketTag}${thread.subject || 'Inquiry'}`;
-    const html = `
-      <div style="font-family:system-ui,Arial,sans-serif;color:#1f2937;line-height:1.6">
-        <h2 style="margin:0 0 8px">A conversation was escalated to you</h2>
-        <p>${escapeHtml(user.full_name || user.email)} assigned the following conversation to you:</p>
-        <table style="margin:12px 0;border-collapse:collapse">
-          <tr><td style="padding:2px 12px 2px 0;color:#6b7280">Ticket</td><td><strong>${ticketTag || '—'}</strong></td></tr>
-          <tr><td style="padding:2px 12px 2px 0;color:#6b7280">Subject</td><td>${escapeHtml(thread.subject || '—')}</td></tr>
-          <tr><td style="padding:2px 12px 2px 0;color:#6b7280">Contact</td><td>${escapeHtml(thread.contact_name || thread.contact_email || '—')}</td></tr>
-          <tr><td style="padding:2px 12px 2px 0;color:#6b7280">Inbox</td><td>${escapeHtml(thread.source_app || '—')}</td></tr>
-        </table>
-        ${thread.snippet ? `<p style="color:#374151">"${escapeHtml(thread.snippet)}"</p>` : ''}
-        <p>Open the PiP Inbox to respond.</p>
-      </div>`.trim();
+
+    // Deep link straight to the assigned ticket. ?assigned=1 triggers the
+    // thread-row "shake" animation when the inbox opens it.
+    const origin = (req.headers.get('origin') || req.headers.get('referer') || 'https://app.base44.com').replace(/\/[^/]*$/, '').replace(/\/$/, '');
+    const ticketUrl = `${origin}/inbox?thread=${thread.id}&assigned=1#${thread.source_app || 'support'}`;
+
+    const html = buildAssignmentHtml({
+      thread,
+      assignedBy: user.full_name || user.email,
+      ticketTag: ticketTag.trim(),
+      ticketUrl,
+    });
 
     // Send via Gmail so it reaches any address (not just registered users).
     let emailSent = false;
