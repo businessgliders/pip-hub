@@ -70,7 +70,7 @@ export default function RecipientsModal({ form, accent, open, onOpenChange, onSe
             <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center text-white" style={{ backgroundColor: accent }}>
               <Send className="w-5 h-5" />
             </div>
-            <p className="font-semibold text-pink-900 dark:text-white">{result.sent} invite{result.sent === 1 ? "" : "s"} sent!</p>
+            <p className="font-semibold text-pink-900 dark:text-white">{result.sent} form{result.sent === 1 ? "" : "s"} sent!</p>
             <p className="text-sm text-muted-foreground">Each recipient got a unique link to fill out the form.</p>
             <Button onClick={() => onOpenChange(false)} className="mt-2 text-white" style={{ backgroundColor: accent }}>Done</Button>
           </div>

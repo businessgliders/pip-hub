@@ -121,8 +121,9 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
-        {/* Left column: editor */}
-        <div className="flex-1 min-w-0 overflow-y-auto ios-scroll p-4 space-y-4 lg:border-r lg:border-white/40 lg:dark:border-white/10">
+        {/* Left column: editor + footer actions */}
+        <div className="flex-1 min-w-0 flex flex-col overflow-hidden lg:border-r lg:border-white/40 lg:dark:border-white/10">
+        <div className="flex-1 min-w-0 overflow-y-auto ios-scroll p-4 space-y-4">
         {/* Name + describe — collapsible once fields exist */}
         {fields.length > 0 && setupCollapsed ? (
           <button
@@ -228,21 +229,22 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
         )}
         </div>
 
-        {/* Right column: live preview */}
+        {/* Footer actions — under the left column only */}
+        <div className="flex items-center gap-2 p-3 border-t border-white/40 dark:border-white/10 shrink-0">
+          <Button variant="outline" onClick={saveDraft} disabled={saving || !fields.length} className="flex-1 bg-white/60 dark:bg-white/5">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save draft"}
+          </Button>
+          <Button onClick={saveAndSend} disabled={saving || !fields.length} className="flex-1 text-white" style={{ backgroundColor: accent }}>
+            Save & Send
+          </Button>
+        </div>
+        </div>
+
+        {/* Right column: live preview — full height */}
         <div className="hidden lg:flex lg:w-[44%] xl:w-[42%] shrink-0 flex-col overflow-y-auto ios-scroll p-4 bg-black/[0.02] dark:bg-white/[0.02]">
           <span className="text-xs font-semibold text-pink-900/70 dark:text-white/70 mb-2.5">Live preview</span>
           <FormPreview name={name} fields={fields} accent={accent} />
         </div>
-      </div>
-
-      {/* Footer actions */}
-      <div className="flex items-center gap-2 p-3 border-t border-white/40 dark:border-white/10 shrink-0">
-        <Button variant="outline" onClick={saveDraft} disabled={saving || !fields.length} className="flex-1 bg-white/60 dark:bg-white/5">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save draft"}
-        </Button>
-        <Button onClick={saveAndSend} disabled={saving || !fields.length} className="flex-1 text-white" style={{ backgroundColor: accent }}>
-          Save & Send
-        </Button>
       </div>
     </div>
   );
