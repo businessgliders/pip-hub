@@ -18,6 +18,19 @@ function isEditorEmpty(html) {
 
 const AUTOSAVE_INTERVAL_MS = 30 * 1000; // 30 seconds
 
+function firstNameFor(user) {
+  const email = (user?.email || '').toLowerCase();
+  if (email === 'info@pilatesinpinkstudio.com') return 'Front Desk';
+  const full = (user?.full_name || '').trim();
+  if (full) return full.split(/\s+/)[0];
+  return (user?.email || '').split('@')[0] || '';
+}
+
+function signatureHtml(user) {
+  const name = firstNameFor(user);
+  return `<div><br></div><div>Best,</div><div>${name}</div><div>Pilates in Pink™</div>`;
+}
+
 export default function EmailComposer({ thread, currentUser, onSent, onDirtyChange, saveDraftRef }) {
   const editorRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -57,7 +70,16 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
           '-updated_date',
           1
         );
-        if (cancelled || !rows?.[0]) return;
+        if (cancelled) return;
+        if (!rows?.[0]) {
+          // No saved draft — pre-fill the signature for the logged-in user.
+          if (editorRef.current && isEditorEmpty(editorRef.current.innerHTML)) {
+            const html = signatureHtml(currentUser);
+            editorRef.current.innerHTML = html;
+            setEmpty(isEditorEmpty(html));
+          }
+          return;
+        }
         const draft = rows[0];
         setDraftId(draft.id);
         if (draft.body_html && editorRef.current) {
@@ -277,7 +299,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
 
   const handleClear = () => {
     if (!isEditorEmpty(getEditorHtml()) && !window.confirm('Clear the draft?')) return;
-    setEditorHtml('');
+    setEditorHtml(signatureHtml(currentUser));
     setFromTemplate(false);
     setAttachments([]);
     clearDraftStorage();
@@ -414,7 +436,6 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
             className="flex items-center gap-1.5 text-xs font-medium px-2 py-1.5 lg:px-3 rounded-full transition-all disabled:opacity-50 bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-200/70 dark:border-violet-400/20"
           >
             {polishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
-            <span className="hidden lg:inline">{polishing ? 'Polishing…' : 'Polish'}</span>
           </button>
           <button
             onClick={handleClear}
@@ -422,7 +443,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
             title="Clear"
             className="flex items-center gap-1.5 text-xs font-medium px-2 py-1.5 lg:px-3 rounded-full transition-all disabled:opacity-50 bg-pink-100/40 dark:bg-white/5 text-pink-700/70 dark:text-white/60 border border-pink-200/50 dark:border-white/10"
           >
-            <Trash2 className="w-3.5 h-3.5" /> <span className="hidden lg:inline">Clear</span>
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
           {draftSavedAt && (
             <span className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400" title={`Draft auto-saved at ${new Date(draftSavedAt).toLocaleString()}`}>
