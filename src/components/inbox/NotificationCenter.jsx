@@ -71,7 +71,7 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
         <button className="relative p-2 rounded-full text-pink-900/50 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10 transition-colors">
           <Bell className="w-5 h-5" />
           {unread.length > 0 && (
-            <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-bold text-white bg-pink-500 rounded-full">
+            <span className={`absolute top-1 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-bold text-white bg-pink-500 rounded-full ${unread.length > 9 ? "right-0" : "right-1"}`}>
               {unread.length > 9 ? "9+" : unread.length}
             </span>
           )}
