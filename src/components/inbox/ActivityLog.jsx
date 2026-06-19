@@ -1,4 +1,5 @@
 import React from "react";
+import { UserPlus } from "lucide-react";
 import { ALL_STATUS_META } from "./inboxConfig";
 import { relativeTime } from "./inboxConfig";
 
@@ -19,17 +20,22 @@ export default function ActivityLog({ thread, accent }) {
         <ol className="space-y-3">
           {history.map((h, i) => {
             const meta = ALL_STATUS_META[h.status];
+            const isAssignment = h.event === "assignment";
             return (
               <li key={i} className="flex gap-2.5">
-                <span className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ background: accent }} />
+                {isAssignment ? (
+                  <UserPlus className="mt-0.5 w-3 h-3 shrink-0" style={{ color: accent }} />
+                ) : (
+                  <span className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ background: accent }} />
+                )}
                 <div className="min-w-0">
                   <p className="text-xs font-medium dark:text-white/85" style={{ color: accent }}>
-                    Moved to {meta?.label || h.status}
+                    {isAssignment ? (h.note || "Escalated") : `Moved to ${meta?.label || h.status}`}
                   </p>
                   <p className="text-[11px] opacity-60 dark:text-white/55">
                     {h.name || "Staff"} · {relativeTime(h.timestamp)}
                   </p>
-                  {h.note && (
+                  {h.note && !isAssignment && (
                     <p className="text-[11px] mt-0.5 italic opacity-70 dark:text-white/65 break-words">
                       “{h.note}”
                     </p>

@@ -33,6 +33,9 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
   // Exclude the thread currently being viewed — only show other related threads.
   const relatedThreads = allThreads.filter((t) => t.id !== thread.id);
 
+  // Currently-assigned staff member (shown as a badge under the title).
+  const assignee = staff.find((s) => s.email === thread.assignee_email);
+
   if (!contact) {
     return <div className="h-full p-4 animate-pulse" />;
   }
@@ -55,6 +58,15 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
             </span>
           )}
         </div>
+        {/* Currently assigned-to badge */}
+        {assignee && (
+          <div className="mt-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/60 dark:bg-white/10 border border-white/60 dark:border-white/15">
+            <span className="text-[10px] font-semibold uppercase tracking-wide opacity-60 dark:text-white/60">Assigned to</span>
+            <Avatar name={assignee.full_name} email={assignee.email} photoUrl={assignee.photo_url} size="sm" />
+            <span className="text-xs font-medium dark:text-white/85" style={{ color: accent }}>{assignee.full_name}</span>
+          </div>
+        )}
+
         {/* Quick contact actions: Gmail search + Zoom call */}
         <div className="mt-3">
           <ThreadContactActions thread={thread} view={thread.source_app} />

@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { thread_id, body_html, attachments: attachmentInputs } = await req.json();
+    const { thread_id, body_html, attachments: attachmentInputs, is_template } = await req.json();
     if (!thread_id || !body_html) {
       return Response.json({ error: 'Missing thread_id or body_html' }, { status: 400 });
     }
@@ -237,6 +237,7 @@ Deno.serve(async (req) => {
       subject,
       body_html,
       attachments: attachmentMeta,
+      is_template: !!is_template,
       sent_by: user.email,
       sent_at: nowIso,
       send_status: 'sent',

@@ -420,9 +420,41 @@ export default function Inbox() {
     });
   };
 
-  const handleAssign = (email) => {
+  const handleAssign = async (email) => {
     if (!selectedThread) return;
-    updateThread.mutate({ id: selectedThread.id, data: { assignee_email: email } });
+    const assignee = staff.find((s) => s.email === email);
+    const assigneeName = assignee?.full_name || email;
+    const byName = currentUser?.full_name || currentUser?.email || "Staff";
+    const nowIso = new Date().toISOString();
+
+    // Log the escalation in the thread's Activity (status_history) — keep the
+    // current status, mark the entry as an assignment event.
+    const entry = {
+      status: selectedThread.status,
+      event: "assignment",
+      changed_by: currentUser?.email || "staff",
+      name: byName,
+      note: `Escalated to ${assigneeName}`,
+      timestamp: nowIso,
+    };
+    updateThread.mutate({
+      id: selectedThread.id,
+      data: { assignee_email: email, status_history: [...(selectedThread.status_history || []), entry] },
+    });
+
+    // Drop an internal "Escalation" email into the thread panel for visibility.
+    base44.entities.EmailMessage.create({
+      ticket_id: selectedThread.id,
+      direction: "outbound",
+      is_escalation: true,
+      subject: `Escalated to ${assigneeName}`,
+      body_html: `<p><strong>${byName}</strong> escalated this conversation to <strong>${assigneeName}</strong>.</p>`,
+      from_name: byName,
+      sent_by: currentUser?.email || "staff",
+      sent_at: nowIso,
+      send_status: "sent",
+    }).catch(() => {});
+
     // Notify the assignee (email + in-app notification). Non-blocking.
     if (email && email !== currentUser?.email) {
       base44.functions.invoke("sendAssignmentEmail", { thread_id: selectedThread.id, assigned_to: email }).catch(() => {});

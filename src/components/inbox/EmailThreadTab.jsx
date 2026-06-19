@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mail, Sparkles } from "lucide-react";
+import { Mail, Sparkles, UserPlus } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import EmailPreviewModal from "./EmailPreviewModal";
 import SubmissionPreviewModal from "./SubmissionPreviewModal";
@@ -8,10 +8,11 @@ import MoveToNextStatusBar from "./MoveToNextStatusBar";
 import { SOURCE_META } from "./inboxConfig";
 
 // Subtle, per-inbox outbound bubble styling (muted, brand-matched).
+// `darkBubble` is a slightly darker shade used for auto-reply + templated emails.
 const OUTBOUND_BUBBLE = {
-  support:    { bubble: "bg-amber-200/80 dark:bg-amber-400/20 border border-amber-300/60 dark:border-amber-300/25", text: "text-amber-950 dark:text-amber-50", meta: "text-amber-800/80", name: "text-amber-900/90", body: "text-amber-950", hint: "text-amber-800/80" },
-  events:     { bubble: "bg-rose-300/80 dark:bg-rose-400/25 border border-rose-400/60 dark:border-rose-300/30", text: "text-rose-950 dark:text-rose-50", meta: "text-rose-800/80", name: "text-rose-900/90", body: "text-rose-950", hint: "text-rose-800/80" },
-  influencer: { bubble: "bg-violet-200/80 dark:bg-violet-400/20 border border-violet-300/60 dark:border-violet-300/25", text: "text-violet-950 dark:text-violet-50", meta: "text-violet-800/80", name: "text-violet-900/90", body: "text-violet-950", hint: "text-violet-800/80" },
+  support:    { bubble: "bg-amber-200/80 dark:bg-amber-400/20 border border-amber-300/60 dark:border-amber-300/25", darkBubble: "bg-amber-400/80 dark:bg-amber-500/30 border border-amber-500/60 dark:border-amber-400/35", text: "text-amber-950 dark:text-amber-50", meta: "text-amber-800/80", name: "text-amber-900/90", body: "text-amber-950", hint: "text-amber-800/80" },
+  events:     { bubble: "bg-rose-300/80 dark:bg-rose-400/25 border border-rose-400/60 dark:border-rose-300/30", darkBubble: "bg-rose-500/80 dark:bg-rose-500/35 border border-rose-600/60 dark:border-rose-400/40", text: "text-rose-950 dark:text-rose-50", meta: "text-rose-800/80", name: "text-rose-900/90", body: "text-rose-950", hint: "text-rose-800/80" },
+  influencer: { bubble: "bg-violet-200/80 dark:bg-violet-400/20 border border-violet-300/60 dark:border-violet-300/25", darkBubble: "bg-violet-400/80 dark:bg-violet-500/30 border border-violet-500/60 dark:border-violet-400/35", text: "text-violet-950 dark:text-violet-50", meta: "text-violet-800/80", name: "text-violet-900/90", body: "text-violet-950", hint: "text-violet-800/80" },
 };
 
 // Some entity timestamps (e.g. created_date) are stored without a trailing "Z",
@@ -212,6 +213,22 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
           // Inbound replies: show a 1-2 line preview of the body instead of the subject.
           const bodyPreview = toPreview(m);
           const ob = OUTBOUND_BUBBLE[thread?.source_app] || OUTBOUND_BUBBLE.events;
+          // Auto-reply + templated emails get a slightly darker outbound shade.
+          const isAutomated = m.is_welcome || m.is_template;
+          const bubbleShade = isAutomated ? ob.darkBubble : ob.bubble;
+
+          // Escalation/assignment notice — rendered as a centered internal pill.
+          if (m.is_escalation) {
+            return (
+              <div key={m.id} className="flex justify-center">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium bg-indigo-100/80 dark:bg-indigo-500/20 border border-indigo-300/60 dark:border-indigo-400/30 text-indigo-800 dark:text-indigo-200">
+                  <UserPlus className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{m.subject || "Escalation"}</span>
+                  <span className="opacity-60">· {m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
+                </div>
+              </div>
+            );
+          }
           return (
             <div key={m.id} className={`flex ${outbound ? "justify-end" : "justify-start"}`}>
               <div
@@ -221,7 +238,7 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setPreview(m); }}
                 className={`group max-w-[70%] cursor-pointer text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${
                   outbound
-                    ? `${ob.bubble} ${ob.text} rounded-br-sm`
+                    ? `${bubbleShade} ${ob.text} rounded-br-sm`
                     : "bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white rounded-bl-sm"
                 }`}
               >
@@ -232,6 +249,11 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                   {m.is_welcome && (
                     <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold ${ob.name} dark:text-white/80 bg-white/40 dark:bg-white/10`}>
                       <Sparkles className="w-2.5 h-2.5" /> Auto-reply
+                    </span>
+                  )}
+                  {!m.is_welcome && m.is_template && (
+                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold ${ob.name} dark:text-white/80 bg-white/40 dark:bg-white/10`}>
+                      <Sparkles className="w-2.5 h-2.5" /> Template
                     </span>
                   )}
                   <span>·</span>

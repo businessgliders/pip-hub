@@ -29,6 +29,9 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
   const suggestionsState = useState([]);
   const suggestMetaState = useState({ cached: false, generated_at: null });
   const [empty, setEmpty] = useState(true);
+  // Tracks whether the current draft was populated from a saved template, so the
+  // sent email can be flagged (is_template) and styled distinctly in the thread.
+  const [fromTemplate, setFromTemplate] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [draftSavedAt, setDraftSavedAt] = useState(null);
@@ -195,10 +198,12 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
       thread_id: thread.id,
       body_html: html,
       attachments: readyAttachments,
+      is_template: fromTemplate,
     });
     setSending(false);
     if (res?.data?.success) {
       setEditorHtml('');
+      setFromTemplate(false);
       setAttachments([]);
       setShowDescribe(false);
       setShowSuggest(false);
@@ -273,6 +278,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
   const handleClear = () => {
     if (!isEditorEmpty(getEditorHtml()) && !window.confirm('Clear the draft?')) return;
     setEditorHtml('');
+    setFromTemplate(false);
     setAttachments([]);
     clearDraftStorage();
   };
@@ -286,7 +292,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
     return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const handleTemplate = ({ body_html }) => setEditorHtml(body_html);
+  const handleTemplate = ({ body_html }) => { setEditorHtml(body_html); setFromTemplate(true); };
 
   return (
     <div className="rounded-2xl p-3 flex-shrink-0 max-h-[60vh] overflow-y-auto bg-white/70 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 shadow-sm">

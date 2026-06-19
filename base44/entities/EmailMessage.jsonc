@@ -61,6 +61,16 @@
       "type": "boolean",
       "default": false
     },
+    "is_template": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when this outbound email was sent from a saved template"
+    },
+    "is_escalation": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when this is an internal escalation/assignment notice (not sent to the contact)"
+    },
     "send_status": {
       "type": "string",
       "enum": [
