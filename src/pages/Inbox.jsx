@@ -7,6 +7,7 @@ import ThreadPanel, { EmptyThreadState } from "@/components/inbox/ThreadPanel";
 import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxStatusRail from "@/components/inbox/InboxStatusRail";
 import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
+import ReplyFilter from "@/components/inbox/ReplyFilter";
 import ArchiveButton from "@/components/inbox/ArchiveButton";
 import CloseAllButton from "@/components/inbox/CloseAllButton";
 import EventSortMenu from "@/components/inbox/EventSortMenu";
@@ -47,6 +48,7 @@ export default function Inbox() {
   const [subFilter, setSubFilter] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [inquiryType, setInquiryType] = useState("all");
+  const [replyFilter, setReplyFilter] = useState("all");
   // Events inbox: sort by event date (soonest first). Default ON for every
   // status except "New" (which defaults to submission date, newest first).
   const [sortByEventDate, setSortByEventDate] = useState(true);
@@ -221,7 +223,7 @@ export default function Inbox() {
   // Team inboxes have no "All" status tab, so default to the first status.
   useEffect(() => {
     setSubFilter(SOURCE_META[view] ? (isSpecialStaff ? "me" : statusOrderFor(view)[0]) : "all");
-    setInquiryType("all"); setSelected(null); setShowArchived(false);
+    setInquiryType("all"); setReplyFilter("all"); setSelected(null); setShowArchived(false);
   }, [view, isSpecialStaff]);
 
   // Events: default sort by event date for every status EXCEPT "New", which
@@ -306,6 +308,10 @@ export default function Inbox() {
         // Source sub-tab filter
         if (subFilter !== "all" && t.source_app !== subFilter) return false;
       }
+      // Replied / Not replied filter (based on the reply-arrow flag) — applies
+      // to every status across all three inboxes.
+      if (replyFilter === "replied" && !t.has_outbound_reply) return false;
+      if (replyFilter === "not_replied" && t.has_outbound_reply) return false;
       if (!q) return true;
       return (
         (t.contact_name || "").toLowerCase().includes(q) ||
@@ -313,7 +319,7 @@ export default function Inbox() {
         (t.subject || "").toLowerCase().includes(q)
       );
     });
-  }, [threads, view, subFilter, search, inquiryType, showArchived, myEmail]);
+  }, [threads, view, subFilter, search, inquiryType, replyFilter, showArchived, myEmail]);
 
   // Events inbox: sort by event date (soonest first) when active, otherwise by
   // submission date (newest first). Other views keep the default activity order.
@@ -659,6 +665,7 @@ export default function Inbox() {
                   {(view === "support" || view === "events") && !showArchived && inquiryTypes.length > 0 ? (
                     <InquiryTypeFilter types={inquiryTypes} value={inquiryType} onChange={setInquiryType} />
                   ) : null}
+                  {!showArchived && <ReplyFilter value={replyFilter} onChange={setReplyFilter} />}
                 </>
               }
             />
