@@ -29,7 +29,20 @@ function firstNameForUser(user) {
   return String(user?.email || '').split('@')[0] || '';
 }
 
+function escapeHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function signatureHtml(user) {
+  // Prefer the user's saved custom signature; fall back to the default.
+  const custom = String(user?.email_signature || '').trim();
+  if (custom) {
+    const lines = custom.split('\n').map((l) => `<div>${escapeHtml(l) || '<br>'}</div>`).join('');
+    return `<div><br></div>${lines}`;
+  }
   const name = firstNameForUser(user);
   return `<div><br></div><div>Best,</div><div>${name}</div><div>Pilates in Pink™</div>`;
 }

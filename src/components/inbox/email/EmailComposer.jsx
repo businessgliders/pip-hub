@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Sparkles, Lightbulb, Bold, Italic, List, Link as LinkIcon, Send, Trash2, Wand2, X, Loader2, Paperclip, Plus, FileText, CheckCircle2 } from 'lucide-react';
 import TemplatePicker from './TemplatePicker';
 import AiAssistBar from './AiAssistBar';
+import SignaturePopover from './SignaturePopover';
 import { displayName } from '../inboxConfig';
 
 function formatBytes(bytes) {
@@ -430,6 +431,8 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
             </span>
           )}
         </div>
+        <div className="flex items-center gap-2">
+        <SignaturePopover currentUser={currentUser} />
         <button
           onClick={handleSend}
           disabled={sending || empty || uploadingCount > 0}
@@ -439,6 +442,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
           {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
           <span className="hidden lg:inline">{sending ? 'Sending…' : uploadingCount > 0 ? 'Uploading…' : 'Send Reply'}</span>
         </button>
+        </div>
       </div>
     </div>
   );
