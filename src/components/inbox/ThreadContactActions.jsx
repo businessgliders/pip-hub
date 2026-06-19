@@ -56,10 +56,10 @@ export default function ThreadContactActions({ thread, view }) {
           target="_blank"
           rel="noopener noreferrer"
           title="Search all in Gmail"
-          style={{ backgroundColor: "#6b442322" }}
+          style={btnStyle}
           className="p-1.5 rounded-full hover:brightness-95 transition-all flex items-center justify-center"
         >
-          <GmailLogo className="w-4 h-4" color="#6b4423" />
+          <GmailLogo className="w-4 h-4" color={accent} />
         </a>
       )}
       {phone && (
