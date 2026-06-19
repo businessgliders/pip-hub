@@ -164,12 +164,6 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold text-pink-500 dark:text-white/80 bg-white/40 dark:bg-white/10">
                   <Sparkles className="w-2.5 h-2.5" /> {SOURCE_META[thread.source_app]?.label || "Form"} submission
                 </span>
-                {thread.created_date && (
-                  <>
-                    <span>·</span>
-                    <span>{new Date(asUTC(thread.created_date)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
-                  </>
-                )}
               </div>
               {thread.subject && (
                 <div className="text-xs font-semibold text-pink-700 dark:text-white/90 mb-0.5 truncate">{thread.subject}</div>
@@ -194,8 +188,15 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                   </span>
                 </div>
               )}
-              <div className="text-[11px] text-pink-500 dark:text-white/60 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                Tap to view full form
+              <div className="flex items-center justify-between gap-2 mt-1">
+                <span className="text-[11px] text-pink-500 dark:text-white/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Tap to view full form
+                </span>
+                {(thread.form_data?.submitted_date || thread.created_date) && (
+                  <span className="text-[10px] text-pink-400 dark:text-white/55 whitespace-nowrap">
+                    {new Date(asUTC(thread.form_data?.submitted_date || thread.created_date)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                )}
               </div>
             </button>
           </div>
@@ -256,8 +257,6 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                       <Sparkles className="w-2.5 h-2.5" /> Template
                     </span>
                   )}
-                  <span>·</span>
-                  <span>{m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
                 </div>
                 {outbound ? (
                   <>
@@ -275,15 +274,20 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                 ) : (
                   <div className="text-[13px] leading-snug text-pink-800/80 dark:text-white/80 line-clamp-2">{bodyPreview || m.subject || "(no content)"}</div>
                 )}
-                <div className={`flex items-center justify-between gap-2 mt-0.5 ${outbound ? "" : "min-h-[18px]"}`}>
+                <div className="flex items-center justify-between gap-2 mt-0.5 min-h-[18px]">
                   <span className={`text-[10px] opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? `${ob.hint} dark:text-white/60` : "text-pink-500 dark:text-white/60"}`}>
                     Tap to view full email
                   </span>
-                  {!outbound && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <MessageReadToggle message={m} thread={thread} currentUser={currentUser} />
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {!outbound && (
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MessageReadToggle message={m} thread={thread} currentUser={currentUser} />
+                      </div>
+                    )}
+                    <span className={`text-[10px] whitespace-nowrap ${outbound ? `${ob.meta} dark:text-white/55` : "text-pink-400 dark:text-white/55"}`}>
+                      {m.sent_at ? new Date(asUTC(m.sent_at)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
