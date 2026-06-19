@@ -104,8 +104,7 @@ Deno.serve(async (req) => {
 
     // Deep link straight to the assigned ticket. ?assigned=1 triggers the
     // thread-row "shake" animation when the inbox opens it.
-    const origin = (req.headers.get('origin') || req.headers.get('referer') || 'https://app.base44.com').replace(/\/[^/]*$/, '').replace(/\/$/, '');
-    const ticketUrl = `${origin}/inbox?thread=${thread.id}&assigned=1#${thread.source_app || 'support'}`;
+    const ticketUrl = `https://inbox.pilatesinpinkstudio.com/inbox?thread=${thread.id}&assigned=1#${thread.source_app || 'support'}`;
 
     const html = buildAssignmentHtml({
       thread,
@@ -120,7 +119,7 @@ Deno.serve(async (req) => {
     try {
       const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
       const mime = [
-        `From: ${encodeHeader('Pilates in Pink ™')} <support@${STAFF_DOMAIN}>`,
+        `From: ${encodeHeader('Support @ Pilates in Pink ™')} <support@${STAFF_DOMAIN}>`,
         `To: ${assigned_to}`,
         `Subject: ${encodeHeader(subject)}`,
         'MIME-Version: 1.0',
