@@ -598,7 +598,20 @@ export default function Inbox() {
       />
 
       <InboxTopBar
-        view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={openCounts}
+        view={view}
+        setView={(v) => {
+          // Clicking "Support" while in Bug mode should exit bugs and show the
+          // Support inbox. Since view is already "support", setView alone won't
+          // re-run the reset effect, so clear the bug sub-filter explicitly.
+          if (v === "support" && bugMode) {
+            setSubFilter(isSpecialStaff ? "me" : statusOrderFor("support")[0]);
+            setSelected(null);
+            setShowArchived(false);
+          } else {
+            setView(v);
+          }
+        }}
+        currentUser={currentUser} openCount={openCount} counts={openCounts}
         hideChatWidgets={mobilePanelOpen} bugMode={bugMode} onTerms={() => setTermsOpen(true)}
         onOpenThread={(n) => {
           if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
