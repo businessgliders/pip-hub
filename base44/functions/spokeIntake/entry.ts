@@ -186,6 +186,17 @@ Deno.serve(async (req) => {
     const nowIso = now.toISOString();
     const normalizedEmail = String(email).trim().toLowerCase();
 
+    // Submission date/time forwarded by the spoke form (pip-partner etc.). We
+    // accept a few common field names and fall back to "now" if none/invalid.
+    const rawSubmitted =
+      rest.submitted_date ?? rest.submission_date ?? rest.submitted_at ??
+      rest.submittedAt ?? rest.submission_datetime ?? body.submitted_date;
+    let submittedIso = nowIso;
+    if (rawSubmitted) {
+      const d = new Date(rawSubmitted);
+      if (!isNaN(d.getTime())) submittedIso = d.toISOString();
+    }
+
     // 1. Upsert Contact by email
     const existingContacts = await db.Contact.filter({ email: normalizedEmail });
     let contact;
@@ -246,8 +257,8 @@ Deno.serve(async (req) => {
       snippet,
       ticket_number: nextTicketNumber,
       status: initialStatus,
-      form_data: { name, email: normalizedEmail, phone, subject, ...rest },
-      last_activity_at: nowIso,
+      form_data: { name, email: normalizedEmail, phone, subject, ...rest, submitted_date: submittedIso },
+      last_activity_at: submittedIso,
       is_read: false,
       status_history: [{ status: initialStatus, changed_by: 'system', timestamp: nowIso }],
     });
