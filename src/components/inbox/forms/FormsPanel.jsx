@@ -103,19 +103,21 @@ export default function FormsPanel({ sourceApp, accent }) {
                   <button
                     onClick={() => openSubmissions(f)}
                     title="View submissions"
-                    className="p-2 rounded-lg text-pink-900/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/10"
+                    className="rounded-lg text-pink-900/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/10 p-2 md:px-3 md:py-1.5 md:text-xs md:font-semibold md:flex md:items-center md:gap-1.5"
                   >
                     <BarChart3 className="w-4 h-4" />
+                    <span className="hidden md:inline">View Submission</span>
                   </button>
                 )}
                 <button
                   onClick={() => setSendForm(f)}
                   disabled={!(f.fields || []).length}
-                  title="Send to recipients"
-                  className="p-2 rounded-lg text-white disabled:opacity-40"
+                  title={f.status === "active" ? "Resend to recipients" : "Send to recipients"}
+                  className="rounded-lg text-white disabled:opacity-40 p-2 md:px-3 md:py-1.5 md:text-xs md:font-semibold md:flex md:items-center md:gap-1.5"
                   style={{ backgroundColor: accent }}
                 >
                   <Send className="w-4 h-4" />
+                  <span className="hidden md:inline">{f.status === "active" ? "Resend" : "Send"}</span>
                 </button>
               </div>
             </div>
