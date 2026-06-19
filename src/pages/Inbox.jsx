@@ -581,6 +581,12 @@ export default function Inbox() {
     (view === "events" ? subFilter === "New" : subFilter === "open");
   const newUrl = isOpenView ? NEW_SUBMISSION_URLS[view] : undefined;
 
+  // Forms button (status rail): open the current inbox's public submission form.
+  const openForm = () => {
+    const url = NEW_SUBMISSION_URLS[view];
+    if (url) window.open(url, "_blank", "noopener");
+  };
+
   return (
     <div className="app-screen flex flex-col overflow-hidden relative">
       {showTutorial && <InboxTutorial onClose={() => setShowTutorial(false)} />}
@@ -593,7 +599,7 @@ export default function Inbox() {
 
       <InboxTopBar
         view={view} setView={setView} currentUser={currentUser} openCount={openCount} counts={openCounts}
-        hideChatWidgets={mobilePanelOpen} bugMode={bugMode}
+        hideChatWidgets={mobilePanelOpen} bugMode={bugMode} onTerms={() => setTermsOpen(true)}
         onOpenThread={(n) => {
           if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
           const t = threads.find((th) => th.id === n.thread_id);
@@ -615,7 +621,7 @@ export default function Inbox() {
               active={bugStatus}
               onChange={(k) => { setBugStatus(k); setSelectedBug(null); }}
               counts={bugStatusCounts} accent={accent}
-              onTerms={() => setTermsOpen(true)}
+              onForms={openForm}
               onReportBug={() => {
                 setShowArchived(false);
                 setView("support");
@@ -633,7 +639,7 @@ export default function Inbox() {
               counts={tabCounts} unread={unreadTabs} accent={accent}
               archivedActive={showArchived}
               onArchived={isSourceView ? () => { setShowArchived((s) => !s); setSelected(null); } : undefined}
-              onTerms={() => setTermsOpen(true)}
+              onForms={openForm}
               onReportBug={() => {
                 // Open the Bugs thread list (Support → bug status). The live chat
                 // only opens via the + button inside the Bugs list.
@@ -762,6 +768,7 @@ export default function Inbox() {
       {!mobilePanelOpen && (
         <InboxMobileTabBar
           currentUser={currentUser}
+          onTerms={() => setTermsOpen(true)}
           onOpenThread={(n) => {
             if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
             const t = threads.find((th) => th.id === n.thread_id);

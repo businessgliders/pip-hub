@@ -13,7 +13,7 @@ const HOME_LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/pu
  * Mirrors the AppHub bottom bar: Home, Inbox, Notifications, More.
  * Team-inbox switching lives in the top header on mobile.
  */
-export default function InboxMobileTabBar({ currentUser, onOpenThread }) {
+export default function InboxMobileTabBar({ currentUser, onOpenThread, onTerms }) {
   const qc = useQueryClient();
   const [showMore, setShowMore] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
@@ -79,7 +79,7 @@ export default function InboxMobileTabBar({ currentUser, onOpenThread }) {
         </div>
       </div>
 
-      {showMore && <InboxMoreSheet user={currentUser} onClose={() => setShowMore(false)} />}
+      {showMore && <InboxMoreSheet user={currentUser} onClose={() => setShowMore(false)} onTerms={onTerms} />}
       {showAlerts && (
         <InboxNotificationsSheet
           currentUser={currentUser}

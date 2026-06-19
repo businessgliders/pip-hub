@@ -1,9 +1,9 @@
 import React from "react";
-import { Archive, PartyPopper, BookText, LifeBuoy, UserRound, Layers } from "lucide-react";
+import { Archive, PartyPopper, FileText, LifeBuoy, UserRound, Layers } from "lucide-react";
 
 // Vertical "side panel" rail of status tabs shown on the left of the thread list.
 // The count itself acts as the icon/glyph for each status tab.
-export default function InboxStatusRail({ tabs, active, onChange, counts = {}, unread = {}, accent = "#f1889b", archivedActive = false, onArchived, onTerms, onReportBug, bugActive = false, bugCount = 0 }) {
+export default function InboxStatusRail({ tabs, active, onChange, counts = {}, unread = {}, accent = "#f1889b", archivedActive = false, onArchived, onForms, onReportBug, bugActive = false, bugCount = 0 }) {
   if (!tabs || tabs.length === 0) return null;
   // "Hosted" is pinned to the bottom (above Archived) as an icon-only tab, no count.
   const hostedTab = tabs.find((t) => t.key === "Hosted");
@@ -108,15 +108,15 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
 
       {/* Bottom tools: Terms, Bugs — pinned together at the bottom */}
       <div className={`${hostedTab || onArchived ? "" : "mt-auto"} w-full flex flex-col items-center gap-1 pt-1 border-t border-white/40 dark:border-white/10`}>
-        {/* Terms — opens the live-chat Terms assistant */}
-        {onTerms && (
+        {/* Forms — opens the spoke submission form for the current inbox */}
+        {onForms && (
           <button
-            onClick={onTerms}
-            title="Terms Assistant"
+            onClick={onForms}
+            title="Open submission form"
             className="w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
           >
-            <BookText className="w-5 h-5" />
-            <span>Terms</span>
+            <FileText className="w-5 h-5" />
+            <span>Forms</span>
           </button>
         )}
 

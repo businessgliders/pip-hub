@@ -1,6 +1,6 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { Moon, Sun, Users, LogOut } from "lucide-react";
+import { Moon, Sun, Users, LogOut, BookText } from "lucide-react";
 import { useTheme } from "@/lib/ThemeContext";
 import useBodyScrollLock from "@/hooks/useBodyScrollLock";
 
@@ -9,7 +9,7 @@ const getInitials = (name) => {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 };
 
-export default function InboxMoreSheet({ user, onClose }) {
+export default function InboxMoreSheet({ user, onClose, onTerms }) {
   useBodyScrollLock(true);
   const { dark, toggle } = useTheme();
 
@@ -49,6 +49,9 @@ export default function InboxMoreSheet({ user, onClose }) {
         )}
         <div className="px-4 pb-2">
           <Row icon={dark ? Sun : Moon} label={dark ? "Light Mode" : "Dark Mode"} onClick={toggle} />
+          {onTerms && (
+            <Row icon={BookText} label="Terms Assistant" onClick={() => { onClose?.(); onTerms(); }} />
+          )}
         </div>
       </div>
     </div>

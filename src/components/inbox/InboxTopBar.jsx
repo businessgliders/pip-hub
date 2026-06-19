@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LifeBuoy, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft } from "lucide-react";
+import { LifeBuoy, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft, BookText } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png";
@@ -56,7 +56,7 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
   );
 }
 
-export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false, bugMode = false }) {
+export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false, bugMode = false, onTerms }) {
   const { dark, toggle } = useTheme();
   const accent = ((bugMode ? VIEW_THEME.bugs : VIEW_THEME[view]) || VIEW_THEME.events).accent;
   const logoTitle = bugMode ? "PiP Bugs" : (LOGO_TITLES[view] || "PiP Inbox");
@@ -116,6 +116,15 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
 
       {/* Right icons */}
       <div className="flex items-center justify-end gap-0.5 md:gap-1 shrink-0 pr-4 md:pr-0 w-[104px] md:w-[120px] lg:w-56">
+        {onTerms && (
+          <button
+            onClick={onTerms}
+            title="Terms Assistant"
+            className="hidden md:block p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+          >
+            <BookText className="w-5 h-5" />
+          </button>
+        )}
         <button
           onClick={toggle}
           title={dark ? "Switch to light mode" : "Switch to dark mode"}
