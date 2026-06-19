@@ -16,16 +16,23 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
         // On mobile, hide empty status tabs (count 0) unless it's the bug tab
         // or the currently active tab. Always shown from tablet up.
         const hideOnMobile = c === 0 && t.key !== "bug" && t.key !== "me" && t.key !== "all" && !isActive;
+        // Block selecting an empty status tab — show a "No items" tooltip instead
+        // of letting it load then jitter to the next non-empty status.
+        const isStatusTab = t.key !== "bug" && t.key !== "me" && t.key !== "all";
+        const isEmpty = isStatusTab && c === 0 && !isActive;
         return (
           <button
             key={t.key}
-            onClick={() => onChange(t.key)}
-            title={t.label}
+            onClick={() => { if (!isEmpty) onChange(t.key); }}
+            disabled={isEmpty}
+            title={isEmpty ? "No items" : t.label}
             style={isActive ? { background: accent, color: "#fff" } : undefined}
             className={`relative w-14 ${hideOnMobile ? "hidden md:flex" : "flex"} flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
               isActive
                 ? "shadow-md"
-                : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
+                : isEmpty
+                  ? "text-pink-900/30 dark:text-white/30 cursor-not-allowed"
+                  : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
             }`}
           >
             {t.key === "bug" ? (
