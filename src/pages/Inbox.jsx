@@ -325,6 +325,16 @@ export default function Inbox() {
   // submission date (newest first). Other views keep the default activity order.
   const sortedFiltered = useMemo(() => {
     if (view !== "events" || showArchived) return filtered;
+    // "Hosted" events are in the past — always show the most recently hosted
+    // event at the top (event date, descending). Threads without a date sink.
+    if (subFilter === "Hosted") {
+      const eventTime = (t) => {
+        const raw = t?.form_data?.event_date || t?.form_data?.event_date_iso || t?.form_data?.date;
+        const d = raw ? new Date(raw) : null;
+        return d && !isNaN(d.getTime()) ? d.getTime() : -Infinity;
+      };
+      return [...filtered].sort((a, b) => eventTime(b) - eventTime(a));
+    }
     if (sortByEventDate) {
       // Soonest upcoming event date first; threads without a date sink to bottom.
       const eventTime = (t) => {
@@ -337,7 +347,7 @@ export default function Inbox() {
     // Submission date — newest at the top.
     const submitTime = (t) => new Date(t.created_date || t.last_activity_at || 0).getTime();
     return [...filtered].sort((a, b) => submitTime(b) - submitTime(a));
-  }, [filtered, view, sortByEventDate, showArchived]);
+  }, [filtered, view, sortByEventDate, showArchived, subFilter]);
 
   // Auto-select the first available conversation when nothing is selected OR
   // when the current selection has dropped out of the filtered list (e.g. after
