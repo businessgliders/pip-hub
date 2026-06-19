@@ -1,5 +1,4 @@
 import React from "react";
-import { LifeBuoy } from "lucide-react";
 import { relativeTime } from "../inboxConfig";
 
 const URGENCY_TONE = {
@@ -15,13 +14,13 @@ export default function BugRow({ bug, active, onClick }) {
       onClick={onClick}
       className={`w-full text-left mx-2 my-1 px-3 py-3 flex gap-3 rounded-2xl transition-all ${
         active
-          ? "bg-white/80 dark:bg-white/15 shadow-sm ring-1 ring-orange-200/70 dark:ring-white/20 border-l-[3px] border-orange-500"
+          ? "bg-white/80 dark:bg-white/15 shadow-sm ring-1 ring-[#7d2235]/30 dark:ring-white/20 border-l-[3px] border-[#7d2235]"
           : "hover:bg-white/50 dark:hover:bg-white/10 border-l-[3px] border-transparent"
       }`}
       style={{ width: "calc(100% - 1rem)" }}
     >
-      <div className="w-10 h-10 shrink-0 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center text-orange-600 dark:text-orange-300">
-        <LifeBuoy className="w-5 h-5" />
+      <div className="w-10 h-10 shrink-0 rounded-full bg-[#7d2235]/10 dark:bg-[#7d2235]/30 flex items-center justify-center text-[#7d2235] dark:text-rose-200 font-bold text-[11px]">
+        {bug.bug_number != null ? `B${Math.round(bug.bug_number)}` : "—"}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
@@ -33,11 +32,6 @@ export default function BugRow({ bug, active, onClick }) {
           </span>
         </div>
         <div className="flex items-center gap-1.5 mt-0.5">
-          {bug.bug_number != null && (
-            <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wide bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
-              B{Math.round(bug.bug_number)}
-            </span>
-          )}
           {bug.urgency && (
             <span className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold ${URGENCY_TONE[bug.urgency] || URGENCY_TONE.Low}`}>
               {bug.urgency}

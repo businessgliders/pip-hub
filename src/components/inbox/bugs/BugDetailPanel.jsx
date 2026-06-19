@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft, LifeBuoy } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import BugEmailThread from "./BugEmailThread";
 import BugComposer from "./BugComposer";
 import BugStatusDropdown from "./BugStatusDropdown";
@@ -26,17 +26,12 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
             <ArrowLeft className="w-5 h-5 text-[#7d2235] dark:text-white/80" />
           </button>
         )}
-        <div className="w-9 h-9 shrink-0 rounded-full bg-[#7d2235]/10 dark:bg-[#7d2235]/30 flex items-center justify-center text-[#7d2235] dark:text-rose-200">
-          <LifeBuoy className="w-5 h-5" />
+        <div className="w-9 h-9 shrink-0 rounded-full bg-[#7d2235]/10 dark:bg-[#7d2235]/30 flex items-center justify-center text-[#7d2235] dark:text-rose-200 font-bold text-[11px]">
+          {bug.bug_number != null ? `B${Math.round(bug.bug_number)}` : "—"}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-bold text-pink-900 dark:text-white truncate">{bug.title || "Bug report"}</span>
-            {bug.bug_number != null && (
-              <span className="shrink-0 text-[11px] font-bold text-[#7d2235] dark:text-rose-300">
-                B{Math.round(bug.bug_number)}
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-2 text-[11px] text-pink-500 dark:text-white/55 mt-0.5">
             {bug.urgency && (
