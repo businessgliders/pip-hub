@@ -6,7 +6,12 @@ import { Upload, Plus, Trash2, Loader2, Send, Users, RotateCw, Check, Link2 } fr
 import { base44 } from "@/api/base44Client";
 import { parseRecipientsCsv } from "./csvUtils";
 
-const PUBLIC_BASE = "https://events.pilatesinpinkstudio.com/form";
+// Each inbox's public form-fill page lives on its own public spoke app.
+const PUBLIC_BASE_BY_SOURCE = {
+  events: "https://events.pilatesinpinkstudio.com/form",
+  support: "https://support.pilatesinpinkstudio.com/form",
+  influencer: "https://partner.pilatesinpinkstudio.com/form",
+};
 
 // Collect recipients (manual rows + CSV upload) and send personalized invites
 // with unique form links via the sendFormInvites backend function.
@@ -26,9 +31,11 @@ export default function RecipientsModal({ form, accent, open, onOpenChange, onSe
   const [resentIds, setResentIds] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
 
+  const publicBase = PUBLIC_BASE_BY_SOURCE[form?.source_app] || PUBLIC_BASE_BY_SOURCE.events;
+
   const copyLink = (rec) => {
     if (!rec.token) return;
-    navigator.clipboard.writeText(`${PUBLIC_BASE}?token=${rec.token}`);
+    navigator.clipboard.writeText(`${publicBase}?token=${rec.token}`);
     setCopiedId(rec.id);
     setTimeout(() => setCopiedId((id) => (id === rec.id ? null : id)), 1500);
   };

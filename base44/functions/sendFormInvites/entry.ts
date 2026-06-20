@@ -9,10 +9,17 @@ const FROM_BY_SOURCE = {
   influencer: { name: 'Influencer @ Pilates in Pink ™', email: 'influencer@pilatesinpinkstudio.com' },
 };
 
-// Public form-fill page is hosted on the PUBLIC pip-events app (events.pilatesinpinkstudio.com),
-// so recipients are never bounced to a login page. The page there calls this
-// hub's getPublicForm / submitPublicForm functions to load & save responses.
-const PUBLIC_BASE = 'https://events.pilatesinpinkstudio.com/form';
+// Public form-fill pages are hosted on the PUBLIC spoke apps so recipients are
+// never bounced to a login page. Each inbox maps to its own public domain:
+//   events     -> pip-events  (events.pilatesinpinkstudio.com)
+//   support    -> pip-support (support.pilatesinpinkstudio.com)
+//   influencer -> pip-partner (partner.pilatesinpinkstudio.com)
+// The page there calls this hub's getPublicForm / submitPublicForm functions.
+const PUBLIC_BASE_BY_SOURCE = {
+  events: 'https://events.pilatesinpinkstudio.com/form',
+  support: 'https://support.pilatesinpinkstudio.com/form',
+  influencer: 'https://partner.pilatesinpinkstudio.com/form',
+};
 
 function token() {
   return crypto.randomUUID().replace(/-/g, '').slice(0, 24);
@@ -85,6 +92,7 @@ Deno.serve(async (req) => {
     if (!form) return Response.json({ error: 'Form not found' }, { status: 404 });
 
     const from = FROM_BY_SOURCE[form.source_app] || FROM_BY_SOURCE.support;
+    const publicBase = PUBLIC_BASE_BY_SOURCE[form.source_app] || PUBLIC_BASE_BY_SOURCE.events;
     const fromHeader = `${encodeHeader(from.name)} <${from.email}>`;
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
@@ -124,7 +132,7 @@ Deno.serve(async (req) => {
         });
       }
 
-      const link = `${PUBLIC_BASE}?token=${tok}`;
+      const link = `${publicBase}?token=${tok}`;
       const greeting = name ? `Hi ${name.split(' ')[0]},` : 'Hi,';
       const htmlBody = `
         <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#3a2030">
