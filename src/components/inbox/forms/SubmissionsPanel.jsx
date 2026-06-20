@@ -143,16 +143,26 @@ function PendingList({ recipients, accent, remindingId, onRemind }) {
             <div className="font-semibold text-pink-900 dark:text-white truncate">{r.name || r.email}</div>
             <div className="text-[11px] text-pink-900/50 dark:text-white/50 truncate">{r.email}</div>
           </div>
-          <Button
-            size="sm"
-            onClick={() => onRemind(r)}
-            disabled={remindingId === r.id}
-            className="gap-1.5 shrink-0 text-white"
-            style={{ backgroundColor: accent }}
-          >
-            {remindingId === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-            Remind
-          </Button>
+          <div className="relative shrink-0">
+            <Button
+              size="sm"
+              onClick={() => onRemind(r)}
+              disabled={remindingId === r.id}
+              className="gap-1.5 text-white"
+              style={{ backgroundColor: accent }}
+            >
+              {remindingId === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+              Remind
+            </Button>
+            {r.reminder_count > 0 && (
+              <span
+                className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[11px] font-bold leading-none ring-2 ring-white dark:ring-neutral-900 shadow"
+                title={`${r.reminder_count} reminder${r.reminder_count === 1 ? "" : "s"} sent`}
+              >
+                {r.reminder_count}
+              </span>
+            )}
+          </div>
         </div>
       ))}
     </div>

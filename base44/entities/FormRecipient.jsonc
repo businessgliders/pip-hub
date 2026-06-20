@@ -27,6 +27,11 @@
       "type": "boolean",
       "default": false,
       "description": "Whether this recipient has submitted the form"
+    },
+    "reminder_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of reminder emails sent to this recipient"
     }
   },
   "required": [

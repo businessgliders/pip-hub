@@ -108,7 +108,10 @@ Deno.serve(async (req) => {
         rec = await base44.asServiceRole.entities.FormRecipient.get(r.recipient_id);
         if (!rec) { results.push({ email, status: 'failed', error: 'recipient not found' }); continue; }
         tok = rec.token;
-        await base44.asServiceRole.entities.FormRecipient.update(rec.id, { sent_at: new Date().toISOString() });
+        await base44.asServiceRole.entities.FormRecipient.update(rec.id, {
+          sent_at: new Date().toISOString(),
+          reminder_count: (rec.reminder_count || 0) + 1,
+        });
       } else {
         tok = token();
         rec = await base44.asServiceRole.entities.FormRecipient.create({
