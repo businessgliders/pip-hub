@@ -258,10 +258,10 @@ export default function FormBuilder({ sourceApp, accent, existing, onBack, onSav
         {/* Footer actions — under the left column only */}
         <div className="flex items-center gap-2 p-3 border-t border-white/40 dark:border-white/10 shrink-0">
           <Button variant="outline" onClick={saveDraft} disabled={saving || locked || !fields.length} className="flex-1 bg-white/60 dark:bg-white/5">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save draft"}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
           </Button>
           <Button onClick={saveAndSend} disabled={saving || locked || !fields.length} className="flex-1 text-white" style={{ backgroundColor: accent }}>
-            Save & Send
+            Send
           </Button>
         </div>
         </div>
