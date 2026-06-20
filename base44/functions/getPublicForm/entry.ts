@@ -1,7 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
-// CORS — this is called cross-origin from the public pip-events app
-// (events.pilatesinpinkstudio.com) where the public form page is hosted.
+// CORS — called cross-origin from the public spoke apps where the form pages
+// are hosted: events.pilatesinpinkstudio.com, support.pilatesinpinkstudio.com,
+// and partner.pilatesinpinkstudio.com.
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
