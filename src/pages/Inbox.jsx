@@ -245,7 +245,9 @@ export default function Inbox() {
     threads.forEach((t) => {
       if (t.source_app !== view) return;
       const it = t.form_data?.[field] || (view === "events" ? t.form_data?.inquiry_type : null);
-      if (it) set.add(String(it));
+      // "Bug Report" is now handled by its own Bugs view/schema — hide it as an
+      // inquiry-type filter option in the Support inbox.
+      if (it && String(it).trim().toLowerCase() !== "bug report") set.add(String(it));
     });
     return Array.from(set).sort();
   }, [threads, view]);
