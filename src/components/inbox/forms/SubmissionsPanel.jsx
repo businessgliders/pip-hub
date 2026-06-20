@@ -24,8 +24,24 @@ export default function SubmissionsPanel({ form, accent, onBack }) {
     initialData: [],
   });
 
-  const submittedCount = recipients.filter((r) => r.submitted).length;
-  const pendingRecipients = recipients.filter((r) => !r.submitted);
+  // De-dupe by email so re-sends / reminders don't list a person twice.
+  // Keep the most-recently-sent row, and treat a recipient as completed if any
+  // of their rows has submitted=true.
+  const uniqueRecipients = React.useMemo(() => {
+    const map = new Map();
+    [...recipients]
+      .sort((a, b) => new Date(b.sent_at || b.created_date || 0) - new Date(a.sent_at || a.created_date || 0))
+      .forEach((r) => {
+        const key = (r.email || "").toLowerCase();
+        if (!key) return;
+        if (!map.has(key)) map.set(key, { ...r });
+        else if (r.submitted) map.get(key).submitted = true;
+      });
+    return Array.from(map.values());
+  }, [recipients]);
+
+  const submittedCount = uniqueRecipients.filter((r) => r.submitted).length;
+  const pendingRecipients = uniqueRecipients.filter((r) => !r.submitted);
   const fields = form.fields || [];
 
   const exportCsv = () => {
@@ -68,7 +84,7 @@ export default function SubmissionsPanel({ form, accent, onBack }) {
 
       {/* Stat chips — clickable filters */}
       <div className="flex gap-2 px-4 py-3 shrink-0">
-        <Stat icon={Users} label="Sent" value={recipients.length} accent={accent} active={filter === "sent"} onClick={() => setFilter("sent")} />
+        <Stat icon={Users} label="Sent" value={uniqueRecipients.length} accent={accent} active={filter === "sent"} onClick={() => setFilter("sent")} />
         <Stat icon={CheckCircle2} label="Completed" value={submittedCount} accent={accent} active={filter === "completed"} onClick={() => setFilter("completed")} />
         <Stat icon={Clock} label="Pending" value={pendingRecipients.length} accent={accent} active={filter === "pending"} onClick={() => setFilter("pending")} />
       </div>
@@ -79,7 +95,7 @@ export default function SubmissionsPanel({ form, accent, onBack }) {
         ) : filter === "pending" ? (
           <PendingList recipients={pendingRecipients} accent={accent} remindingId={remindingId} onRemind={sendReminder} />
         ) : (
-          <SentList recipients={recipients} accent={accent} />
+          <SentList recipients={uniqueRecipients} accent={accent} />
         )}
       </div>
     </div>

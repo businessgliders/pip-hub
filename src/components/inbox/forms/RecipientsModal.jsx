@@ -97,7 +97,8 @@ export default function RecipientsModal({ form, accent, open, onOpenChange, onSe
     try {
       const res = await base44.functions.invoke("sendFormInvites", {
         form_id: form.id,
-        recipients: [{ name: rec.name || "", email: rec.email }],
+        reminder: true,
+        recipients: [{ recipient_id: rec.id, name: rec.name || "", email: rec.email }],
       });
       const data = res?.data || {};
       if (data.error) throw new Error(data.error);
