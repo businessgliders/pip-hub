@@ -23,6 +23,14 @@ export default function PublicForm() {
         const d = res?.data || {};
         if (d.error) throw new Error(d.error);
         setData(d);
+        // Prefill any "Name" field with the recipient's name (still editable).
+        const recipientName = d.recipient?.name;
+        if (recipientName) {
+          const nameField = (d.form?.fields || []).find(
+            (f) => (f.label || "").trim().toLowerCase() === "name"
+          );
+          if (nameField) setAnswers((a) => ({ ...a, [nameField.id]: recipientName }));
+        }
         if (d.already_submitted) setDone(true);
       })
       .catch(() => setError("This form link is invalid or has expired."))
