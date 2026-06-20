@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { form_id, recipients } = await req.json();
+    const { form_id, recipients, reminder = false } = await req.json();
     if (!form_id || !Array.isArray(recipients) || recipients.length === 0) {
       return Response.json({ error: 'form_id and recipients[] are required' }, { status: 400 });
     }
@@ -90,22 +90,36 @@ Deno.serve(async (req) => {
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
     const authHeader = { Authorization: `Bearer ${accessToken}` };
 
+    // Reminders prefix the subject and reuse the recipient's existing token
+    // instead of creating a new recipient record.
+    const subjectLine = reminder ? `REMINDER: ${form.name}` : form.name;
+
     const results = [];
 
     for (const r of recipients) {
       const email = (r.email || '').trim().toLowerCase();
       if (!email) continue;
       const name = (r.name || '').trim();
-      const tok = token();
 
-      const rec = await base44.asServiceRole.entities.FormRecipient.create({
-        form_id,
-        name,
-        email,
-        token: tok,
-        sent_at: new Date().toISOString(),
-        submitted: false,
-      });
+      let rec;
+      let tok;
+      if (reminder && r.recipient_id) {
+        // Reuse the existing recipient + token for a pending invite.
+        rec = await base44.asServiceRole.entities.FormRecipient.get(r.recipient_id);
+        if (!rec) { results.push({ email, status: 'failed', error: 'recipient not found' }); continue; }
+        tok = rec.token;
+        await base44.asServiceRole.entities.FormRecipient.update(rec.id, { sent_at: new Date().toISOString() });
+      } else {
+        tok = token();
+        rec = await base44.asServiceRole.entities.FormRecipient.create({
+          form_id,
+          name,
+          email,
+          token: tok,
+          sent_at: new Date().toISOString(),
+          submitted: false,
+        });
+      }
 
       const link = `${PUBLIC_BASE}?token=${tok}`;
       const greeting = name ? `Hi ${name.split(' ')[0]},` : 'Hi,';
@@ -124,7 +138,7 @@ Deno.serve(async (req) => {
       const textBody = `${greeting}\n\nYou've been invited to fill out ${form.name}.\n\nOpen the form: ${link}\n\n— Pilates in Pink Studio`;
 
       try {
-        const mime = buildMime({ to: email, from: fromHeader, subject: form.name, htmlBody, textBody });
+        const mime = buildMime({ to: email, from: fromHeader, subject: subjectLine, htmlBody, textBody });
         const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
           method: 'POST',
           headers: { ...authHeader, 'Content-Type': 'application/json' },
