@@ -10,7 +10,7 @@ import { submissionsToCsv, downloadCsv } from "./csvUtils";
 // offer a "Remind" button that re-sends the invite with REMINDER: in the subject.
 export default function SubmissionsPanel({ form, accent, onBack }) {
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState("sent"); // sent | completed | pending
+  const [filter, setFilter] = useState("all"); // all | pending
   const [remindingId, setRemindingId] = useState(null);
 
   const { data: submissions, isLoading: loadingSubs } = useQuery({
@@ -84,18 +84,23 @@ export default function SubmissionsPanel({ form, accent, onBack }) {
 
       {/* Stat chips — clickable filters */}
       <div className="flex gap-2 px-4 py-3 shrink-0">
-        <Stat icon={Users} label="Sent" value={uniqueRecipients.length} accent={accent} active={filter === "sent"} onClick={() => setFilter("sent")} />
-        <Stat icon={CheckCircle2} label="Completed" value={submittedCount} accent={accent} active={filter === "completed"} onClick={() => setFilter("completed")} />
+        <Stat icon={Users} label="All" value={uniqueRecipients.length} accent={accent} active={filter === "all"} onClick={() => setFilter("all")} />
         <Stat icon={Clock} label="Pending" value={pendingRecipients.length} accent={accent} active={filter === "pending"} onClick={() => setFilter("pending")} />
       </div>
 
       <div className="flex-1 overflow-y-auto ios-scroll px-4 pb-4">
-        {filter === "completed" ? (
-          <CompletedList loading={loadingSubs} submissions={submissions} fields={fields} accent={accent} />
-        ) : filter === "pending" ? (
+        {filter === "pending" ? (
           <PendingList recipients={pendingRecipients} accent={accent} remindingId={remindingId} onRemind={sendReminder} />
         ) : (
-          <SentList recipients={uniqueRecipients} accent={accent} />
+          <AllList
+            loading={loadingSubs}
+            submissions={submissions}
+            fields={fields}
+            pendingRecipients={pendingRecipients}
+            accent={accent}
+            remindingId={remindingId}
+            onRemind={sendReminder}
+          />
         )}
       </div>
     </div>
@@ -114,21 +119,18 @@ function EmptyState({ accent, title, subtitle }) {
   );
 }
 
-function SentList({ recipients, accent }) {
-  if (recipients.length === 0) return <EmptyState accent={accent} title="No recipients yet" subtitle="Recipients appear here once the form is sent." />;
+// "All" view: completed submissions sorted at the top, pending recipients below.
+function AllList({ loading, submissions, fields, pendingRecipients, accent, remindingId, onRemind }) {
+  if (loading) return <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-pink-900/40" /></div>;
+  if (submissions.length === 0 && pendingRecipients.length === 0) {
+    return <EmptyState accent={accent} title="No recipients yet" subtitle="Recipients appear here once the form is sent." />;
+  }
   return (
     <div className="space-y-2.5">
-      {recipients.map((r) => (
-        <div key={r.id} className="rounded-2xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-white/10 p-3 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <div className="font-semibold text-pink-900 dark:text-white truncate">{r.name || r.email}</div>
-            <div className="text-[11px] text-pink-900/50 dark:text-white/50 truncate">{r.email}</div>
-          </div>
-          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${r.submitted ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/15 text-amber-600 dark:text-amber-400"}`}>
-            {r.submitted ? "Completed" : "Pending"}
-          </span>
-        </div>
-      ))}
+      <CompletedList loading={false} submissions={submissions} fields={fields} accent={accent} />
+      {pendingRecipients.length > 0 && (
+        <PendingList recipients={pendingRecipients} accent={accent} remindingId={remindingId} onRemind={onRemind} />
+      )}
     </div>
   );
 }
@@ -171,7 +173,7 @@ function PendingList({ recipients, accent, remindingId, onRemind }) {
 
 function CompletedList({ loading, submissions, fields, accent }) {
   if (loading) return <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-pink-900/40" /></div>;
-  if (submissions.length === 0) return <EmptyState accent={accent} title="No submissions yet" subtitle="Responses appear here as recipients complete the form." />;
+  if (submissions.length === 0) return null;
   return (
     <div className="space-y-2.5">
       {submissions.map((s) => (
