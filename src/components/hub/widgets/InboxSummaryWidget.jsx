@@ -91,11 +91,9 @@ export default function InboxSummaryWidget({ widget }) {
       <div className="flex-1 overflow-y-auto p-2 min-h-0 relative z-10">
         <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-1'} gap-1.5`}>
           {INBOXES.map((ib) => (
-            <a
+            <Link
               key={ib.key}
-              href={`/inbox#${ib.hash}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              to={`/inbox#${ib.hash}`}
               className="group flex items-center gap-3 px-3 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 transition-colors"
             >
               <span className={`w-2 h-2 rounded-full ${ib.dot} flex-shrink-0`} />
@@ -106,7 +104,7 @@ export default function InboxSummaryWidget({ widget }) {
                 </span>
               )}
               <span className="text-sm font-bold text-gray-700 tabular-nums">{counts[ib.key]}</span>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
