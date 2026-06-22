@@ -195,23 +195,32 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
     const readyAttachments = attachments
       .filter((a) => a.url && !a.uploading)
       .map((a) => ({ url: a.url, filename: a.name, contentType: a.type, size: a.size }));
-    const res = await base44.functions.invoke('sendThreadReply', {
-      thread_id: thread.id,
-      body_html: html,
-      attachments: readyAttachments,
-      is_template: fromTemplate,
-    });
-    setSending(false);
-    if (res?.data?.success) {
-      setEditorHtml('');
-      setFromTemplate(false);
-      setAttachments([]);
-      setShowDescribe(false);
-      setShowSuggest(false);
-      clearDraftStorage();
-      onSent?.();
-    } else {
-      alert('Failed to send: ' + (res?.data?.error || 'unknown error'));
+    try {
+      const res = await base44.functions.invoke('sendThreadReply', {
+        thread_id: thread.id,
+        body_html: html,
+        attachments: readyAttachments,
+        is_template: fromTemplate,
+      });
+      if (res?.data?.success) {
+        setEditorHtml('');
+        setFromTemplate(false);
+        setAttachments([]);
+        setShowDescribe(false);
+        setShowSuggest(false);
+        clearDraftStorage();
+        onSent?.();
+      } else {
+        const detail = res?.data?.details ? ` (${res.data.details})` : '';
+        alert('Failed to send: ' + (res?.data?.error || 'unknown error') + detail);
+      }
+    } catch (err) {
+      // Network error / non-2xx (e.g. Gmail 502) throws — surface it and reset
+      // the button so the draft isn't lost and the user can retry.
+      const apiErr = err?.response?.data?.error || err?.message || 'unknown error';
+      alert('Failed to send: ' + apiErr + '. Your draft is saved — please try again.');
+    } finally {
+      setSending(false);
     }
   };
 
