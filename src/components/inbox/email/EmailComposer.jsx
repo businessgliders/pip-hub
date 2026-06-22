@@ -280,9 +280,15 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
     const draft = getEditorHtml();
     if (isEditorEmpty(draft)) return;
     setPolishing(true);
-    const res = await base44.functions.invoke('aiEmailAssist', { mode: 'polish', thread_id: thread.id, draft });
-    setPolishing(false);
-    if (res?.data?.body_html) setEditorHtml(res.data.body_html);
+    try {
+      const res = await base44.functions.invoke('aiEmailAssist', { mode: 'polish', thread_id: thread.id, draft });
+      if (res?.data?.body_html) setEditorHtml(res.data.body_html);
+      else alert('Polish failed: ' + (res?.data?.error || 'no response'));
+    } catch (err) {
+      alert('Polish failed: ' + (err?.response?.data?.error || err?.message || 'unknown error') + '. Please try again.');
+    } finally {
+      setPolishing(false);
+    }
   };
 
   const handleClear = () => {

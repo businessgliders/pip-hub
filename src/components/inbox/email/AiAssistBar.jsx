@@ -20,15 +20,22 @@ function DescribePanel({ threadId, onApply }) {
   const handleGenerate = async () => {
     if (!text.trim()) return;
     setLoading(true);
-    const res = await base44.functions.invoke('aiEmailAssist', {
-      mode: 'compose',
-      thread_id: threadId,
-      description: text,
-    });
-    setLoading(false);
-    if (res?.data?.body_html) {
-      onApply(res.data.body_html);
-      setText('');
+    try {
+      const res = await base44.functions.invoke('aiEmailAssist', {
+        mode: 'compose',
+        thread_id: threadId,
+        description: text,
+      });
+      if (res?.data?.body_html) {
+        onApply(res.data.body_html);
+        setText('');
+      } else {
+        alert('Generate failed: ' + (res?.data?.error || 'no response'));
+      }
+    } catch (err) {
+      alert('Generate failed: ' + (err?.response?.data?.error || err?.message || 'unknown error') + '. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -95,15 +102,22 @@ function SuggestPanel({ threadId, onApply, cache }) {
 
   const load = async (forceRefresh = false) => {
     setLoading(true);
-    const res = await base44.functions.invoke('aiEmailAssist', {
-      mode: 'suggest',
-      thread_id: threadId,
-      force_refresh: forceRefresh,
-    });
-    setLoading(false);
-    if (res?.data?.suggestions) {
-      setSuggestions(res.data.suggestions);
-      setMeta({ cached: res.data.cached, generated_at: res.data.generated_at });
+    try {
+      const res = await base44.functions.invoke('aiEmailAssist', {
+        mode: 'suggest',
+        thread_id: threadId,
+        force_refresh: forceRefresh,
+      });
+      if (res?.data?.suggestions) {
+        setSuggestions(res.data.suggestions);
+        setMeta({ cached: res.data.cached, generated_at: res.data.generated_at });
+      } else if (res?.data?.error) {
+        alert('Suggestions failed: ' + res.data.error);
+      }
+    } catch (err) {
+      alert('Suggestions failed: ' + (err?.response?.data?.error || err?.message || 'unknown error') + '. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
