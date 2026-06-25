@@ -17,7 +17,7 @@ export function defaultSignatureText(user) {
   return `Best,\n${firstNameFor(user)}\nPilates in Pink™`;
 }
 
-export default function SignaturePopover({ currentUser }) {
+export default function SignaturePopover({ currentUser, showPreview = false }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
@@ -27,6 +27,9 @@ export default function SignaturePopover({ currentUser }) {
   useEffect(() => {
     setValue(currentUser?.email_signature || defaultSignatureText(currentUser));
   }, [currentUser]);
+
+  // Single-line preview of the signature (newlines collapsed to " · ").
+  const previewText = (value || '').split('\n').map((l) => l.trim()).filter(Boolean).join(' · ');
 
   useEffect(() => {
     const onClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
@@ -47,14 +50,23 @@ export default function SignaturePopover({ currentUser }) {
   };
 
   return (
-    <div className="relative" ref={wrapRef}>
+    <div className="relative flex items-center gap-2 min-w-0" ref={wrapRef}>
       <button
         onClick={() => setOpen((o) => !o)}
         title="Edit signature"
-        className="flex items-center justify-center w-9 h-9 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
+        className="flex items-center justify-center w-9 h-9 shrink-0 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
       >
         <PenLine className="w-3.5 h-3.5" />
       </button>
+      {showPreview && previewText && (
+        <button
+          onClick={() => setOpen((o) => !o)}
+          title="Edit signature"
+          className="hidden sm:block text-[11px] text-pink-500/70 dark:text-white/40 truncate max-w-[160px] text-left hover:text-pink-700 dark:hover:text-white/70"
+        >
+          {previewText}
+        </button>
+      )}
 
       {open && (
         <div className="absolute right-0 bottom-full mb-2 z-50 w-72 bg-white dark:bg-neutral-900 border border-pink-200/70 dark:border-white/15 rounded-xl shadow-xl p-3">
