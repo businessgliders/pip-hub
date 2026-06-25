@@ -16,8 +16,8 @@ export default function EmailPreviewModal({ message, open, onClose }) {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col bg-white dark:bg-zinc-800 p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-white/10">
-          <DialogTitle className="text-base text-slate-900 dark:text-white">{message.subject || "(no subject)"}</DialogTitle>
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-white/10 text-left sm:text-left">
+          <DialogTitle className="text-base text-slate-900 dark:text-white text-left">{message.subject || "(no subject)"}</DialogTitle>
           <div className="mt-3 space-y-1.5">
             <Row label="From" value={message.from_name ? `${message.from_name} <${message.from_email}>` : message.from_email} />
             <Row label="To" value={message.to_email} />
