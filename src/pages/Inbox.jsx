@@ -623,12 +623,7 @@ export default function Inbox() {
         }}
         currentUser={currentUser} openCount={openCount} counts={openCounts}
         hideChatWidgets={mobilePanelOpen} bugMode={bugMode} onTerms={() => setTermsOpen(true)}
-        onBugs={() => {
-          setShowArchived(false);
-          setView("support");
-          setSubFilter("bug");
-          setSelected(null);
-        }}
+        onBugs={() => setBugChatOpen(true)}
         onOpenThread={(n) => {
           if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
           const t = threads.find((th) => th.id === n.thread_id);
