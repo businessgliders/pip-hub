@@ -28,8 +28,8 @@ export default function SignaturePopover({ currentUser, showPreview = false }) {
     setValue(currentUser?.email_signature || defaultSignatureText(currentUser));
   }, [currentUser]);
 
-  // Single-line preview of the signature (newlines collapsed to " · ").
-  const previewText = (value || '').split('\n').map((l) => l.trim()).filter(Boolean).join(' · ');
+  // Preview lines of the signature (first two non-empty lines).
+  const previewLines = (value || '').split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 2);
 
   useEffect(() => {
     const onClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
@@ -50,23 +50,25 @@ export default function SignaturePopover({ currentUser, showPreview = false }) {
   };
 
   return (
-    <div className="relative flex items-center gap-2 min-w-0" ref={wrapRef}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        title="Edit signature"
-        className="flex items-center justify-center w-9 h-9 shrink-0 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
-      >
-        <PenLine className="w-3.5 h-3.5" />
-      </button>
-      {showPreview && previewText && (
+    <div className="relative flex items-center gap-1.5 min-w-0" ref={wrapRef}>
+      {showPreview && previewLines.length > 0 && (
         <button
           onClick={() => setOpen((o) => !o)}
           title="Edit signature"
-          className="hidden sm:block text-[11px] text-pink-500/70 dark:text-white/40 truncate max-w-[160px] text-left hover:text-pink-700 dark:hover:text-white/70"
+          className="hidden sm:flex flex-col leading-tight text-[10px] text-pink-500/70 dark:text-white/40 text-left hover:text-pink-700 dark:hover:text-white/70 max-w-[160px]"
         >
-          {previewText}
+          {previewLines.map((line, i) => (
+            <span key={i} className="truncate">{line}</span>
+          ))}
         </button>
       )}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        title="Edit signature"
+        className="flex items-center justify-center w-6 h-6 shrink-0 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
+      >
+        <PenLine className="w-3 h-3" />
+      </button>
 
       {open && (
         <div className="absolute right-0 bottom-full mb-2 z-50 w-72 bg-white dark:bg-neutral-900 border border-pink-200/70 dark:border-white/15 rounded-xl shadow-xl p-3">
