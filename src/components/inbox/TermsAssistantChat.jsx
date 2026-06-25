@@ -9,7 +9,6 @@ const SUGGESTIONS = [
   "What is the cancellation policy?",
   "Can clients bring guests?",
   "What's the late arrival policy?",
-  "Are refunds allowed?",
 ];
 
 /**
@@ -42,6 +41,9 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
       const res = await base44.functions.invoke("askTerms", { question, history });
       const answer = res?.data?.answer || res?.data?.error || "Sorry, I couldn't find an answer.";
       setMessages((m) => [...m, { role: "assistant", content: answer }]);
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.message || "Something went wrong. Please try again.";
+      setMessages((m) => [...m, { role: "assistant", content: `⚠️ ${msg}` }]);
     } finally {
       setLoading(false);
     }
