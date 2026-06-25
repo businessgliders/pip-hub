@@ -414,19 +414,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-3 gap-2">
-        {/* Left: signature editor + inline preview */}
-        <div className="flex items-center min-w-0">
-          <SignaturePopover currentUser={currentUser} showPreview />
-        </div>
-
-        {/* Right: attach / polish / clear / draft-saved + Send Reply */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {draftSavedAt && (
-            <span className="hidden lg:flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400" title={`Draft auto-saved at ${new Date(draftSavedAt).toLocaleString()}`}>
-              <CheckCircle2 className="w-3 h-3" />
-              Saved {formatSavedTime(draftSavedAt)}
-            </span>
-          )}
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => fileInputRef.current?.click()}
             title="Attach files"
@@ -451,15 +439,24 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
-          <button
-            onClick={handleSend}
-            disabled={sending || empty || uploadingCount > 0}
-            title="Send Reply"
-            className="flex items-center gap-2 text-white px-2.5 py-2 lg:px-4 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-md"
-          >
-            {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-            <span className="hidden lg:inline">{sending ? 'Sending…' : uploadingCount > 0 ? 'Uploading…' : 'Send Reply'}</span>
-          </button>
+          {draftSavedAt && (
+            <span className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400" title={`Draft auto-saved at ${new Date(draftSavedAt).toLocaleString()}`}>
+              <CheckCircle2 className="w-3 h-3" />
+              Draft saved {formatSavedTime(draftSavedAt)}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+        <SignaturePopover currentUser={currentUser} />
+        <button
+          onClick={handleSend}
+          disabled={sending || empty || uploadingCount > 0}
+          title="Send Reply"
+          className="flex items-center gap-2 text-white px-2.5 py-2 lg:px-4 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-md"
+        >
+          {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+          <span className="hidden lg:inline">{sending ? 'Sending…' : uploadingCount > 0 ? 'Uploading…' : 'Send Reply'}</span>
+        </button>
         </div>
       </div>
     </div>

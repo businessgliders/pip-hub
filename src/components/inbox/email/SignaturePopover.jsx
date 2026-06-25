@@ -17,7 +17,7 @@ export function defaultSignatureText(user) {
   return `Best,\n${firstNameFor(user)}\nPilates in Pink™`;
 }
 
-export default function SignaturePopover({ currentUser, showPreview = false }) {
+export default function SignaturePopover({ currentUser }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
@@ -27,9 +27,6 @@ export default function SignaturePopover({ currentUser, showPreview = false }) {
   useEffect(() => {
     setValue(currentUser?.email_signature || defaultSignatureText(currentUser));
   }, [currentUser]);
-
-  // Preview lines of the signature (first two non-empty lines).
-  const previewLines = (value || '').split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 2);
 
   useEffect(() => {
     const onClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
@@ -50,24 +47,13 @@ export default function SignaturePopover({ currentUser, showPreview = false }) {
   };
 
   return (
-    <div className="relative flex items-center gap-1.5 min-w-0" ref={wrapRef}>
-      {showPreview && previewLines.length > 0 && (
-        <button
-          onClick={() => setOpen((o) => !o)}
-          title="Edit signature"
-          className="hidden sm:flex flex-col leading-tight text-[10px] text-pink-500/70 dark:text-white/40 text-left hover:text-pink-700 dark:hover:text-white/70 max-w-[160px]"
-        >
-          {previewLines.map((line, i) => (
-            <span key={i} className="truncate">{line}</span>
-          ))}
-        </button>
-      )}
+    <div className="relative" ref={wrapRef}>
       <button
         onClick={() => setOpen((o) => !o)}
         title="Edit signature"
-        className="flex items-center justify-center w-6 h-6 shrink-0 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
+        className="flex items-center justify-center w-9 h-9 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
       >
-        <PenLine className="w-3 h-3" />
+        <PenLine className="w-3.5 h-3.5" />
       </button>
 
       {open && (
