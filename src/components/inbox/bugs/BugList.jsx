@@ -3,7 +3,6 @@ import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import BugRow from "./BugRow";
 import BugFilters from "./BugFilters";
-import ReportNewBugRow from "./ReportNewBugRow";
 
 // Group bugs into "Month Year" buckets based on created_date, newest first.
 function groupByMonth(bugs) {
@@ -81,7 +80,6 @@ export default function BugList({ bugs, statusFilter = "New", selectedBug, onSel
 
       {/* List */}
       <div className="flex-1 overflow-y-auto ios-scroll pb-2">
-        <ReportNewBugRow onClick={onReportBug} />
         {filtered.length === 0 ? (
           <p className="text-center text-sm text-pink-400 dark:text-white/50 py-8">No bug reports.</p>
         ) : (
