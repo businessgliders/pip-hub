@@ -63,7 +63,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-20 lg:bottom-5 right-5 z-50 w-[min(92vw,380px)] h-[min(70vh,560px)] lg:h-[min(80vh,560px)] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900">
+        <div className="fixed bottom-20 lg:bottom-5 right-3 lg:right-5 z-50 w-[min(80vw,320px)] lg:w-[380px] h-[min(62vh,500px)] lg:h-[min(80vh,560px)] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900">
           {/* Header */}
           <div className="px-4 py-3 flex items-center gap-2.5 text-white" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}>
             <HelpCircle className="w-5 h-5" />
