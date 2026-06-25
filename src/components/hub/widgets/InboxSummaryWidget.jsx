@@ -4,11 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Inbox, MessageSquareReply } from 'lucide-react';
 
-// Per-inbox display config. "open" stage differs for events (uses "New").
+// Per-inbox display config. Each inbox counts any of its "open / new" statuses
+// (a thread can land as either the lowercase generic status or the capitalized
+// "New" pipeline stage), so freshly-arrived tickets always show up.
 const INBOXES = [
-  { key: 'support', label: 'Support', hash: 'support', openStatus: 'open', dot: 'bg-amber-700', text: 'text-amber-800' },
-  { key: 'events', label: 'Events', hash: 'events', openStatus: 'New', dot: 'bg-pink-600', text: 'text-pink-700' },
-  { key: 'influencer', label: 'Influencer', hash: 'influencer', openStatus: 'open', dot: 'bg-purple-700', text: 'text-purple-800' },
+  { key: 'support', label: 'Support', hash: 'support', openStatuses: ['open', 'New'], dot: 'bg-amber-700', text: 'text-amber-800' },
+  { key: 'events', label: 'Events', hash: 'events', openStatuses: ['New', 'open'], dot: 'bg-pink-600', text: 'text-pink-700' },
+  { key: 'influencer', label: 'Influencer', hash: 'influencer', openStatuses: ['open', 'New'], dot: 'bg-purple-700', text: 'text-purple-800' },
 ];
 
 export default function InboxSummaryWidget({ widget }) {
@@ -44,7 +46,7 @@ export default function InboxSummaryWidget({ widget }) {
     threads.forEach((t) => {
       if (t.archived) return;
       const cfg = INBOXES.find((i) => i.key === t.source_app);
-      if (cfg && t.status === cfg.openStatus) c[t.source_app]++;
+      if (cfg && cfg.openStatuses.includes(t.status)) c[t.source_app]++;
     });
     return c;
   }, [threads]);
