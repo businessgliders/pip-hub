@@ -47,6 +47,25 @@ function signatureHtml(user) {
   return `<div><br></div><div>Best,</div><div>${name}</div><div>Pilates in Pink™</div>`;
 }
 
+// Remove theme-derived inline colors that the rich-text editor captures while
+// staff compose in dark mode (e.g. color: rgba(255,255,255,0.85)). Left in the
+// outbound HTML, near-white text renders invisible on a recipient's white email
+// background — which made recipients see only part of a message. We strip
+// color, caret-color, background and border-color so email clients fall back to
+// their own readable (dark) defaults.
+function sanitizeEmailHtml(html) {
+  return (html || '')
+    // Drop the offending declarations inside any style="..." attribute.
+    .replace(/style="([^"]*)"/gi, (_m, css) => {
+      const cleaned = css
+        .split(';')
+        .map((d) => d.trim())
+        .filter((d) => d && !/^(color|caret-color|background(-color)?|border-color)\s*:/i.test(d))
+        .join('; ');
+      return cleaned ? `style="${cleaned}"` : '';
+    });
+}
+
 function stripHtml(html) {
   return (html || '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
@@ -211,8 +230,9 @@ Deno.serve(async (req) => {
     const sender = FROM_BY_SOURCE[thread.source_app] || { name: user.full_name || user.email, email: user.email };
     const fromHeader = `${encodeHeader(sender.name)} <${sender.email}>`;
 
-    // Auto-append the logged-in user's signature to every outbound reply.
-    const finalHtml = `${body_html}${signatureHtml(user)}`;
+    // Sanitize editor-captured theme colors (dark-mode white text) before sending,
+    // then auto-append the logged-in user's signature to every outbound reply.
+    const finalHtml = `${sanitizeEmailHtml(body_html)}${signatureHtml(user)}`;
 
     const mime = buildMime({
       to: thread.contact_email,

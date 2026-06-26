@@ -489,7 +489,9 @@ export default function Inbox() {
   const handleAssign = async (email) => {
     if (!selectedThread) return;
     const assignee = staff.find((s) => s.email === email);
-    const assigneeName = assignee?.full_name || email;
+    const assigneeFull = assignee?.full_name || email;
+    // Escalation labels show first name only (e.g. "Escalated to Gurpreen").
+    const assigneeName = String(assigneeFull).trim().split(/\s+/)[0] || assigneeFull;
     const byName = currentUser?.full_name || currentUser?.email || "Staff";
     const nowIso = new Date().toISOString();
 
