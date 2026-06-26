@@ -116,12 +116,12 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
 
       {/* Right icons */}
       <div className="flex items-center justify-end gap-0.5 md:gap-1 shrink-0 pr-4 md:pr-0 w-[104px] md:w-[120px] lg:w-56">
-        {/* Bugs — mobile only (desktop uses the status rail) */}
+        {/* Bugs / Report an issue — all sizes */}
         {onBugs && (
           <button
             onClick={onBugs}
-            title="Report Bug"
-            className="md:hidden p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+            title="Report an issue"
+            className="p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
           >
             <LifeBuoy className="w-5 h-5" />
           </button>
@@ -135,13 +135,6 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
             <HelpCircle className="w-5 h-5" />
           </button>
         )}
-        <button
-          onClick={toggle}
-          title={dark ? "Switch to light mode" : "Switch to dark mode"}
-          className="hidden md:block p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
-        >
-          {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
@@ -159,6 +152,9 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
                 <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
               </div>
             )}
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={toggle}>
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />} {dark ? "Light Mode" : "Dark Mode"}
+            </DropdownMenuItem>
             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => base44.auth.logout(window.location.href)}>
               <Users className="w-4 h-4" /> Switch User
             </DropdownMenuItem>
