@@ -88,6 +88,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
             <HelpCircle className="w-5 h-5" />
             <div className="flex-1">
               <p className="text-sm font-semibold leading-tight">Terms &amp; Pricing</p>
+              <p className="text-[11px] opacity-80 leading-tight">Ask about any policy or price</p>
             </div>
             <button
               onClick={() => setExpanded((v) => !v)}
