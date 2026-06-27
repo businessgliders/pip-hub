@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { ArrowLeft, PanelRight } from "lucide-react";
+import { ArrowLeft, PanelRight, CheckCircle2, RotateCcw } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import BugEmailThread from "./BugEmailThread";
 import BugComposer from "./BugComposer";
 import BugStatusDropdown from "./BugStatusDropdown";
@@ -16,6 +17,13 @@ const URGENCY_TONE = {
 export default function BugDetailPanel({ bug, currentUser, onReplied, onBack, onToggleDetails, detailsOpen }) {
   const [preview, setPreview] = useState(null);
   const [reportOpen, setReportOpen] = useState(false);
+  const isResolved = bug.status === "Resolved" || bug.status === "Closed";
+
+  const toggleResolved = async () => {
+    const next = isResolved ? "New" : "Resolved";
+    await base44.entities.BugReport.update(bug.id, { status: next });
+    onReplied?.();
+  };
 
   return (
     <div className="relative flex flex-col h-full">
@@ -46,6 +54,15 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack, on
         {/* Status dropdown + detail-panel toggle — matches the other inbox headers */}
         <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
           <BugStatusDropdown bug={bug} onChanged={onReplied} />
+          <button
+            onClick={toggleResolved}
+            title={isResolved ? "Reopen" : "Mark as resolved"}
+            className="flex items-center gap-1.5 px-2 lg:px-3 py-2 rounded-full text-white bg-[#4b5563] hover:bg-[#374151] transition-colors shadow-sm text-xs font-semibold whitespace-nowrap"
+          >
+            {isResolved ? <RotateCcw className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
+            <span className="hidden xl:inline">{isResolved ? "Reopen" : "Mark as resolved"}</span>
+            <span className="hidden lg:inline xl:hidden">{isResolved ? "Reopen" : "Resolve"}</span>
+          </button>
           {onToggleDetails && (
             <button
               onClick={onToggleDetails}
