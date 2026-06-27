@@ -10,16 +10,44 @@ const cache = {
   terms: { text: "", at: 0 },
   pricing: { text: "", at: 0 },
 };
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 min — keeps content fresh, self-heals fast
 
-async function fetchPage(url) {
-  // Use Jina Reader to get JS-rendered markdown of the (client-side rendered) page.
-  const readerUrl = `https://r.jina.ai/${url}`;
-  const res = await fetch(readerUrl, {
+// Strip an HTML document down to readable text.
+function htmlToText(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&#36;/g, "$")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function fetchViaJina(url) {
+  const res = await fetch(`https://r.jina.ai/${url}`, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; PilatesInPinkBot/1.0)", Accept: "text/plain" },
   });
-  if (!res.ok) throw new Error(`Failed to fetch page ${url}: ${res.status}`);
+  if (!res.ok) throw new Error(`Jina fetch failed for ${url}: ${res.status}`);
   return (await res.text()).trim();
+}
+
+async function fetchPage(url) {
+  // Prefer Jina Reader (renders client-side pages to markdown). If it fails or
+  // returns too little, fall back to a direct fetch + HTML strip so a single
+  // upstream hiccup (e.g. Jina rate-limiting) can't blank out the content.
+  try {
+    const t = await fetchViaJina(url);
+    if (t && t.length > 200) return t;
+  } catch (_) { /* fall through to direct fetch */ }
+
+  const res = await fetch(url, {
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; PilatesInPinkBot/1.0)" },
+  });
+  if (!res.ok) throw new Error(`Direct fetch failed for ${url}: ${res.status}`);
+  return htmlToText(await res.text());
 }
 
 // Fetch a page with its own cache slot. Only caches a successful, non-empty
