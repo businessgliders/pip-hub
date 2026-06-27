@@ -63,7 +63,7 @@ export default function SignaturePopover({ currentUser }) {
           <textarea
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            rows={4}
+            rows={Math.max(2, (value || '').split('\n').length)}
             className="w-full text-sm rounded-lg border border-pink-200/60 dark:border-white/15 bg-white dark:bg-neutral-900 text-pink-900 dark:text-white px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-pink-300 resize-none"
             placeholder="Best,&#10;Your name&#10;Pilates in Pink™"
           />

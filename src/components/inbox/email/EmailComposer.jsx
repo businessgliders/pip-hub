@@ -417,14 +417,6 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
       <div className="flex items-center justify-between mt-3 gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <SignaturePopover currentUser={currentUser} />
-          <button
-            onClick={handlePolish}
-            disabled={polishing || empty}
-            title="Polish"
-            className="flex items-center gap-1.5 text-xs font-medium px-2 py-1.5 lg:px-3 rounded-full transition-all disabled:opacity-50 bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-200/70 dark:border-violet-400/20"
-          >
-            {polishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
-          </button>
           {draftSavedAt && (
             <span className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400" title={`Draft auto-saved at ${new Date(draftSavedAt).toLocaleString()}`}>
               <CheckCircle2 className="w-3 h-3" />
@@ -433,6 +425,14 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
           )}
         </div>
         <div className="flex items-center gap-2">
+        <button
+          onClick={handlePolish}
+          disabled={polishing || empty}
+          title="Polish"
+          className="flex items-center gap-1.5 text-xs font-medium px-2 py-1.5 lg:px-3 rounded-full transition-all disabled:opacity-50 bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-200/70 dark:border-violet-400/20"
+        >
+          {polishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
+        </button>
         <button
           onClick={handleClear}
           disabled={empty && attachments.length === 0}
