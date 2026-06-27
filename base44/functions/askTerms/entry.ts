@@ -1,29 +1,41 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 const TERMS_URL = "https://pricing.pilatesinpinkstudio.com/terms";
+const PRICING_URL = "https://pricing.pilatesinpinkstudio.com";
 
 // In-memory cache (per warm instance). Refresh every 24h.
 let cachedTerms = null;
 let cachedAt = 0;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
+async function fetchPage(url) {
+  // Use Jina Reader to get JS-rendered markdown of the (client-side rendered) page.
+  const readerUrl = `https://r.jina.ai/${url}`;
+  const res = await fetch(readerUrl, {
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; PilatesInPinkBot/1.0)", Accept: "text/plain" },
+  });
+  if (!res.ok) throw new Error(`Failed to fetch page ${url}: ${res.status}`);
+  return (await res.text()).trim();
+}
+
 async function fetchTermsText() {
   const now = Date.now();
   if (cachedTerms && now - cachedAt < CACHE_TTL_MS) return cachedTerms;
 
-  // Use Jina Reader to get JS-rendered markdown of the (client-side rendered) terms page.
-  const readerUrl = `https://r.jina.ai/${TERMS_URL}`;
-  const res = await fetch(readerUrl, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; PilatesInPinkBot/1.0)", Accept: "text/plain" },
-  });
-  if (!res.ok) throw new Error(`Failed to fetch terms page: ${res.status}`);
+  const [terms, pricing] = await Promise.all([
+    fetchPage(TERMS_URL).catch(() => ""),
+    fetchPage(PRICING_URL).catch(() => ""),
+  ]);
 
-  const text = (await res.text()).trim();
-  if (text.length < 500) throw new Error(`Terms content too short (${text.length} chars).`);
+  const combined =
+    `=== TERMS & ETIQUETTE (from ${TERMS_URL}) ===\n${terms}\n\n` +
+    `=== PRICING (from ${PRICING_URL}) ===\n${pricing}`;
 
-  cachedTerms = text;
+  if (combined.length < 500) throw new Error(`Knowledge content too short (${combined.length} chars).`);
+
+  cachedTerms = combined;
   cachedAt = now;
-  return text;
+  return cachedTerms;
 }
 
 Deno.serve(async (req) => {
@@ -39,20 +51,20 @@ Deno.serve(async (req) => {
 
     const termsText = await fetchTermsText();
 
-    const prompt = `You are a knowledgeable, friendly assistant helping front-desk staff at "Pilates in Pink" studio quickly find and explain studio policies.
+    const prompt = `You are a knowledgeable, friendly assistant helping front-desk staff at "Pilates in Pink" studio quickly find and explain studio policies AND pricing.
 
-Your ONLY source of truth is the following Terms & Etiquette content (fetched live from ${TERMS_URL}):
+Your ONLY source of truth is the following Terms & Etiquette and Pricing content (fetched live from ${TERMS_URL} and ${PRICING_URL}):
 
-=== TERMS CONTENT START ===
+=== KNOWLEDGE CONTENT START ===
 ${termsText}
-=== TERMS CONTENT END ===
+=== KNOWLEDGE CONTENT END ===
 
 RULES:
-- Base your answer STRICTLY on the terms content above.
+- Base your answer STRICTLY on the content above (covers both policies and pricing).
 - Quote the exact relevant phrasing using a markdown blockquote when possible.
 - Be concise and direct — front desk staff need quick answers while clients are waiting.
-- If the answer isn't covered, say plainly: "That isn't covered in our Terms page."
-- Do NOT make up policies. Do NOT reference anything outside the terms content.
+- If the answer isn't covered, say plainly: "That isn't covered in our Terms or Pricing pages."
+- Do NOT make up policies or prices. Do NOT reference anything outside the content above.
 - Format with markdown: bold key terms, bullet lists where appropriate, blockquotes for citations.
 
 Recent conversation:

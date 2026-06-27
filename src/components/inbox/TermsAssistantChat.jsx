@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
-import { HelpCircle, X, Send, Loader2 } from "lucide-react";
+import { HelpCircle, X, Send, Loader2, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const SUGGESTIONS = [
   "What is the cancellation policy?",
-  "Can clients bring guests?",
   "What's the late arrival policy?",
+  "How much is a single class?",
+  "What membership packages are available?",
 ];
 
 /**
@@ -84,9 +85,16 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
           <div className="px-4 py-3 flex items-center gap-2.5 text-white" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}>
             <HelpCircle className="w-5 h-5" />
             <div className="flex-1">
-              <p className="text-sm font-semibold leading-tight">Terms Assistant</p>
-              <p className="text-[11px] opacity-80 leading-tight">Answers from the live Terms page</p>
+              <p className="text-sm font-semibold leading-tight">Terms &amp; Pricing Assistant</p>
+              <p className="text-[11px] opacity-80 leading-tight">Answers from the live Terms &amp; Pricing pages</p>
             </div>
+            <button
+              onClick={() => { setMessages([]); setInput(""); }}
+              title="Back to start"
+              className="p-1 rounded-full hover:bg-white/20 transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
             <button onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-white/20 transition-colors">
               <X className="w-4 h-4" />
             </button>
