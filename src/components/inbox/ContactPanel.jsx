@@ -18,11 +18,21 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
   // dark:text-* classes by not forcing an inline color.
   const accent = dark ? undefined : viewTextColor(thread.source_app);
 
-  const { data: contact } = useQuery({
+  const { data: contactRecord } = useQuery({
     queryKey: ["contact", thread.contact_id],
     queryFn: () => base44.entities.Contact.get(thread.contact_id),
     enabled: !!thread.contact_id,
   });
+
+  // Always have a contact to render — fall back to the thread's denormalized
+  // contact fields when the Contact record is missing or hasn't loaded. This
+  // prevents the detail panel from rendering blank for threads with no/stale
+  // contact_id (the "hit or miss" empty panel some users saw in "All").
+  const contact = contactRecord || {
+    name: thread.contact_name,
+    email: thread.contact_email,
+    phone: thread.form_data?.phone || thread.form_data?.phone_number || "",
+  };
 
   const { data: allThreads } = useQuery({
     queryKey: ["contact-threads", thread.contact_email],
@@ -34,10 +44,6 @@ export default function ContactPanel({ thread, staff = [], onAssign, onSelectThr
   const relatedThreads = allThreads.filter((t) => t.id !== thread.id);
 
 
-
-  if (!contact) {
-    return <div className="h-full p-4 animate-pulse" />;
-  }
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ color: accent }}>
