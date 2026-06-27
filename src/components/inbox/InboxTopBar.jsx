@@ -4,13 +4,13 @@ import { base44 } from "@/api/base44Client";
 import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LifeBuoy, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft, HelpCircle } from "lucide-react";
+import { Bug, Headset, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft, HelpCircle } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png";
 
 const TEAM_TABS = [
-  { key: "support", icon: LifeBuoy },
+  { key: "support", icon: Headset },
   { key: "events", icon: CalendarHeart },
   { key: "influencer", icon: Handshake },
 ];
@@ -56,7 +56,7 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
   );
 }
 
-export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false, bugMode = false, onTerms, onBugs }) {
+export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false, bugMode = false, onTerms, onBugs, bugCount = 0 }) {
   const { dark, toggle } = useTheme();
   const accent = ((bugMode ? VIEW_THEME.bugs : VIEW_THEME[view]) || VIEW_THEME.events).accent;
   const logoTitle = bugMode ? "PiP Bugs" : (LOGO_TITLES[view] || "PiP Inbox");
@@ -120,10 +120,15 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         {onBugs && (
           <button
             onClick={onBugs}
-            title="Report an issue"
-            className="p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+            title="Bugs"
+            className="relative p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
           >
-            <LifeBuoy className="w-5 h-5" />
+            <Bug className="w-5 h-5" />
+            {bugCount > 0 && (
+              <span className="absolute top-0.5 right-0.5 min-w-[15px] h-[15px] px-1 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
+                {bugCount}
+              </span>
+            )}
           </button>
         )}
         {onTerms && (

@@ -662,14 +662,17 @@ export default function Inbox() {
             setView(v);
           }
         }}
-        currentUser={currentUser} openCount={openCount} counts={openCounts}
+        currentUser={currentUser} openCount={openCount} counts={openCounts} bugCount={bugs.length}
         hideChatWidgets={mobilePanelOpen} bugMode={bugMode} onTerms={() => setTermsOpen(true)}
         onBugs={() => {
           setShowArchived(false);
           setView("support");
-          setSubFilter("bug");
           setSelected(null);
           setBugChatOpen(true);
+          // Defer the bug sub-filter past the view-change reset effect, which
+          // otherwise clobbers it back to the first status (when coming from
+          // Events/Influencer where view actually changes).
+          setTimeout(() => setSubFilter("bug"), 0);
         }}
         onOpenThread={(n) => {
           if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
@@ -717,8 +720,10 @@ export default function Inbox() {
                 // only opens via the + button inside the Bugs list.
                 setShowArchived(false);
                 setView("support");
-                setSubFilter("bug");
                 setSelected(null);
+                // Defer the bug sub-filter past the view-change reset effect (which
+                // clobbers it to the first status when coming from Events/Influencer).
+                setTimeout(() => setSubFilter("bug"), 0);
                 // First bug of the active status is auto-selected by effect.
               }}
               bugActive={bugMode}
