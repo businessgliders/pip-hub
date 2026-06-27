@@ -51,9 +51,12 @@ export default function SignaturePopover({ currentUser }) {
       <button
         onClick={() => setOpen((o) => !o)}
         title="Edit signature"
-        className="flex items-center justify-center w-9 h-9 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
+        className="flex items-center gap-1 max-w-[120px] h-7 px-1.5 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
       >
-        <PenLine className="w-3.5 h-3.5" />
+        <PenLine className="w-3 h-3 shrink-0" />
+        <span className="text-[9px] leading-[1.05] text-left whitespace-pre-line line-clamp-3 overflow-hidden">
+          {value || defaultSignatureText(currentUser)}
+        </span>
       </button>
 
       {open && (
