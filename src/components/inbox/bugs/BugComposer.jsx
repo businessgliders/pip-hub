@@ -20,12 +20,20 @@ export default function BugComposer({ bug, currentUser, onSent }) {
   const [error, setError] = useState(null);
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
-  // Sender name shown in the SMS preview — pre-filled from the original reporter.
-  const [senderName, setSenderName] = useState(bug.reported_by_name || currentUser?.full_name || "");
+  // When the escalation recipient (e.g. Gurpreen) is logged in, the panel is
+  // reversed — she replies as herself to the report-bug inbox.
+  const isEscalationUser = !!currentUser?.email &&
+    String(currentUser.email).toLowerCase() === String(bug.escalated_to || "").toLowerCase();
+  // Sender name shown in the SMS preview — defaults to the logged-in escalation
+  // user's name (reversed view), otherwise the original reporter's name.
+  const defaultName = isEscalationUser
+    ? (currentUser?.full_name || "")
+    : (bug.reported_by_name || currentUser?.full_name || "");
+  const [senderName, setSenderName] = useState(defaultName);
 
   // Reset the sender name when switching to a different bug.
   React.useEffect(() => {
-    setSenderName(bug.reported_by_name || currentUser?.full_name || "");
+    setSenderName(defaultName);
   }, [bug.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFiles = async (e) => {
@@ -85,7 +93,7 @@ export default function BugComposer({ bug, currentUser, onSent }) {
   return (
     <div className="rounded-2xl p-3 flex-shrink-0 bg-white/70 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 shadow-sm">
       <p className="text-xs text-[#7d2235]/70 dark:text-white/60 mb-2">
-        To: <span className="font-semibold text-[#7d2235] dark:text-white">{bug.escalated_to || "escalation"}</span>
+        To: <span className="font-semibold text-[#7d2235] dark:text-white">{isEscalationUser ? "reportbug@pilatesinpinkstudio.com" : (bug.escalated_to || "escalation")}</span>
       </p>
 
       <div className="flex items-center gap-1 pb-2 mb-2 border-b border-[#7d2235]/15 dark:border-white/10">

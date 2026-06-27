@@ -47,7 +47,7 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
 
       {/* Conversation */}
       <div className="flex-1 overflow-y-auto ios-scroll">
-        <BugEmailThread bug={bug} onPreview={setPreview} onOpenReport={() => setReportOpen(true)} />
+        <BugEmailThread bug={bug} currentUser={currentUser} onPreview={setPreview} onOpenReport={() => setReportOpen(true)} />
       </div>
 
       {/* Reply composer — sends into the escalation Gmail thread */}

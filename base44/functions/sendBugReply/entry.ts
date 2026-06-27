@@ -39,15 +39,20 @@ Deno.serve(async (req) => {
     const escalationTo = report.escalated_to || Deno.env.get('BUG_REPORT_ESCALATION_TO') || '';
     if (!escalationTo) return Response.json({ error: 'No escalation recipient on this report' }, { status: 400 });
 
-    const fromEmail = Deno.env.get('BUG_REPORT_FROM_EMAIL') || `support@${STAFF_DOMAIN}`;
+    // When Gurpreen (the escalation recipient) is the one replying, reverse the
+    // direction: she sends FROM gurpreen@ TO the report-bug inbox.
+    const reportBugEmail = Deno.env.get('BUG_REPORT_FROM_EMAIL') || `reportbug@${STAFF_DOMAIN}`;
+    const isGurpreen = String(user.email || '').toLowerCase() === escalationTo.toLowerCase();
+    const fromEmail = isGurpreen ? escalationTo : reportBugEmail;
+    const toEmail = isGurpreen ? reportBugEmail : escalationTo;
     const domain = fromEmail.split('@')[1] || STAFF_DOMAIN;
     const subject = `Re: [Bug #${report.bug_number}] ${report.title || 'Issue reported'}`;
     const newMsgId = `<bug-${report.bug_number}-${Date.now()}@${domain}>`;
     const root = report.rfc_message_id || '';
 
     const headers = [
-      `From: ${encodeHeader('Pilates in Pink ™')} <${fromEmail}>`,
-      `To: ${escalationTo}`,
+      `From: ${encodeHeader(isGurpreen ? senderName : 'Pilates in Pink ™')} <${fromEmail}>`,
+      `To: ${toEmail}`,
       `Subject: ${encodeHeader(subject)}`,
       `Message-ID: ${newMsgId}`,
     ];
@@ -106,10 +111,12 @@ Deno.serve(async (req) => {
 
     const nowIso = new Date().toISOString();
     const reply = {
-      direction: 'outbound',
+      // Gurpreen's replies are inbound relative to the report-bug inbox (so the
+      // panel reverses for her); everyone else's are outbound.
+      direction: isGurpreen ? 'inbound' : 'outbound',
       from_email: fromEmail,
       from_name: senderName,
-      to_email: escalationTo,
+      to_email: toEmail,
       subject,
       body_html,
       rfc_message_id: newMsgId,
