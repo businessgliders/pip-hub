@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus, RefreshCw, Maximize2, Minimize2 } from "lucide-react";
+import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus, RefreshCw, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { base44 } from "@/api/base44Client";
@@ -398,6 +398,13 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
               className="p-1 rounded-full hover:bg-white/20 transition-colors"
             >
               {expanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => { resetAll(); pushAssistant("Hey! 👋 I'll help you escalate this. What went wrong? Describe the bug in as much detail as you can."); }}
+              title="Start over"
+              className="p-1 rounded-full hover:bg-white/20 transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
             </button>
             <button onClick={handleClose} className="p-1 rounded-full hover:bg-white/20 transition-colors">
               <X className="w-4 h-4" />
