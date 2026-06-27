@@ -227,7 +227,7 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                 <div className="flex items-center gap-2 flex-wrap justify-center">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium bg-indigo-100/80 dark:bg-indigo-500/20 border border-indigo-300/60 dark:border-indigo-400/30 text-indigo-800 dark:text-indigo-200">
                     <UserPlus className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{(m.subject || "Escalation").replace(/^(Escalated to\s+\S+)\s+.*$/i, "$1")}</span>
+                    <span className="truncate">{(m.subject || "Escalation").replace(/^((?:Escalated|Assigned) to\s+\S+)\s+.*$/i, "$1")}</span>
                     <span className="opacity-60">· {m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
                   </div>
                   {escReason && (

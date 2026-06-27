@@ -133,6 +133,21 @@ export const TABS = [
 
 // The studio's own mailbox should display as "Front Desk" everywhere.
 const FRONT_DESK_EMAIL = "info@pilatesinpinkstudio.com";
+
+// "Escalated to" applies only to the three execs; everyone else (front desk)
+// is "Assigned to". Drives the wording across the escalation UI.
+const ESCALATION_EMAILS = [
+  "gurpreen@pilatesinpinkstudio.com",
+  "sahil@pilatesinpinkstudio.com",
+  "rashmeen@pilatesinpinkstudio.com",
+];
+export function isEscalationTarget(email = "") {
+  return ESCALATION_EMAILS.includes(String(email).trim().toLowerCase());
+}
+// Verb form for the action: "Escalated" vs "Assigned".
+export function assignVerb(email = "") {
+  return isEscalationTarget(email) ? "Escalated" : "Assigned";
+}
 export function displayName(name = "", email = "") {
   const e = String(email).trim().toLowerCase();
   const n = String(name).trim().toLowerCase();

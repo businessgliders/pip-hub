@@ -21,7 +21,7 @@ import BugList from "@/components/inbox/bugs/BugList";
 import BugDetailPanel from "@/components/inbox/bugs/BugDetailPanel";
 import BugSidePanel from "@/components/inbox/bugs/BugSidePanel";
 import FormsPanel from "@/components/inbox/forms/FormsPanel";
-import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor } from "@/components/inbox/inboxConfig";
+import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor, assignVerb } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
 const VIEW_TITLES = {
@@ -529,21 +529,23 @@ export default function Inbox() {
     if (!selectedThread) return;
     const assignee = staff.find((s) => s.email === email);
     const assigneeFull = assignee?.full_name || email;
-    // Escalation labels show first name only (e.g. "Escalated to Gurpreen").
+    // Labels show first name only (e.g. "Escalated to Gurpreen").
     const assigneeName = String(assigneeFull).trim().split(/\s+/)[0] || assigneeFull;
     const byName = currentUser?.full_name || currentUser?.email || "Staff";
     const nowIso = new Date().toISOString();
     const reasonText = String(reason || "").trim();
+    // Front desk = "Assigned"; the three execs = "Escalated".
+    const verb = assignVerb(email);
 
-    // Log the escalation in the thread's Activity (status_history) — keep the
+    // Log the action in the thread's Activity (status_history) — keep the
     // current status, mark the entry as an assignment event. The reason is stored
-    // in `note` so it surfaces under the "Escalated to X" line in the Activity log.
+    // in `reason` so it surfaces as the Activity line.
     const entry = {
       status: selectedThread.status,
       event: "assignment",
       changed_by: currentUser?.email || "staff",
       name: byName,
-      note: `Escalated to ${assigneeName}`,
+      note: `${verb} to ${assigneeName}`,
       reason: reasonText,
       timestamp: nowIso,
     };
@@ -567,9 +569,9 @@ export default function Inbox() {
       ticket_id: selectedThread.id,
       direction: "outbound",
       is_escalation: true,
-      subject: `Escalated to ${assigneeName}`,
+      subject: `${verb} to ${assigneeName}`,
       snippet: reasonText,
-      body_html: `<p><strong>${byName}</strong> escalated this conversation to <strong>${assigneeName}</strong>.</p>${reasonText ? `<p><em>Reason:</em> ${reasonText}</p>` : ""}`,
+      body_html: `<p><strong>${byName}</strong> ${verb.toLowerCase()} this conversation to <strong>${assigneeName}</strong>.</p>${reasonText ? `<p><em>Reason:</em> ${reasonText}</p>` : ""}`,
       from_name: byName,
       sent_by: currentUser?.email || "staff",
       sent_at: nowIso,
