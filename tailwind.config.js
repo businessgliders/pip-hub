@@ -67,6 +67,11 @@ module.exports = {
   				'15%, 45%, 75%': { transform: 'translateX(-6px)' },
   				'30%, 60%, 90%': { transform: 'translateX(6px)' }
   			},
+  			'chat-in': {
+  				'0%': { transform: 'translateY(40px) scale(0.96)', opacity: '0' },
+  				'70%': { transform: 'translateY(-6px) scale(1.01)', opacity: '1' },
+  				'100%': { transform: 'translateY(0) scale(1)', opacity: '1' }
+  			},
   			'accordion-down': {
   				from: {
   					height: '0'
@@ -86,6 +91,7 @@ module.exports = {
   		},
   		animation: {
   			'shake': 'shake 0.5s ease-in-out',
+  			'chat-in': 'chat-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		}
