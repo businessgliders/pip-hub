@@ -184,6 +184,24 @@ Deno.serve(async (req) => {
       gmail_thread_id: gmailThreadId,
     });
 
+    // Notify all staff of the new bug report so it shows in the notification bell
+    // (Bugs group). Bug reports have no assignee, so fan out to all admins.
+    try {
+      const admins = await db.User.filter({ role: 'admin' });
+      const recipients = admins.map((u) => u.email).filter(Boolean);
+      const reporter = report.reported_by_name || report.reported_by_email || 'Someone';
+      await Promise.all(
+        recipients.map((rEmail) => db.Notification.create({
+          type: 'bug',
+          title: `New bug report B${bugNumber}: ${report.title || 'Issue reported'}`.slice(0, 120),
+          body: `${reporter}: ${report.description || ''}`.slice(0, 160),
+          source_app: 'support',
+          is_read: false,
+          recipient_email: rEmail,
+        }))
+      );
+    } catch (_) { /* non-fatal */ }
+
     return Response.json({ success: true, bug_number: bugNumber, email_sent: emailSent, email_error: emailError });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

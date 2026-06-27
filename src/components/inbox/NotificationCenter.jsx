@@ -47,9 +47,12 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
     { key: "bugs", label: "Bugs" },
   ];
   const groupKey = (n) => (n.type === "bug" ? "bugs" : (n.source_app || "support"));
+  // Each inbox group shows its top 3 most recent; a final "All" group lists
+  // every notification ungrouped.
   const grouped = GROUPS
-    .map((g) => ({ ...g, items: notifications.filter((n) => groupKey(n) === g.key) }))
+    .map((g) => ({ ...g, items: notifications.filter((n) => groupKey(n) === g.key).slice(0, 3) }))
     .filter((g) => g.items.length > 0);
+  const sections = [...grouped, { key: "all", label: "All", items: notifications }];
 
   const markRead = useMutation({
     mutationFn: (id) => base44.entities.Notification.update(id, { is_read: true }),
@@ -72,7 +75,8 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
 
   const handleClick = (n) => {
     if (!n.is_read) markRead.mutate(n.id);
-    if (n.thread_id && onOpenThread) {
+    // Bug notifications have no thread_id — still route them so the Bugs view opens.
+    if ((n.thread_id || n.type === "bug") && onOpenThread) {
       onOpenThread(n);
       setOpen(false);
     }
@@ -113,7 +117,7 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
               You're all caught up
             </div>
           ) : (
-            grouped.map((g) => (
+            sections.map((g) => (
               <div key={g.key}>
                 <div className="sticky top-0 z-10 flex items-center justify-between px-3 py-1.5 bg-muted/80 backdrop-blur-sm border-b">
                   <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{g.label}</span>

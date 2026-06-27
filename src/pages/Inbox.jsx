@@ -683,6 +683,13 @@ export default function Inbox() {
           setTimeout(() => setSubFilter("bug"), 0);
         }}
         onOpenThread={(n) => {
+          if (n.type === "bug") {
+            setShowArchived(false);
+            setView("support");
+            setSelected(null);
+            setTimeout(() => setSubFilter("bug"), 0);
+            return;
+          }
           if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
           const t = threads.find((th) => th.id === n.thread_id);
           if (t) handleSelect(t, { shake: true });
@@ -859,6 +866,13 @@ export default function Inbox() {
           currentUser={currentUser}
           accent={accent}
           onOpenThread={(n) => {
+            if (n.type === "bug") {
+              setShowArchived(false);
+              setView("support");
+              setSelected(null);
+              setTimeout(() => setSubFilter("bug"), 0);
+              return;
+            }
             if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
             const t = threads.find((th) => th.id === n.thread_id);
             if (t) handleSelect(t, { shake: true });
