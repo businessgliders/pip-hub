@@ -51,16 +51,14 @@ export default function SignaturePopover({ currentUser }) {
       <button
         onClick={() => setOpen((o) => !o)}
         title="Edit signature"
-        className="flex items-center gap-1 max-w-[120px] h-7 px-1.5 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
+        className="flex items-center gap-1.5 h-8 px-2 lg:px-3 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-pink-700/80 dark:text-white/70 border border-pink-200/70 dark:border-white/15 hover:bg-pink-100"
       >
-        <PenLine className="w-3 h-3 shrink-0" />
-        <span className="text-[9px] leading-[1.05] text-left whitespace-pre-line line-clamp-3 overflow-hidden">
-          {value || defaultSignatureText(currentUser)}
-        </span>
+        <PenLine className="w-3.5 h-3.5 shrink-0" />
+        <span className="hidden lg:inline text-xs font-medium">Signature</span>
       </button>
 
       {open && (
-        <div className="absolute right-0 bottom-full mb-2 z-50 w-72 bg-white dark:bg-neutral-900 border border-pink-200/70 dark:border-white/15 rounded-xl shadow-xl p-3">
+        <div className="absolute left-0 bottom-full mb-2 z-50 w-72 bg-white dark:bg-neutral-900 border border-pink-200/70 dark:border-white/15 rounded-xl shadow-xl p-3">
           <p className="text-xs font-semibold text-pink-900 dark:text-white mb-2">Email signature</p>
           <textarea
             value={value}

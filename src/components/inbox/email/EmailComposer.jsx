@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Sparkles, Lightbulb, Bold, Italic, List, Link as LinkIcon, Send, Trash2, Wand2, X, Loader2, Paperclip, Plus, FileText, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Lightbulb, Bold, Italic, List, Link as LinkIcon, Send, Trash2, Wand2, X, Loader2, Paperclip, FileText, CheckCircle2 } from 'lucide-react';
 import TemplatePicker from './TemplatePicker';
 import AiAssistBar from './AiAssistBar';
 import SignaturePopover from './SignaturePopover';
@@ -351,6 +351,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
         <button onClick={() => exec('italic')} className="p-1.5 rounded hover:bg-pink-50 dark:hover:bg-white/10" title="Italic"><Italic className="w-3.5 h-3.5 text-pink-900/70 dark:text-white/70" /></button>
         <button onClick={() => exec('insertUnorderedList')} className="p-1.5 rounded hover:bg-pink-50 dark:hover:bg-white/10" title="Bullet list"><List className="w-3.5 h-3.5 text-pink-900/70 dark:text-white/70" /></button>
         <button onClick={handleLink} className="p-1.5 rounded hover:bg-pink-50 dark:hover:bg-white/10" title="Insert link"><LinkIcon className="w-3.5 h-3.5 text-pink-900/70 dark:text-white/70" /></button>
+        <button onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:bg-pink-50 dark:hover:bg-white/10" title="Attach files"><Paperclip className="w-3.5 h-3.5 text-pink-900/70 dark:text-white/70" /></button>
       </div>
 
       {/* Editor */}
@@ -415,14 +416,7 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
       {/* Footer */}
       <div className="flex items-center justify-between mt-3 gap-2">
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            title="Attach files"
-            className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-full transition-all bg-pink-50 dark:bg-white/10 text-rose-600 dark:text-rose-300 border border-pink-200/70 dark:border-white/15"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <Paperclip className="w-3.5 h-3.5" />
-          </button>
+          <SignaturePopover currentUser={currentUser} />
           <button
             onClick={handlePolish}
             disabled={polishing || empty}
@@ -430,14 +424,6 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
             className="flex items-center gap-1.5 text-xs font-medium px-2 py-1.5 lg:px-3 rounded-full transition-all disabled:opacity-50 bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-200/70 dark:border-violet-400/20"
           >
             {polishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
-          </button>
-          <button
-            onClick={handleClear}
-            disabled={empty && attachments.length === 0}
-            title="Clear"
-            className="flex items-center gap-1.5 text-xs font-medium px-2 py-1.5 lg:px-3 rounded-full transition-all disabled:opacity-50 bg-pink-100/40 dark:bg-white/5 text-pink-700/70 dark:text-white/60 border border-pink-200/50 dark:border-white/10"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
           </button>
           {draftSavedAt && (
             <span className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400" title={`Draft auto-saved at ${new Date(draftSavedAt).toLocaleString()}`}>
@@ -447,7 +433,14 @@ export default function EmailComposer({ thread, currentUser, onSent, onDirtyChan
           )}
         </div>
         <div className="flex items-center gap-2">
-        <SignaturePopover currentUser={currentUser} />
+        <button
+          onClick={handleClear}
+          disabled={empty && attachments.length === 0}
+          title="Clear draft"
+          className="flex items-center gap-1.5 text-xs font-medium px-2 py-1.5 lg:px-3 rounded-full transition-all disabled:opacity-50 bg-pink-100/40 dark:bg-white/5 text-pink-700/70 dark:text-white/60 border border-pink-200/50 dark:border-white/10"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
         <button
           onClick={handleSend}
           disabled={sending || empty || uploadingCount > 0}
