@@ -144,7 +144,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
             {loading && (
               <div className="flex justify-start">
                 <div className="bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/10 rounded-2xl px-3.5 py-2 text-sm flex items-center gap-2 text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Checking the terms…
+                  <Loader2 className="w-4 h-4 animate-spin" /> Looking it up…
                 </div>
               </div>
             )}
@@ -155,7 +155,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
             onSubmit={(e) => { e.preventDefault(); ask(); }}
             className="p-3 border-t border-black/10 dark:border-white/10 flex items-center gap-2 bg-white dark:bg-neutral-900"
           >
-            <Input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about a policy…" disabled={loading} />
+            <Input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about a policy or pricing…" disabled={loading} />
             <Button type="submit" size="icon" disabled={loading || !input.trim()} style={{ background: accent }} className="text-white shrink-0">
               <Send className="w-4 h-4" />
             </Button>
