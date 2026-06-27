@@ -171,6 +171,26 @@ export default function Inbox() {
     return unsubscribe;
   }, [qc]);
 
+  // Mark a bug as read (clears its new-message dot) when staff opens it.
+  const markBugRead = (b) => {
+    if (!b) return;
+    const inbound = (b.replies || []).filter((r) => r.direction === "inbound");
+    if (!inbound.length) return;
+    const lastReplyAt = inbound.reduce((max, r) => {
+      const t = new Date(r.sent_at || 0).getTime();
+      return t > max ? t : max;
+    }, 0);
+    const readAt = b.staff_read_at ? new Date(b.staff_read_at).getTime() : 0;
+    if (lastReplyAt <= readAt) return; // already read
+    const nowIso = new Date().toISOString();
+    qc.setQueryData(["bug-reports"], (prev) =>
+      (prev || []).map((x) => (x.id === b.id ? { ...x, staff_read_at: nowIso } : x))
+    );
+    base44.entities.BugReport.update(b.id, { staff_read_at: nowIso }).catch(() => {});
+  };
+
+  const handleSelectBug = (b) => { setSelectedBug(b); setMobilePanelOpen(true); markBugRead(b); };
+
   // Auto-select & open the first bug of the active status (like Support inbox).
   useEffect(() => {
     if (!bugMode) return;
@@ -180,6 +200,7 @@ export default function Inbox() {
       const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
       setSelectedBug(inStatus[0]);
       if (isDesktop) setMobilePanelOpen(true);
+      markBugRead(inStatus[0]);
     }
   }, [bugMode, bugStatus, bugs]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -430,6 +451,24 @@ export default function Inbox() {
     return c;
   }, [bugs]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // A bug is "unread" when it has an inbound reply newer than the last time staff
+  // opened it. Drives the new-message dot on the bug status rail (same as other inboxes).
+  const bugHasUnread = (b) => {
+    const inbound = (b.replies || []).filter((r) => r.direction === "inbound");
+    if (!inbound.length) return false;
+    const lastReplyAt = inbound.reduce((max, r) => {
+      const t = new Date(r.sent_at || 0).getTime();
+      return t > max ? t : max;
+    }, 0);
+    const readAt = b.staff_read_at ? new Date(b.staff_read_at).getTime() : 0;
+    return lastReplyAt > readAt;
+  };
+  const unreadBugTabs = useMemo(() => {
+    const u = {};
+    BUG_STATUS_ORDER.forEach((s) => { u[s] = bugs.some((b) => (b.status || "New") === s && bugHasUnread(b)); });
+    return u;
+  }, [bugs]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Which status tabs currently have an unread (new) thread — drives the
   // notification dot superscript on the status rail counts.
   const unreadTabs = useMemo(() => {
@@ -652,7 +691,7 @@ export default function Inbox() {
               tabs={bugStatusTabs}
               active={bugStatus}
               onChange={(k) => { setBugStatus(k); setSelectedBug(null); }}
-              counts={bugStatusCounts} accent={accent}
+              counts={bugStatusCounts} unread={unreadBugTabs} accent={accent}
               onForms={openForm}
               onReportBug={() => {
                 setShowArchived(false);
@@ -694,7 +733,7 @@ export default function Inbox() {
                 bugs={bugs}
                 statusFilter={bugStatus}
                 selectedBug={selectedBug}
-                onSelect={(b) => { setSelectedBug(b); setMobilePanelOpen(true); }}
+                onSelect={handleSelectBug}
                 onReportBug={() => setBugChatOpen(true)}
               />
             ) : (

@@ -157,6 +157,27 @@ Deno.serve(async (req) => {
             replies: [...(bug.replies || []), reply],
             gmail_thread_id: bug.gmail_thread_id || gmailThreadId,
           });
+
+          // Notify staff of inbound bug-escalation replies so they appear in the
+          // notification bell (fan out to all admins — bug reports have no assignee).
+          if (direction === 'inbound') {
+            try {
+              const bugTag = bug.bug_number != null ? `B${Math.round(bug.bug_number)} ` : '';
+              const admins = await db.User.filter({ role: 'admin' });
+              const recipients = admins.map((u) => u.email).filter(Boolean);
+              await Promise.all(
+                recipients.map((rEmail) => db.Notification.create({
+                  type: 'bug',
+                  title: `New reply on ${bugTag}${bug.title || 'bug report'}`.trim(),
+                  body: `${from.name || from.email}: ${snippet}`.slice(0, 160),
+                  source_app: 'support',
+                  is_read: false,
+                  recipient_email: rEmail,
+                }))
+              );
+            } catch (_) { /* non-fatal */ }
+          }
+
           processed++;
           results.push({ messageId, bug_id: bug.id });
           continue;

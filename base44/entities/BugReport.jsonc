@@ -93,6 +93,11 @@
       "type": "string",
       "description": "Gmail thread id of the escalation conversation"
     },
+    "staff_read_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When staff last opened/read this bug report. Used to flag bugs with newer inbound replies as unread."
+    },
     "transcript": {
       "type": "array",
       "description": "Live-chat wizard transcript that produced this report",
