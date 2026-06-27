@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { HelpCircle, X, Send, Loader2, RotateCcw } from "lucide-react";
+import { HelpCircle, X, Send, Loader2, RotateCcw, Maximize2, Minimize2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -25,6 +25,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -81,14 +82,20 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-20 lg:bottom-5 right-3 lg:right-5 z-50 w-[min(80vw,320px)] lg:w-[380px] h-[min(62vh,500px)] lg:h-[min(80vh,560px)] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900 animate-chat-in origin-bottom">
+        <div className={`fixed bottom-20 lg:bottom-5 right-3 lg:right-5 z-50 flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900 animate-chat-in origin-bottom ${expanded ? "w-[min(94vw,640px)] lg:w-[760px] h-[min(88vh,1000px)] lg:h-[min(90vh,1120px)]" : "w-[min(80vw,320px)] lg:w-[380px] h-[min(62vh,500px)] lg:h-[min(80vh,560px)]"}`}>
           {/* Header */}
           <div className="px-4 py-3 flex items-center gap-2.5 text-white" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}>
             <HelpCircle className="w-5 h-5" />
             <div className="flex-1">
-              <p className="text-sm font-semibold leading-tight">Terms &amp; Pricing Assistant</p>
-              <p className="text-[11px] opacity-80 leading-tight">Answers from the live Terms &amp; Pricing pages</p>
+              <p className="text-sm font-semibold leading-tight">Terms &amp; Pricing</p>
             </div>
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              title={expanded ? "Shrink" : "Expand (XL)"}
+              className="p-1 rounded-full hover:bg-white/20 transition-colors"
+            >
+              {expanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
             <button
               onClick={() => { setMessages([]); setInput(""); }}
               title="Back to start"

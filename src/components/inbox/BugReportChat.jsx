@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus, RefreshCw } from "lucide-react";
+import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus, RefreshCw, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { base44 } from "@/api/base44Client";
@@ -48,6 +48,7 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
   const [data, setData] = useState(EMPTY);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [expanded, setExpanded] = useState(false);
   // AI-suggested platform options based on the bug description.
   const [platformOptions, setPlatformOptions] = useState(PLATFORM_OPTIONS);
   const [platformLoading, setPlatformLoading] = useState(false);
@@ -383,7 +384,7 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-20 lg:bottom-5 right-3 lg:right-5 z-50 w-[min(80vw,320px)] lg:w-[380px] h-[min(62vh,500px)] lg:h-[min(80vh,560px)] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900 animate-chat-in origin-bottom">
+        <div className={`fixed bottom-20 lg:bottom-5 right-3 lg:right-5 z-50 flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900 animate-chat-in origin-bottom ${expanded ? "w-[min(94vw,640px)] lg:w-[760px] h-[min(88vh,1000px)] lg:h-[min(90vh,1120px)]" : "w-[min(80vw,320px)] lg:w-[380px] h-[min(62vh,500px)] lg:h-[min(80vh,560px)]"}`}>
           {/* Header */}
           <div className="px-4 py-3 flex items-center gap-2.5 text-white" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}cc)` }}>
             <LifeBuoy className="w-5 h-5" />
@@ -391,6 +392,13 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
               <p className="text-sm font-semibold leading-tight">Report an Issue</p>
               <p className="text-[11px] opacity-80 leading-tight">We'll escalate it for you</p>
             </div>
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              title={expanded ? "Shrink" : "Expand (XL)"}
+              className="p-1 rounded-full hover:bg-white/20 transition-colors"
+            >
+              {expanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
             <button onClick={handleClose} className="p-1 rounded-full hover:bg-white/20 transition-colors">
               <X className="w-4 h-4" />
             </button>
