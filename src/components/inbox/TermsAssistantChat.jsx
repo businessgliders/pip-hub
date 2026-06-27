@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { HelpCircle, X, Send, Loader2, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -133,7 +134,10 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
                   {m.role === "user" ? (
                     m.content
                   ) : (
-                    <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_th]:border [&_th]:border-black/10 dark:[&_th]:border-white/15 [&_th]:bg-muted [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-black/10 dark:[&_td]:border-white/15 [&_td]:px-2 [&_td]:py-1"
+                    >
                       {m.content}
                     </ReactMarkdown>
                   )}
