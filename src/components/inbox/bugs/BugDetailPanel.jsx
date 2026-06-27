@@ -9,7 +9,7 @@ import EmailPreviewModal from "../EmailPreviewModal";
 const URGENCY_TONE = {
   Critical: "bg-red-100 text-red-700 dark:bg-red-500/25 dark:text-red-200",
   High: "bg-orange-100 text-orange-700 dark:bg-orange-500/25 dark:text-orange-200",
-  Soon: "bg-[#7d2235]/10 text-[#7d2235] dark:bg-[#7d2235]/25 dark:text-rose-200",
+  Soon: "bg-[#6b7280]/15 text-[#4b5563] dark:bg-[#6b7280]/30 dark:text-white/80",
   Low: "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-white/60",
 };
 
@@ -23,10 +23,10 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/50 dark:border-white/10 shrink-0">
         {onBack && (
           <button onClick={onBack} className="md:hidden p-1.5 -ml-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
-            <ArrowLeft className="w-5 h-5 text-[#7d2235] dark:text-white/80" />
+            <ArrowLeft className="w-5 h-5 text-[#4b5563] dark:text-white/80" />
           </button>
         )}
-        <div className="w-9 h-9 shrink-0 rounded-full bg-[#7d2235]/10 dark:bg-[#7d2235]/30 flex items-center justify-center text-[#7d2235] dark:text-rose-200 font-bold text-[11px]">
+        <div className="w-9 h-9 shrink-0 rounded-full bg-[#6b7280]/15 dark:bg-[#6b7280]/30 flex items-center justify-center text-[#4b5563] dark:text-white/80 font-bold text-[11px]">
           {bug.bug_number != null ? `B${Math.round(bug.bug_number)}` : "—"}
         </div>
         <div className="flex-1 min-w-0">

@@ -14,12 +14,12 @@ export default function BugRow({ bug, active, onClick }) {
       onClick={onClick}
       className={`w-full text-left mx-2 my-1 px-3 py-3 flex gap-3 rounded-2xl transition-all ${
         active
-          ? "bg-white/80 dark:bg-white/15 shadow-sm ring-1 ring-[#7d2235]/30 dark:ring-white/20 border-l-[3px] border-[#7d2235]"
+          ? "bg-white/80 dark:bg-white/15 shadow-sm ring-1 ring-[#6b7280]/30 dark:ring-white/20 border-l-[3px] border-[#6b7280]"
           : "hover:bg-white/50 dark:hover:bg-white/10 border-l-[3px] border-transparent"
       }`}
       style={{ width: "calc(100% - 1rem)" }}
     >
-      <div className="w-10 h-10 shrink-0 rounded-full bg-[#7d2235]/10 dark:bg-[#7d2235]/30 flex items-center justify-center text-[#7d2235] dark:text-rose-200 font-bold text-[11px]">
+      <div className="w-10 h-10 shrink-0 rounded-full bg-[#6b7280]/15 dark:bg-[#6b7280]/30 flex items-center justify-center text-[#4b5563] dark:text-white/80 font-bold text-[11px]">
         {bug.bug_number != null ? `B${Math.round(bug.bug_number)}` : "—"}
       </div>
       <div className="flex-1 min-w-0">

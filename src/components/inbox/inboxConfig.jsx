@@ -87,11 +87,11 @@ export const VIEW_THEME = {
     light:  "radial-gradient(1100px 600px at 12% 0%, #d7c2f0 0%, transparent 50%), radial-gradient(900px 600px at 100% 100%, #7c3aed 0%, transparent 55%), linear-gradient(135deg, #e3d6f5 0%, #9f74e0 55%, #5b2ca8 100%)",
     dark:   "radial-gradient(1100px 600px at 12% 0%, #3d2168 0%, transparent 55%), radial-gradient(900px 600px at 100% 100%, #1e0f38 0%, transparent 55%), linear-gradient(135deg, #1a1030 0%, #110a20 100%)",
   },
-  // Bugs view — burgundy / deep wine theme, distinct from the other inboxes.
+  // Bugs view — light grey / slate theme, distinct from the other inboxes.
   bugs: {
-    accent: "#7d2235",
-    light:  "radial-gradient(1100px 600px at 12% 0%, #c47488 0%, transparent 50%), radial-gradient(900px 600px at 100% 100%, #7d2235 0%, transparent 55%), linear-gradient(135deg, #d9a3b0 0%, #9c3349 55%, #5e1626 100%)",
-    dark:   "radial-gradient(1100px 600px at 12% 0%, #5a1726 0%, transparent 55%), radial-gradient(900px 600px at 100% 100%, #2e0a13 0%, transparent 55%), linear-gradient(135deg, #25080f 0%, #160509 100%)",
+    accent: "#6b7280",
+    light:  "radial-gradient(1100px 600px at 12% 0%, #d1d5db 0%, transparent 50%), radial-gradient(900px 600px at 100% 100%, #9ca3af 0%, transparent 55%), linear-gradient(135deg, #e5e7eb 0%, #b8bdc7 55%, #8b909b 100%)",
+    dark:   "radial-gradient(1100px 600px at 12% 0%, #3a3f47 0%, transparent 55%), radial-gradient(900px 600px at 100% 100%, #1c1e22 0%, transparent 55%), linear-gradient(135deg, #1a1c20 0%, #111316 100%)",
   },
 };
 

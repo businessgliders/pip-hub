@@ -36,8 +36,8 @@ export default function BugEmailThread({ bug, currentUser, onPreview, onOpenRepo
           onClick={() => onOpenReport?.()}
           className={`group max-w-[75%] text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${
             reversed
-              ? "bg-white/85 dark:bg-white/10 border border-white/70 dark:border-white/15 text-[#7d2235] dark:text-white rounded-bl-sm"
-              : "bg-[#7d2235]/90 dark:bg-[#7d2235]/70 border border-[#7d2235]/60 dark:border-[#7d2235]/40 text-white rounded-br-sm"
+              ? "bg-white/85 dark:bg-white/10 border border-white/70 dark:border-white/15 text-[#4b5563] dark:text-white rounded-bl-sm"
+              : "bg-[#6b7280]/90 dark:bg-[#6b7280]/70 border border-[#6b7280]/60 dark:border-[#6b7280]/40 text-white rounded-br-sm"
           }`}
         >
           <div className="flex items-center gap-1.5 text-[10px] mb-0.5 opacity-70">
@@ -67,8 +67,8 @@ export default function BugEmailThread({ bug, currentUser, onPreview, onOpenRepo
               onClick={() => onPreview?.(m)}
               className={`group max-w-[75%] text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${
                 outbound
-                  ? "bg-[#7d2235]/90 dark:bg-[#7d2235]/70 border border-[#7d2235]/60 dark:border-[#7d2235]/40 text-white rounded-br-sm"
-                  : "bg-white/85 dark:bg-white/10 border border-white/70 dark:border-white/15 text-[#7d2235] dark:text-white rounded-bl-sm"
+                  ? "bg-[#6b7280]/90 dark:bg-[#6b7280]/70 border border-[#6b7280]/60 dark:border-[#6b7280]/40 text-white rounded-br-sm"
+                  : "bg-white/85 dark:bg-white/10 border border-white/70 dark:border-white/15 text-[#4b5563] dark:text-white rounded-bl-sm"
               }`}
             >
               <div className="flex items-center gap-1.5 text-[10px] mb-0.5 opacity-70">
