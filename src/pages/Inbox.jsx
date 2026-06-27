@@ -580,7 +580,7 @@ export default function Inbox() {
 
     // Notify the assignee (email + in-app notification). Non-blocking.
     if (email && email !== currentUser?.email) {
-      base44.functions.invoke("sendAssignmentEmail", { thread_id: selectedThread.id, assigned_to: email }).catch(() => {});
+      base44.functions.invoke("sendAssignmentEmail", { thread_id: selectedThread.id, assigned_to: email, reason: reasonText }).catch(() => {});
     }
   };
 

@@ -23,15 +23,26 @@ function escapeHtml(s = '') {
 
 const SOURCE_LABEL = { support: 'Support', events: 'Events', influencer: 'Partner' };
 
+// "Escalated to" for the three execs; "Assigned to" for front desk / everyone else.
+const ESCALATION_EMAILS = [
+  'gurpreen@pilatesinpinkstudio.com',
+  'sahil@pilatesinpinkstudio.com',
+  'rashmeen@pilatesinpinkstudio.com',
+];
+function assignVerb(email = '') {
+  return ESCALATION_EMAILS.includes(String(email).trim().toLowerCase()) ? 'Escalated' : 'Assigned';
+}
+
 // Branded assignment email matching the app's pink design language, with a
 // deep link that opens the inbox directly on the assigned ticket (it animates
 // the thread row on arrival via ?thread=…&assigned=1).
-function buildAssignmentHtml({ thread, assignedBy, ticketTag, ticketUrl }) {
+function buildAssignmentHtml({ thread, assignedBy, ticketTag, ticketUrl, verb, message }) {
   const pink = '#f1889b';
   const pinkLight = '#fbe0e2';
   const text = '#374151';
   const muted = '#6b7280';
   const inbox = SOURCE_LABEL[thread.source_app] || thread.source_app || '—';
+  const actionWord = (verb || 'Assigned').toLowerCase();
 
   const row = (label, value) => `
     <tr>
@@ -48,8 +59,8 @@ function buildAssignmentHtml({ thread, assignedBy, ticketTag, ticketUrl }) {
         <!-- Header -->
         <tr><td style="background:linear-gradient(135deg, ${pinkLight} 0%, #ffffff 100%);padding:28px 32px;">
           <div style="font-size:13px;font-weight:600;color:${pink};letter-spacing:2px;text-transform:uppercase;">${escapeHtml(STORE_NAME)}</div>
-          <h1 style="margin:6px 0 4px 0;font-size:24px;font-weight:800;color:#1f2937;">📌 A ticket was assigned to you</h1>
-          <div style="font-size:14px;color:${muted};">${escapeHtml(assignedBy)} escalated this conversation to you.</div>
+          <h1 style="margin:6px 0 4px 0;font-size:24px;font-weight:800;color:#1f2937;">📌 A ticket was ${actionWord} to you</h1>
+          <div style="font-size:14px;color:${muted};">${escapeHtml(assignedBy)} ${actionWord} this conversation to you.</div>
         </td></tr>
 
         <!-- Details -->
@@ -60,7 +71,7 @@ function buildAssignmentHtml({ thread, assignedBy, ticketTag, ticketUrl }) {
             ${row('Contact', escapeHtml(thread.contact_name || thread.contact_email || '—'))}
             ${row('Inbox', escapeHtml(inbox))}
           </table>
-          ${thread.snippet ? `<div style="margin-top:16px;padding:14px 16px;background:${pinkLight};border-radius:14px;font-size:14px;color:#1f2937;font-style:italic;">"${escapeHtml(thread.snippet)}"</div>` : ''}
+          ${message ? `<div style="margin-top:16px;padding:14px 16px;background:${pinkLight};border-radius:14px;font-size:14px;color:#1f2937;font-style:italic;">"${escapeHtml(message)}"</div>` : ''}
 
           <!-- CTA Button -->
           <div style="text-align:center;margin:28px 0 8px 0;">
@@ -90,7 +101,7 @@ Deno.serve(async (req) => {
     const isStaff = user && (user.role === 'admin' || String(user.email || '').toLowerCase().endsWith(`@${STAFF_DOMAIN}`));
     if (!isStaff) return Response.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { thread_id, assigned_to } = await req.json();
+    const { thread_id, assigned_to, reason } = await req.json();
     if (!thread_id || !assigned_to) {
       return Response.json({ error: 'thread_id and assigned_to required' }, { status: 400 });
     }
@@ -99,8 +110,11 @@ Deno.serve(async (req) => {
     const thread = await db.Thread.get(thread_id);
     if (!thread) return Response.json({ error: 'Thread not found' }, { status: 404 });
 
+    // "Escalated to" for the execs, "Assigned to" for everyone else.
+    const verb = assignVerb(assigned_to);
+    const message = String(reason || '').trim();
     const ticketTag = thread.ticket_number ? `#${thread.ticket_number} ` : '';
-    const subject = `Assigned to you: ${ticketTag}${thread.subject || 'Inquiry'}`;
+    const subject = `${verb} to you: ${ticketTag}${thread.subject || 'Inquiry'}`;
 
     // Deep link straight to the assigned ticket. ?assigned=1 triggers the
     // thread-row "shake" animation when the inbox opens it.
@@ -111,6 +125,8 @@ Deno.serve(async (req) => {
       assignedBy: user.full_name || user.email,
       ticketTag: ticketTag.trim(),
       ticketUrl,
+      verb,
+      message,
     });
 
     // Send via Gmail so it reaches any address (not just registered users).
@@ -142,8 +158,8 @@ Deno.serve(async (req) => {
     await db.Notification.create({
       recipient_email: assigned_to,
       type: 'assignment',
-      title: `Assigned: ${ticketTag}${thread.subject || 'Inquiry'}`,
-      body: `${user.full_name || user.email} escalated this to you.`,
+      title: `${verb}: ${ticketTag}${thread.subject || 'Inquiry'}`,
+      body: message || `${user.full_name || user.email} ${verb.toLowerCase()} this to you.`,
       thread_id,
       source_app: thread.source_app,
       is_read: false,
