@@ -156,6 +156,9 @@ Deno.serve(async (req) => {
           await db.BugReport.update(bug.id, {
             replies: [...(bug.replies || []), reply],
             gmail_thread_id: bug.gmail_thread_id || gmailThreadId,
+            // An inbound reply means the conversation is active — move it out of
+            // "New" into "In Progress" (don't touch Resolved/Closed).
+            ...(direction === 'inbound' && (bug.status || 'New') === 'New' ? { status: 'In Progress' } : {}),
           });
 
           // Notify staff of inbound bug-escalation replies so they appear in the

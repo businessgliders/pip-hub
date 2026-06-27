@@ -123,29 +123,6 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
           </button>
         )}
 
-        {/* Report Bug — opens the Bugs thread list AND the live-chat Bug Reporter together */}
-        {onReportBug && (
-          <button
-            onClick={onReportBug}
-            title="Report Bug"
-            style={bugActive ? { background: accent, color: "#fff" } : undefined}
-            className={`w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
-              bugActive
-                ? "shadow-md"
-                : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
-            }`}
-          >
-            <span className="relative">
-              <LifeBuoy className="w-5 h-5" />
-              {bugCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
-                  {bugCount}
-                </span>
-              )}
-            </span>
-            <span className="text-center leading-tight">Bugs</span>
-          </button>
-        )}
       </div>
     </div>
   );
