@@ -1,5 +1,5 @@
 import React from "react";
-import { Archive, PartyPopper, FileText, Bug, UserRound, Layers } from "lucide-react";
+import { Archive, PartyPopper, FileText, LifeBuoy, UserRound, Layers } from "lucide-react";
 
 // Vertical "side panel" rail of status tabs shown on the left of the thread list.
 // The count itself acts as the icon/glyph for each status tab.
@@ -40,7 +40,7 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
           >
             {t.key === "bug" ? (
               <span className="relative">
-                <Bug className="w-5 h-5" />
+                <LifeBuoy className="w-5 h-5" />
                 {c > 0 && (
                   <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
                     {c}
@@ -136,7 +136,7 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
             }`}
           >
             <span className="relative">
-              <Bug className="w-5 h-5" />
+              <LifeBuoy className="w-5 h-5" />
               {bugCount > 0 && (
                 <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
                   {bugCount}
