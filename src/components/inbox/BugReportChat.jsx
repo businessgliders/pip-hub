@@ -551,9 +551,16 @@ export default function BugReportChat({ currentUser, accent = "#b67651", open: c
 }
 
 function ComposerRow({ value, onChange, onSend, accent, placeholder }) {
+  // Desktop only: auto-focus so the text box is active on open. On mobile the
+  // user taps first (avoids the iOS keyboard popping open + auto-zoom).
+  const inputRef = useRef(null);
+  useEffect(() => {
+    const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches;
+    if (isDesktop) setTimeout(() => inputRef.current?.focus(), 100);
+  }, []);
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSend(); }} className="flex items-center gap-2">
-      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} autoFocus />
+      <Input ref={inputRef} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
       <Button type="submit" size="icon" disabled={!value.trim()} style={{ background: accent }} className="text-white shrink-0">
         <Send className="w-4 h-4" />
       </Button>

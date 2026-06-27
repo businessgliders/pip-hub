@@ -24,10 +24,19 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, loading]);
+
+  // Desktop only: focus the input when the chat opens. On mobile we leave it
+  // un-focused so the user taps first (avoids the iOS keyboard popping + zoom).
+  useEffect(() => {
+    if (!open) return;
+    const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches;
+    if (isDesktop) setTimeout(() => inputRef.current?.focus(), 100);
+  }, [open]);
 
   const ask = async (q) => {
     const question = (q ?? input).trim();
@@ -138,7 +147,7 @@ export default function TermsAssistantChat({ accent = "#7c3aed", open: controlle
             onSubmit={(e) => { e.preventDefault(); ask(); }}
             className="p-3 border-t border-black/10 dark:border-white/10 flex items-center gap-2 bg-white dark:bg-neutral-900"
           >
-            <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about a policy…" disabled={loading} />
+            <Input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about a policy…" disabled={loading} />
             <Button type="submit" size="icon" disabled={loading || !input.trim()} style={{ background: accent }} className="text-white shrink-0">
               <Send className="w-4 h-4" />
             </Button>
