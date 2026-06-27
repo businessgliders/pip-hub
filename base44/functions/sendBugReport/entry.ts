@@ -152,6 +152,7 @@ Deno.serve(async (req) => {
       const mime = [
         `From: ${encodeHeader('Report Bug @ Pilates in Pink ™')} <${fromEmail}>`,
         `To: ${escalationTo}`,
+        `Cc: support@gokenko.com`,
         `Subject: ${encodeHeader(subject)}`,
         `Message-ID: ${rfcMessageId}`,
         'MIME-Version: 1.0',

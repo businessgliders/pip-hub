@@ -36,6 +36,17 @@ function decodeBase64Url(data) {
   }
 }
 
+// Strip the trailing "Kenko AI / Kenko" signature block that support@gokenko.com
+// appends to its replies. Handles both plain-text and HTML bodies.
+function stripKenkoSignature(str = '', isHtml = false) {
+  if (!str) return str;
+  if (isHtml) {
+    // Remove "Kenko AI" / "Kenko" sitting in their own block(s), tolerating tags/breaks between/around them.
+    return str.replace(/(?:<[^>]+>|\s|&nbsp;)*Kenko\s*AI(?:<[^>]+>|\s|&nbsp;)*Kenko(?:<[^>]+>|\s|&nbsp;)*$/i, '').trimEnd();
+  }
+  return str.replace(/\s*Kenko\s*AI\s*[\r\n]+\s*Kenko\s*$/i, '').trimEnd();
+}
+
 function extractBodies(payload) {
   let html = '';
   let text = '';
@@ -139,14 +150,19 @@ Deno.serve(async (req) => {
         }
         if (bug) {
           const nowIso = new Date().toISOString();
+          // Strip the "Kenko AI / Kenko" signature from gokenko support replies.
+          const isKenko = from.email === 'support@gokenko.com';
+          const replyHtml = isKenko ? stripKenkoSignature(html, true) : html;
+          const replyText = isKenko ? stripKenkoSignature(text, false) : text;
+          const replySnippet = isKenko ? stripKenkoSignature(snippet, false) : snippet;
           const reply = {
             direction,
             from_email: from.email,
             from_name: from.name,
             subject,
-            body_html: html,
-            body_text: text,
-            snippet,
+            body_html: replyHtml,
+            body_text: replyText,
+            snippet: replySnippet,
             rfc_message_id: rfcMessageId,
             gmail_message_id: messageId,
             in_reply_to: inReplyTo,
