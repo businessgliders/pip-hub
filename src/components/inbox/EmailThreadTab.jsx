@@ -219,13 +219,23 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
           const bubbleShade = isAutomated ? ob.darkBubble : ob.bubble;
 
           // Escalation/assignment notice — rendered as a centered internal pill.
+          // The escalation reason (stored in snippet) shows beside it as an internal note.
           if (m.is_escalation) {
+            const escReason = (m.snippet || "").trim();
             return (
-              <div key={m.id} className="flex justify-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium bg-indigo-100/80 dark:bg-indigo-500/20 border border-indigo-300/60 dark:border-indigo-400/30 text-indigo-800 dark:text-indigo-200">
-                  <UserPlus className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{(m.subject || "Escalation").replace(/^(Escalated to\s+\S+)\s+.*$/i, "$1")}</span>
-                  <span className="opacity-60">· {m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
+              <div key={m.id} className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-2 flex-wrap justify-center">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium bg-indigo-100/80 dark:bg-indigo-500/20 border border-indigo-300/60 dark:border-indigo-400/30 text-indigo-800 dark:text-indigo-200">
+                    <UserPlus className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{(m.subject || "Escalation").replace(/^(Escalated to\s+\S+)\s+.*$/i, "$1")}</span>
+                    <span className="opacity-60">· {m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
+                  </div>
+                  {escReason && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-100/80 dark:bg-amber-500/15 border border-amber-300/60 dark:border-amber-400/25 text-amber-800 dark:text-amber-200 max-w-[80%]">
+                      <span className="uppercase tracking-wide text-[9px] font-bold opacity-70 shrink-0">Internal note</span>
+                      <span className="italic truncate">{escReason}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             );

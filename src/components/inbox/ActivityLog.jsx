@@ -35,9 +35,10 @@ export default function ActivityLog({ thread, accent }) {
                   <p className="text-[11px] opacity-60 dark:text-white/55">
                     {h.name || "Staff"} · {relativeTime(h.timestamp)}
                   </p>
-                  {h.note && !isAssignment && (
+                  {/* Status-change reason is stored in `note`; escalation reason in `reason`. */}
+                  {((isAssignment ? h.reason : h.note)) && (
                     <p className="text-[11px] mt-0.5 italic opacity-70 dark:text-white/65 break-words">
-                      “{h.note}”
+                      “{isAssignment ? h.reason : h.note}”
                     </p>
                   )}
                 </div>

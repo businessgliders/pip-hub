@@ -525,7 +525,7 @@ export default function Inbox() {
     });
   };
 
-  const handleAssign = async (email) => {
+  const handleAssign = async (email, reason = "") => {
     if (!selectedThread) return;
     const assignee = staff.find((s) => s.email === email);
     const assigneeFull = assignee?.full_name || email;
@@ -533,15 +533,18 @@ export default function Inbox() {
     const assigneeName = String(assigneeFull).trim().split(/\s+/)[0] || assigneeFull;
     const byName = currentUser?.full_name || currentUser?.email || "Staff";
     const nowIso = new Date().toISOString();
+    const reasonText = String(reason || "").trim();
 
     // Log the escalation in the thread's Activity (status_history) — keep the
-    // current status, mark the entry as an assignment event.
+    // current status, mark the entry as an assignment event. The reason is stored
+    // in `note` so it surfaces under the "Escalated to X" line in the Activity log.
     const entry = {
       status: selectedThread.status,
       event: "assignment",
       changed_by: currentUser?.email || "staff",
       name: byName,
       note: `Escalated to ${assigneeName}`,
+      reason: reasonText,
       timestamp: nowIso,
     };
     const newHistory = [...(selectedThread.status_history || []), entry];
@@ -558,12 +561,15 @@ export default function Inbox() {
     });
 
     // Drop an internal "Escalation" email into the thread panel for visibility.
+    // The reason is appended to the snippet so it can show as an internal note
+    // beside the "Escalated to X" pill in the email panel.
     base44.entities.EmailMessage.create({
       ticket_id: selectedThread.id,
       direction: "outbound",
       is_escalation: true,
       subject: `Escalated to ${assigneeName}`,
-      body_html: `<p><strong>${byName}</strong> escalated this conversation to <strong>${assigneeName}</strong>.</p>`,
+      snippet: reasonText,
+      body_html: `<p><strong>${byName}</strong> escalated this conversation to <strong>${assigneeName}</strong>.</p>${reasonText ? `<p><em>Reason:</em> ${reasonText}</p>` : ""}`,
       from_name: byName,
       sent_by: currentUser?.email || "staff",
       sent_at: nowIso,
