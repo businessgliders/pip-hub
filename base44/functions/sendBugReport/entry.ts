@@ -10,34 +10,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 const STAFF_DOMAIN = 'pilatesinpinkstudio.com';
 const URGENCY_COLOR = { Critical: '#dc2626', High: '#ea580c', Soon: '#ca8a04', Low: '#16a34a' };
 
-function buildForwardMailto(report) {
-  const subject = `[Bug${report.bug_number ? ` #${report.bug_number}` : ''}] ${report.title || 'Issue reported'}${report.client_name ? ` - ${report.client_name}` : ''}`;
-  const lines = [
-    `Forwarding bug report from PiP Support Portal.`,
-    ``,
-    `Title: ${report.title || '—'}`,
-    `Urgency: ${report.urgency || '—'}`,
-    `Platform: ${report.platform || '—'}`,
-    `Reported by: ${report.reported_by_name || report.reported_by_email || '—'}`,
-    report.client_name ? `Client: ${report.client_name}` : null,
-    report.booking_info ? `Booking: ${report.booking_info}` : null,
-    ``,
-    `Description:`,
-    report.description || '—',
-    ``,
-    (report.image_urls || []).length ? `Attachments:\n${(report.image_urls || []).join('\n')}` : null,
-  ].filter(Boolean).join('\n');
-  return `mailto:support@gokenko.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines)}`;
-}
-
 function buildBugHtml(report) {
   const urgencyColor = URGENCY_COLOR[report.urgency] || '#6b7280';
   const imagesHtml = (report.image_urls || []).length
     ? `<h3 style="margin:18px 0 8px;font-size:14px;color:#334155;">📎 Attachments</h3>
-       <div>${report.image_urls.map((u) => `
+       <div>${report.image_urls.map((u, i) => `
          <div style="margin:8px 0;">
-           <img src="${escapeHtml(u)}" style="max-width:480px;border-radius:8px;border:1px solid #e2e8f0;" />
-           <div style="margin-top:4px;font-size:11px;color:#64748b;word-break:break-all;">${escapeHtml(u)}</div>
+           <a href="${escapeHtml(u)}" style="color:#2563eb;text-decoration:underline;font-size:13px;">Attachment ${i + 1} Link</a>
          </div>
        `).join('')}</div>`
     : '';
@@ -60,10 +39,6 @@ function buildBugHtml(report) {
 
     <h3 style="margin:18px 0 8px;font-size:14px;color:#334155;">📝 Description</h3>
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;color:#0f172a;white-space:pre-wrap;font-style:italic;">${escapeHtml(report.description || '—')}</div>
-
-    <div style="margin-top:14px;">
-      <a href="${buildForwardMailto(report)}" style="display:inline-block;padding:10px 18px;background:#0f172a;color:#ffffff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600;">Forward to Platform</a>
-    </div>
 
     ${imagesHtml}
 
