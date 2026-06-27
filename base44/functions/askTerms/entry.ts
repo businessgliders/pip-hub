@@ -4,8 +4,12 @@ const TERMS_URL = "https://pricing.pilatesinpinkstudio.com/terms";
 const PRICING_URL = "https://pricing.pilatesinpinkstudio.com";
 
 // In-memory cache (per warm instance). Refresh every 24h.
-let cachedTerms = null;
-let cachedAt = 0;
+// Terms and pricing are cached SEPARATELY so a transient failure on one page
+// never poisons the other for the rest of the cache window.
+const cache = {
+  terms: { text: "", at: 0 },
+  pricing: { text: "", at: 0 },
+};
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 async function fetchPage(url) {
@@ -18,13 +22,26 @@ async function fetchPage(url) {
   return (await res.text()).trim();
 }
 
-async function fetchTermsText() {
+// Fetch a page with its own cache slot. Only caches a successful, non-empty
+// result — a failed fetch falls back to any previously cached text.
+async function getCached(key, url) {
+  const slot = cache[key];
   const now = Date.now();
-  if (cachedTerms && now - cachedAt < CACHE_TTL_MS) return cachedTerms;
+  if (slot.text && now - slot.at < CACHE_TTL_MS) return slot.text;
+  try {
+    const text = await fetchPage(url);
+    if (text && text.length > 100) {
+      slot.text = text;
+      slot.at = now;
+    }
+  } catch (_) { /* keep stale text if present */ }
+  return slot.text;
+}
 
+async function fetchTermsText() {
   const [terms, pricing] = await Promise.all([
-    fetchPage(TERMS_URL).catch(() => ""),
-    fetchPage(PRICING_URL).catch(() => ""),
+    getCached("terms", TERMS_URL),
+    getCached("pricing", PRICING_URL),
   ]);
 
   const combined =
@@ -33,9 +50,7 @@ async function fetchTermsText() {
 
   if (combined.length < 500) throw new Error(`Knowledge content too short (${combined.length} chars).`);
 
-  cachedTerms = combined;
-  cachedAt = now;
-  return cachedTerms;
+  return combined;
 }
 
 Deno.serve(async (req) => {
