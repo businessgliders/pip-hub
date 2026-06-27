@@ -21,6 +21,19 @@ export default function InboxNotificationsSheet({ currentUser, onClose, onOpenTh
 
   const unread = notifications.filter((n) => !n.is_read);
 
+  // Group notifications by inbox type. Bug notifications form their own group;
+  // everything else groups by source_app.
+  const GROUPS = [
+    { key: "support", label: "Support" },
+    { key: "events", label: "Events" },
+    { key: "influencer", label: "Influencer" },
+    { key: "bugs", label: "Bugs" },
+  ];
+  const groupKey = (n) => (n.type === "bug" ? "bugs" : (n.source_app || "support"));
+  const grouped = GROUPS
+    .map((g) => ({ ...g, items: notifications.filter((n) => groupKey(n) === g.key) }))
+    .filter((g) => g.items.length > 0);
+
   const markRead = useMutation({
     mutationFn: (id) => base44.entities.Notification.update(id, { is_read: true }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications", email] }),
@@ -72,26 +85,34 @@ export default function InboxNotificationsSheet({ currentUser, onClose, onOpenTh
               You're all caught up
             </div>
           ) : (
-            notifications.map((n) => {
-              const Icon = TYPE_ICON[n.type] || Bell;
-              return (
-                <button
-                  key={n.id}
-                  onClick={() => handleClick(n)}
-                  className={`w-full text-left flex gap-3 px-4 py-3 border-b last:border-0 dark:border-white/10 hover:bg-muted/60 transition-colors ${n.is_read ? "opacity-60" : "bg-pink-50/50 dark:bg-pink-500/5"}`}
-                >
-                  <div className="mt-0.5 w-7 h-7 shrink-0 rounded-full bg-muted flex items-center justify-center">
-                    <Icon className="w-3.5 h-3.5 text-pink-500" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">{n.title}</p>
-                    {n.body && <p className="text-xs text-muted-foreground truncate">{n.body}</p>}
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{relativeTime(n.created_date)}</p>
-                  </div>
-                  {!n.is_read && <span className="mt-1.5 w-2 h-2 rounded-full bg-pink-500 shrink-0" />}
-                </button>
-              );
-            })
+            grouped.map((g) => (
+              <div key={g.key}>
+                <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-1.5 bg-muted/80 backdrop-blur-sm border-b dark:border-white/10">
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{g.label}</span>
+                  <span className="text-[11px] font-semibold text-muted-foreground">{g.items.length}</span>
+                </div>
+                {g.items.map((n) => {
+                  const Icon = TYPE_ICON[n.type] || Bell;
+                  return (
+                    <button
+                      key={n.id}
+                      onClick={() => handleClick(n)}
+                      className={`w-full text-left flex gap-3 px-4 py-3 border-b last:border-0 dark:border-white/10 hover:bg-muted/60 transition-colors ${n.is_read ? "opacity-60" : "bg-pink-50/50 dark:bg-pink-500/5"}`}
+                    >
+                      <div className="mt-0.5 w-7 h-7 shrink-0 rounded-full bg-muted flex items-center justify-center">
+                        <Icon className="w-3.5 h-3.5 text-pink-500" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate">{n.title}</p>
+                        {n.body && <p className="text-xs text-muted-foreground truncate">{n.body}</p>}
+                        <p className="text-[11px] text-muted-foreground mt-0.5">{relativeTime(n.created_date)}</p>
+                      </div>
+                      {!n.is_read && <span className="mt-1.5 w-2 h-2 rounded-full bg-pink-500 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            ))
           )}
         </div>
       </div>
