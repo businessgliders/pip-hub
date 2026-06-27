@@ -222,19 +222,18 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
           // The escalation reason (stored in snippet) shows beside it as an internal note.
           if (m.is_escalation) {
             const escReason = (m.snippet || "").trim();
+            const escLabel = (m.subject || "Escalation").replace(/^((?:Escalated|Assigned) to\s+\S+)\s+.*$/i, "$1");
+            const escTime = m.sent_at ? new Date(asUTC(m.sent_at)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
             return (
-              <div key={m.id} className="flex flex-col items-center gap-1">
-                <div className="flex items-center gap-2 flex-wrap justify-center">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium bg-indigo-100/80 dark:bg-indigo-500/20 border border-indigo-300/60 dark:border-indigo-400/30 text-indigo-800 dark:text-indigo-200">
+              <div key={m.id} className="flex justify-center">
+                <div className="inline-flex flex-col gap-1 px-3 py-1.5 rounded-2xl text-[12px] font-medium bg-indigo-100/80 dark:bg-indigo-500/20 border border-indigo-300/60 dark:border-indigo-400/30 text-indigo-800 dark:text-indigo-200 max-w-[85%]">
+                  <div className="flex items-center gap-2">
                     <UserPlus className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{(m.subject || "Escalation").replace(/^((?:Escalated|Assigned) to\s+\S+)\s+.*$/i, "$1")}</span>
-                    <span className="opacity-60">· {m.sent_at ? new Date(m.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
+                    <span className="truncate">{escLabel}</span>
+                    <span className="opacity-60 whitespace-nowrap">· {escTime}</span>
                   </div>
                   {escReason && (
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-100/80 dark:bg-amber-500/15 border border-amber-300/60 dark:border-amber-400/25 text-amber-800 dark:text-amber-200 max-w-[80%]">
-                      <span className="uppercase tracking-wide text-[9px] font-bold opacity-70 shrink-0">Internal note</span>
-                      <span className="italic truncate">{escReason}</span>
-                    </div>
+                    <div className="text-[11px] italic opacity-80 pl-6 break-words">{escReason}</div>
                   )}
                 </div>
               </div>

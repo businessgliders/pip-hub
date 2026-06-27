@@ -29,25 +29,21 @@ export default function ActivityLog({ thread, accent }) {
                   <span className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ background: accent }} />
                 )}
                 <div className="min-w-0">
-                  {/* For escalations/assignments, lead with the reason note (falling
-                      back to "Escalated/Assigned to X" when no reason was given). */}
+                  {/* Title = the actual change. For assignments that's the
+                      "Escalated/Assigned to X" label; otherwise the status move. */}
                   <p className="text-xs font-medium dark:text-white/85 break-words" style={{ color: accent }}>
-                    {isAssignment ? (h.reason || h.note || "Escalated") : `Moved to ${meta?.label || h.status}`}
+                    {isAssignment ? (h.note || "Escalated") : `Moved to ${meta?.label || h.status}`}
                   </p>
-                  <p className="text-[11px] opacity-60 dark:text-white/55">
+                  {/* Optional middle line — any note/reason that accompanied the change. */}
+                  {(isAssignment ? h.reason : h.note) && (
+                    <p className="text-[11px] mt-0.5 italic opacity-70 dark:text-white/65 break-words">
+                      “{isAssignment ? h.reason : h.note}”
+                    </p>
+                  )}
+                  {/* Date always last. */}
+                  <p className="text-[11px] mt-0.5 opacity-60 dark:text-white/55">
                     {h.name || "Staff"} · {relativeTime(h.timestamp)}
                   </p>
-                  {/* Show the "Escalated/Assigned to X" line as a secondary detail
-                      when a reason was the primary line. Status-change reason in `note`. */}
-                  {isAssignment ? (
-                    h.reason && h.note && (
-                      <p className="text-[11px] mt-0.5 opacity-60 dark:text-white/55 break-words">{h.note}</p>
-                    )
-                  ) : (
-                    h.note && (
-                      <p className="text-[11px] mt-0.5 italic opacity-70 dark:text-white/65 break-words">“{h.note}”</p>
-                    )
-                  )}
                 </div>
               </li>
             );
