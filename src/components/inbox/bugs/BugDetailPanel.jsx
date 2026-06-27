@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, PanelRight } from "lucide-react";
 import BugEmailThread from "./BugEmailThread";
 import BugComposer from "./BugComposer";
 import BugStatusDropdown from "./BugStatusDropdown";
@@ -13,7 +13,7 @@ const URGENCY_TONE = {
   Low: "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-white/60",
 };
 
-export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) {
+export default function BugDetailPanel({ bug, currentUser, onReplied, onBack, onToggleDetails, detailsOpen }) {
   const [preview, setPreview] = useState(null);
   const [reportOpen, setReportOpen] = useState(false);
 
@@ -39,9 +39,22 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack }) 
                 {bug.urgency}
               </span>
             )}
-            <BugStatusDropdown bug={bug} onChanged={onReplied} />
-            {bug.platform && <><span>·</span><span className="truncate">{bug.platform}</span></>}
+            {bug.platform && <span className="truncate">{bug.platform}</span>}
           </div>
+        </div>
+
+        {/* Status dropdown + detail-panel toggle — matches the other inbox headers */}
+        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+          <BugStatusDropdown bug={bug} onChanged={onReplied} />
+          {onToggleDetails && (
+            <button
+              onClick={onToggleDetails}
+              title={detailsOpen ? "Hide details" : "Show details"}
+              className="p-2 rounded-full text-[#4b5563] dark:text-white/80 bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/15 transition-colors shadow-sm"
+            >
+              <PanelRight className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 

@@ -791,6 +791,8 @@ export default function Inbox() {
                 currentUser={currentUser}
                 onReplied={() => qc.invalidateQueries({ queryKey: ["bug-reports"] })}
                 onBack={() => setMobilePanelOpen(false)}
+                detailsOpen={showContact}
+                onToggleDetails={() => setShowContact((s) => !s)}
               />
             ) : (
               <EmptyThreadState accent={accent} onReportBug={() => setBugChatOpen(true)} />
