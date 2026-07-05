@@ -104,7 +104,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         {TEAM_TABS.map((t) => (
           <TabButton
             key={t.key}
-            active={view === t.key}
+            active={!bugMode && view === t.key}
             onClick={() => setView(t.key)}
             icon={t.icon}
             label={SOURCE_META[t.key]?.label || t.key}
@@ -121,7 +121,12 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
           <button
             onClick={onBugs}
             title="Bugs"
-            className="relative p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+            style={bugMode ? { color: VIEW_THEME.bugs.accent } : undefined}
+            className={`relative p-2 rounded-full transition-colors ${
+              bugMode
+                ? "bg-white/80 dark:bg-white/15 shadow-sm"
+                : "text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10"
+            }`}
           >
             <LifeBuoy className="w-5 h-5" />
             {bugCount > 0 && (

@@ -10,6 +10,10 @@
       "type": "string",
       "description": "Short one-sentence title summarizing the issue"
     },
+    "subject_summary": {
+      "type": "string",
+      "description": "AI-generated 2-3 word summary used in the email subject line. The full title stays in the email body."
+    },
     "description": {
       "type": "string",
       "description": "What went wrong - free text description of the bug"

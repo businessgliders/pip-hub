@@ -44,9 +44,14 @@ Deno.serve(async (req) => {
     const reportBugEmail = Deno.env.get('BUG_REPORT_FROM_EMAIL') || `reportbug@${STAFF_DOMAIN}`;
     const isGurpreen = String(user.email || '').toLowerCase() === escalationTo.toLowerCase();
     const fromEmail = isGurpreen ? escalationTo : reportBugEmail;
-    const toEmail = isGurpreen ? reportBugEmail : escalationTo;
+    // Front-desk (info@) / non-Gurpreen replies mirror the original bug report's
+    // recipients so the escalation loop is preserved: escalation recipient + gokenko.
+    const toEmail = isGurpreen ? reportBugEmail : `${escalationTo}, support@gokenko.com`;
     const domain = fromEmail.split('@')[1] || STAFF_DOMAIN;
-    const subject = `Re: [Bug #${report.bug_number}] ${report.title || 'Issue reported'}`;
+    // Reuse the same subject line as the original escalation (with the AI summary,
+    // no "Re:" prefix) so every message stays in one unified Gmail thread/subject.
+    const subjectText = report.subject_summary || report.title || 'Issue reported';
+    const subject = `[Bug #${report.bug_number}] ${subjectText}${report.client_name ? ` - ${report.client_name}` : ''}`;
     const newMsgId = `<bug-${report.bug_number}-${Date.now()}@${domain}>`;
     const root = report.rfc_message_id || '';
 

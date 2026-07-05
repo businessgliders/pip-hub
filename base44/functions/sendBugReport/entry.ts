@@ -112,7 +112,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'BUG_REPORT_ESCALATION_TO secret not set' }, { status: 400 });
     }
 
-    const subject = `[Bug #${bugNumber}] ${report.title || 'Issue reported'}${report.client_name ? ` - ${report.client_name}` : ''}`;
+    // Build a short 2-3 word AI summary for the subject line. The full title
+    // still appears in the email body. Reuse a previously-generated summary so
+    // re-sends keep the same subject (and Gmail thread).
+    let subjectSummary = report.subject_summary || '';
+    if (!subjectSummary) {
+      try {
+        const ai = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: `Summarize this software bug in 2-3 words for an email subject line. Title case, no punctuation, no quotes. Just the phrase.\n\nTitle: ${report.title || ''}\nDescription: ${report.description || ''}`,
+        });
+        subjectSummary = String(ai || '').trim().replace(/^["']|["']$/g, '').split('\n')[0].slice(0, 40);
+      } catch (_) { /* fall back to title below */ }
+    }
+    const subjectText = subjectSummary || report.title || 'Issue reported';
+    const subject = `[Bug #${bugNumber}] ${subjectText}${report.client_name ? ` - ${report.client_name}` : ''}`;
     const html = buildBugHtml({ ...report, bug_number: bugNumber }).trim();
     const fromEmail = Deno.env.get('BUG_REPORT_FROM_EMAIL') || `support@${STAFF_DOMAIN}`;
     // Generate our own RFC Message-ID so inbound replies can be threaded back.
@@ -153,6 +166,7 @@ Deno.serve(async (req) => {
     await db.BugReport.update(bug_report_id, {
       bug_number: bugNumber,
       escalated_to: escalationTo,
+      subject_summary: subjectSummary,
       email_status: emailSent ? 'sent' : 'failed',
       email_error: emailError,
       rfc_message_id: rfcMessageId,
