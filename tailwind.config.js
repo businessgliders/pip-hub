@@ -72,6 +72,12 @@ module.exports = {
   				'70%': { transform: 'translateY(-6px) scale(1.01)', opacity: '1' },
   				'100%': { transform: 'translateY(0) scale(1)', opacity: '1' }
   			},
+  			'highlight-flash': {
+  				'0%': { backgroundColor: 'rgba(250, 204, 21, 0)' },
+  				'15%': { backgroundColor: 'rgba(250, 204, 21, 0.55)' },
+  				'55%': { backgroundColor: 'rgba(250, 204, 21, 0.55)' },
+  				'100%': { backgroundColor: 'rgba(250, 204, 21, 0)' }
+  			},
   			'accordion-down': {
   				from: {
   					height: '0'
@@ -92,6 +98,7 @@ module.exports = {
   		animation: {
   			'shake': 'shake 0.5s ease-in-out',
   			'chat-in': 'chat-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+  			'highlight-flash': 'highlight-flash 2.5s ease-in-out',
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		}

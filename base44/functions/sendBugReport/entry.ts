@@ -185,6 +185,7 @@ Deno.serve(async (req) => {
           title: `New bug report B${bugNumber}: ${report.title || 'Issue reported'}`.slice(0, 120),
           body: `${reporter}: ${report.description || ''}`.slice(0, 160),
           source_app: 'support',
+          thread_id: bug_report_id,
           is_read: false,
           recipient_email: rEmail,
         }))

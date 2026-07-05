@@ -3,7 +3,7 @@ import { CalendarHeart, Reply } from "lucide-react";
 import Avatar from "./Avatar";
 import { relativeTime, displayName, eventDateInfo } from "./inboxConfig";
 
-export default function ThreadRow({ thread, active, onClick }) {
+export default function ThreadRow({ thread, active, onClick, highlight }) {
   const unread = !thread.is_read;
   // Events inbox: replace the preview line with the event date + days-left countdown.
   const ev = thread.source_app === "events" ? eventDateInfo(thread) : null;
@@ -12,7 +12,7 @@ export default function ThreadRow({ thread, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left mx-2 my-1 px-3 py-3 flex gap-3 rounded-2xl transition-all ${
+      className={`w-full text-left mx-2 my-1 px-3 py-3 flex gap-3 rounded-2xl transition-all ${highlight ? "animate-highlight-flash ring-2 ring-amber-400" : ""} ${
         active
           ? "bg-white/80 dark:bg-white/15 shadow-sm ring-1 ring-pink-200/70 dark:ring-white/20 border-l-[3px] border-pink-500"
           : "hover:bg-white/50 dark:hover:bg-white/10 border-l-[3px] border-transparent"

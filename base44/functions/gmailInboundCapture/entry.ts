@@ -190,6 +190,7 @@ Deno.serve(async (req) => {
                   title: `New reply on ${bugTag}${bug.title || 'bug report'}`.trim(),
                   body: `${from.name || from.email}: ${snippet}`.slice(0, 160),
                   source_app: 'support',
+                  thread_id: bug.id,
                   is_read: false,
                   recipient_email: rEmail,
                 }))

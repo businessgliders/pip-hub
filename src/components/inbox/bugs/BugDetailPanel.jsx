@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { ArrowLeft, PanelRight, CheckCircle2, RotateCcw } from "lucide-react";
+import { ArrowLeft, PanelRight, CheckCircle2, RotateCcw, X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import BugEmailThread from "./BugEmailThread";
 import BugComposer from "./BugComposer";
 import BugStatusDropdown from "./BugStatusDropdown";
 import BugReportModal from "./BugReportModal";
+import BugSidePanel from "./BugSidePanel";
 import EmailPreviewModal from "../EmailPreviewModal";
 
 const URGENCY_TONE = {
@@ -17,6 +18,8 @@ const URGENCY_TONE = {
 export default function BugDetailPanel({ bug, currentUser, onReplied, onBack, onToggleDetails, detailsOpen }) {
   const [preview, setPreview] = useState(null);
   const [reportOpen, setReportOpen] = useState(false);
+  // Mobile/tablet only: slide-in detail panel that overlays the email view.
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const isResolved = bug.status === "Resolved" || bug.status === "Closed";
 
   const toggleResolved = async () => {
@@ -66,15 +69,17 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack, on
             <span className="hidden xl:inline">{isResolved ? "Reopen" : "Mark as resolved"}</span>
             <span className="hidden lg:inline xl:hidden">{isResolved ? "Reopen" : "Resolve"}</span>
           </button>
-          {onToggleDetails && (
-            <button
-              onClick={onToggleDetails}
-              title={detailsOpen ? "Hide details" : "Show details"}
-              className="p-2 rounded-full text-[#4b5563] dark:text-white/80 bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/15 transition-colors shadow-sm"
-            >
-              <PanelRight className="w-4 h-4" />
-            </button>
-          )}
+          <button
+            onClick={() => {
+              const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches;
+              if (isDesktop) onToggleDetails?.();
+              else setMobileDetailOpen(true);
+            }}
+            title={detailsOpen ? "Hide details" : "Show details"}
+            className="p-2 rounded-full text-[#4b5563] dark:text-white/80 bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/15 transition-colors shadow-sm"
+          >
+            <PanelRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
@@ -86,6 +91,21 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack, on
       {/* Reply composer — sends into the escalation Gmail thread */}
       <div className="p-3 border-t border-white/40 dark:border-white/10 shrink-0">
         <BugComposer bug={bug} currentUser={currentUser} onSent={onReplied} />
+      </div>
+
+      {/* Mobile/tablet slide-in detail panel (overlays the email view) */}
+      <div className={`lg:hidden absolute inset-0 z-30 transition-transform duration-300 ease-out ${mobileDetailOpen ? "translate-x-0" : "translate-x-full pointer-events-none"}`}>
+        <div className="h-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-3xl">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/50 dark:border-white/15">
+            <span className="font-bold text-pink-900 dark:text-white">Bug Details</span>
+            <button onClick={() => setMobileDetailOpen(false)} className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
+              <X className="w-5 h-5 text-[#4b5563] dark:text-white/80" />
+            </button>
+          </div>
+          <div className="h-[calc(100%-3.25rem)] overflow-hidden">
+            <BugSidePanel bug={bug} onUpdated={onReplied} onClose={() => setMobileDetailOpen(false)} />
+          </div>
+        </div>
       </div>
 
       <BugReportModal bug={bug} open={reportOpen} onClose={() => setReportOpen(false)} />

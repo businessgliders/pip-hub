@@ -22,7 +22,7 @@ function groupByMonth(bugs) {
   });
 }
 
-export default function BugList({ bugs, statusFilter = "New", selectedBug, onSelect, onReportBug }) {
+export default function BugList({ bugs, statusFilter = "New", selectedBug, onSelect, onReportBug, highlightId }) {
   const [urgency, setUrgency] = useState("all");
   const [search, setSearch] = useState("");
 
@@ -89,7 +89,7 @@ export default function BugList({ bugs, statusFilter = "New", selectedBug, onSel
                 {label}
               </div>
               {items.map((b) => (
-                <BugRow key={b.id} bug={b} active={selectedBug?.id === b.id} onClick={() => onSelect(b)} />
+                <BugRow key={b.id} bug={b} active={selectedBug?.id === b.id} highlight={b.id === highlightId} onClick={() => onSelect(b)} />
               ))}
             </div>
           ))

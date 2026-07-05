@@ -8,11 +8,11 @@ const URGENCY_TONE = {
   Low: "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-white/60",
 };
 
-export default function BugRow({ bug, active, onClick }) {
+export default function BugRow({ bug, active, onClick, highlight }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left mx-2 my-1 px-3 py-3 flex gap-3 rounded-2xl transition-all ${
+      className={`w-full text-left mx-2 my-1 px-3 py-3 flex gap-3 rounded-2xl transition-all ${highlight ? "animate-highlight-flash ring-2 ring-amber-400" : ""} ${
         active
           ? "bg-white/80 dark:bg-white/15 shadow-sm ring-1 ring-[#6b7280]/30 dark:ring-white/20 border-l-[3px] border-[#6b7280]"
           : "hover:bg-white/50 dark:hover:bg-white/10 border-l-[3px] border-transparent"

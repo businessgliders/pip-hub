@@ -56,8 +56,19 @@ export default function Inbox() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [shaking, setShaking] = useState(false);
+  // Row id to flash yellow (fade in/out) after opening from a notification.
+  const [highlightId, setHighlightId] = useState(null);
   const shakeTimer = useRef(null);
   const readTimer = useRef(null);
+  const highlightTimer = useRef(null);
+
+  // Flash a row yellow for ~2.5s (matches the highlight-flash animation).
+  const flashHighlight = (id) => {
+    if (!id) return;
+    setHighlightId(id);
+    clearTimeout(highlightTimer.current);
+    highlightTimer.current = setTimeout(() => setHighlightId(null), 2600);
+  };
   const [showContact, setShowContact] = useState(true);
   const [listWidth, setListWidth] = useState(360);
   const [currentUser, setCurrentUser] = useState(null);
@@ -122,6 +133,7 @@ export default function Inbox() {
     return () => {
       document.documentElement.classList.remove("app-locked");
       clearTimeout(readTimer.current);
+      clearTimeout(highlightTimer.current);
     };
   }, []);
 
@@ -190,6 +202,45 @@ export default function Inbox() {
   };
 
   const handleSelectBug = (b) => { setSelectedBug(b); setMobilePanelOpen(true); markBugRead(b); };
+
+  // Reliably open the ticket/bug referenced by a notification, switch to the
+  // correct view/status tab, select the item, and flash it yellow.
+  const openNotification = (n) => {
+    if (!n) return;
+    // Bug notifications: switch to the Bugs view, jump to the bug's status tab,
+    // select it, and highlight it. n.thread_id carries the BugReport id.
+    if (n.type === "bug") {
+      setShowArchived(false);
+      setFormsOpen(false);
+      setView("support");
+      setSelected(null);
+      const bug = bugs.find((b) => b.id === n.thread_id);
+      setTimeout(() => {
+        setSubFilter("bug");
+        if (bug) {
+          setBugStatus(bug.status || "New");
+          setSelectedBug(bug);
+          const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+          if (isDesktop) setMobilePanelOpen(true);
+          markBugRead(bug);
+          flashHighlight(bug.id);
+        }
+      }, 0);
+      return;
+    }
+    // Thread notifications: switch to the thread's inbox, jump to its status tab,
+    // select it, and highlight it.
+    const t = threads.find((th) => th.id === n.thread_id);
+    if (!t) return;
+    setShowArchived(false);
+    setFormsOpen(false);
+    if (t.source_app && VALID_VIEWS.includes(t.source_app)) setView(t.source_app);
+    setTimeout(() => {
+      if (!isSpecialStaff) setSubFilter(t.status);
+      handleSelect(t, { shake: true });
+      flashHighlight(t.id);
+    }, 0);
+  };
 
   // Auto-select & open the first bug of the active status (like Support inbox).
   useEffect(() => {
@@ -682,18 +733,7 @@ export default function Inbox() {
           // Events/Influencer where view actually changes).
           setTimeout(() => setSubFilter("bug"), 0);
         }}
-        onOpenThread={(n) => {
-          if (n.type === "bug") {
-            setShowArchived(false);
-            setView("support");
-            setSelected(null);
-            setTimeout(() => setSubFilter("bug"), 0);
-            return;
-          }
-          if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
-          const t = threads.find((th) => th.id === n.thread_id);
-          if (t) handleSelect(t, { shake: true });
-        }}
+        onOpenThread={openNotification}
       />
 
       {/* 3 floating glass panels */}
@@ -755,6 +795,7 @@ export default function Inbox() {
                 selectedBug={selectedBug}
                 onSelect={handleSelectBug}
                 onReportBug={() => setBugChatOpen(true)}
+                highlightId={highlightId}
               />
             ) : (
             <ThreadList
@@ -765,6 +806,7 @@ export default function Inbox() {
               search={search} setSearch={setSearch}
               selectedId={selectedThread?.id} onSelect={handleSelect} loading={isLoading}
               newUrl={newUrl}
+              highlightId={highlightId}
               filterSlot={
                 <>
                   {isClosedView && <ArchiveButton threads={sortedFiltered} onArchive={handleArchive} />}
@@ -865,18 +907,7 @@ export default function Inbox() {
         <InboxMobileTabBar
           currentUser={currentUser}
           accent={accent}
-          onOpenThread={(n) => {
-            if (n.type === "bug") {
-              setShowArchived(false);
-              setView("support");
-              setSelected(null);
-              setTimeout(() => setSubFilter("bug"), 0);
-              return;
-            }
-            if (n.source_app && VALID_VIEWS.includes(n.source_app)) setView(n.source_app);
-            const t = threads.find((th) => th.id === n.thread_id);
-            if (t) handleSelect(t, { shake: true });
-          }}
+          onOpenThread={openNotification}
         />
       )}
 

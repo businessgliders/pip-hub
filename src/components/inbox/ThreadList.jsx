@@ -21,7 +21,7 @@ function groupByMonth(threads) {
 
 export default function ThreadList({
   threads, title, count, search, setSearch,
-  selectedId, onSelect, loading, filterSlot, grouped = false, newUrl,
+  selectedId, onSelect, loading, filterSlot, grouped = false, newUrl, highlightId,
 }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const scrollRef = useRef(null);
@@ -95,13 +95,13 @@ export default function ThreadList({
                     {g.label}
                   </div>
                   {g.items.map((t) => (
-                    <ThreadRow key={t.id} thread={t} active={t.id === selectedId} onClick={() => onSelect(t)} />
+                    <ThreadRow key={t.id} thread={t} active={t.id === selectedId} highlight={t.id === highlightId} onClick={() => onSelect(t)} />
                   ))}
                 </div>
               ))
             ) : (
               shown.map((t) => (
-                <ThreadRow key={t.id} thread={t} active={t.id === selectedId} onClick={() => onSelect(t)} />
+                <ThreadRow key={t.id} thread={t} active={t.id === selectedId} highlight={t.id === highlightId} onClick={() => onSelect(t)} />
               ))
             )}
             {visible < threads.length && (
