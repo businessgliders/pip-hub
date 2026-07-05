@@ -53,14 +53,14 @@ function NotificationRow({ n, onClick }) {
 // One desktop column: full scrollable list (no "All other" overview split).
 function Column({ label, Icon, items, onClick }) {
   return (
-    <div className="flex flex-col min-w-0 border-r last:border-r-0 border-border/60">
-      <div className="flex items-center justify-between gap-1 px-2.5 py-1.5 border-b bg-muted sticky top-0 z-10">
+    <div className="flex flex-col min-w-0 min-h-0 border-r last:border-r-0 border-border/60">
+      <div className="flex items-center justify-between gap-1 px-2.5 py-1.5 border-b bg-muted shrink-0">
         <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground truncate">
           <Icon className="w-3 h-3 shrink-0" /> {label}
         </span>
         <span className="text-[10px] font-semibold text-muted-foreground shrink-0">{items.length}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-1 space-y-0.5">
+      <div className="flex-1 min-h-0 overflow-y-auto p-1.5 space-y-1.5">
         {items.length === 0 ? (
           <p className="text-center text-[10px] text-muted-foreground py-6">Nothing here</p>
         ) : (
