@@ -25,31 +25,31 @@ export default function ThreadHeader({ thread, currentUser, onStatusChange, onBa
   };
 
   return (
-    <div className="flex flex-wrap md:flex-nowrap items-center gap-y-2 gap-x-3 px-3 md:px-5 py-2.5 md:py-3.5 border-b border-white/50 dark:border-white/15">
-      <button onClick={onBack} className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-white/60 dark:hover:bg-white/10">
+    <div className="flex flex-nowrap items-center gap-x-2 md:gap-x-3 px-3 md:px-5 py-2 md:py-3.5 border-b border-white/50 dark:border-white/15">
+      <button onClick={onBack} className="lg:hidden p-1 -ml-1 rounded-lg hover:bg-white/60 dark:hover:bg-white/10 shrink-0">
         <ArrowLeft className="w-5 h-5 text-pink-700 dark:text-pink-200" />
       </button>
-      {/* Client avatar — hidden on mobile to save width */}
-      <div className="hidden md:block">
+      {/* Client avatar — hidden on mobile/tablet to save width */}
+      <div className="hidden lg:block shrink-0">
         <Avatar name={thread.contact_name} email={thread.contact_email} size="md" />
       </div>
-      <div className="flex-1 min-w-0 order-1 md:order-none">
-        <h2 className="font-bold text-pink-900 dark:text-white truncate">{displayName(thread.contact_name, thread.contact_email)}</h2>
-        <div className="flex items-center gap-1.5 mt-0.5">
+      <div className="flex-1 min-w-0">
+        <h2 className="font-bold text-sm md:text-base text-pink-900 dark:text-white truncate leading-tight">{displayName(thread.contact_name, thread.contact_email)}</h2>
+        <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
           {ticketLabel(thread) && (
             <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide bg-pink-900/10 text-pink-800 dark:bg-white/15 dark:text-white/80">
               {ticketLabel(thread)}
             </span>
           )}
           {inquiryType && (
-            <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-sky-500/15 text-sky-700 dark:bg-sky-400/20 dark:text-sky-200">
+            <span className="truncate px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-sky-500/15 text-sky-700 dark:bg-sky-400/20 dark:text-sky-200">
               {inquiryType}
             </span>
           )}
         </div>
       </div>
 
-      <div className="flex w-full md:w-auto order-2 md:order-none flex-wrap md:flex-nowrap items-center justify-end gap-1.5 md:gap-2 min-w-0">
+      <div className="flex flex-nowrap items-center justify-end gap-1.5 md:gap-2 shrink-0">
         {/* Status — visual thread (desktop) / dropdown (mobile), now before assign */}
         <StatusTrack status={thread.status} source={thread.source_app} onSelect={requestChange} />
 

@@ -28,22 +28,25 @@ export default function BugDetailPanel({ bug, currentUser, onReplied, onBack, on
   return (
     <div className="relative flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/50 dark:border-white/10 shrink-0">
+      <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 border-b border-white/50 dark:border-white/10 shrink-0">
         {onBack && (
-          <button onClick={onBack} className="md:hidden p-1.5 -ml-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
+          <button onClick={onBack} className="lg:hidden p-1 -ml-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 shrink-0">
             <ArrowLeft className="w-5 h-5 text-[#4b5563] dark:text-white/80" />
           </button>
         )}
-        <div className="w-9 h-9 shrink-0 rounded-full bg-[#6b7280]/15 dark:bg-[#6b7280]/30 flex items-center justify-center text-[#4b5563] dark:text-white/80 font-bold text-[11px]">
+        <div className="hidden md:flex w-9 h-9 shrink-0 rounded-full bg-[#6b7280]/15 dark:bg-[#6b7280]/30 items-center justify-center text-[#4b5563] dark:text-white/80 font-bold text-[11px]">
           {bug.bug_number != null ? `B${Math.round(bug.bug_number)}` : "—"}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-pink-900 dark:text-white truncate">{bug.title || "Bug report"}</span>
+            <span className="font-bold text-sm md:text-base text-pink-900 dark:text-white truncate leading-tight">{bug.title || "Bug report"}</span>
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-pink-500 dark:text-white/55 mt-0.5">
+          <div className="flex items-center gap-1.5 text-[11px] text-pink-500 dark:text-white/55 mt-0.5 min-w-0">
+            {bug.bug_number != null && (
+              <span className="md:hidden shrink-0 font-bold text-[#4b5563] dark:text-white/70">B{Math.round(bug.bug_number)}</span>
+            )}
             {bug.urgency && (
-              <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full font-bold ${URGENCY_TONE[bug.urgency] || URGENCY_TONE.Low}`}>
+              <span className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full font-bold ${URGENCY_TONE[bug.urgency] || URGENCY_TONE.Low}`}>
                 {bug.urgency}
               </span>
             )}
