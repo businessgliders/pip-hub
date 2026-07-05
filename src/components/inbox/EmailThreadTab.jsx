@@ -91,12 +91,16 @@ function isAssignmentNotice(m) {
   return /\bassigned to\b/.test(text);
 }
 
-export default function EmailThreadTab({ messages, loading, thread, currentUser, onStatusChange }) {
+export default function EmailThreadTab({ messages, loading, thread, currentUser, onStatusChange, replyHighlightKey = 0 }) {
   const [preview, setPreview] = useState(null);
   const [submissionOpen, setSubmissionOpen] = useState(false);
   const [summary, setSummary] = useState(thread?.submission_summary || "");
   const [summaryLoading, setSummaryLoading] = useState(false);
   const bottomRef = useRef(null);
+  const highlightRef = useRef(null);
+  // Id of the reply bubble to outline (set when opened from a reply notification).
+  const [highlightMsgId, setHighlightMsgId] = useState(null);
+  const highlightTimer = useRef(null);
 
   const hasSubmission = thread?.form_data && Object.keys(thread.form_data).length > 0;
   const isCancellation = String(thread?.form_data?.inquiry_type || thread?.subject || "").toLowerCase().includes("cancel");
@@ -131,6 +135,18 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
     const id = setTimeout(() => bottomRef.current?.scrollIntoView({ block: "end" }), 50);
     return () => clearTimeout(id);
   }, [thread?.id, displayMessages.length, loading]);
+
+  // Outline the newest inbound reply bubble when opened from a reply notification.
+  useEffect(() => {
+    if (!replyHighlightKey || loading) return;
+    const lastInbound = [...displayMessages].reverse().find((m) => m.direction === "inbound");
+    if (!lastInbound) return;
+    setHighlightMsgId(lastInbound.id);
+    const scroll = setTimeout(() => highlightRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }), 80);
+    clearTimeout(highlightTimer.current);
+    highlightTimer.current = setTimeout(() => setHighlightMsgId(null), 2600);
+    return () => { clearTimeout(scroll); clearTimeout(highlightTimer.current); };
+  }, [replyHighlightKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
@@ -239,14 +255,16 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
               </div>
             );
           }
+          const isHighlighted = m.id === highlightMsgId;
           return (
             <div key={m.id} className={`flex ${outbound ? "justify-end" : "justify-start"}`}>
               <div
+                ref={isHighlighted ? highlightRef : undefined}
                 role="button"
                 tabIndex={0}
                 onClick={() => setPreview(m)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setPreview(m); }}
-                className={`group max-w-[70%] cursor-pointer text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${
+                className={`group max-w-[70%] cursor-pointer text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${isHighlighted ? "animate-outline-flash" : ""} ${
                   outbound
                     ? `${bubbleShade} ${ob.text} rounded-br-sm`
                     : "bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white rounded-bl-sm"

@@ -78,6 +78,12 @@ module.exports = {
   				'55%': { backgroundColor: 'rgba(250, 204, 21, 0.55)' },
   				'100%': { backgroundColor: 'rgba(250, 204, 21, 0)' }
   			},
+  			'outline-flash': {
+  				'0%': { boxShadow: '0 0 0 0 rgba(236, 72, 153, 0)' },
+  				'15%': { boxShadow: '0 0 0 3px rgba(236, 72, 153, 0.9)' },
+  				'55%': { boxShadow: '0 0 0 3px rgba(236, 72, 153, 0.9)' },
+  				'100%': { boxShadow: '0 0 0 0 rgba(236, 72, 153, 0)' }
+  			},
   			'accordion-down': {
   				from: {
   					height: '0'
@@ -99,6 +105,7 @@ module.exports = {
   			'shake': 'shake 0.5s ease-in-out',
   			'chat-in': 'chat-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
   			'highlight-flash': 'highlight-flash 2.5s ease-in-out',
+  			'outline-flash': 'outline-flash 2.5s ease-in-out',
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		}

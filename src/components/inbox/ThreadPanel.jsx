@@ -7,7 +7,7 @@ import EmailComposer from "./email/EmailComposer";
 import ContactPanel from "./ContactPanel";
 import { MessagesSquare, X, Plus } from "lucide-react";
 
-export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onSelectThread, onBack, shakeKey }) {
+export default function ThreadPanel({ thread, staff, currentUser, onStatusChange, onAssign, onSelectThread, onBack, shakeKey, replyHighlightKey = 0 }) {
   const qc = useQueryClient();
   // Mobile/tablet only: slide-in detail panel that overlays the email view.
   const [detailOpen, setDetailOpen] = useState(false);
@@ -48,7 +48,7 @@ export default function ThreadPanel({ thread, staff, currentUser, onStatusChange
 
       <div className="flex-1 overflow-hidden flex flex-col">
         <div className="flex-1 overflow-y-auto ios-scroll">
-          <EmailThreadTab messages={messages} loading={loadingMsgs} thread={thread} currentUser={currentUser} onStatusChange={onStatusChange} />
+          <EmailThreadTab messages={messages} loading={loadingMsgs} thread={thread} currentUser={currentUser} onStatusChange={onStatusChange} replyHighlightKey={replyHighlightKey} />
         </div>
         <div className="border-t border-white/50 dark:border-white/10 p-3">
           <EmailComposer

@@ -58,6 +58,10 @@ export default function Inbox() {
   const [shaking, setShaking] = useState(false);
   // Row id to flash yellow (fade in/out) after opening from a notification.
   const [highlightId, setHighlightId] = useState(null);
+  // When opening from a "reply" notification, outline the newest inbound reply
+  // bubble in the thread panel. Value is a bumping key to re-trigger the anim.
+  const [replyHighlightKey, setReplyHighlightKey] = useState(0);
+  const [replyHighlightThreadId, setReplyHighlightThreadId] = useState(null);
   const shakeTimer = useRef(null);
   const readTimer = useRef(null);
   const highlightTimer = useRef(null);
@@ -238,7 +242,14 @@ export default function Inbox() {
     setTimeout(() => {
       if (!isSpecialStaff) setSubFilter(t.status);
       handleSelect(t, { shake: true });
-      flashHighlight(t.id);
+      // Reply notifications outline the newest reply bubble instead of flashing
+      // the whole row yellow. Other notification types keep the yellow row flash.
+      if (n.type === "reply") {
+        setReplyHighlightThreadId(t.id);
+        setReplyHighlightKey((k) => k + 1);
+      } else {
+        flashHighlight(t.id);
+      }
     }, 0);
   };
 
@@ -850,6 +861,7 @@ export default function Inbox() {
             <ThreadPanel
               key={selectedThread.id}
               shakeKey={shaking}
+              replyHighlightKey={replyHighlightThreadId === selectedThread.id ? replyHighlightKey : 0}
               thread={selectedThread} staff={staff} currentUser={currentUser}
               onStatusChange={handleStatus} onAssign={handleAssign}
               onSelectThread={(t) => handleSelect(t)}
