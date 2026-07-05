@@ -183,22 +183,22 @@ export default function NotificationCenter({ currentUser, onOpenThread }) {
         </button>
       </PopoverTrigger>
 
-      {/* Desktop: expanded 4-column panel */}
-      <PopoverContent align="start" className="hidden lg:block w-[720px] p-0">
+      <PopoverContent align="start" className="w-80 lg:w-[720px] p-0">
         {Header}
-        {notifications.length === 0 ? empty : (
-          <div className="grid grid-cols-4 h-[460px]">
-            {byColumn.map((c) => (
-              <Column key={c.key} label={c.label} Icon={c.Icon} items={c.items} onClick={handleClick} />
-            ))}
-          </div>
-        )}
-      </PopoverContent>
 
-      {/* Mobile / tablet: single-column grouped list */}
-      <PopoverContent align="start" className="lg:hidden w-80 p-0">
-        {Header}
-        <div className="max-h-96 overflow-y-auto">
+        {/* Desktop: expanded 4-column panel */}
+        <div className="hidden lg:block">
+          {notifications.length === 0 ? empty : (
+            <div className="grid grid-cols-4 h-[460px]">
+              {byColumn.map((c) => (
+                <Column key={c.key} label={c.label} Icon={c.Icon} items={c.items} onClick={handleClick} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Mobile / tablet: single-column grouped list */}
+        <div className="lg:hidden max-h-96 overflow-y-auto">
           {notifications.length === 0 ? empty : (
             mobileSections.map((g) => (
               <div key={g.key}>
