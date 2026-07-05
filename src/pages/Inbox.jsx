@@ -219,16 +219,19 @@ export default function Inbox() {
       setView("support");
       setSelected(null);
       const bug = bugs.find((b) => b.id === n.thread_id);
+      // Select the target bug BEFORE flipping into bug mode so the auto-select
+      // effect sees a valid in-status selection and won't clobber it with the
+      // first bug of the status.
+      if (bug) {
+        setBugStatus(bug.status || "New");
+        setSelectedBug(bug);
+        const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+        if (isDesktop) setMobilePanelOpen(true);
+        markBugRead(bug);
+      }
       setTimeout(() => {
         setSubFilter("bug");
-        if (bug) {
-          setBugStatus(bug.status || "New");
-          setSelectedBug(bug);
-          const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
-          if (isDesktop) setMobilePanelOpen(true);
-          markBugRead(bug);
-          flashHighlight(bug.id);
-        }
+        if (bug) flashHighlight(bug.id);
       }, 0);
       return;
     }
@@ -258,13 +261,17 @@ export default function Inbox() {
     if (!bugMode) return;
     const inStatus = bugs.filter((b) => (b.status || "New") === bugStatus);
     if (!inStatus.length) { setSelectedBug(null); return; }
-    if (!selectedBug || (selectedBug.status || "New") !== bugStatus) {
+    // Keep an already-selected bug if it belongs to the active status (e.g. one
+    // opened from a notification click) — only auto-select when nothing valid
+    // is selected for this status.
+    const selectedInStatus = selectedBug && inStatus.some((b) => b.id === selectedBug.id);
+    if (!selectedInStatus) {
       const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
       setSelectedBug(inStatus[0]);
       if (isDesktop) setMobilePanelOpen(true);
       markBugRead(inStatus[0]);
     }
-  }, [bugMode, bugStatus, bugs]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [bugMode, bugStatus, bugs, selectedBug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Deep-link support: /inbox?thread=<id> (e.g. from Contacts page)
   useEffect(() => {
