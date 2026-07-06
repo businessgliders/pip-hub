@@ -94,7 +94,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
         </Link>
 
         {/* Notifications — placed next to the logo/title (hidden on mobile) */}
-        <div className="hidden md:block">
+        <div id="notification-bell-anchor" className="hidden md:block">
           <NotificationCenter currentUser={currentUser} onOpenThread={onOpenThread} />
         </div>
       </div>
