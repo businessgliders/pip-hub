@@ -115,17 +115,21 @@ export default function Inbox() {
     }).catch(() => {});
   }, []);
 
-  // bugs.* domain (or ?bugchat=1) lands on the Support → Bugs panel with the
-  // report-bug live chat already open (as if the + button was pressed).
+  // Land directly on the Bugs panel when:
+  //  • the bugs.* domain / ?bugchat=1 is used → Bugs list WITH the report-bug
+  //    live chat already open (as if the + button was pressed), or
+  //  • the /inbox#bugs slug is used → Bugs list only (no chat).
   // Deferred to the next tick so it runs AFTER the view-change reset effect,
   // which would otherwise clobber the "bug" sub-filter back to the first status.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("bugchat") === "1") {
+    const hash = window.location.hash.replace("#", "").toLowerCase();
+    const wantsChat = params.get("bugchat") === "1";
+    if (wantsChat || hash === "bugs") {
       setView("support");
       setShowArchived(false);
       setSelected(null);
-      setBugChatOpen(true);
+      if (wantsChat) setBugChatOpen(true);
       const t = setTimeout(() => setSubFilter("bug"), 0);
       return () => clearTimeout(t);
     }
@@ -143,18 +147,26 @@ export default function Inbox() {
   }, []);
 
   // Keep the URL hash in sync with the active inbox so each is directly linkable
-  // (/inbox#support, /inbox#events, /inbox#influencer).
+  // (/inbox#support, /inbox#events, /inbox#influencer, /inbox#bugs).
   useEffect(() => {
-    if (window.location.hash.replace("#", "") !== view) {
-      window.history.replaceState(null, "", `#${view}`);
+    const target = bugMode ? "bugs" : view;
+    if (window.location.hash.replace("#", "") !== target) {
+      window.history.replaceState(null, "", `#${target}`);
     }
-  }, [view]);
+  }, [view, bugMode]);
 
   // React to hash changes (shared links, back/forward navigation).
   useEffect(() => {
     const onHash = () => {
       const h = window.location.hash.replace("#", "").toLowerCase();
-      if (VALID_VIEWS.includes(h)) setView(h);
+      if (h === "bugs") {
+        setView("support");
+        setShowArchived(false);
+        setSelected(null);
+        setTimeout(() => setSubFilter("bug"), 0);
+      } else if (VALID_VIEWS.includes(h)) {
+        setView(h);
+      }
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
