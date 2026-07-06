@@ -21,6 +21,7 @@ import BugList from "@/components/inbox/bugs/BugList";
 import BugDetailPanel from "@/components/inbox/bugs/BugDetailPanel";
 import BugSidePanel from "@/components/inbox/bugs/BugSidePanel";
 import FormsPanel from "@/components/inbox/forms/FormsPanel";
+import WhatsNewPopup from "@/components/inbox/WhatsNewPopup";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor, assignVerb } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
@@ -934,6 +935,9 @@ export default function Inbox() {
           Floating buttons are hidden; the rail controls open/close. */}
       <TermsAssistantChat accent={accent} open={termsOpen} onOpenChange={setTermsOpen} hideFloatingButton />
       <BugReportChat currentUser={currentUser} accent={accent} open={bugChatOpen} onOpenChange={setBugChatOpen} hideFloatingButton />
+
+      {/* One-time "What's New" popup — dismissed per user, never shows again. */}
+      <WhatsNewPopup currentUser={currentUser} />
     </div>
   );
 }
