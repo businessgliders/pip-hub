@@ -703,15 +703,30 @@ export default function Inbox() {
         note: "Auto-closed (resolved from previous month)",
         timestamp: new Date().toISOString(),
       };
-      await base44.entities.Thread.update(t.id, {
-        status: toStatus,
-        status_history: [...(t.status_history || []), entry],
-      });
-      qc.setQueryData(["threads"], (prev) =>
-        (prev || []).map((x) => (x.id === t.id ? { ...x, status: toStatus } : x))
-      );
+      // Retry each update a couple of times so a transient 502 on one ticket
+      // doesn't abort the entire batch.
+      let ok = false;
+      for (let attempt = 0; attempt < 3 && !ok; attempt++) {
+        try {
+          await base44.entities.Thread.update(t.id, {
+            status: toStatus,
+            status_history: [...(t.status_history || []), entry],
+          });
+          ok = true;
+        } catch (err) {
+          if (attempt === 2) break; // give up on this ticket, keep going
+          await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+        }
+      }
+      if (ok) {
+        qc.setQueryData(["threads"], (prev) =>
+          (prev || []).map((x) => (x.id === t.id ? { ...x, status: toStatus } : x))
+        );
+      }
       done++;
       onProgress?.(done);
+      // Small pace between calls to avoid hammering the server.
+      await new Promise((r) => setTimeout(r, 120));
     }
     setSelected(null);
     qc.invalidateQueries({ queryKey: ["threads"] });
