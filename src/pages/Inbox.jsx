@@ -841,6 +841,7 @@ export default function Inbox() {
             ) : (
             <ThreadList
               threads={sortedFiltered}
+              grouped={isSourceView && subFilter === closedStatusFor(view)}
               title={title}
               count={sortedFiltered.length}
               search={search} setSearch={setSearch}
