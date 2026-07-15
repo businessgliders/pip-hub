@@ -3,6 +3,7 @@ import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import BugRow from "./BugRow";
 import BugFilters from "./BugFilters";
+import AutoCloseButton from "./AutoCloseButton";
 
 // Group bugs into "Month Year" buckets based on created_date, newest first.
 function groupByMonth(bugs) {
@@ -54,6 +55,7 @@ export default function BugList({ bugs, statusFilter = "New", selectedBug, onSel
           </span>
         </h2>
         <div className="flex items-center gap-1.5">
+          {statusFilter === "Resolved" && <AutoCloseButton bugs={bugs} />}
           <BugFilters urgency={urgency} onUrgency={setUrgency} />
           <button
             onClick={onReportBug}
