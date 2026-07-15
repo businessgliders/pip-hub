@@ -53,6 +53,15 @@ export function statusOrderFor(view) {
   return STATUS_ORDER;
 }
 
+// The status key each view uses for its "Closed" tab (archived threads are
+// merged into this bucket). Support → "closed", Events → "Closed",
+// Influencer → "declined".
+export function closedStatusFor(view) {
+  if (view === "events") return "Closed";
+  if (view === "influencer") return "declined";
+  return "closed";
+}
+
 // The next logical pipeline status after the given one (for "Move to Next" quick
 // actions). Returns null when there's no sensible next step. Skips closed/ended
 // states so we only ever suggest forward-moving statuses like Waiting/Resolved.

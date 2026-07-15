@@ -8,7 +8,6 @@ import ContactPanel from "@/components/inbox/ContactPanel";
 import InboxStatusRail from "@/components/inbox/InboxStatusRail";
 import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
 import ReplyFilter from "@/components/inbox/ReplyFilter";
-import ArchiveButton from "@/components/inbox/ArchiveButton";
 import CloseAllButton from "@/components/inbox/CloseAllButton";
 import CloseOldButton from "@/components/inbox/CloseOldButton";
 import EventSortMenu from "@/components/inbox/EventSortMenu";
@@ -23,7 +22,7 @@ import BugDetailPanel from "@/components/inbox/bugs/BugDetailPanel";
 import BugSidePanel from "@/components/inbox/bugs/BugSidePanel";
 import FormsPanel from "@/components/inbox/forms/FormsPanel";
 import WhatsNewPopup from "@/components/inbox/WhatsNewPopup";
-import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor, assignVerb } from "@/components/inbox/inboxConfig";
+import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor, closedStatusFor, assignVerb } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
 const VIEW_TITLES = {
@@ -389,18 +388,13 @@ export default function Inbox() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return threads.filter((t) => {
-      // Archived view shows only archived threads (within the current source); all
-      // other views hide archived threads.
-      if (showArchived) {
-        if (!t.archived) return false;
-        if (SOURCE_META[view] && t.source_app !== view) return false;
-      } else if (t.archived) {
-        return false;
-      }
+      // Archived merged into Closed: an archived thread is treated as if it sits
+      // in the view's closed status (Support "closed", Events "Closed",
+      // Influencer "declined") so it surfaces under that tab.
+      const closedKey = closedStatusFor(view);
+      const effStatus = t.archived ? closedKey : t.status;
       // Main view filter
-      if (showArchived) {
-        // In archived view, skip status/source sub-filtering — just search.
-      } else if (SOURCE_META[view]) {
+      if (SOURCE_META[view]) {
         // Team inbox: filter by source, then by status sub-tab
         if (t.source_app !== view) return false;
         // When searching, span ALL statuses within this inbox (ignore the status
@@ -408,15 +402,15 @@ export default function Inbox() {
         // scopes to the current user's assigned threads.
         if (subFilter === "me") {
           if ((t.assignee_email || "").toLowerCase() !== (myEmail || "").toLowerCase()) return false;
-        } else if (!q && subFilter !== "all" && t.status !== subFilter) {
+        } else if (!q && subFilter !== "all" && effStatus !== subFilter) {
           return false;
         }
         // Inquiry/event type filter (Support → inquiry_type, Events → event_type)
         if (view === "support" && inquiryType !== "all" && String(t.form_data?.inquiry_type || "") !== inquiryType) return false;
         if (view === "events" && inquiryType !== "all" && String(t.form_data?.event_type || t.form_data?.inquiry_type || "") !== inquiryType) return false;
       } else {
-        // "All" view: hide closed
-        if (t.status === "closed") return false;
+        // "All" view: hide closed and archived (archived counts as closed)
+        if (t.status === "closed" || t.archived) return false;
         // Source sub-tab filter
         if (subFilter !== "all" && t.source_app !== subFilter) return false;
       }
@@ -431,7 +425,7 @@ export default function Inbox() {
         (t.subject || "").toLowerCase().includes(q)
       );
     });
-  }, [threads, view, subFilter, search, inquiryType, replyFilter, showArchived, myEmail]);
+  }, [threads, view, subFilter, search, inquiryType, replyFilter, myEmail]);
 
   // Events inbox: sort by event date (soonest first) when active, otherwise by
   // submission date (newest first). Other views keep the default activity order.
@@ -492,14 +486,17 @@ export default function Inbox() {
 
   // Counts for the sub-filter tabs (based on current main view, ignoring sub-tab)
   const tabCounts = useMemo(() => {
+    const closedKey = closedStatusFor(view);
+    // Archived threads are merged into the closed bucket.
+    const effStatus = (t) => (t.archived ? closedKey : t.status);
     const base = threads.filter((t) => {
-      if (t.archived) return false;
       if (SOURCE_META[view]) return t.source_app === view;
-      return t.status !== "closed";
+      // "All" view excludes closed + archived (both count as closed).
+      return t.status !== "closed" && !t.archived;
     });
     const c = { all: base.length };
     if (isSourceView) {
-      statusOrder.forEach((s) => { c[s] = base.filter((t) => t.status === s).length; });
+      statusOrder.forEach((s) => { c[s] = base.filter((t) => effStatus(t) === s).length; });
       if (isSpecialStaff) {
         c.me = base.filter((t) => (t.assignee_email || "").toLowerCase() === (myEmail || "").toLowerCase()).length;
       }
@@ -667,23 +664,6 @@ export default function Inbox() {
     }
   };
 
-  const handleArchive = async (toArchive) => {
-    setSelected(null);
-    for (const t of toArchive) {
-      await base44.entities.Thread.update(t.id, { archived: true });
-      // Optimistically drop the archived thread from the cached list so the
-      // Closed count in the rail ticks down in real-time as each one completes.
-      qc.setQueryData(["threads"], (prev) =>
-        (prev || []).map((x) => (x.id === t.id ? { ...x, archived: true } : x))
-      );
-    }
-    qc.invalidateQueries({ queryKey: ["threads"] });
-  };
-
-  // Whether the current Closed list should show the Archive action.
-  const isClosedView = isSourceView && !showArchived &&
-    (view === "events" ? subFilter === "Closed" : subFilter === "closed");
-
   // Events "Cancelled" list shows a "Close All" action (moves to Closed).
   const isCancelledView = view === "events" && !showArchived && subFilter === "Cancelled";
 
@@ -829,8 +809,6 @@ export default function Inbox() {
               active={subFilter}
               onChange={(k) => { setShowArchived(false); setFormsOpen(false); setSubFilter(k); setSelected(null); }}
               counts={tabCounts} unread={unreadTabs} accent={accent}
-              archivedActive={showArchived}
-              onArchived={isSourceView ? () => { setShowArchived((s) => !s); setFormsOpen(false); setSelected(null); } : undefined}
               onForms={openForm}
               formsActive={formsOpen}
               onReportBug={() => {
@@ -863,8 +841,7 @@ export default function Inbox() {
             ) : (
             <ThreadList
               threads={sortedFiltered}
-              grouped={showArchived}
-              title={showArchived ? "Archived" : title}
+              title={title}
               count={sortedFiltered.length}
               search={search} setSearch={setSearch}
               selectedId={selectedThread?.id} onSelect={handleSelect} loading={isLoading}
@@ -872,7 +849,6 @@ export default function Inbox() {
               highlightId={highlightId}
               filterSlot={
                 <>
-                  {isClosedView && <ArchiveButton threads={sortedFiltered} onArchive={handleArchive} />}
                   {isCancelledView && <CloseAllButton threads={sortedFiltered} onCloseAll={handleCloseAll} />}
                   {showCloseOld && (
                     <CloseOldButton

@@ -1,9 +1,9 @@
 import React from "react";
-import { Archive, PartyPopper, FileText, LifeBuoy, UserRound, Layers } from "lucide-react";
+import { PartyPopper, FileText, LifeBuoy, UserRound, Layers } from "lucide-react";
 
 // Vertical "side panel" rail of status tabs shown on the left of the thread list.
 // The count itself acts as the icon/glyph for each status tab.
-export default function InboxStatusRail({ tabs, active, onChange, counts = {}, unread = {}, accent = "#f1889b", archivedActive = false, onArchived, onForms, formsActive = false, onReportBug, bugActive = false, bugCount = 0 }) {
+export default function InboxStatusRail({ tabs, active, onChange, counts = {}, unread = {}, accent = "#f1889b", onForms, formsActive = false, onReportBug, bugActive = false, bugCount = 0 }) {
   if (!tabs || tabs.length === 0) return null;
   // "Hosted" is pinned to the bottom (above Archived) as an icon-only tab, no count.
   const hostedTab = tabs.find((t) => t.key === "Hosted");
@@ -11,7 +11,7 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
   return (
     <div className="flex flex-col items-center gap-1 py-3 px-1.5 border-r border-white/40 dark:border-white/10 shrink-0 overflow-y-auto">
       {mainTabs.map((t) => {
-        const isActive = !archivedActive && active === t.key;
+        const isActive = active === t.key;
         const c = counts[t.key] || 0;
         // On mobile, hide empty status tabs (count 0) unless it's the bug tab
         // or the currently active tab. Always shown from tablet up.
@@ -77,9 +77,9 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
         <button
           onClick={() => onChange(hostedTab.key)}
           title="Hosted"
-          style={!archivedActive && active === hostedTab.key ? { background: accent, color: "#fff" } : undefined}
+          style={active === hostedTab.key ? { background: accent, color: "#fff" } : undefined}
           className={`mt-auto w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
-            !archivedActive && active === hostedTab.key
+            active === hostedTab.key
               ? "shadow-md"
               : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
           }`}
@@ -89,25 +89,8 @@ export default function InboxStatusRail({ tabs, active, onChange, counts = {}, u
         </button>
       )}
 
-      {/* Archived — icon only, sits above the separator (above the bottom tools) */}
-      {onArchived && (
-        <button
-          onClick={onArchived}
-          title="Archived"
-          style={archivedActive ? { background: accent, color: "#fff" } : undefined}
-          className={`${hostedTab ? "" : "mt-auto"} w-14 flex flex-col items-center gap-1 py-2 rounded-2xl text-[10px] font-medium leading-none transition-all ${
-            archivedActive
-              ? "shadow-md"
-              : "text-pink-900/55 dark:text-white/55 hover:bg-white/50 dark:hover:bg-white/10"
-          }`}
-        >
-          <Archive className="w-5 h-5" />
-          <span>Archived</span>
-        </button>
-      )}
-
       {/* Bottom tools: Terms, Bugs — pinned together at the bottom */}
-      <div className={`${hostedTab || onArchived ? "" : "mt-auto"} w-full flex flex-col items-center gap-1 pt-1 border-t border-white/40 dark:border-white/10`}>
+      <div className={`${hostedTab ? "" : "mt-auto"} w-full flex flex-col items-center gap-1 pt-1 border-t border-white/40 dark:border-white/10`}>
         {/* Forms — opens the spoke submission form for the current inbox */}
         {onForms && (
           <button
