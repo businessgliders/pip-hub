@@ -10,6 +10,7 @@ import InquiryTypeFilter from "@/components/inbox/InquiryTypeFilter";
 import ReplyFilter from "@/components/inbox/ReplyFilter";
 import ArchiveButton from "@/components/inbox/ArchiveButton";
 import CloseAllButton from "@/components/inbox/CloseAllButton";
+import CloseOldButton from "@/components/inbox/CloseOldButton";
 import EventSortMenu from "@/components/inbox/EventSortMenu";
 import DetailToggleHandle from "@/components/inbox/DetailToggleHandle";
 import ResizeHandle from "@/components/inbox/ResizeHandle";
@@ -710,6 +711,37 @@ export default function Inbox() {
     qc.invalidateQueries({ queryKey: ["threads"] });
   };
 
+  // Move a batch of "resolved-stage" threads to a target closed status, one by
+  // one, reporting progress. Used by the CloseOldButton on Support/Events.
+  const handleCloseOld = async (toClose, toStatus, onProgress) => {
+    let done = 0;
+    for (const t of toClose) {
+      const entry = {
+        status: toStatus,
+        changed_by: currentUser?.email || "staff",
+        name: currentUser?.full_name || "",
+        note: "Auto-closed (resolved from previous month)",
+        timestamp: new Date().toISOString(),
+      };
+      await base44.entities.Thread.update(t.id, {
+        status: toStatus,
+        status_history: [...(t.status_history || []), entry],
+      });
+      qc.setQueryData(["threads"], (prev) =>
+        (prev || []).map((x) => (x.id === t.id ? { ...x, status: toStatus } : x))
+      );
+      done++;
+      onProgress?.(done);
+    }
+    setSelected(null);
+    qc.invalidateQueries({ queryKey: ["threads"] });
+  };
+
+  // Which resolved-stage → closed mapping applies to the current view.
+  const CLOSE_OLD_MAP = { support: { from: "resolved", to: "closed" }, events: { from: "Hosted", to: "Closed" } };
+  const closeOldCfg = !showArchived && isSourceView ? CLOSE_OLD_MAP[view] : null;
+  const showCloseOld = closeOldCfg && subFilter === closeOldCfg.from;
+
   // External "new submission" form URL — only shown on the Open/New status tab.
   const NEW_SUBMISSION_URLS = {
     support: "https://support.pilatesinpinkstudio.com/",
@@ -842,6 +874,15 @@ export default function Inbox() {
                 <>
                   {isClosedView && <ArchiveButton threads={sortedFiltered} onArchive={handleArchive} />}
                   {isCancelledView && <CloseAllButton threads={sortedFiltered} onCloseAll={handleCloseAll} />}
+                  {showCloseOld && (
+                    <CloseOldButton
+                      threads={sortedFiltered}
+                      fromStatus={closeOldCfg.from}
+                      toStatus={closeOldCfg.to}
+                      accent={accent}
+                      onCloseOld={(items, onProgress) => handleCloseOld(items, closeOldCfg.to, onProgress)}
+                    />
+                  )}
                   {view === "events" && !showArchived && (
                     <EventSortMenu sortByEventDate={sortByEventDate} onChange={setSortByEventDate} />
                   )}

@@ -38,7 +38,7 @@ export default function AutoCloseButton({ bugs = [] }) {
   if (running) {
     const pct = total ? Math.round((done / total) * 100) : 100;
     return (
-      <div className="flex items-center gap-2 min-w-[140px]">
+      <div className="flex items-center gap-2 min-w-[110px]">
         <div className="flex-1 h-2 rounded-full bg-[#6b7280]/20 overflow-hidden">
           <div
             className="h-full bg-[#6b7280] transition-all duration-200"
@@ -56,10 +56,12 @@ export default function AutoCloseButton({ bugs = [] }) {
     <button
       onClick={run}
       title={`Move ${total} Resolved ticket${total === 1 ? "" : "s"} from previous months to Closed`}
-      className="flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-[#6b7280]/15 text-[#4b5563] dark:bg-[#6b7280]/30 dark:text-white/80 hover:bg-[#6b7280]/25 transition-colors text-xs font-semibold"
+      className="relative flex items-center justify-center w-8 h-8 rounded-full bg-[#6b7280]/15 text-[#4b5563] dark:bg-[#6b7280]/30 dark:text-white/80 hover:bg-[#6b7280]/25 transition-colors"
     >
-      <Archive className="w-3.5 h-3.5" />
-      Close old ({total})
+      <Archive className="w-4 h-4" />
+      <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-[#6b7280] text-white text-[9px] font-bold flex items-center justify-center">
+        {total}
+      </span>
     </button>
   );
 }
