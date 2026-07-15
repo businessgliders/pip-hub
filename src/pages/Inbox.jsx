@@ -865,7 +865,7 @@ export default function Inbox() {
               highlightId={highlightId}
               filterSlot={
                 <>
-                  {isCancelledView && <CloseAllButton threads={sortedFiltered} onCloseAll={handleCloseAll} />}
+                  {isCancelledView && <CloseAllButton threads={sortedFiltered} onCloseAll={handleCloseAll} accent={accent} />}
                   {showCloseOld && (
                     <CloseOldButton
                       threads={sortedFiltered}
