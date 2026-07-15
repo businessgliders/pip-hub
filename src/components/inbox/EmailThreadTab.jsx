@@ -91,6 +91,50 @@ function isAssignmentNotice(m) {
   return /\bassigned to\b/.test(text);
 }
 
+// Normalize an outbound message's content to compare for near-duplicates.
+// (Strips HTML, quoted history and whitespace, then takes a stable prefix.)
+function outboundContentKey(m) {
+  const raw = m.body_text || m.body_html || m.snippet || "";
+  const plain = raw
+    .replace(/<\/(p|div|blockquote|br)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, " ");
+  const cleaned = decodeEntities(stripQuotedReply(decodeEntities(plain)))
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+  return cleaned.slice(0, 200);
+}
+
+// Collapse consecutive outbound emails with near-identical content (legacy
+// re-sends imported from Gmail show up as several copies seconds apart). Keeps
+// the FIRST message and records how many identical copies followed so the
+// bubble can show a "sent N×" indicator. Inbound mail and escalations are never
+// collapsed. Display-only — the underlying records are untouched.
+function collapseOutboundDuplicates(list) {
+  const out = [];
+  for (const m of list) {
+    const prev = out[out.length - 1];
+    const collapsible = m.direction === "outbound" && !m.is_escalation && !m.is_welcome;
+    if (
+      collapsible &&
+      prev &&
+      prev.direction === "outbound" &&
+      !prev.is_escalation &&
+      !prev.is_welcome &&
+      outboundContentKey(prev) === outboundContentKey(m)
+    ) {
+      // Merge into the previous bubble: bump the count, extend the timestamp to
+      // the most recent copy so ordering/sorting stays correct.
+      prev.__dupeCount = (prev.__dupeCount || 1) + 1;
+      prev.__lastSentAt = m.sent_at || prev.__lastSentAt || prev.sent_at;
+      continue;
+    }
+    out.push({ ...m });
+  }
+  return out;
+}
+
 export default function EmailThreadTab({ messages, loading, thread, currentUser, onStatusChange, replyHighlightKey = 0 }) {
   const [preview, setPreview] = useState(null);
   const [submissionOpen, setSubmissionOpen] = useState(false);
@@ -120,13 +164,16 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
   // Show reassignment notices only once: keep the most recent assignment notice
   // and drop the earlier duplicates from the thread view.
   const displayMessages = React.useMemo(() => {
-    const list = messages || [];
+    let list = messages || [];
     const notices = list.filter(isAssignmentNotice);
-    if (notices.length <= 1) return list;
-    const newest = notices.reduce((a, b) =>
-      new Date(a.sent_at || 0) >= new Date(b.sent_at || 0) ? a : b
-    );
-    return list.filter((m) => !isAssignmentNotice(m) || m.id === newest.id);
+    if (notices.length > 1) {
+      const newest = notices.reduce((a, b) =>
+        new Date(a.sent_at || 0) >= new Date(b.sent_at || 0) ? a : b
+      );
+      list = list.filter((m) => !isAssignmentNotice(m) || m.id === newest.id);
+    }
+    // Collapse consecutive near-identical outbound re-sends into one bubble.
+    return collapseOutboundDuplicates(list);
   }, [messages]);
 
   // Scroll to the most recent message whenever the thread or messages change.
@@ -282,6 +329,11 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
                   {!m.is_welcome && m.is_template && (
                     <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold ${ob.name} dark:text-white/80 bg-white/40 dark:bg-white/10`}>
                       <Sparkles className="w-2.5 h-2.5" /> Template
+                    </span>
+                  )}
+                  {m.__dupeCount > 1 && (
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full font-semibold ${ob.name} dark:text-white/80 bg-white/40 dark:bg-white/10`}>
+                      sent {m.__dupeCount}×
                     </span>
                   )}
                 </div>
