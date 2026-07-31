@@ -92,7 +92,7 @@ export default function TemplateEditor({ sourceApp, accent, template, onClose, o
           </h3>
         </div>
         {!isNew && (
-          <button onClick={handleDelete} disabled={saving} className="p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 disabled:opacity-50 mr-7" title="Delete template">
+          <button onClick={handleDelete} disabled={saving} className="md:hidden p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 disabled:opacity-50 mr-7" title="Delete template">
             <Trash2 className="w-4 h-4" />
           </button>
         )}
@@ -147,7 +147,16 @@ export default function TemplateEditor({ sourceApp, accent, template, onClose, o
       </div>
 
       {/* Footer */}
-      <div className="flex justify-end gap-2 pt-3 mt-3 border-t border-black/5 dark:border-white/10 px-1">
+      <div className="flex items-center justify-end gap-2 pt-3 mt-3 border-t border-black/5 dark:border-white/10 px-1">
+        {!isNew && (
+          <button
+            onClick={handleDelete}
+            disabled={saving}
+            className="hidden md:flex items-center gap-1.5 mr-auto px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-50"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> Delete template
+          </button>
+        )}
         <button onClick={onClose} className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10">
           Cancel
         </button>
