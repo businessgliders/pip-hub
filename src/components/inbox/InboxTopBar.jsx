@@ -149,7 +149,7 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
           <button
             onClick={onSettings}
             title="Settings"
-            className="hidden md:flex p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+            className="hidden lg:flex p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
           >
             <Settings className="w-5 h-5" />
           </button>
@@ -170,6 +170,11 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
                 <p className="text-sm font-medium truncate">{currentUser.full_name || "Account"}</p>
                 <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
               </div>
+            )}
+            {onSettings && (
+              <DropdownMenuItem className="gap-2 cursor-pointer lg:hidden" onClick={onSettings}>
+                <Settings className="w-4 h-4" /> Settings
+              </DropdownMenuItem>
             )}
             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={toggle}>
               {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />} {dark ? "Light Mode" : "Dark Mode"}
