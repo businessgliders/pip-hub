@@ -14,7 +14,7 @@ export default function InboxSettingsModal({ open, onOpenChange, initialInbox = 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 gap-0 max-w-2xl w-[calc(100vw-2rem)] h-[80vh] max-h-[640px] overflow-hidden rounded-2xl">
+      <DialogContent className="p-0 gap-0 max-w-4xl w-[calc(100vw-2rem)] h-[88vh] max-h-[900px] overflow-hidden rounded-2xl">
         <div className="flex h-full min-h-0">
           {/* Sidebar */}
           <div className="w-40 shrink-0 border-r border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/5 p-3 flex flex-col">
