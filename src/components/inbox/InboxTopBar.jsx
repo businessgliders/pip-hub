@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { SOURCE_META, VIEW_THEME } from "./inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LifeBuoy, Headset, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft, HelpCircle } from "lucide-react";
+import { LifeBuoy, Headset, CalendarHeart, Handshake, Moon, Sun, Users, LogOut, ArrowLeft, HelpCircle, Settings } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
 
 const LOGO_URL = "https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png";
@@ -56,7 +56,7 @@ function TabButton({ active, onClick, icon: Icon, label, count, accent }) {
   );
 }
 
-export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false, bugMode = false, onTerms, onBugs, bugCount = 0 }) {
+export default function InboxTopBar({ view, setView, currentUser, openCount = 0, counts = {}, onOpenThread, hideChatWidgets = false, bugMode = false, onTerms, onBugs, onSettings, bugCount = 0 }) {
   const { dark, toggle } = useTheme();
   const accent = ((bugMode ? VIEW_THEME.bugs : VIEW_THEME[view]) || VIEW_THEME.events).accent;
   const logoTitle = bugMode ? "PiP Bugs" : (LOGO_TITLES[view] || "PiP Inbox");
@@ -143,6 +143,15 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
             className="p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
           >
             <HelpCircle className="w-5 h-5" />
+          </button>
+        )}
+        {onSettings && (
+          <button
+            onClick={onSettings}
+            title="Settings"
+            className="hidden md:flex p-2 rounded-full text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+          >
+            <Settings className="w-5 h-5" />
           </button>
         )}
         <DropdownMenu>

@@ -1,6 +1,6 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { Moon, Sun, Users, LogOut } from "lucide-react";
+import { Moon, Sun, Users, LogOut, Settings } from "lucide-react";
 import { useTheme } from "@/lib/ThemeContext";
 import useBodyScrollLock from "@/hooks/useBodyScrollLock";
 
@@ -14,7 +14,7 @@ const getInitials = (user) => {
   return (user?.email || "?").slice(0, 2).toUpperCase();
 };
 
-export default function InboxProfileSheet({ user, accent = "#f1889b", onClose }) {
+export default function InboxProfileSheet({ user, accent = "#f1889b", onClose, onSettings }) {
   useBodyScrollLock(true);
   const { dark, toggle } = useTheme();
 
@@ -60,6 +60,7 @@ export default function InboxProfileSheet({ user, accent = "#f1889b", onClose })
 
         <div className="px-4 pt-2 pb-2">
           <Row icon={dark ? Sun : Moon} label={dark ? "Light Mode" : "Dark Mode"} onClick={toggle} />
+          {onSettings && <Row icon={Settings} label="Settings" onClick={() => { onClose?.(); onSettings(); }} />}
           <Row icon={Users} label="Switch User" onClick={() => base44.auth.logout(window.location.href)} />
           <Row icon={LogOut} label="Log out" danger onClick={() => base44.auth.logout()} />
         </div>

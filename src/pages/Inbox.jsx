@@ -22,6 +22,7 @@ import BugDetailPanel from "@/components/inbox/bugs/BugDetailPanel";
 import BugSidePanel from "@/components/inbox/bugs/BugSidePanel";
 import FormsPanel from "@/components/inbox/forms/FormsPanel";
 import WhatsNewPopup from "@/components/inbox/WhatsNewPopup";
+import InboxSettingsModal from "@/components/inbox/settings/InboxSettingsModal";
 import { SOURCE_META, STATUS_ORDER, EVENTS_STATUS_ORDER, INFLUENCER_STATUS_ORDER, ALL_STATUS_META, VIEW_THEME, viewBackdrop, statusOrderFor, closedStatusFor, assignVerb } from "@/components/inbox/inboxConfig";
 import { useTheme } from "@/lib/ThemeContext";
 
@@ -91,6 +92,8 @@ export default function Inbox() {
   const [bugStatus, setBugStatus] = useState("New");
   // Forms workspace replaces the thread list in-place when open.
   const [formsOpen, setFormsOpen] = useState(false);
+  // Inbox settings hub (email templates + future settings).
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const centerRef = useRef(null);
 
   // Bugs view is active when the Support inbox "bug" sub-filter is selected.
@@ -792,6 +795,7 @@ export default function Inbox() {
           setTimeout(() => setSubFilter("bug"), 0);
         }}
         onOpenThread={openNotification}
+        onSettings={() => setSettingsOpen(true)}
       />
 
       {/* 3 floating glass panels */}
@@ -973,6 +977,7 @@ export default function Inbox() {
           currentUser={currentUser}
           accent={accent}
           onOpenThread={openNotification}
+          onSettings={() => setSettingsOpen(true)}
         />
       )}
 
@@ -983,6 +988,14 @@ export default function Inbox() {
 
       {/* One-time "What's New" popup — dismissed per user, never shows again. */}
       <WhatsNewPopup currentUser={currentUser} />
+
+      {/* Inbox settings hub — email templates for all 3 inboxes (+ future settings). */}
+      <InboxSettingsModal
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        initialInbox={SOURCE_META[view] ? view : "support"}
+        accent={accent}
+      />
     </div>
   );
 }

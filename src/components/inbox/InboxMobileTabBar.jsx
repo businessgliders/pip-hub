@@ -13,7 +13,7 @@ const HOME_LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/pu
  * Mirrors the AppHub bottom bar: Home, Inbox, Notifications, More.
  * Team-inbox switching lives in the top header on mobile.
  */
-export default function InboxMobileTabBar({ currentUser, onOpenThread, accent = "#f1889b" }) {
+export default function InboxMobileTabBar({ currentUser, onOpenThread, accent = "#f1889b", onSettings }) {
   const qc = useQueryClient();
   const [showProfile, setShowProfile] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
@@ -95,7 +95,7 @@ export default function InboxMobileTabBar({ currentUser, onOpenThread, accent = 
         </div>
       </div>
 
-      {showProfile && <InboxProfileSheet user={currentUser} accent={accent} onClose={() => setShowProfile(false)} />}
+      {showProfile && <InboxProfileSheet user={currentUser} accent={accent} onClose={() => setShowProfile(false)} onSettings={onSettings} />}
       {showAlerts && (
         <InboxNotificationsSheet
           currentUser={currentUser}
