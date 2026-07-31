@@ -14,11 +14,11 @@ export default function InboxSettingsModal({ open, onOpenChange, initialInbox = 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 gap-0 max-w-4xl w-[calc(100vw-2rem)] h-[88vh] max-h-[900px] overflow-hidden rounded-2xl">
-        <div className="flex h-full min-h-0">
-          {/* Sidebar */}
-          <div className="w-40 shrink-0 border-r border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/5 p-3 flex flex-col">
-            <div className="flex items-center gap-2 px-1 pb-3 mb-1">
+      <DialogContent className="p-0 gap-0 max-w-4xl w-[calc(100vw-1rem)] sm:w-[calc(100vw-2rem)] h-[92vh] sm:h-[88vh] max-h-[900px] overflow-hidden rounded-2xl">
+        <div className="flex flex-col sm:flex-row h-full min-h-0">
+          {/* Sidebar — full column on desktop, compact top bar on mobile */}
+          <div className="shrink-0 border-b sm:border-b-0 sm:border-r border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/5 flex sm:flex-col sm:w-40 items-center sm:items-stretch gap-1 p-2 sm:p-3">
+            <div className="flex items-center gap-2 px-1 sm:pb-3 sm:mb-1 mr-1 sm:mr-0">
               <SettingsIcon className="w-4 h-4" style={{ color: accent }} />
               <span className="text-sm font-bold text-slate-800 dark:text-white">Settings</span>
             </div>
@@ -29,7 +29,7 @@ export default function InboxSettingsModal({ open, onOpenChange, initialInbox = 
                 <button
                   key={t.key}
                   onClick={() => setTab(t.key)}
-                  className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors mb-0.5"
+                  className="flex items-center gap-2 px-2.5 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition-colors sm:mb-0.5"
                   style={active
                     ? { backgroundColor: `${accent}1f`, color: accent }
                     : undefined}
@@ -41,7 +41,7 @@ export default function InboxSettingsModal({ open, onOpenChange, initialInbox = 
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0 flex flex-col p-4">
+          <div className="flex-1 min-w-0 flex flex-col p-3 sm:p-4">
             {tab === "templates" && <TemplatesTab initialInbox={initialInbox} />}
           </div>
         </div>

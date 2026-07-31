@@ -87,7 +87,7 @@ export default function TemplateEditor({ sourceApp, accent, template, onClose, o
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-slate-500 dark:text-white/60">
             <X className="w-4 h-4" />
           </button>
-          <h3 className="text-sm font-bold" style={{ color: accent }}>
+          <h3 className="text-sm font-bold truncate" style={{ color: accent }}>
             {isNew ? "New Template" : "Edit Template"}
           </h3>
         </div>
@@ -137,8 +137,8 @@ export default function TemplateEditor({ sourceApp, accent, template, onClose, o
             contentEditable
             suppressContentEditableWarning
             data-placeholder="Write the template message…"
-            className="prose prose-sm max-w-none focus:outline-none px-3 py-2 rounded-lg empty:before:content-[attr(data-placeholder)] empty:before:text-slate-300 dark:empty:before:text-white/40 bg-white dark:bg-neutral-900 border border-black/10 dark:border-white/15 text-slate-800 dark:text-white"
-            style={{ minHeight: 220, maxHeight: 460, overflowY: "auto", fontSize: "14px" }}
+            className="prose prose-sm max-w-none focus:outline-none px-3 py-2 rounded-lg empty:before:content-[attr(data-placeholder)] empty:before:text-slate-300 dark:empty:before:text-white/40 bg-white dark:bg-neutral-900 border border-black/10 dark:border-white/15 text-slate-800 dark:text-white break-words [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full [&_table]:block [&_table]:overflow-x-auto [&_*]:max-w-full"
+            style={{ minHeight: 220, maxHeight: 460, overflowY: "auto", overflowX: "hidden", fontSize: "14px", wordBreak: "break-word" }}
           />
           <p className="text-[11px] text-slate-400 dark:text-white/40 mt-1.5 break-words whitespace-normal leading-relaxed">
             Use variables like <code>{"{{client_first_name}}"}</code>, <code>{"{{staff_name}}"}</code>, <code>{"{{ticket_id}}"}</code>.

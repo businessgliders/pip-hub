@@ -44,7 +44,7 @@ export default function TemplatesTab({ initialInbox = "support" }) {
   return (
     <div className="flex flex-col h-full">
       {/* Inbox selector */}
-      <div className="flex items-center gap-1.5 px-1 pb-3">
+      <div className="flex flex-wrap items-center gap-1.5 px-1 pb-3">
         {INBOXES.map((b) => {
           const active = inbox === b.key;
           const a = (VIEW_THEME[b.key] || VIEW_THEME.events).accent;
