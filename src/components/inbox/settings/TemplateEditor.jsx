@@ -83,16 +83,16 @@ export default function TemplateEditor({ sourceApp, accent, template, onClose, o
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-1 pb-3 mb-3 border-b border-black/5 dark:border-white/10">
-        <div className="flex items-center gap-2">
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-slate-500 dark:text-white/60">
-            <X className="w-4 h-4" />
+        <div className="flex items-center gap-2 min-w-0">
+          <button onClick={onClose} className="flex items-center gap-1 px-2 py-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-slate-500 dark:text-white/60 text-xs font-medium shrink-0">
+            <X className="w-3.5 h-3.5" /> Close
           </button>
           <h3 className="text-sm font-bold truncate" style={{ color: accent }}>
             {isNew ? "New Template" : "Edit Template"}
           </h3>
         </div>
         {!isNew && (
-          <button onClick={handleDelete} disabled={saving} className="p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 disabled:opacity-50" title="Delete template">
+          <button onClick={handleDelete} disabled={saving} className="p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 disabled:opacity-50 mr-7" title="Delete template">
             <Trash2 className="w-4 h-4" />
           </button>
         )}
