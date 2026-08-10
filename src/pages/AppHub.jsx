@@ -23,9 +23,10 @@ import LaunchpadView from '../components/hub/launchpad/LaunchpadView';
 import MobileMoreSheet from '../components/hub/MobileMoreSheet';
 import AnnouncementsAdminPanel from '../components/hub/AnnouncementsAdminPanel';
 import EndShiftButton from '../components/hub/EndShift/EndShiftButton';
+import ReportButton from '../components/hub/EndShift/ReportButton';
 import EndShiftModal from '../components/hub/EndShift/EndShiftModal';
 import MobileDateWeather from '../components/hub/MobileDateWeather';
-import { OWNER_EMAIL } from '@/lib/studioConfig';
+import { OWNER_EMAIL, REPORT_VIEWER_EMAILS } from '@/lib/studioConfig';
 
 // Track desktop breakpoint (lg: 1024px). On tablet/mobile, favorites are surfaced
 // separately (FavoritesSection / loose launchpad icons), so they're hidden from
@@ -358,6 +359,7 @@ export default function AppHub() {
   };
 
   const isOwner = user?.email === OWNER_EMAIL;
+  const isReportViewer = REPORT_VIEWER_EMAILS.includes((user?.email || '').toLowerCase());
 
   const filteredApps = apps.filter(app =>
     app.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -1106,6 +1108,11 @@ export default function AppHub() {
             />
           )}
         </>
+      )}
+
+      {/* Report button (exec users) — opens the End of Day reports page */}
+      {isReportViewer && !isOwner && !showCustomizePanel && !showMoreSheet && (
+        <ReportButton onClick={() => { window.location.href = '/end-of-day'; }} />
       )}
 
       {showBrowseApps && (

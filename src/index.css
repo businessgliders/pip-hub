@@ -119,3 +119,16 @@ html.app-locked body {
 .safe-top {
   padding-top: max(env(safe-area-inset-top, 0px), 0px);
 }
+
+/* Rich HTML formatting inside the End of Day reports chat bubbles. */
+.eod-chat-html p { margin: 0 0 0.5rem; }
+.eod-chat-html p:last-child { margin-bottom: 0; }
+.eod-chat-html h4 { font-weight: 600; margin: 0.5rem 0 0.25rem; color: #374151; }
+.eod-chat-html ul, .eod-chat-html ol { margin: 0.25rem 0 0.5rem 1.1rem; }
+.eod-chat-html ul { list-style: disc; }
+.eod-chat-html ol { list-style: decimal; }
+.eod-chat-html li { margin: 0.1rem 0; }
+.eod-chat-html strong { color: #c45a6e; }
+.eod-chat-html table { width: 100%; border-collapse: collapse; margin: 0.4rem 0; font-size: 12px; }
+.eod-chat-html th, .eod-chat-html td { border: 1px solid #f3d5da; padding: 4px 6px; text-align: left; }
+.eod-chat-html th { background: #fbe0e2; color: #c45a6e; font-weight: 600; }

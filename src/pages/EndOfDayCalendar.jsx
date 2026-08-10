@@ -2,12 +2,12 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Check, ArrowLeft, Calendar as CalendarIcon, User, Phone, Mail, Users, Star, MapPin, BarChart3 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, ArrowLeft, Calendar as CalendarIcon, User, Phone, Mail, Users, Star, MapPin, BarChart3, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
-import AnalyticsModal from '@/components/end-of-day/AnalyticsModal';
+import ReportsInsightsModal from '@/components/end-of-day/ReportsInsightsModal';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -21,6 +21,7 @@ export default function EndOfDayCalendar() {
   });
   const [selected, setSelected] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -84,12 +85,21 @@ export default function EndOfDayCalendar() {
 
         <div className="mb-3 flex items-center justify-between gap-2">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">End of Day Reports</h1>
-          <Button
-            onClick={() => setShowAnalytics(true)}
-            className="bg-[#f1889b] hover:bg-[#e0758a] text-white rounded-lg h-8 px-3 text-xs"
-          >
-            <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Analytics
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setShowAnalytics(true)}
+              className="bg-[#f1889b] hover:bg-[#e0758a] text-white rounded-lg h-8 px-3 text-xs"
+            >
+              <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Analytics
+            </Button>
+            <Button
+              onClick={() => setShowChat(true)}
+              variant="outline"
+              className="rounded-lg h-8 px-3 text-xs border-[#f1889b]/40 text-[#c45a6e] hover:bg-[#fbe0e2]/50"
+            >
+              <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Live Chat
+            </Button>
+          </div>
         </div>
 
         {/* Summary tiles */}
@@ -172,7 +182,7 @@ export default function EndOfDayCalendar() {
         {isLoading && <div className="text-center text-sm text-gray-400 mt-6">Loading reports…</div>}
       </div>
 
-      <AnalyticsModal open={showAnalytics} onClose={() => setShowAnalytics(false)} reports={reports} />
+      <ReportsInsightsModal open={showAnalytics || showChat} onClose={() => { setShowAnalytics(false); setShowChat(false); }} reports={reports} />
 
       {/* Detail dialog */}
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
