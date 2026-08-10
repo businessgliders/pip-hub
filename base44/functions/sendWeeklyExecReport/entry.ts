@@ -256,6 +256,17 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Gmail send failed', details: errText }, { status: 500 });
     }
 
+    // Persist the AI summary so the app's Analytics panel shows the same
+    // summary that went out in this exec report email.
+    if (ai) {
+      await base44.asServiceRole.entities.ExecReportSummary.create({
+        range_label: rangeLabel,
+        report_count: totals.reports,
+        summary: ai,
+        sent_at: new Date().toISOString(),
+      }).catch((e) => console.error('Failed to save exec summary', e));
+    }
+
     return Response.json({ success: true, sentTo: execEmails, reports: totals.reports });
   } catch (error) {
     console.error('sendWeeklyExecReport error', error);

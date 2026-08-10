@@ -1,0 +1,49 @@
+{
+  "name": "ExecReportSummary",
+  "type": "object",
+  "properties": {
+    "range_label": {
+      "type": "string",
+      "description": "Human-readable date range the summary covers (e.g. 'Aug 3 \u2013 Aug 10, 2026')"
+    },
+    "report_count": {
+      "type": "number",
+      "description": "Number of shift reports the summary was built from"
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "The AI summary object (overview, common_incidents, by_submitter, recommendations, ...)"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the exec report email containing this summary was sent"
+    }
+  },
+  "required": [
+    "sent_at"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

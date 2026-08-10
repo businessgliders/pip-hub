@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import {
@@ -23,6 +23,20 @@ function monthLabel(key) {
 export default function AnalyticsContent({ reports }) {
   const [aiSummary, setAiSummary] = useState(null);
   const [loadingAi, setLoadingAi] = useState(false);
+  // Label describing where the shown summary came from (last exec email vs fresh).
+  const [summarySource, setSummarySource] = useState(null);
+
+  // Pre-load the AI summary saved from the last exec report email, so it shows
+  // without needing to click Generate. Manual Generate still overrides it.
+  useEffect(() => {
+    let cancelled = false;
+    base44.entities.ExecReportSummary.list('-sent_at', 1).then(([last]) => {
+      if (cancelled || !last?.summary) return;
+      setAiSummary((prev) => prev || last.summary);
+      setSummarySource(`From exec report email — ${last.range_label || new Date(last.sent_at).toLocaleDateString()}`);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const totals = useMemo(() => ({
     reports: reports.length,
@@ -79,6 +93,7 @@ export default function AnalyticsContent({ reports }) {
       },
     });
     setAiSummary(result);
+    setSummarySource(null);
     setLoadingAi(false);
   };
 
@@ -134,6 +149,11 @@ export default function AnalyticsContent({ reports }) {
 
         {aiSummary && (
           <div className="space-y-4">
+            {summarySource && (
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-[#c45a6e] bg-[#fbe0e2]/70 rounded-full px-2.5 py-1">
+                <Sparkles className="w-3 h-3" /> {summarySource}
+              </div>
+            )}
             <p className="text-sm text-gray-700 leading-relaxed">{aiSummary.overview}</p>
             <ThemeList title="Common incidents" items={aiSummary.common_incidents} />
             <ThemeList title="Client feedback" items={aiSummary.common_feedback} />
