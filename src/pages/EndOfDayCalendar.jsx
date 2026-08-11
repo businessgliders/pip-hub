@@ -84,26 +84,28 @@ export default function EndOfDayCalendar() {
         </div>
 
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">End of Day Reports</h1>
-          <div className="flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 whitespace-nowrap">End of Day Reports</h1>
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <Button
               onClick={() => setShowAnalytics(true)}
-              className="bg-[#f1889b] hover:bg-[#e0758a] text-white rounded-lg h-8 px-3 text-xs"
+              className="bg-[#f1889b] hover:bg-[#e0758a] text-white rounded-lg h-8 w-8 p-0 sm:w-auto sm:px-3 text-xs"
+              title="Analytics"
             >
-              <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Analytics
+              <BarChart3 className="w-3.5 h-3.5 sm:mr-1.5" /><span className="hidden sm:inline">Analytics</span>
             </Button>
             <Button
               onClick={() => setShowChat(true)}
               variant="outline"
-              className="rounded-lg h-8 px-3 text-xs border-[#f1889b]/40 text-[#c45a6e] hover:bg-[#fbe0e2]/50"
+              className="rounded-lg h-8 w-8 p-0 sm:w-auto sm:px-3 text-xs border-[#f1889b]/40 text-[#c45a6e] hover:bg-[#fbe0e2]/50"
+              title="Live Chat"
             >
-              <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Live Chat
+              <MessageSquare className="w-3.5 h-3.5 sm:mr-1.5" /><span className="hidden sm:inline">Live Chat</span>
             </Button>
           </div>
         </div>
 
         {/* Summary tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 mb-4">
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mb-4">
           <SummaryCard label="Reports this month" value={monthReports.length} />
           <SummaryCard label="Days covered" value={new Set(monthReports.map(r => r.shift_date)).size} />
           <SummaryCard label="Total calls" value={monthReports.reduce((s, r) => s + (r.calls_handled || 0), 0)} />
