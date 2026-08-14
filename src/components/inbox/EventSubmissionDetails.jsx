@@ -51,9 +51,20 @@ function Pill({ children, tone = "neutral", icon: Icon }) {
   );
 }
 
+// Parse a date-only string ("2026-10-25") as LOCAL time — new Date("2026-10-25")
+// is UTC midnight and shows the previous day in Toronto.
+function formatEventDate(v) {
+  if (!v) return null;
+  const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
+  if (isNaN(d.getTime())) return String(v);
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
 export default function EventSubmissionDetails({ formData }) {
   const fd = formData || {};
   const eventDate = fd.event_date;
+  const additionalDates = fd.additional_dates;
   const guests = fd.guest_count ?? fd.number_of_guests;
   const timeSlot = fd.time_slot || fd.preferred_times;
   const duration = fd.duration;
@@ -73,7 +84,8 @@ export default function EventSubmissionDetails({ formData }) {
       <section className="space-y-4">
         <SectionTitle icon={Calendar}>Event Details</SectionTitle>
         <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-          <Field label="Event Date" value={eventDate ? new Date(eventDate).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : null} />
+          <Field label="Event Date" value={formatEventDate(eventDate)} />
+          <Field label="Additional Dates" value={additionalDates} />
           <Field label="Guests" value={guests != null ? `${guests} guests` : null} />
           <Field label="Time Slot" value={timeSlot} />
           <Field label="Duration" value={duration} />
