@@ -117,19 +117,15 @@ export default function InboxSummaryWidget({ widget }) {
               <span className="text-sm font-bold text-gray-700 tabular-nums">{counts[ib.key]}</span>
             </a>
           ))}
-        </div>
-
-        {/* Bugs — separated & highlighted */}
-        <div className={`mt-1.5 pt-1.5 border-t border-gray-300/60 ${isMobile ? '' : ''}`}>
           <a
             href="https://inbox.pilatesinpinkstudio.com/inbox#bugs"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-3 px-3 py-2 rounded-xl bg-red-50/70 hover:bg-red-50 border border-red-200/70 transition-colors"
+            className="group flex items-center gap-3 px-3 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 transition-colors"
           >
             <Bug className="w-3.5 h-3.5 flex-shrink-0 text-red-600" />
             <span className="flex-1 text-sm font-medium text-red-700 truncate">Bugs</span>
-            <span className="text-sm font-bold text-red-700 tabular-nums">{bugs.length}</span>
+            <span className="text-sm font-bold text-gray-700 tabular-nums">{bugs.length}</span>
           </a>
         </div>
       </div>
