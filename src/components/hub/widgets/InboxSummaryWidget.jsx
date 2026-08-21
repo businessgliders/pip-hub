@@ -2,15 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Inbox, MessageSquareReply } from 'lucide-react';
+import { Inbox, MessageSquareReply, LifeBuoy, PartyPopper, Star, Bug } from 'lucide-react';
 
 // Per-inbox display config. Each inbox counts any of its "open / new" statuses
 // (a thread can land as either the lowercase generic status or the capitalized
 // "New" pipeline stage), so freshly-arrived tickets always show up.
 const INBOXES = [
-  { key: 'support', label: 'Support', hash: 'support', openStatuses: ['open', 'New'], dot: 'bg-amber-700', text: 'text-amber-800' },
-  { key: 'events', label: 'Events', hash: 'events', openStatuses: ['New', 'open'], dot: 'bg-pink-600', text: 'text-pink-700' },
-  { key: 'influencer', label: 'Influencer', hash: 'influencer', openStatuses: ['open', 'New'], dot: 'bg-purple-700', text: 'text-purple-800' },
+  { key: 'support', label: 'Support', hash: 'support', openStatuses: ['open', 'New'], icon: LifeBuoy, dot: 'bg-amber-700', text: 'text-amber-800' },
+  { key: 'events', label: 'Events', hash: 'events', openStatuses: ['New', 'open'], icon: PartyPopper, dot: 'bg-pink-600', text: 'text-pink-700' },
+  { key: 'influencer', label: 'Influencer', hash: 'influencer', openStatuses: ['open', 'New'], icon: Star, dot: 'bg-purple-700', text: 'text-purple-800' },
 ];
 
 export default function InboxSummaryWidget({ widget }) {
@@ -36,6 +36,13 @@ export default function InboxSummaryWidget({ widget }) {
   const { data: inbound = [] } = useQuery({
     queryKey: ['inbox-summary-replies'],
     queryFn: () => base44.entities.EmailMessage.filter({ direction: 'inbound' }, '-sent_at', 200),
+    refetchInterval: 30000,
+    initialData: [],
+  });
+
+  const { data: bugs = [] } = useQuery({
+    queryKey: ['inbox-summary-bugs'],
+    queryFn: () => base44.entities.BugReport.filter({ status: { $in: ['New', 'In Progress'] } }, '-created_date', 500),
     refetchInterval: 30000,
     initialData: [],
   });
@@ -100,7 +107,7 @@ export default function InboxSummaryWidget({ widget }) {
               rel="noopener noreferrer"
               className="group flex items-center gap-3 px-3 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 transition-colors"
             >
-              <span className={`w-2 h-2 rounded-full ${ib.dot} flex-shrink-0`} />
+              <ib.icon className={`w-3.5 h-3.5 flex-shrink-0 ${ib.text}`} />
               <span className={`flex-1 text-sm font-medium ${ib.text} truncate`}>{ib.label}</span>
               {replyCounts[ib.key] > 0 && (
                 <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
@@ -110,6 +117,20 @@ export default function InboxSummaryWidget({ widget }) {
               <span className="text-sm font-bold text-gray-700 tabular-nums">{counts[ib.key]}</span>
             </a>
           ))}
+        </div>
+
+        {/* Bugs — separated & highlighted */}
+        <div className={`mt-1.5 pt-1.5 border-t border-gray-300/60 ${isMobile ? '' : ''}`}>
+          <a
+            href="https://inbox.pilatesinpinkstudio.com/inbox#bugs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-3 px-3 py-2 rounded-xl bg-red-50/70 hover:bg-red-50 border border-red-200/70 transition-colors"
+          >
+            <Bug className="w-3.5 h-3.5 flex-shrink-0 text-red-600" />
+            <span className="flex-1 text-sm font-medium text-red-700 truncate">Bugs</span>
+            <span className="text-sm font-bold text-red-700 tabular-nums">{bugs.length}</span>
+          </a>
         </div>
       </div>
     </div>
