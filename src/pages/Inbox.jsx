@@ -534,6 +534,20 @@ export default function Inbox() {
     return c;
   }, [bugs]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Same auto-advance as team inboxes: when the active bug status tab has 0
+  // reports, jump to the next status in the pipeline that actually has some.
+  useEffect(() => {
+    if (!bugMode || !bugs.length) return;
+    if ((bugStatusCounts[bugStatus] || 0) > 0) return;
+    const idx = BUG_STATUS_ORDER.indexOf(bugStatus);
+    if (idx === -1) return;
+    const nextWithItems = BUG_STATUS_ORDER.slice(idx + 1).find((s) => (bugStatusCounts[s] || 0) > 0);
+    if (nextWithItems) {
+      setBugStatus(nextWithItems);
+      setSelectedBug(null);
+    }
+  }, [bugMode, bugStatus, bugStatusCounts, bugs.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // A bug is "unread" when it has an inbound reply newer than the last time staff
   // opened it. Drives the new-message dot on the bug status rail (same as other inboxes).
   const bugHasUnread = (b) => {
