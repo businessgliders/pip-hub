@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Inbox, MessageSquareReply, LifeBuoy, PartyPopper, Star, Bug } from 'lucide-react';
+import { Inbox, MessageSquareReply, LifeBuoy, PartyPopper, Star } from 'lucide-react';
 
 // Per-inbox display config. Each inbox counts any of its "open / new" statuses
 // (a thread can land as either the lowercase generic status or the capitalized
@@ -123,7 +123,7 @@ export default function InboxSummaryWidget({ widget }) {
             rel="noopener noreferrer"
             className="group flex items-center gap-3 px-3 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 transition-colors"
           >
-            <Bug className="w-3.5 h-3.5 flex-shrink-0 text-red-600" />
+            <LifeBuoy className="w-3.5 h-3.5 flex-shrink-0 text-red-600" />
             <span className="flex-1 text-sm font-medium text-red-700 truncate">Bugs</span>
             <span className="text-sm font-bold text-gray-700 tabular-nums">{bugs.length}</span>
           </a>
