@@ -112,30 +112,20 @@ export default function InboxTopBar({ view, setView, currentUser, openCount = 0,
             accent={(VIEW_THEME[t.key] || VIEW_THEME.events).accent}
           />
         ))}
+        {onBugs && (
+          <TabButton
+            active={bugMode}
+            onClick={onBugs}
+            icon={LifeBuoy}
+            label="Bugs"
+            count={bugCount}
+            accent={VIEW_THEME.bugs.accent}
+          />
+        )}
       </nav>
 
       {/* Right icons */}
       <div className="flex items-center justify-end gap-0.5 md:gap-1 shrink-0 pr-4 md:pr-0 w-[104px] md:w-[120px] lg:w-56">
-        {/* Bugs / Report an issue — all sizes */}
-        {onBugs && (
-          <button
-            onClick={onBugs}
-            title="Bugs"
-            style={bugMode ? { color: VIEW_THEME.bugs.accent } : undefined}
-            className={`relative p-2 rounded-full transition-colors ${
-              bugMode
-                ? "bg-white/80 dark:bg-white/15 shadow-sm"
-                : "text-pink-900/50 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10"
-            }`}
-          >
-            <LifeBuoy className="w-5 h-5" />
-            {bugCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 min-w-[15px] h-[15px] px-1 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
-                {bugCount}
-              </span>
-            )}
-          </button>
-        )}
         {onTerms && (
           <button
             onClick={onTerms}
