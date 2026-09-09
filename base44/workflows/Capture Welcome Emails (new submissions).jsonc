@@ -1,0 +1,47 @@
+{
+  "name": "Capture Welcome Emails (new submissions)",
+  "description": "Imports each spoke app's outbound welcome/initial email into the matching hub thread shortly after a new submission arrives.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": 15,
+      "interval_unit": "minutes",
+      "interval_anchor": "2026-06-15T00:50:18.131000",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "capture_welcome_emails_new_submissions",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "backfillWelcomeEmails",
+            "args": {
+              "recent_minutes": 35,
+              "max_threads": 40
+            }
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "backfillWelcomeEmails"
+  }
+}
