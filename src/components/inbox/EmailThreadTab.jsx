@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mail, Sparkles, UserPlus } from "lucide-react";
+import { Mail, Sparkles } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import EmailPreviewModal from "./EmailPreviewModal";
 import SubmissionPreviewModal from "./SubmissionPreviewModal";
-import MessageReadToggle from "./MessageReadToggle";
+import EmailMessageItem from "./email/EmailMessageItem";
 import MoveToNextStatusBar from "./MoveToNextStatusBar";
 import { SOURCE_META } from "./inboxConfig";
 
@@ -61,17 +60,8 @@ function decodeEntities(text) {
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
 }
 
-// Strip HTML + quoted history to a short plain-text preview for the bubble.
-function toPreview(m) {
-  const raw = m.body_text || m.body_html || "";
-  // Convert block tags to newlines first so reply markers survive HTML stripping.
-  const plain = raw
-    .replace(/<\/(p|div|blockquote|br)>/gi, "\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, " ");
-  const cleaned = decodeEntities(stripQuotedReply(decodeEntities(plain))).replace(/\s+/g, " ").trim();
-  return cleaned.length > 280 ? cleaned.slice(0, 280) + "…" : cleaned;
-}
+const formatDate = (ts) =>
+  new Date(asUTC(ts)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
 // Build a short preview of the form submission for the bubble
 function submissionPreview(formData) {
@@ -136,7 +126,6 @@ function collapseOutboundDuplicates(list) {
 }
 
 export default function EmailThreadTab({ messages, loading, thread, currentUser, onStatusChange, replyHighlightKey = 0 }) {
-  const [preview, setPreview] = useState(null);
   const [submissionOpen, setSubmissionOpen] = useState(false);
   const [summary, setSummary] = useState(thread?.submission_summary || "");
   const [summaryLoading, setSummaryLoading] = useState(false);
@@ -272,102 +261,18 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
           </div>
         )}
 
-        {displayMessages.map((m) => {
-          const outbound = m.direction === "outbound";
-          // Inbound replies: show a 1-2 line preview of the body instead of the subject.
-          const bodyPreview = toPreview(m);
-          const ob = OUTBOUND_BUBBLE[thread?.source_app] || OUTBOUND_BUBBLE.events;
-          // Auto-reply + templated emails get a slightly darker outbound shade.
-          const isAutomated = m.is_welcome || m.is_template;
-          const bubbleShade = isAutomated ? ob.darkBubble : ob.bubble;
-
-          // Escalation/assignment notice — rendered as a centered internal pill.
-          // The escalation reason (stored in snippet) shows beside it as an internal note.
-          if (m.is_escalation) {
-            const escReason = (m.snippet || "").trim();
-            const escLabel = (m.subject || "Escalation").replace(/^((?:Escalated|Assigned) to\s+\S+)\s+.*$/i, "$1");
-            const escTime = m.sent_at ? new Date(asUTC(m.sent_at)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
-            return (
-              <div key={m.id} className="flex justify-center">
-                <div className="inline-flex flex-col gap-1 px-3 py-1.5 rounded-2xl text-[12px] font-medium bg-indigo-100/80 dark:bg-indigo-500/20 border border-indigo-300/60 dark:border-indigo-400/30 text-indigo-800 dark:text-indigo-200 max-w-[85%]">
-                  <div className="flex items-center gap-2">
-                    <UserPlus className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{escLabel}</span>
-                    <span className="opacity-60 whitespace-nowrap">· {escTime}</span>
-                  </div>
-                  {escReason && (
-                    <div className="text-[11px] italic opacity-80 pl-6 break-words">{escReason}</div>
-                  )}
-                </div>
-              </div>
-            );
-          }
-          const isHighlighted = m.id === highlightMsgId;
-          return (
-            <div key={m.id} className={`flex ${outbound ? "justify-end" : "justify-start"}`}>
-              <div
-                ref={isHighlighted ? highlightRef : undefined}
-                role="button"
-                tabIndex={0}
-                onClick={() => setPreview(m)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setPreview(m); }}
-                className={`group max-w-[70%] cursor-pointer text-left rounded-2xl px-3 py-2 shadow-sm transition-shadow hover:shadow-md backdrop-blur-sm ${isHighlighted ? "animate-outline-flash" : ""} ${
-                  outbound
-                    ? `${bubbleShade} ${ob.text} rounded-br-sm`
-                    : "bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white rounded-bl-sm"
-                }`}
-              >
-                <div className={`flex items-center gap-1.5 text-[10px] mb-0.5 ${outbound ? `${ob.meta} dark:text-white/55` : "text-pink-400 dark:text-white/55"}`}>
-                  <span className={`font-medium truncate ${outbound ? `${ob.name} dark:text-white/80` : "text-pink-500 dark:text-white/80"}`}>
-                    {m.from_name || m.from_email}
-                  </span>
-                  {m.is_welcome && (
-                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold ${ob.name} dark:text-white/80 bg-white/40 dark:bg-white/10`}>
-                      <Sparkles className="w-2.5 h-2.5" /> Auto-reply
-                    </span>
-                  )}
-                  {!m.is_welcome && m.is_template && (
-                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold ${ob.name} dark:text-white/80 bg-white/40 dark:bg-white/10`}>
-                      <Sparkles className="w-2.5 h-2.5" /> Template
-                    </span>
-                  )}
-                  {m.__dupeCount > 1 && (
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full font-semibold ${ob.name} dark:text-white/80 bg-white/40 dark:bg-white/10`}>
-                      sent {m.__dupeCount}×
-                    </span>
-                  )}
-                </div>
-                {outbound ? (
-                  <>
-                    {m.is_welcome && (
-                      <div className={`text-[12px] leading-snug ${ob.body} dark:text-white/75 opacity-80`}>Welcome / auto-reply email sent.</div>
-                    )}
-                    {!m.is_welcome && (
-                      <div className={`text-[12px] leading-snug line-clamp-2 ${ob.body} dark:text-white/75 opacity-80`}>{bodyPreview || "(no content)"}</div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-[13px] leading-snug text-pink-800/80 dark:text-white/80 line-clamp-2">{bodyPreview || m.subject || "(no content)"}</div>
-                )}
-                <div className="flex items-center justify-between gap-2 mt-0.5 min-h-[18px]">
-                  <span className={`text-[10px] opacity-0 group-hover:opacity-100 transition-opacity ${outbound ? `${ob.hint} dark:text-white/60` : "text-pink-500 dark:text-white/60"}`}>
-                    Tap to view full email
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {!outbound && (
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <MessageReadToggle message={m} thread={thread} currentUser={currentUser} />
-                      </div>
-                    )}
-                    <span className={`text-[10px] whitespace-nowrap ${outbound ? `${ob.meta} dark:text-white/55` : "text-pink-400 dark:text-white/55"}`}>
-                      {m.sent_at ? new Date(asUTC(m.sent_at)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {displayMessages.map((m) => (
+          <EmailMessageItem
+            key={m.id}
+            message={m}
+            thread={thread}
+            currentUser={currentUser}
+            palette={OUTBOUND_BUBBLE[thread?.source_app] || OUTBOUND_BUBBLE.events}
+            isHighlighted={m.id === highlightMsgId}
+            highlightRef={highlightRef}
+            formatDate={formatDate}
+          />
+        ))}
 
         {/* Quick "Move to {Next Status}" action under the latest outbound reply */}
         {lastMessageIsOutbound && onStatusChange && (
@@ -381,7 +286,6 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
         <div ref={bottomRef} />
       </div>
 
-      <EmailPreviewModal message={preview} open={!!preview} onClose={() => setPreview(null)} />
       <SubmissionPreviewModal thread={thread} open={submissionOpen} onClose={() => setSubmissionOpen(false)} />
     </>
   );
