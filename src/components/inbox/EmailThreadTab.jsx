@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mail, Sparkles } from "lucide-react";
+import { Mail } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import SubmissionPreviewModal from "./SubmissionPreviewModal";
+import SubmissionMessageItem from "./email/SubmissionMessageItem";
 import EmailMessageItem from "./email/EmailMessageItem";
 import MoveToNextStatusBar from "./MoveToNextStatusBar";
 import { SOURCE_META } from "./inboxConfig";
@@ -126,7 +126,6 @@ function collapseOutboundDuplicates(list) {
 }
 
 export default function EmailThreadTab({ messages, loading, thread, currentUser, onStatusChange, replyHighlightKey = 0 }) {
-  const [submissionOpen, setSubmissionOpen] = useState(false);
   const [summary, setSummary] = useState(thread?.submission_summary || "");
   const [summaryLoading, setSummaryLoading] = useState(false);
   const bottomRef = useRef(null);
@@ -206,52 +205,19 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
       <div className="p-4 space-y-3">
         {/* Submission as the first inbound bubble */}
         {hasSubmission && (
-          <div className="flex justify-start">
-            <button
-              onClick={() => setSubmissionOpen(true)}
-              className="group max-w-[70%] text-left rounded-2xl rounded-bl-sm px-3 py-2 bg-white/85 dark:bg-white/10 backdrop-blur-sm border border-white/70 dark:border-white/15 text-pink-900 dark:text-white shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className="flex items-center gap-1.5 text-[11px] text-pink-400 dark:text-white/55 mb-1">
-                <span className="font-medium text-pink-500 dark:text-white/80 truncate">{thread.contact_name || thread.contact_email}</span>
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-semibold text-pink-500 dark:text-white/80 bg-white/40 dark:bg-white/10">
-                  <Sparkles className="w-2.5 h-2.5" /> {SOURCE_META[thread.source_app]?.label || "Form"} submission
-                </span>
-              </div>
-              {thread.subject && (
-                <div className="text-xs font-semibold text-pink-700 dark:text-white/90 mb-0.5 truncate">{thread.subject}</div>
-              )}
-              <div className="flex items-start gap-1.5 text-sm leading-snug text-pink-900/70 dark:text-white/75">
-                <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0 text-pink-400 dark:text-white/50" />
-                <span>{summaryLoading ? "Summarizing…" : (summary || submissionPreview(thread.form_data))}</span>
-              </div>
-              {isCancellation && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {thread.form_data?.discount_offered && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">
-                      🎁 Offer: {String(thread.form_data.discount_offered)}
-                    </span>
-                  )}
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                    thread.form_data?.discount_accepted
-                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200"
-                      : "bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-200"
-                  }`}>
-                    {thread.form_data?.discount_accepted ? "Stayed (accepted offer)" : "Continued with cancellation"}
-                  </span>
-                </div>
-              )}
-              <div className="flex items-center justify-between gap-2 mt-1">
-                <span className="text-[11px] text-pink-500 dark:text-white/60 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Tap to view full form
-                </span>
-                {(thread.form_data?.submitted_date || thread.created_date) && (
-                  <span className="text-[10px] text-pink-400 dark:text-white/55 whitespace-nowrap">
-                    {new Date(asUTC(thread.form_data?.submitted_date || thread.created_date)).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                )}
-              </div>
-            </button>
-          </div>
+          <SubmissionMessageItem
+            thread={thread}
+            summary={summary}
+            summaryLoading={summaryLoading}
+            previewText={submissionPreview(thread.form_data)}
+            sourceLabel={SOURCE_META[thread.source_app]?.label || "Form"}
+            dateLabel={
+              (thread.form_data?.submitted_date || thread.created_date)
+                ? formatDate(thread.form_data?.submitted_date || thread.created_date)
+                : ""
+            }
+            isCancellation={isCancellation}
+          />
         )}
 
         {noEmails && !hasSubmission && (
@@ -286,7 +252,6 @@ export default function EmailThreadTab({ messages, loading, thread, currentUser,
         <div ref={bottomRef} />
       </div>
 
-      <SubmissionPreviewModal thread={thread} open={submissionOpen} onClose={() => setSubmissionOpen(false)} />
     </>
   );
 }
