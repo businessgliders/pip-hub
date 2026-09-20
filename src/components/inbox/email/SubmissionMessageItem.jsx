@@ -80,7 +80,7 @@ export default function SubmissionMessageItem({
                 </span>
               )}
             </div>
-            <div onClick={(e) => e.stopPropagation()}>
+            <div onClick={(e) => e.stopPropagation()} className="[&_.text-sm]:text-[13px] [&_.text-base]:text-[13px] [&_.text-lg]:text-[13px] [&_.text-xl]:text-[13px]">
               <SubmissionDetails formData={thread.form_data} sourceApp={thread.source_app} />
             </div>
           </div>
