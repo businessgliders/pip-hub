@@ -85,7 +85,7 @@
     },
     "attachments": {
       "type": "array",
-      "description": "Attachments included with this email",
+      "description": "Attachments included with this email. Outbound use public url; inbound use private file_uri.",
       "items": {
         "type": "object",
         "properties": {
@@ -94,6 +94,14 @@
           },
           "url": {
             "type": "string"
+          },
+          "file_uri": {
+            "type": "string",
+            "description": "Private storage URI (inbound attachments)"
+          },
+          "content_id": {
+            "type": "string",
+            "description": "MIME Content-ID for inline cid: images"
           },
           "content_type": {
             "type": "string"

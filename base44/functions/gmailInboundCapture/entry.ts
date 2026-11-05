@@ -61,6 +61,44 @@ function extractBodies(payload) {
   return { html, text };
 }
 
+// Collect every attachment part (anything with a filename + attachmentId).
+function findAttachmentParts(payload) {
+  const out = [];
+  const walk = (part) => {
+    if (!part) return;
+    if (part.filename && part.body?.attachmentId) out.push(part);
+    if (Array.isArray(part.parts)) part.parts.forEach(walk);
+  };
+  walk(payload);
+  return out;
+}
+
+function base64UrlToBytes(data) {
+  const bin = atob(data.replace(/-/g, '+').replace(/_/g, '/'));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+// Download each Gmail attachment, upload it to app storage, and return
+// [{ filename, url, content_type, size, content_id }]. Skips files > 20MB.
+async function captureAttachments(base44, authHeader, messageId, payload) {
+  const parts = findAttachmentParts(payload).filter((p) => (p.body?.size || 0) <= 20 * 1024 * 1024);
+  const results = await Promise.allSettled(parts.map(async (p) => {
+    const r = await fetch(
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/attachments/${p.body.attachmentId}`,
+      { headers: authHeader, signal: AbortSignal.timeout(30000) }
+    );
+    if (!r.ok) throw new Error(`attachment fetch ${r.status}`);
+    const { data } = await r.json();
+    const file = new File([base64UrlToBytes(data)], p.filename, { type: p.mimeType || 'application/octet-stream' });
+    const { file_uri } = await base44.asServiceRole.integrations.Core.UploadPrivateFile({ file });
+    const cid = getHeader(p.headers, 'Content-ID').replace(/^<|>$/g, '');
+    return { filename: p.filename, file_uri, content_type: p.mimeType, size: p.body.size, content_id: cid };
+  }));
+  return results.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+}
+
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
@@ -207,6 +245,7 @@ Deno.serve(async (req) => {
       if (!thread) { results.push({ messageId, skipped: 'no_matching_thread', from: from.email }); continue; }
 
       const nowIso = new Date().toISOString();
+      const attachments = await captureAttachments(base44, authHeader, messageId, msg.payload);
       await db.EmailMessage.create({
         ticket_id: thread.id,
         gmail_thread_id: gmailThreadId,
@@ -224,6 +263,7 @@ Deno.serve(async (req) => {
         snippet,
         sent_at: nowIso,
         send_status: direction === 'outbound' ? 'sent' : 'received',
+        attachments,
       });
 
       await db.Thread.update(thread.id, {

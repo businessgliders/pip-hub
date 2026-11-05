@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { splitEmailHtml } from "@/lib/emailReply";
+import EmailAttachmentList from "./EmailAttachmentList";
+import useSignedAttachments from "@/hooks/useSignedAttachments";
 
 function Row({ label, value }) {
   if (!value) return null;
@@ -15,10 +17,15 @@ function Row({ label, value }) {
 // Full message rendered inline inside an expanded bubble.
 export default function EmailInlineBody({ message, onCollapse, dateLabel }) {
   const [showQuoted, setShowQuoted] = useState(false);
-  const { replyHtml, quotedHtml, quotedCount } = useMemo(
-    () => splitEmailHtml(message.body_html, message.body_text),
-    [message.body_html, message.body_text]
-  );
+  const attachments = useSignedAttachments(message.attachments);
+  const { replyHtml, quotedHtml, quotedCount } = useMemo(() => {
+    // Point inline "cid:" images at their signed attachment URLs.
+    let html = message.body_html || "";
+    attachments.forEach((a) => {
+      if (a.content_id && a.href) html = html.split(`cid:${a.content_id}`).join(a.href);
+    });
+    return splitEmailHtml(html, message.body_text);
+  }, [message.body_html, message.body_text, attachments]);
 
   return (
     <div onClick={(e) => e.stopPropagation()} className="animate-in fade-in duration-200">
@@ -47,6 +54,8 @@ export default function EmailInlineBody({ message, onCollapse, dateLabel }) {
           dangerouslySetInnerHTML={{ __html: replyHtml || "<em>(no content)</em>" }}
         />
       </div>
+
+      <EmailAttachmentList attachments={attachments} />
 
       {quotedCount > 0 && quotedHtml && (
         <div className="mt-2">
