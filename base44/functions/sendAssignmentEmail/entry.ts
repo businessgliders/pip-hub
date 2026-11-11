@@ -29,7 +29,10 @@ const ESCALATION_EMAILS = [
   'sahil@pilatesinpinkstudio.com',
   'rashmeen@pilatesinpinkstudio.com',
 ];
-function assignVerb(email = '') {
+// Uses the assignee's "Escalation contact" permission switch when it was set;
+// otherwise the default list above.
+function assignVerb(email = '', permissions: string[] | null = null) {
+  if (Array.isArray(permissions)) return permissions.includes('escalation_contact') ? 'Escalated' : 'Assigned';
   return ESCALATION_EMAILS.includes(String(email).trim().toLowerCase()) ? 'Escalated' : 'Assigned';
 }
 
@@ -111,7 +114,8 @@ Deno.serve(async (req) => {
     if (!thread) return Response.json({ error: 'Thread not found' }, { status: 404 });
 
     // "Escalated to" for the execs, "Assigned to" for everyone else.
-    const verb = assignVerb(assigned_to);
+    const assignee = (await db.User.filter({ email: assigned_to }).catch(() => []))?.[0];
+    const verb = assignVerb(assigned_to, Array.isArray(assignee?.permissions) ? assignee.permissions : null);
     const message = String(reason || '').trim();
     const ticketTag = thread.ticket_number ? `#${thread.ticket_number} ` : '';
     const subject = `${verb} to you: ${ticketTag}${thread.subject || 'Inquiry'}`;
