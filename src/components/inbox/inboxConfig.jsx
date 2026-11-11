@@ -150,12 +150,17 @@ const ESCALATION_EMAILS = [
   "sahil@pilatesinpinkstudio.com",
   "rashmeen@pilatesinpinkstudio.com",
 ];
-export function isEscalationTarget(email = "") {
-  return ESCALATION_EMAILS.includes(String(email).trim().toLowerCase());
+// Uses the person's "Escalation contact" permission switch when their staff
+// record (from getStaffList) is passed; otherwise the default list above.
+export function isEscalationTarget(email = "", staff = []) {
+  const e = String(email).trim().toLowerCase();
+  const person = (staff || []).find((s) => String(s.email || "").trim().toLowerCase() === e);
+  if (person && Array.isArray(person.permissions)) return person.permissions.includes("escalation_contact");
+  return ESCALATION_EMAILS.includes(e);
 }
 // Verb form for the action: "Escalated" vs "Assigned".
-export function assignVerb(email = "") {
-  return isEscalationTarget(email) ? "Escalated" : "Assigned";
+export function assignVerb(email = "", staff = []) {
+  return isEscalationTarget(email, staff) ? "Escalated" : "Assigned";
 }
 export function displayName(name = "", email = "") {
   const e = String(email).trim().toLowerCase();
