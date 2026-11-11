@@ -26,7 +26,7 @@ import EndShiftButton from '../components/hub/EndShift/EndShiftButton';
 import ReportButton from '../components/hub/EndShift/ReportButton';
 import EndShiftModal from '../components/hub/EndShift/EndShiftModal';
 import MobileDateWeather from '../components/hub/MobileDateWeather';
-import { OWNER_EMAIL, REPORT_VIEWER_EMAILS } from '@/lib/studioConfig';
+import { OWNER_EMAIL, PERMISSIONS, hasPermission } from '@/lib/studioConfig';
 
 // Track desktop breakpoint (lg: 1024px). On tablet/mobile, favorites are surfaced
 // separately (FavoritesSection / loose launchpad icons), so they're hidden from
@@ -359,7 +359,9 @@ export default function AppHub() {
   };
 
   const isOwner = user?.email === OWNER_EMAIL;
-  const isReportViewer = REPORT_VIEWER_EMAILS.includes((user?.email || '').toLowerCase());
+  // Permission switches saved on the user (defaults match the old email lists).
+  const canViewReports = hasPermission(user, PERMISSIONS.VIEW_REPORTS);
+  const canSubmitEndOfDay = hasPermission(user, PERMISSIONS.SUBMIT_END_OF_DAY);
 
   const filteredApps = apps.filter(app =>
     app.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -1091,8 +1093,8 @@ export default function AppHub() {
         />
       )}
 
-      {/* End Shift floating button + modal (owner only) */}
-      {isOwner && !showCustomizePanel && !showMoreSheet && (
+      {/* End Shift floating button + modal ("Submit End of Day" permission) */}
+      {canSubmitEndOfDay && !showCustomizePanel && !showMoreSheet && (
         <>
           <EndShiftButton onClick={() => setShowEndShift(true)} />
           {showEndShift && (
@@ -1104,14 +1106,14 @@ export default function AppHub() {
                 }
               }}
               defaultSignature={user?.full_name || ''}
-              onViewReports={() => { setShowEndShift(false); window.location.href = '/end-of-day'; }}
+              onViewReports={canViewReports ? () => { setShowEndShift(false); window.location.href = '/end-of-day'; } : undefined}
             />
           )}
         </>
       )}
 
-      {/* Report button (exec users) — opens the End of Day reports page */}
-      {isReportViewer && !isOwner && !showCustomizePanel && !showMoreSheet && (
+      {/* Report button ("View reports" permission) — opens the End of Day reports page */}
+      {canViewReports && !canSubmitEndOfDay && !showCustomizePanel && !showMoreSheet && (
         <ReportButton onClick={() => { window.location.href = '/end-of-day'; }} />
       )}
 
