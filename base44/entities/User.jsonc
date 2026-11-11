@@ -35,7 +35,7 @@
           "escalation_contact"
         ]
       },
-      "description": "Permission switches: view_reports (Report button + End of Day reports), submit_end_of_day (End of Day button + shift form), escalation_contact (shows as 'Escalated to' in the Inbox). Leave empty/unset to keep the defaults in src/lib/studioConfig.js."
+      "description": "Permission switches: view_reports (Report button + End of Day reports), submit_end_of_day (End of Day button + shift form), escalation_contact (shows as 'Escalated to' in the Inbox). Unset = the defaults in src/lib/studioConfig.js; an empty list = all off."
     }
   },
   "required": [
