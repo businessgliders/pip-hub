@@ -22,6 +22,8 @@ Deno.serve(async (req) => {
       email: u.email,
       full_name: NAME_OVERRIDES[String(u.email || '').toLowerCase()] || u.full_name || u.email,
       photo_url: u.photo_url || u.avatar_url || null,
+      // Permission switches (null = never set, so the app uses its defaults).
+      permissions: Array.isArray(u.permissions) ? u.permissions : null,
     }));
 
     return Response.json({ staff });
