@@ -632,7 +632,7 @@ export default function Inbox() {
     const nowIso = new Date().toISOString();
     const reasonText = String(reason || "").trim();
     // Front desk = "Assigned"; the three execs = "Escalated".
-    const verb = assignVerb(email);
+    const verb = assignVerb(email, staff);
 
     // Log the action in the thread's Activity (status_history) — keep the
     // current status, mark the entry as an assignment event. The reason is stored
