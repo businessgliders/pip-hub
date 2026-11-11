@@ -26,7 +26,7 @@ export default function AssigneePanel({ thread, staff = [], onAssign, accent }) 
   };
 
   // "Escalated to" for the three execs; "Assigned to" for front desk.
-  const assignedVerb = assignee ? assignVerb(assignee.email) : "Assigned";
+  const assignedVerb = assignee ? assignVerb(assignee.email, staff) : "Assigned";
 
   const startPick = (s) => { setPending({ email: s.email, full_name: s.full_name }); setReason(""); setConfirmed(null); };
   const cancelPick = () => { setPending(null); setReason(""); };
@@ -42,7 +42,7 @@ export default function AssigneePanel({ thread, staff = [], onAssign, accent }) 
     setTimeout(() => setConfirmed(null), 5000);
   };
 
-  const pendingVerb = pending ? assignVerb(pending.email) : "Escalate";
+  const pendingVerb = pending ? assignVerb(pending.email, staff) : "Escalate";
 
   return (
     <div className="px-4 py-4 border-t border-white/50 dark:border-white/15">
@@ -54,7 +54,7 @@ export default function AssigneePanel({ thread, staff = [], onAssign, accent }) 
         {assignee && (
           <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/60 dark:bg-white/10 border border-white/60 dark:border-white/15 min-w-0">
             <span className="text-[9px] font-semibold uppercase tracking-wide opacity-60 dark:text-white/60 shrink-0">
-              {isEscalationTarget(assignee.email) ? "Escalated to" : "Assigned to"}
+              {isEscalationTarget(assignee.email, staff) ? "Escalated to" : "Assigned to"}
             </span>
             <Avatar name={assignee.full_name} email={assignee.email} photoUrl={assignee.photo_url} size="sm" />
             <span className="text-xs font-medium truncate dark:text-white/85" style={{ color: accent }}>{shortName(assignee.full_name)}</span>
