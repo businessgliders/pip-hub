@@ -24,6 +24,18 @@
         "type": "string"
       },
       "description": "List of uploaded wallpaper image URLs saved by the user"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "view_reports",
+          "submit_end_of_day",
+          "escalation_contact"
+        ]
+      },
+      "description": "Permission switches: view_reports (Report button + End of Day reports), submit_end_of_day (End of Day button + shift form), escalation_contact (shows as 'Escalated to' in the Inbox). Leave empty/unset to keep the defaults in src/lib/studioConfig.js."
     }
   },
   "required": [
